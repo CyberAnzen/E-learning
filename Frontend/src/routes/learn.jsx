@@ -69,7 +69,7 @@ const courses = [
 function LearnPage() {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black ">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black mt-12">
       <div className="container mx-auto px-4 sm:px-6 py-12">
         <div className="flex items-center justify-between mb-8">
           <div>
