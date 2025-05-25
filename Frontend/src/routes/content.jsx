@@ -232,9 +232,14 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
     "192.168.0." + Math.floor(Math.random() * 100 + 1)
   );
   // New state for step tracking
+  const [isDesktop, setIsDesktop] = useState(true);
+  const [IsOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
-
+  const [isPinned, setIsPinned] = useState(false);
+  const [isButtonHovered, setIsButtonHovered] = useState(false);
+  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
+  const isOpen = isPinned || isButtonHovered || isSidebarHovered;
   // **Effect Hooks**
   useEffect(() => {
     fetch("https://api.ipify.org?format=json")
@@ -298,6 +303,10 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const toggleDesktopSidebar = () => {
+    setShowSidebar(!showSidebar);
   };
 
   const handleStepComplete = (stepIndex) => {
@@ -428,29 +437,45 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
               </button>
             </div>
           </motion.nav>
-
-          {/* **Desktop Sidebar Blur Overlay** */}
+          {/*Desktop side bar starts here
+           */}
+          {/* Blur Overlay */}
           <AnimatePresence>
-            {showSidebar && (
+            {(isPinned || (isSidebarHovered && isDesktop)) && (
               <motion.div
                 key="desktop-blur-overlay"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 backdrop-blur-lg bg-black/20 z-20"
+                className="fixed inset-0 backdrop-blur-lg bg-black/20 z-20 pointer-events-auto"
+                onClick={() => {
+                  setIsPinned(false);
+                  setIsSidebarHovered(false);
+                  if (!isDesktop) setIsOpen(false);
+                }}
               />
             )}
           </AnimatePresence>
 
-          {/* **Desktop Sidebar** */}
+          {/* Sidebar */}
           <motion.aside
-            className="hidden mt-20 lg:block md:block fixed left-0 top-0 h-full z-30 overflow-x-hidden w-64"
-            variants={{ hidden: { x: -236 }, visible: { x: 0 } }}
+            className="hidden mt-20 lg:block md:block fixed left-0 top-0 h-full z-30 overflow-x-hidden w-64 pointer-events-auto"
+            variants={{ hidden: { x: -256 }, visible: { x: 0 } }}
             initial="hidden"
-            animate={showSidebar ? "visible" : "hidden"}
+            animate={isOpen ? "visible" : "hidden"}
             transition={{ type: "spring", stiffness: 200, damping: 25 }}
-            onHoverStart={() => setShowSidebar(true)}
-            onHoverEnd={() => setShowSidebar(false)}
+            onMouseEnter={() => {
+              if (isDesktop) {
+                setIsSidebarHovered(true);
+                setIsOpen(true);
+              }
+            }}
+            onMouseLeave={() => {
+              if (isDesktop && !isPinned) {
+                setIsSidebarHovered(false);
+                setIsOpen(false);
+              }
+            }}
           >
             <div className="w-64 h-full bg-gradient-to-t from-gray-600/90 via-gray-700/90 to-gray-800/90 overflow-y-auto">
               <h1 className="p-5 bg-gradient-to-b from-gray-200/30 via-gray-700/80 to-black/30 text-white font-bold text-xl">
@@ -461,16 +486,17 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
                   <div
                     key={item.id}
                     onClick={() => {
+                      console.log("Chapter clicked:", item.id);
                       setCurrentChapter(item);
                       setCurrentTask(item.tasks[0]);
                       setSelectedChapter(item);
                     }}
                     className={`mx-2 mb-2 p-4 rounded-lg transition-all cursor-pointer flex items-center justify-between
-                    ${
-                      currentChapter.id === item.id
-                        ? "bg-gray-700/60 shadow-lg scale-102 border-l-4 border-blue-500"
-                        : "hover:bg-gray-700/40"
-                    }`}
+            ${
+              currentChapter.id === item.id
+                ? "bg-gray-700/60 shadow-lg scale-102 border-l-4 border-blue-500"
+                : "hover:bg-gray-700/40"
+            }`}
                   >
                     <div className="flex items-center gap-3">
                       <item.icon className="w-5 h-5 text-blue-400" />
@@ -485,6 +511,42 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
             </div>
           </motion.aside>
 
+          {/* Toggle Button */}
+          <motion.div
+            className="hidden md:block fixed top-1/2 transform -translate-y-1/2 z-40"
+            style={{ width: "24px", height: "60px" }}
+            animate={{ left: isOpen ? 264 : 0 }}
+            transition={{ type: "spring", stiffness: 200, damping: 25 }}
+          >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsPinned((prev) => !prev);
+                setIsOpen((prev) => !prev);
+                if (isPinned) {
+                  setIsSidebarHovered(false);
+                }
+              }}
+              onMouseEnter={() => isDesktop && setIsButtonHovered(true)}
+              onMouseLeave={() => isDesktop && setIsButtonHovered(false)}
+              className={`absolute left-0 w-6 h-16 flex items-center justify-center
+      bg-gradient-to-r from-gray-800/90 to-gray-700/90 rounded-r-md
+      transition-all duration-300 hover:from-gray-700/90 hover:to-gray-600/90
+      group ${isOpen ? "opacity-0 md:opacity-100" : "opacity-100"}
+      ${isDesktop ? "delay-150" : "delay-75"}
+      ${isPinned || isOpen ? "hidden md:hidden" : "inline-flex"}`}
+            >
+              <motion.div
+                animate={{
+                  rotate: isOpen ? 180 : 0,
+                  x: isOpen ? -2 : 0,
+                }}
+                transition={{ duration: 0.3 }}
+              >
+                <ChevronRight className="w-5 h-5 text-blue-400 group-hover:text-blue-300" />
+              </motion.div>
+            </button>
+          </motion.div>
           {/* **Mobile Sidebar Overlay** */}
           <AnimatePresence>
             {isSidebarOpen && (
@@ -802,7 +864,8 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
                           {completedSteps.length ===
                           currentTask.content.objectives.length ? (
                             <>
-                              Submit Answers <ChevronRight className="w-5 h-5" />
+                              Submit Answers{" "}
+                              <ChevronRight className="w-5 h-5" />
                             </>
                           ) : (
                             <>
