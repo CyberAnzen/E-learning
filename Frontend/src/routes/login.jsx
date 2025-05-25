@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { User, Lock, Shield } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ParticleBackground from "../components/ParticleBackground";
+import {useAppContext} from '../context/AppContext'
 
 export default function LoginPage() {
-  const navigate = useNavigate();
+  const {navigate}=useAppContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
