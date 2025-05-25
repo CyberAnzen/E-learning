@@ -1,0 +1,51 @@
+{
+  "name": "proto1",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "host": "vite --host"
+
+  },
+  "dependencies": {
+    "@shadcn/ui": "^0.0.4",
+    "@tailwindcss/vite": "^4.0.8",
+    "@twistezo/react-text-scramble": "^1.0.6",
+    "axios": "^1.8.4",
+    "bootstrap": "^5.3.3",
+    "clsx": "^2.1.1",
+    "components": "^0.1.0",
+    "framer-motion": "^12.4.7",
+    "gsap": "^3.12.7",
+    "lib": "^5.1.0",
+    "lodash": "^4.17.21",
+    "lodash.debounce": "^4.0.8",
+    "lucide-react": "^0.475.0",
+    "react": "^19.0.0",
+    "react-bootstrap": "^2.10.9",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.2.0",
+    "tsparticles-slim": "^2.12.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefix": "^1.0.1",
+    "autoprefixer": "^10.4.20",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.19.0",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.18",
+    "globals": "^15.14.0",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.8",
+    "vite": "^6.1.0"
+  }
+}
