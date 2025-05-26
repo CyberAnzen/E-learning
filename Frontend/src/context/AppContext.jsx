@@ -8,11 +8,14 @@ axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 export const AppContext = createContext();
 export const AppContextProvider = ({children}) =>{
       const navigate = useNavigate();
+      const [user, setUser] = useState(true);
+
 
 
     const value ={
         axios,
         navigate,
+        user
     }
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }

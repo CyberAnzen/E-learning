@@ -6,10 +6,12 @@ import {
   Link,
   useLocation,
 } from "react-router-dom";
-import { Home, BookOpen, Trophy, User, Menu, X } from "lucide-react";
+import { Home, BookOpen, Trophy, User, Menu, X, UserCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAppContext } from "../context/AppContext";
 
 export default function Navbar() {
+  const {user} = useAppContext();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -122,7 +124,9 @@ export default function Navbar() {
     { name: "Home", icon: Home, path: "/" },
     { name: "Learn", icon: BookOpen, path: "/learn" },
     { name: "Contest", icon: Trophy, path: "/contest" },
-    { name: "Login", icon: User, path: "/login" },
+  user
+    ? { name: "Profile", icon: UserCircle, path: "/profile" }
+    : { name: "Login", icon: User, path: "/login" }
   ];
   return (
     <>
