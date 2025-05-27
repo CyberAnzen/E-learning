@@ -76,15 +76,15 @@ const About = () => {
   }, []);
 
   return (
-    <section className="bg-gradient-to-br min-h-screen from-black via-gray-900 to-black">
-      <div className="text-white">
+    <section className="bg-gradient-to-br min-h-screen w-full from-black via-gray-900 to-black overflow-x-hidden">
+      <div className="text-white w-full max-w-[100vw]">
         {/* Image Slideshow */}
         <div
           ref={slideshowRef}
-          className="relative h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden"
+          className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
+          onTouchEnd={() => {}}
           style={{ touchAction: "pan-y" }}
         >
           {slideImages.map((image, index) => (
@@ -136,31 +136,31 @@ const About = () => {
         </div>
 
         {/* Introduction & Vision */}
-        <section className="py-12 sm:py-16 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto">
+        <section className="py-12 sm:py-16 px-4 sm:px-6 md:px-8 w-full max-w-[100vw] overflow-hidden">
           <div className="mb-8 sm:mb-12 text-center">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
               Introduction & Vision
             </h2>
-            <div className="w-16 sm:w-24 h-0.5 sm:h-1 bg-[#01ffdb] mx-auto mb-6 sm:mb-8"></div>
+            <div className="w-16 sm:w-24 h-0.5 sm:h-1 bg-[#01ffdb] mx-auto mb-6 sm:mb-8" />
           </div>
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-start">
-            <div className="space-y-4 sm:space-y-6 px-4">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-start w-full px-4 sm:px-0">
+            <div className="space-y-4 sm:space-y-6">
               <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
                 Cyberanzen is a student-run cybersecurity club comprising a
                 community of passionate individuals dedicated to exploring the
                 exciting world of cybersecurity. Our club fosters groups of
                 like-minded individuals who want to learn and collaborate by
                 providing them with a platform to explore, innovate, and
-                contribute to a safer digital real.
+                contribute to a safer digital realm.
               </p>
               <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
                 At Cyberanzen, we enhance learning by conducting enriching
                 workshops and exposing members to real-world cyberattacks and
                 vulnerabilities through Capture The Flag (CTF) challenges and
                 other competitions. However, our club isn't just about
-                competitions, we actively encourage members to attend
-                information security conferences, helping them stay updated with
-                the latest trends and developments.
+                competitions—we actively encourage members to attend information
+                security conferences to stay updated with the latest trends and
+                developments.
               </p>
               <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
                 Beyond events and challenges, Cyberanzen provides an environment
@@ -170,8 +170,8 @@ const About = () => {
               </p>
             </div>
 
-            <section className="flex flex-col space-y-4 sm:space-y-6">
-              <div className="bg-gradient-to-b from-black/10 via-gray-700/30 to-black/30 backdrop-blur-lg p-4 sm:p-6 rounded-lg border border-gray-700 shadow-xl">
+            <div className="flex flex-col space-y-4 sm:space-y-6 w-full">
+              <div className="bg-gradient-to-b from-black/10 via-gray-700/30 to-black/30 backdrop-blur-lg p-4 sm:p-6 rounded-lg border border-gray-700 shadow-xl w-full">
                 <div className="flex items-center mb-4 sm:mb-6">
                   <Shield className="text-[#01ffdb] mr-3 sm:mr-4 w-6 h-6 sm:w-9 sm:h-9" />
                   <h3 className="text-lg sm:text-xl md:text-2xl font-semibold">
@@ -186,7 +186,7 @@ const About = () => {
                 </p>
               </div>
 
-              <div className="bg-gradient-to-b from-black/10 via-gray-700/30 to-black/30 backdrop-blur-lg p-4 sm:p-6 rounded-lg border border-gray-700 shadow-xl">
+              <div className="bg-gradient-to-b from-black/10 via-gray-700/30 to-black/30 backdrop-blur-lg p-4 sm:p-6 rounded-lg border border-gray-700 shadow-xl w-full">
                 <div className="flex items-center mb-4 sm:mb-6">
                   <Shield className="text-[#01ffdb] mr-3 sm:mr-4 w-6 h-6 sm:w-9 sm:h-9" />
                   <h3 className="text-lg sm:text-xl md:text-2xl font-semibold">
@@ -200,69 +200,66 @@ const About = () => {
                   practical experience.
                 </p>
               </div>
-            </section>
+            </div>
           </div>
         </section>
 
         {/* Objectives */}
-        <section className="min-w-[100vw] py-12 sm:py-16 px-4 sm:px-6 md:px-8 bg-gradient-to-b from-gray-200/10 via-gray-700/30 to-black/30">
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-8 sm:mb-12 text-center">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
-                Objectives
-              </h2>
-              <div className="w-16 sm:w-24 h-0.5 sm:h-1 bg-[#01ffdb] mx-auto mb-6 sm:mb-8"></div>
-            </div>
-            <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
-              <div className="bg-gradient-to-b from-gray-900/80 via-gray-700/30 to-black/30 backdrop-blur-lg p-4 sm:p-6 rounded-lg border border-gray-700 flex items-start">
-                <div className="bg-[#01ffdb]/10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
-                  <Users className="text-[#01ffdb] w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">
-                    Creating Awareness
-                  </h3>
-                  <p className="text-gray-300 text-sm sm:text-base">
-                    Creating cybersecurity awareness among peers and the wider
-                    community through educational initiatives and outreach
-                    programs.
-                  </p>
-                </div>
+        <section className="py-12 sm:py-16 px-4 sm:px-6 md:px-8 w-full max-w-[100vw] overflow-hidden">
+          <div className="mb-8 sm:mb-12 text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
+              Objectives
+            </h2>
+            <div className="w-16 sm:w-24 h-0.5 sm:h-1 bg-[#01ffdb] mx-auto mb-6 sm:mb-8" />
+          </div>
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-6 w-full px-4 sm:px-0">
+            <div className="bg-gradient-to-b from-gray-900/80 via-gray-700/30 to-black/30 backdrop-blur-lg p-4 sm:p-6 rounded-lg border border-gray-700 flex items-start w-full">
+              <div className="bg-[#01ffdb]/10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                <Users className="text-[#01ffdb] w-5 h-5 sm:w-6 sm:h-6" />
               </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">
+                  Creating Awareness
+                </h3>
+                <p className="text-gray-300 text-sm sm:text-base">
+                  Creating cybersecurity awareness among peers and the wider
+                  community through educational initiatives and outreach
+                  programs.
+                </p>
+              </div>
+            </div>
 
-              <div className="bg-gradient-to-b from-gray-900/80 via-gray-700/30 to-black/30 backdrop-blur-lg p-4 sm:p-6 rounded-lg border border-gray-700 flex items-start">
-                <div className="bg-[#01ffdb]/10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
-                  <BookOpen className="text-[#01ffdb] w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">
-                    Education
-                  </h3>
-                  <p className="text-gray-300 text-sm sm:text-base">
-                    Educating members about emerging technologies, latest
-                    threats, and best practices in cybersecurity through
-                    workshops and hands-on training.
-                  </p>
-                </div>
+            <div className="bg-gradient-to-b from-gray-900/80 via-gray-700/30 to-black/30 backdrop-blur-lg p-4 sm:p-6 rounded-lg border border-gray-700 flex items-start w-full">
+              <div className="bg-[#01ffdb]/10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                <BookOpen className="text-[#01ffdb] w-5 h-5 sm:w-6 sm:h-6" />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">
+                  Education
+                </h3>
+                <p className="text-gray-300 text-sm sm:text-base">
+                  Educating members about emerging technologies, latest threats,
+                  and best practices in cybersecurity through workshops and
+                  hands-on training.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
         {/* What We Do & Why Join Us */}
-        <section className="min-w-[100vw] py-12 sm:py-16 px-4 sm:px-6 md:px-8 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900  max-w-7xl mx-auto">
+        <section className="py-12 sm:py-16 px-4 sm:px-6 md:px-8 bg-gray-900 w-full max-w-[100vw] overflow-hidden">
           <div className="mb-8 sm:mb-12 text-center">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
               What We Do & Why Join Us?
             </h2>
-            <div className="w-16 sm:w-24 h-0.5 sm:h-1 bg-[#01ffdb] mx-auto mb-6 sm:mb-8"></div>
+            <div className="w-16 sm:w-24 h-0.5 sm:h-1 bg-[#01ffdb] mx-auto mb-6 sm:mb-8" />
           </div>
-
-          <div className="grid sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 w-full px-4 sm:px-0">
             {[...Array(3)].map((_, i) => (
               <div
                 key={i}
-                className="bg-gradient-to-b from-gray-900/80 via-gray-700/30 to-black/30 backdrop-blur-lg p-4 sm:p-6 rounded-lg border border-gray-700 hover:border-[#01ffdb] transition-colors group"
+                className="bg-gradient-to-b from-gray-900/80 via-gray-700/30 to-black/30 backdrop-blur-lg p-4 sm:p-6 rounded-lg border border-gray-700 hover:border-[#01ffdb] transition-colors group w-full"
               >
                 <div className="bg-[#01ffdb]/10 p-3 sm:p-4 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-[#01ffdb]/20 transition-colors">
                   {i === 0 ? (
@@ -293,7 +290,7 @@ const About = () => {
             ))}
           </div>
 
-          <div className="mt-12 sm:mt-16 bg-gradient-to-b from-gray-900/80 via-gray-700/30 to-black/30 backdrop-blur-lg p-6 sm:p-8 rounded-lg border border-gray-700 hover:border-[#01ffdb] transition-colors group">
+          <div className="mt-12 sm:mt-16 bg-gradient-to-b from-gray-900/80 via-gray-700/30 to-black/30 backdrop-blur-lg p-6 sm:p-8 rounded-lg border border-gray-700 hover:border-[#01ffdb] transition-colors group w-full max-w-4xl mx-auto">
             <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
               Join Our Community
             </h3>

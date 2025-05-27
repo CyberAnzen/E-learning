@@ -19,7 +19,7 @@ import Terms from "./routes/terms";
 import Signup from "./routes/signup";
 import PrivacyPolicy from "./routes/privacyPolicy";
 import Profile from "./routes/account";
-import Content  from './routes/content';
+import Content from "./routes/content";
 import AdminEditor from "./routes/adminEditor";
 
 import {
