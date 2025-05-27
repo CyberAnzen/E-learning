@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import Navbar from "./components/navbar";
+import Navbar from "./components/layout/navbar";
 import "./App.css";
 import "./index.css";
 import Home from "./routes/home";
-import Footer from "./components/footer";
+import Footer from "./components/layout/footer";
 import Intro from "./components/intro";
 import { AnimatePresence, motion } from "framer-motion";
 import { i } from "framer-motion/client";
