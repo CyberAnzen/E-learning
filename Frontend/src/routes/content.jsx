@@ -22,8 +22,10 @@ import {
   Maximize2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import CollapsibleSection from "../components/colapsable";
-import FullScreenReader from "../components/FullscreenReader";
+import CollapsibleSection from "../components/content/colapsable";
+import FullScreenReader from "../components/content/FullscreenReader";
+import TerminalDesign  from "../components/content/Terminal" ;
+import SubmitButton from "../components/content/SubmitButton";
 
 // **Default Course Data**
 const defaultCourseData = [
@@ -385,6 +387,11 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
   const handleCloseFullScreen = () => {
     setFullScreenSection(null);
     document.body.style.overflow = "auto";
+  };
+
+  // Get chapter path for terminal display
+  const getChapterPath = () => {
+    return currentChapter.chapter.toLowerCase().replace(/\s+/g, "_");
   };
 
   // **JSX Return**
@@ -764,119 +771,27 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
               </div>
               {/* **Terminal Questions** */}
               <div className="space-y-6">
-                <div className="max-w-6xl lg:min-w-full mx-auto p-6 font-mono">
-                  {/* Terminal Window Header */}
-                  <div className="bg-[#2D2D2D] rounded-t-lg border border-[#3D3D3D]">
-                    <div className="flex items-center justify-between p-2 border-b border-[#3D3D3D]">
-                      <div className="flex gap-2">
-                        <div className="w-3 h-3 rounded-full bg-red-500" />
-                        <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                        <div className="w-3 h-3 rounded-full bg-green-500" />
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-400">
-                        <Terminal className="w-4 h-4" />
-                        <span>
-                          ssh {ip}@chapter_{currentChapter.id}
-                        </span>
-                      </div>
-                      <div className="w-16" />
-                    </div>
-                  </div>
-                  {/* Terminal Content */}
-                  <div className="bg-[#1E1E1E] p-6 rounded-b-lg border-x border-b border-[#3D3D3D] shadow-xl space-y-6">
-                    {/* Command Line Header */}
-                    <div className="flex items-center gap-2 text-green-400">
-                      <span>$</span>
-                      <span className="typing-animation">
-                        cd{" "}
-                        {currentChapter.chapter
-                          .toLowerCase()
-                          .replace(/\s+/g, "_")}
-                      </span>
-                    </div>
-                    {/* Task Section */}
-                    <div className="bg-[#2D2D2D] p-4 rounded border border-[#3D3D3D] space-y-4">
-                      {/* Questions */}
-                      <div>
-                        <div className="flex items-center gap-2 text-yellow-400 mb-1">
-                          <span>$</span>
-                          ./answer_questions.sh
-                        </div>
-                        <div className="space-y-4">
-                          {currentTask.content.questions.map((q) => (
-                            <div
-                              key={q.id}
-                              className="bg-[#252525] p-4 rounded border border-[#3D3D3D]"
-                            >
-                              <p className="mb-2">{q.text}</p>
-                              {q.hint && (
-                                <p className="text-sm text-gray-500 mb-2">
-                                  # Hint: {q.hint}
-                                </p>
-                              )}
-                              <div className="flex items-center gap-2">
-                                <span className="text-green-400">$</span>
-                                <input
-                                  type="text"
-                                  className="flex-1 bg-[#1E1E1E] border border-[#3D3D3D] rounded px-3 py-2 text-green-400 focus:outline-none focus:border-green-400"
-                                  placeholder="Enter your answer..."
-                                  onChange={(e) =>
-                                    handleAnswerSubmit(
-                                      currentTask.id,
-                                      q.id,
-                                      e.target.value
-                                    )
-                                  }
-                                  value={
-                                    answers[`${currentTask.id}-${q.id}`] || ""
-                                  }
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <TerminalDesign
+                  ip={ip}
+                  chapterId={currentChapter.id}
+                  chapterPath={getChapterPath()}
+                  questions={currentTask.content.questions}
+                  answers={answers}
+                  taskId={currentTask.id}
+                  onAnswerSubmit={handleAnswerSubmit}
+                  isSubmitted={submitted}
+                  completedSteps={completedSteps}
+                  totalObjectives={currentTask.content.objectives.length}
+                />
+
                 <div className="min-w-full flex justify-end ">
-                  <button
-                    onClick={handleSubmit}
-                    disabled={
-                      submitted ||
-                      completedSteps.length !==
-                        currentTask.content.objectives.length
-                    }
-                    className={`w-2/3 lg:w-2/6 max-h-16 p-2.5 cyber-button gap-x-2  flex items-center justify-center px-10 py-3 font-bold rounded-lg transition-all duration-300 ${
-                      completedSteps.length ===
-                      currentTask.content.objectives.length
-                        ? "bg-[#01ffdb]/10 border border-[#01ffdb]/50 text-[#01ffdb] hover:bg-[#01ffdb]/20"
-                        : "bg-gray-700/50 border border-gray-600 text-gray-400 cursor-not-allowed"
-                    }`}
-                  >
-                    <div className="flex items-center text-xs md:text-md lg:text-lg gap-2">
-                      {submitted ? (
-                        <>
-                          <CheckCircle className="w-5 h-5" /> Submitted
-                        </>
-                      ) : (
-                        <>
-                          {completedSteps.length ===
-                          currentTask.content.objectives.length ? (
-                            <>
-                              Submit Answers{" "}
-                              <ChevronRight className="w-5 h-5" />
-                            </>
-                          ) : (
-                            <>
-                              Complete all steps to continue{" "}
-                              <Lock className="w-5 h-5" />
-                            </>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </button>
+                  <SubmitButton
+                    isSubmitted={submitted}
+                    completedSteps={completedSteps}
+                    totalObjectives={currentTask.content.objectives.length}
+                    onSubmit={handleSubmit}
+                    className="w-2/3 lg:w-2/6 max-h-16 p-2.5"
+                  />
                 </div>
               </div>
             </div>
@@ -974,119 +889,19 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
                   </div>
                 </>
               ) : (
-                <div className="space-y-6">
-                  <div className="max-w-6xl lg:min-w-full mx-auto p-6 font-mono">
-                    {/* Terminal Window Header */}
-                    <div className="bg-[#2D2D2D] rounded-t-lg border border-[#3D3D3D]">
-                      <div className="flex items-center justify-between p-2 border-b border-[#3D3D3D]">
-                        <div className="flex gap-2">
-                          <div className="w-3 h-3 rounded-full bg-red-500" />
-                          <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                          <div className="w-3 h-3 rounded-full bg-green-500" />
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
-                          <Terminal className="w-4 h-4" />
-                          <span>
-                            ssh {ip}@chapter_{currentChapter.id}
-                          </span>
-                        </div>
-                        <div className="w-16" />
-                      </div>
-                    </div>
-
-                    {/* Terminal Content */}
-                    <div className="bg-[#1E1E1E] p-6 rounded-b-lg border-x border-b border-[#3D3D3D] shadow-xl space-y-6">
-                      {/* Command Line Header */}
-                      <div className="flex items-center gap-2 text-green-400">
-                        <span>$</span>
-                        <span className="typing-animation">
-                          cd{" "}
-                          {currentChapter.chapter
-                            .toLowerCase()
-                            .replace(/\s+/g, "_")}
-                        </span>
-                      </div>
-
-                      {/* Task Section */}
-                      <div className="bg-[#2D2D2D] p-4 rounded border border-[#3D3D3D] space-y-4">
-                        {/* Questions */}
-                        <div>
-                          <div className="flex items-center gap-2 text-yellow-400 mb-1">
-                            <span>$</span>
-                            ./answer_questions.sh
-                          </div>
-                          <div className="space-y-4">
-                            {currentTask.content.questions.map((q) => (
-                              <div
-                                key={q.id}
-                                className="bg-[#252525] p-4 rounded border border-[#3D3D3D]"
-                              >
-                                <p className="mb-2">{q.text}</p>
-                                {q.hint && (
-                                  <p className="text-sm text-gray-500 mb-2">
-                                    # Hint: {q.hint}
-                                  </p>
-                                )}
-                                <div className="flex items-center gap-2">
-                                  <span className="text-green-400">$</span>
-                                  <input
-                                    type="text"
-                                    className="flex-1 bg-[#1E1E1E] border border-[#3D3D3D] rounded px-3 py-2 text-green-400 focus:outline-none focus:border-green-400"
-                                    placeholder="Enter your answer..."
-                                    onChange={(e) =>
-                                      handleAnswerSubmit(
-                                        currentTask.id,
-                                        q.id,
-                                        e.target.value
-                                      )
-                                    }
-                                    value={
-                                      answers[`${currentTask.id}-${q.id}`] || ""
-                                    }
-                                  />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleSubmit}
-                    disabled={
-                      submitted ||
-                      completedSteps.length !==
-                        currentTask.content.objectives.length
-                    }
-                    className={`w-full cyber-button gap-x-2 flex items-center justify-center px-10 py-3 font-bold rounded-lg transition-all duration-300 ${
-                      completedSteps.length ===
-                      currentTask.content.objectives.length
-                        ? "bg-[#01ffdb]/10 border border-[#01ffdb]/50 text-[#01ffdb] hover:bg-[#01ffdb]/20"
-                        : "bg-gray-700/50 border border-gray-600 text-gray-400 cursor-not-allowed"
-                    }`}
-                  >
-                    {submitted ? (
-                      <>
-                        <CheckCircle className="w-5 h-5" /> Submitted
-                      </>
-                    ) : (
-                      <>
-                        {completedSteps.length ===
-                        currentTask.content.objectives.length ? (
-                          <>
-                            Submit Answers <ChevronRight className="w-5 h-5" />
-                          </>
-                        ) : (
-                          <>
-                            Complete all steps to continue{" "}
-                            <Lock className="w-5 h-5" />
-                          </>
-                        )}
-                      </>
-                    )}
-                  </button>
-                </div>
+                <TerminalDesign
+                  ip={ip}
+                  chapterId={currentChapter.id}
+                  chapterPath={getChapterPath()}
+                  questions={currentTask.content.questions}
+                  answers={answers}
+                  taskId={currentTask.id}
+                  onAnswerSubmit={handleAnswerSubmit}
+                  isSubmitted={submitted}
+                  isFullScreen={true}
+                  completedSteps={completedSteps}
+                  totalObjectives={currentTask.content.objectives.length}
+                />
               )
             }
             title={
@@ -1176,4 +991,12 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
   );
 };
 
-export default Content;
+function App() {
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <Content />
+    </div>
+  );
+}
+
+export default App;
