@@ -6,10 +6,20 @@ import {
   Link,
   useLocation,
 } from "react-router-dom";
-import { Home, BookOpen, Trophy, User, Menu, X } from "lucide-react";
+import {
+  Home,
+  BookOpen,
+  Trophy,
+  User,
+  Menu,
+  X,
+  UserCircle,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAppContext } from "../../context/AppContext";
 
 export default function Navbar() {
+  const { user } = useAppContext();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -27,30 +37,30 @@ export default function Navbar() {
   );
   const [showCyber, setShowCyber] = useState(true);
   const [bottomVisible, setBottomVisible] = useState(true);
-  const touchStartY   = useRef(0);
+  const touchStartY = useRef(0);
   const touchCurrentY = useRef(0);
-  const lastScrollY   = useRef(0);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     // initialize lastScrollY
     lastScrollY.current = window.scrollY;
 
-    const onTouchStart = e => {
-      touchStartY.current   = e.touches[0].clientY;
+    const onTouchStart = (e) => {
+      touchStartY.current = e.touches[0].clientY;
       touchCurrentY.current = touchStartY.current;
     };
 
-    const onTouchMove = e => {
+    const onTouchMove = (e) => {
       touchCurrentY.current = e.touches[0].clientY;
     };
 
     const onTouchEnd = () => {
       const delta = touchCurrentY.current - touchStartY.current;
-      if (delta < -30) setBottomVisible(false);  // swipe up → hide
+      if (delta < -30) setBottomVisible(false); // swipe up → hide
       else if (delta > 30) setBottomVisible(true); // swipe down → show
     };
 
-    const onWheel = e => {
+    const onWheel = (e) => {
       // e.deltaY > 0 means scrolling down (content moves up)
       if (e.deltaY > 30) setBottomVisible(false);
       else if (e.deltaY < -30) setBottomVisible(true);
@@ -58,24 +68,24 @@ export default function Navbar() {
 
     const onScroll = () => {
       const currentY = window.scrollY;
-      const delta    = currentY - lastScrollY.current;
-      if (delta > 30) setBottomVisible(false);   // scroll down → hide
+      const delta = currentY - lastScrollY.current;
+      if (delta > 30) setBottomVisible(false); // scroll down → hide
       else if (delta < -30) setBottomVisible(true); // scroll up → show
       lastScrollY.current = currentY;
     };
 
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove',  onTouchMove,  { passive: true });
-    window.addEventListener('touchend',   onTouchEnd);
-    window.addEventListener('wheel',      onWheel,      { passive: true });
-    window.addEventListener('scroll',     onScroll,     { passive: true });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd);
+    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove',  onTouchMove);
-      window.removeEventListener('touchend',   onTouchEnd);
-      window.removeEventListener('wheel',      onWheel);
-      window.removeEventListener('scroll',     onScroll);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("scroll", onScroll);
     };
   }, []);
   useEffect(() => {
@@ -122,7 +132,9 @@ export default function Navbar() {
     { name: "Home", icon: Home, path: "/" },
     { name: "Learn", icon: BookOpen, path: "/learn" },
     { name: "Contest", icon: Trophy, path: "/contest" },
-    { name: "Login", icon: User, path: "/login" },
+    user
+      ? { name: "Profile", icon: UserCircle, path: "/profile" }
+      : { name: "Login", icon: User, path: "/login" },
   ];
   return (
     <>
