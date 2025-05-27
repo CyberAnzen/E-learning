@@ -21,7 +21,7 @@ const TerminalDesign = ({
       } mx-auto p-6 font-mono`}
     >
       {/* Terminal Window Header */}
-      <div className="bg-[#2D2D2D] rounded-t-lg border border-[#3D3D3D]">
+      <div className="bg-[rgba(0,0,0,0.25)] rounded-t-lg border border-[#3D3D3D]">
         <div className="flex items-center justify-between p-2 border-b border-[#3D3D3D]">
           <div className="flex gap-2">
             <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -39,7 +39,7 @@ const TerminalDesign = ({
       </div>
 
       {/* Terminal Content */}
-      <div className="bg-[#1E1E1E] p-6 rounded-b-lg border-x border-b border-[#3D3D3D] shadow-xl space-y-6">
+      <div className="bg-[#0000005d] p-6 rounded-b-lg border-x border-b border-[#3D3D3D] shadow-xl space-y-6">
         {/* Command Line Header */}
         <div className="flex items-center gap-2 text-green-400">
           <span>$</span>
@@ -47,7 +47,7 @@ const TerminalDesign = ({
         </div>
 
         {/* Task Section */}
-        <div className="bg-[#2D2D2D] p-4 rounded border border-[#3D3D3D] space-y-4">
+        <div className="bg-[#0e0e0f96] p-4 rounded border border-[#3D3D3D] space-y-4">
           {/* Questions */}
           <div>
             <div className="flex items-center gap-2 text-yellow-400 mb-1">
@@ -58,7 +58,7 @@ const TerminalDesign = ({
               {questions.map((q) => (
                 <div
                   key={q.id}
-                  className="bg-[#252525] p-4 rounded border border-[#3D3D3D]"
+                  className="bg-[#0505058b] p-4 rounded border border-[#3D3D3D]"
                 >
                   <p className="mb-2">{q.text}</p>
                   {q.hint && (
@@ -70,7 +70,7 @@ const TerminalDesign = ({
                     <span className="text-green-400">$</span>
                     <input
                       type="text"
-                      className="flex-1 bg-[#1E1E1E] border border-[#3D3D3D] rounded px-3 py-2 text-green-400 focus:outline-none focus:border-green-400"
+                      className="flex-1 bg-[#1a1a1a58] border border-[#3D3D3D] rounded px-3 py-2 text-green-400 focus:outline-none focus:border-green-400"
                       placeholder="Enter your answer..."
                       onChange={(e) =>
                         onAnswerSubmit(taskId, q.id, e.target.value)

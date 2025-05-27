@@ -396,7 +396,7 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
 
   // **JSX Return**
   return (
-    <section className="bg-gradient-to-br mt-13 from-gray-700/20 via-gray-900/50 to-black/80 min-h-screen relative">
+    <section className="bg-gradient-to-br from-black via-gray-900 to-black mt-13 min-h-screen relative">
       {!isPreview && (
         <>
           {/* **Mobile Menu Button** */}
@@ -604,7 +604,7 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
       {/* **Main Content Area** */}
       <main
         className={
-          " min-h-screen max-w-[100vw] lg:ml-4 lg:mt-2 text-white  transition-all duration-300 mx-auto flex flex-col "
+          " min-h-screen min-w-screen text-white  transition-all duration-300 mx-auto flex flex-col "
         }
       >
         <section className="">
