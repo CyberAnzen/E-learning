@@ -1,0 +1,18 @@
+[
+  {
+    "event_details": {
+      "description": "weqac   eha fduilf duiu dfgiuiodf c",
+      "date": "2025-06-15T00:00:00.000Z",
+      "time": "52997",
+      "venue": "online",
+      "organizer_name": "jafrin",
+      "organizer_email": "sam@gamil.com"
+    },
+    "_id": "6835e52b700121e1d16a01ac",
+    "event_name": "test",
+    "event_image": "27.05.25-21.46.19-855799New.jpeg",
+    "createdAt": "2025-05-27T16:15:39.433Z",
+    "updatedAt": "2025-05-27T16:50:22.866Z",
+    "__v": 0
+  }
+]
