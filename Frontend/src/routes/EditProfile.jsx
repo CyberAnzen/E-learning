@@ -3,7 +3,6 @@ import { User, Lock, Mail, Phone, UserPen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import debounce from "lodash.debounce";
-import ParticleBackground from "../components/ParticleBackground";
 import "../index.css";
 
 export default function EditProfile() {
@@ -29,30 +28,6 @@ export default function EditProfile() {
   const [touched, setTouched] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (touched.username) validateUsername(formData.username);
-  }, [formData.username, touched.username]);
-
-  useEffect(() => {
-    if (touched.password) validatePassword(formData.password);
-  }, [formData.password, touched.password]);
-
-  useEffect(() => {
-    if (touched.confirmPassword) {
-      validateConfirmPassword(formData.password, formData.confirmPassword);
-    }
-  }, [formData.password, formData.confirmPassword, touched.confirmPassword]);
-
-  useEffect(() => {
-    if (touched.officialEmail) {
-      validateOfficialEmail(formData.officialEmail);
-    }
-  }, [formData.officialEmail, touched.officialEmail]);
-
-  useEffect(() => {
-    if (touched.mobile) validateMobileStatus(formData.mobile);
-  }, [formData.mobile, touched.mobile]);
 
   const SignupSubmit = async (data) => {
     try {
@@ -164,7 +139,6 @@ export default function EditProfile() {
 
   const isFormComplete = () => {
     const requiredFields = [
-      "username",
       "email",
       "fullName",
       "regNumber",
@@ -172,10 +146,6 @@ export default function EditProfile() {
       "section",
       "year",
       "gender",
-      "mobile",
-      "officialEmail",
-      "password",
-      "confirmPassword",
     ];
     for (let field of requiredFields) {
       if (!formData[field]) {
@@ -189,12 +159,12 @@ export default function EditProfile() {
   };
 
   return (
-    <div className="min-h-screen mt-3 mb-2 login-container flex items-center justify-center px-4 py-12 sm:py-16 relative ">
+    <div className="min-h-screen mt-3 mb-2 flex items-center justify-center relative ">
       <div className="w-full max-w-[1400px] px-4">
-        <div className=" login-container  bg-gradient-to-br from-gray-900  via-65% via-black to-gray-900 backdrop-blur-xl rounded-2xl border-2 border-[#01ffdb]/20  my-8 sm:p-8 md:p-10 shadow-2xl motion-safe:animate-glow">
+        <div className=" pt-14 bg-gradient-to-br from-gray-90  via-68% via-black to-black backdrop-blur-xl rounded-2xl border-2 border-b-0 border-r-0 border-[#01ffdb]/20">
           <div className="flex max-md:flex-col items-center justify-center gap-20 mb-2 md:mb-10 ">
             <h1
-              className="text-2xl  sm:text-4xl md:text-5xl font-bold text-white motion-safe:animate-glitch"
+              className="text-2xl  sm:text-4xl md:text-5xl font-bold text-white motion-safe:animate-glitch "
               data-text="Sign up"
             >
               Edit Profile
@@ -211,7 +181,7 @@ export default function EditProfile() {
                 <img
                   src={image}
                   alt="uploadArea"
-                  className="w-44 h-44 cursor-pointer"
+                  className="w-44 h-44 cursor-pointer rounded-full object-cover transform transition-all duration-300 hover:scale-[1.02]"
                   onClick={handleImageClick}
                 />
               </label>

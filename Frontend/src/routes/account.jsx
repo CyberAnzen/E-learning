@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { User, Mail, Phone } from "lucide-react";
+import { User, Mail, Phone, ChevronLast, AlignLeft, LayoutList } from "lucide-react";
 import { Home, Settings, BookOpen, Trophy, UserCircle, History, Star, Layers,Puzzle } from "lucide-react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, NavLink } from "react-router-dom";
 
 export default function Account() {
 
@@ -77,8 +77,9 @@ export default function Account() {
       <div className="drawer">
         <input id="my-drawer" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
-          <label htmlFor="my-drawer" className="btn drawer-button ml-1 mt-15">
-            profile
+          <label htmlFor="my-drawer" className="btn drawer-button bg-gradient-to-br from-gray-90  via-65% via-black to-gray-900 ml-0 mt-15 transition-all duration-300 ease-in-out transform hover:scale-102 hover:shadow-lg active:scale-95">
+            <AlignLeft h-6 w-8 mr-2 />
+            More
           </label>
         </div>
 
@@ -89,7 +90,7 @@ export default function Account() {
             className="drawer-overlay"
           ></label>
 
-          <ul className="menu bg-base-200 text-base-content min-h-full w-65 p-4">
+          <ul className="menu bg-base-200 text-base-content min-h-full w-65 p-4 bg-gradient-to-br from-gray-90  via-65% via-black to-gray-900">
             {sidebarMenu.map((block, i) => {
               if (block.type === "profile") {
                 return (
