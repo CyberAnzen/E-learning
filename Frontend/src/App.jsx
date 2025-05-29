@@ -18,7 +18,7 @@ import ForgetPassword from "./routes/forgetPassword";
 import Terms from "./routes/terms";
 import Signup from "./routes/signup";
 import PrivacyPolicy from "./routes/privacyPolicy";
-import Profile from "./routes/account";
+import Profile from "./routes/ProfilePage/account";
 import Content from "./routes/content";
 import AdminEditor from "./routes/adminEditor";
 import {useAppContext} from "./context/AppContext"
@@ -31,8 +31,9 @@ import {
   useLocation,
 } from "react-router-dom";
 import NotFound from "./routes/notFound";
-import Account from "./routes/account";
-import EditProfile from "./routes/EditProfile";
+import ProfileDashboard from "./routes/ProfilePage/ProfileDashboard";
+import EditProfile from "./routes/ProfilePage/EditProfile";
+import Account from "./routes/ProfilePage/account";
 function App() {
   const { user }= useAppContext();
   const [intro, setIntro] = useState(true);
@@ -75,7 +76,8 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/profile" element={user ? <Account /> : <LoginPage />}>
-            <Route index element={user ? <EditProfile /> : null} />
+            <Route index element={user ? <ProfileDashboard /> : null} />
+            <Route path="editprofile" element={<EditProfile />} />
           </Route>
           <Route path="/*" element={<NotFound />} />
         </Routes>

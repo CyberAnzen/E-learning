@@ -12,7 +12,7 @@ export default function Account() {
         name: "shadcn",
         email: "m@example.com",
         img: "https://i.pinimg.com/736x/af/70/bb/af70bb880077591b711b83ee7717c91b.jpg",
-        link: "/editprofile",
+        link: "/profile/editprofile",
       },
     },
     {
@@ -90,12 +90,12 @@ export default function Account() {
             className="drawer-overlay"
           ></label>
 
-          <ul className="menu bg-base-200 text-base-content min-h-full w-65 p-4 bg-gradient-to-br from-gray-90  via-65% via-black to-gray-900">
+          <ul className="menu bg-base-200 text-base-content min-h-full w-65 p-4 bg-gradient-to-br from-gray-90  via-60% via-black to-gray-900">
             {sidebarMenu.map((block, i) => {
               if (block.type === "profile") {
                 return (
-                  <li key={i}>
-                    <Link
+                  <li key={i} className="" >
+                    <NavLink
                       to={block.avatar.link}
                       className="flex items-center space-x-2"
                     >
@@ -112,7 +112,7 @@ export default function Account() {
                           {block.avatar.email}
                         </p>
                       </div>
-                    </Link>
+                    </NavLink>
                   </li>
                 );
               }

@@ -3,7 +3,7 @@ import { User, Lock, Mail, Phone, UserPen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import debounce from "lodash.debounce";
-import "../index.css";
+import "../../index.css";
 
 export default function EditProfile() {
   const navigate = useNavigate();
