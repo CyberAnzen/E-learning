@@ -9,7 +9,7 @@ const upload = fileUploader('uploads/events/images');
 
 async function EventJsonFile () {
     try {
-        let data = await Event.find({}).sort({ createdAt: -1 }).limit(3);
+        let data = await Event.find({}).sort({ updatedAt: -1 }).limit(3);
         const dir = path.join(process.cwd(), 'uploads', 'events', 'data');
         const filePath = path.join(dir, 'events.json');
         if (!fs.existsSync(dir)) {
@@ -81,7 +81,7 @@ exports.createEvent = async (req, res) => {
 
 exports.getEvents = async (req, res) => {
     try {
-        const events = await Event.find({}).sort({ createdAt: -1 });
+        const events = await Event.find({}).sort({ updatedAt: -1 });
         res.status(200).json({
             success: true,
             data: events
@@ -276,3 +276,37 @@ exports.UpdateEvent = async (req, res) => {
         });
     }
 };
+
+exports.bannerEvent = async (req, res) => {
+    const dir = path.join(process.cwd(), 'uploads', 'events', 'data');
+    const filePath = path.join(dir, 'events.json');
+    try {
+        fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+        console.error('Error reading JSON file:', err);
+        return res.status(500).json({
+            success: false,
+            message: 'Error reading JSON file',
+            error: err.message
+        });
+    }
+    try {
+        const jsonData = JSON.parse(data);
+        res.status(200).json(jsonData) // Now you can use the JSON data as a JS object/array
+    } catch (parseError) {
+        console.error('Error parsing JSON:', parseError);
+        res.status(500).json({
+            success: false,
+            message: 'Error parsing JSON',
+            error: parseError.message
+        });
+    }
+});
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching banner event',
+            error: error.message
+        }); 
+    }
+}
