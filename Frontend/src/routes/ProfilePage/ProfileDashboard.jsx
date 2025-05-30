@@ -1,9 +1,33 @@
 import React, { useState } from "react";
+import RadialProgess from "./RadialProgess";
 
 const ProfileDashboard = () => {
   const [image, setImage] = useState(
     "https://i.pinimg.com/736x/af/70/bb/af70bb880077591b711b83ee7717c91b.jpg"
   );
+
+  const dummyData = [
+    {
+      missiondetails: "Frontend Development",
+      missiondescription: "Build responsive UI with React and Tailwind CSS.",
+      missiondata: 80,
+    },
+    {
+      missiondetails: "Backend Integration",
+      missiondescription: "Connect frontend with Node.js and Express APIs.",
+      missiondata: 60,
+    },
+    {
+      missiondetails: "Database Design",
+      missiondescription: "Design MongoDB schemas and queries.",
+      missiondata: 45,
+    },
+    {
+      missiondetails: "Testing & Deployment",
+      missiondescription: "Write tests and deploy to production.",
+      missiondata: 70,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6 space-y-6">
@@ -19,22 +43,30 @@ const ProfileDashboard = () => {
         </div>
 
         {/* Complete Profile Prompt (Spans 2 columns on large screens) */}
-        <div className="bg-cyan-900 rounded-xl p-4 flex flex-col md:flex-row justify-between items-center col-span-1 lg:col-span-2">
-          <div className="mb-4 md:mb-0">
-            <h3 className="text-lg font-bold">Add your missing details →</h3>
-            <p className="text-sm text-gray-300">
-              This data will be helpful to auto-fill your job applications
-            </p>
-          </div>
-          {/* For TSX uncomment the commented types below */}
-          <div
-            className="radial-progress bg-gray-800 text-primary-content border-gray-800 border-4"
-            style={{ "--value": 50 } /* as React.CSSProperties */}
-            aria-valuenow={50}
-            role="progressbar"
-          >
-            50%
-          </div>
+        <div className="carousel col-span-1 lg:col-span-2 rounded-xl w-full h-auto">
+          {dummyData.map((item, index) => {
+            const prevSlide = `#slide${index === 0 ? dummyData.length : index}`;
+            const nextSlide = `#slide${
+              index === dummyData.length - 1 ? 1 : index + 2
+            }`;
+            return (
+              <div
+                key={index}
+                id={`slide${index + 1}`}
+                className="carousel-item relative w-full"
+              >
+                <RadialProgess progessdata={item} />
+                <div className="absolute left-15 right-15 max-ms:left-right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
+                  <a href={prevSlide} className="btn btn-circle opacity-30">
+                    ❮
+                  </a>
+                  <a href={nextSlide} className="btn btn-circle opacity-30">
+                    ❯
+                  </a>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
