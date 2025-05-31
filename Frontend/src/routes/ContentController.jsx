@@ -245,7 +245,7 @@ const ContentController = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex max-h-full overflow-hidden">
       {/* ─── Sidebar: passes the full `courseData` array, plus `currentChapter`, plus callback ─── */}
       <Sidebar
         isPreview={false}
