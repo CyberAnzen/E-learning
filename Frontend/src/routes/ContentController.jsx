@@ -1,7 +1,7 @@
 // File: src/components/ContentController.jsx
 
 import React, { useState, useEffect } from "react";
-import Sidebar from "../components/layout/Sidebar";
+import Sidebar from "../components/layout/sidebar/Sidebar";
 import Content from "./content";
 import {
   Shield,
