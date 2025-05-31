@@ -34,6 +34,7 @@ import NotFound from "./routes/notFound";
 import ProfileDashboard from "./routes/ProfilePage/ProfileDashboard";
 import EditProfile from "./routes/ProfilePage/EditProfile";
 import Account from "./routes/ProfilePage/account";
+import ContentController from "./routes/ContentController";
 function App() {
   const { user }= useAppContext();
   const [intro, setIntro] = useState(true);
@@ -67,7 +68,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/learn" element={<LearnPage />} />
           <Route path="/contest" element={<ContestPage />} />
-          <Route path="/learn/:id" element={<Content />} />
+          <Route path="/learn/:id" element={<ContentController />} />
           <Route path="/admin/learn/:id" element={<AdminEditor />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />
@@ -76,7 +77,7 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/profile" element={user ? <Account /> : <LoginPage />}>
-            <Route index element={user ? <ProfileDashboard /> : null} />
+          <Route index element={user ? <ProfileDashboard /> : null} />
             <Route path="editprofile" element={<EditProfile />} />
           </Route>
           <Route path="/*" element={<NotFound />} />
