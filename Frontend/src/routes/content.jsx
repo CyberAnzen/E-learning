@@ -27,6 +27,7 @@ import FullScreenReader from "../components/content/FullscreenReader";
 import TerminalDesign from "../components/content/Terminal";
 import SubmitButton from "../components/content/SubmitButton";
 import Sidebar from "../components/layout/Sidebar";
+import "../content.css";
 // **Default Course Data**
 const defaultCourseData = [
   {
@@ -749,63 +750,10 @@ const Content = ({ chapters = defaultCourseData, isPreview = false }) => {
           )}
         </AnimatePresence>
       )}
-
-      {/* **CSS for Typing Animation** */}
-      <style jsx global>{`
-        .typing-animation {
-          overflow: hidden;
-          border-right: 2px solid #4ade80;
-          white-space: nowrap;
-          animation: typing 3s steps(40, end),
-            blink-caret 0.75s step-end infinite;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(31, 41, 55, 0.5);
-          border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(107, 114, 128, 0.7);
-          border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(156, 163, 175, 0.8);
-        }
-
-        @keyframes typing {
-          from {
-            width: 0;
-          }
-          to {
-            width: 100%;
-          }
-        }
-        @keyframes blink-caret {
-          from,
-          to {
-            border-color: transparent;
-          }
-          50% {
-            border-color: #4ade80;
-          }
-        }
-      `}</style>
     </section>
   );
 };
 
-function App() {
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <Content />
-    </div>
-  );
-}
 
-export default App;
+
+export default Content;
