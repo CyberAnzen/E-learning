@@ -1,3 +1,5 @@
+// File: src/components/Content.jsx
+
 import React, { useState, useEffect } from "react";
 import {
   Clock,
@@ -7,9 +9,10 @@ import {
   Flag,
   Target,
   Lightbulb,
-  Lock,
   Check,
   Terminal,
+  Maximize2,
+  MoveRightIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CollapsibleSection from "../components/content/colapsable";
@@ -20,8 +23,7 @@ import ContentHeader from "../components/content/ContentHeader";
 import "../content.css";
 
 // ────────────────────────────────────────────────────────────────────────────
-// Exactly the same dummy data map that ContentController imports—this file only
-// needs it “read‐only” so that it can look up full chapter details by ID.
+// Dummy “full” data map (read‐only) for looking up by ID
 // ────────────────────────────────────────────────────────────────────────────
 const chapterDetailsById = {
   1: {
@@ -235,22 +237,20 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
 
-  // ─── EFFECT: When selectedChapterId changes, “fetch” (lookup) full data ───
+  // ─── EFFECT: When selectedChapterId changes, look up full data ───────────
   useEffect(() => {
     if (selectedChapterId == null) return;
 
-    // Lookup the full chapter object in our dummy map
     const fullChapter = chapterDetailsById[selectedChapterId] || null;
     setCurrentChapter(fullChapter);
 
-    // If that chapter has tasks, default to its first task
     if (fullChapter && fullChapter.tasks.length > 0) {
       setCurrentTask(fullChapter.tasks[0]);
     } else {
       setCurrentTask(null);
     }
 
-    // Reset UI state whenever the chapter changes
+    // Reset UI state on chapter change
     setActiveSection(null);
     setFullScreenSection(null);
     setTaskProgress(0);
@@ -293,7 +293,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
       .then((res) => res.json())
       .then((data) => setIp(data.ip))
       .catch(() => {
-        // If it fails, keep the random IP
+        // Keep the random IP if fetching fails
       });
   }, []);
 
@@ -356,7 +356,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
       : "";
   };
 
-  // If we haven’t loaded the chapter (or it doesn’t exist), show a placeholder
+  // If the chapter or task isn’t loaded yet, show a placeholder
   if (!currentChapter || !currentTask) {
     return (
       <div className="flex items-center justify-center h-full text-gray-400">
@@ -365,7 +365,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
     );
   }
 
-  // Determine first/last task in this chapter
+  // Determine whether this is the first or last task in the chapter
   const taskIdx = currentChapter.tasks.findIndex(
     (t) => t.id === currentTask.id
   );
@@ -399,112 +399,78 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                 title="Learning Objectives"
                 icon={<Target className="w-5 h-5 text-blue-400" />}
                 isOpen={activeSection === "objectives"}
-                onToggle={() =>
+                onToggle={() => {
+                  // Toggle only this collapsible; do not affect others
                   setActiveSection(
                     activeSection === "objectives" ? null : "objectives"
-                  )
-                }
-                onFullScreen={() => handleOpenFullScreen("objectives")}
+                  );
+                }}
               >
-                <div className="space-y-4">
-                  {currentTask.content.objectives.map((objective, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className={`relative p-4 rounded-lg border transition-all duration-300 ${
-                        currentStep === index
-                          ? "bg-gray-700/50 border-blue-500/50"
-                          : "bg-gray-800/30 border-gray-700/50"
-                      } ${isStepLocked(index) ? "opacity-50" : ""}`}
+                <div className="space-y-2">
+                  {currentTask.content.objectives.map((objective, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-2 p-2 bg-gray-700/30 rounded"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="flex-shrink-0">
-                          {completedSteps.includes(index) ? (
-                            <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                              <Check className="w-5 h-5 text-green-400" />
-                            </div>
-                          ) : isStepLocked(index) ? (
-                            <div className="w-8 h-8 rounded-full bg-gray-700/50 flex items-center justify-center">
-                              <Lock className="w-5 h-5 text-gray-400" />
-                            </div>
-                          ) : (
-                            <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                              <span className="text-blue-400">{index + 1}</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-grow">
-                          <p className="text-gray-300">{objective}</p>
-                        </div>
-                        {!completedSteps.includes(index) &&
-                          !isStepLocked(index) && (
-                            <button
-                              onClick={() => handleStepComplete(index)}
-                              className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors duration-300 flex items-center gap-2"
-                            >
-                              Complete <ChevronRight className="w-4 h-4" />
-                            </button>
-                          )}
-                      </div>
-                    </motion.div>
+                      <Check className="w-5 h-5 text-green-400" />
+                      <span className="text-gray-200">{objective}</span>
+                    </div>
                   ))}
                 </div>
               </CollapsibleSection>
 
-              {/* ─── Chapter Content Collapsible ────────────────────────── */}
-              <CollapsibleSection
-                title="Chapter Content"
-                icon={<Lightbulb className="w-5 h-5 text-yellow-400" />}
-                isOpen={activeSection === "content"}
-                onToggle={() =>
-                  setActiveSection(
-                    activeSection === "content" ? null : "content"
-                  )
-                }
-                onFullScreen={() => handleOpenFullScreen("content")}
+              {/* ─── Chapter Content (entire div clickable; closes collapsible) ────────────────────────── */}
+              <div
+                className="border border-gray-700/50 rounded-lg overflow-hidden mb-4 cursor-pointer"
+                onClick={() => {
+                  // Close the Learning Objectives collapsible before opening fullscreen
+                  setActiveSection(null);
+                  handleOpenFullScreen("content");
+                }}
               >
-                <div className="mb-8 rounded-xl overflow-hidden shadow-2xl max-w-[80%] mx-auto">
-                  <img
-                    src={currentChapter.content.image}
-                    alt={currentChapter.content.title}
-                    className="w-full rounded-xl h-64 sm:h-72 md:h-80 lg:h-96 object-cover"
-                  />
-                </div>
-                <div className="prose prose-invert">
-                  <div className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-                    {currentTask.content.mainContent}
+                <div className="w-full px-4 py-3 bg-gray-800/50 flex items-center justify-between hover:bg-gray-700/50 transition-colors duration-200">
+                  <div className="flex items-center gap-3">
+                    <Lightbulb className="w-5 h-5 text-yellow-400" />
+                    <span className="text-white font-medium">
+                      Chapter Content
+                    </span>
                   </div>
+                  <MoveRightIcon className="w-5 h-5 text-gray-400" />
                 </div>
-              </CollapsibleSection>
+              </div>
             </div>
           </div>
 
-          {/* ─── Terminal + Submit Button ───────────────────────────── */}
-          <div className="space-y-6">
-            <TerminalDesign
-              ip={ip}
-              chapterId={currentChapter.id}
-              chapterPath={getChapterPath()}
-              questions={currentTask.content.questions}
-              answers={answers}
-              taskId={currentTask.id}
-              onAnswerSubmit={handleAnswerSubmit}
-              isSubmitted={submitted}
-              completedSteps={completedSteps}
-              totalObjectives={currentTask.content.objectives.length}
-            />
-
-            <div className="min-w-full flex justify-end">
-              <SubmitButton
+          {/* ─── Terminal Questions (static row icon; collapsible closed) ───────────────────────────── */}
+          <div className="border border-gray-700/50 rounded-lg overflow-hidden mb-4">
+            <div className="w-full px-4 py-3 bg-gray-800/50 flex items-center gap-3">
+              <Terminal className="w-5 h-5 text-green-400" />
+              <span className="text-white font-medium">Questions</span>
+            </div>
+            <div className="p-4 bg-gray-800/30">
+              <TerminalDesign
+                ip={ip}
+                chapterId={currentChapter.id}
+                chapterPath={getChapterPath()}
+                questions={currentTask.content.questions}
+                answers={answers}
+                taskId={currentTask.id}
+                onAnswerSubmit={handleAnswerSubmit}
                 isSubmitted={submitted}
                 completedSteps={completedSteps}
                 totalObjectives={currentTask.content.objectives.length}
-                onSubmit={handleSubmit}
-                className="w-2/3 lg:w-2/6 max-h-16 p-2.5"
               />
             </div>
+          </div>
+
+          <div className="flex justify-end">
+            <SubmitButton
+              isSubmitted={submitted}
+              completedSteps={completedSteps}
+              totalObjectives={currentTask.content.objectives.length}
+              onSubmit={handleSubmit}
+              className="w-2/3 lg:w-2/6 max-h-16 p-2.5"
+            />
           </div>
         </div>
       </center>
@@ -537,53 +503,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
           <FullScreenReader
             section={fullScreenSection}
             content={
-              fullScreenSection === "objectives" ? (
-                <div className="space-y-4">
-                  {currentTask.content.objectives.map((objective, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className={`relative p-4 rounded-lg border transition-all duration-300 ${
-                        currentStep === index
-                          ? "bg-gray-700/50 border-blue-500/50"
-                          : "bg-gray-800/30 border-gray-700/50"
-                      } ${isStepLocked(index) ? "opacity-50" : ""}`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="flex-shrink-0">
-                          {completedSteps.includes(index) ? (
-                            <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                              <Check className="w-5 h-5 text-green-400" />
-                            </div>
-                          ) : isStepLocked(index) ? (
-                            <div className="w-8 h-8 rounded-full bg-gray-700/50 flex items-center justify-center">
-                              <Lock className="w-5 h-5 text-gray-400" />
-                            </div>
-                          ) : (
-                            <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                              <span className="text-blue-400">{index + 1}</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-grow">
-                          <p className="text-gray-300">{objective}</p>
-                        </div>
-                        {!completedSteps.includes(index) &&
-                          !isStepLocked(index) && (
-                            <button
-                              onClick={() => handleStepComplete(index)}
-                              className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors duration-300 flex items-center gap-2"
-                            >
-                              Complete <ChevronRight className="w-4 h-4" />
-                            </button>
-                          )}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              ) : fullScreenSection === "content" ? (
+              fullScreenSection === "content" ? (
                 <>
                   <div className="mb-8 rounded-xl overflow-hidden shadow-2xl max-w-[70%] mx-auto">
                     <img
@@ -599,37 +519,11 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                   </div>
                 </>
               ) : (
-                <TerminalDesign
-                  ip={ip}
-                  chapterId={currentChapter.id}
-                  chapterPath={getChapterPath()}
-                  questions={currentTask.content.questions}
-                  answers={answers}
-                  taskId={currentTask.id}
-                  onAnswerSubmit={handleAnswerSubmit}
-                  isSubmitted={submitted}
-                  completedSteps={completedSteps}
-                  totalObjectives={currentTask.content.objectives.length}
-                  isFullScreen={true}
-                />
+                <></>
               )
             }
-            title={
-              fullScreenSection === "objectives"
-                ? "Learning Objectives"
-                : fullScreenSection === "content"
-                ? "Chapter Content"
-                : "Terminal Questions"
-            }
-            icon={
-              fullScreenSection === "objectives" ? (
-                <Target className="w-6 h-6 text-blue-400" />
-              ) : fullScreenSection === "content" ? (
-                <Lightbulb className="w-6 h-6 text-yellow-400" />
-              ) : (
-                <Terminal className="w-6 h-6 text-green-400" />
-              )
-            }
+            title="Chapter Content"
+            icon={<Lightbulb className="w-6 h-6 text-yellow-400" />}
             onClose={handleCloseFullScreen}
           />
         )}

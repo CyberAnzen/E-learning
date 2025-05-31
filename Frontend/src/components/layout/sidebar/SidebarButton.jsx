@@ -23,7 +23,7 @@ const SidebarButton = ({ isOpen, isPinned, setIsPinned, setButtonHovered }) => {
         onMouseEnter={() => setButtonHovered(true)}
         onMouseLeave={() => setButtonHovered(false)}
         className={`
-          absolute left-0 w-6 h-16 flex items-center justify-center
+          absolute left-0 w-6 h-16  items-center justify-center
           bg-gradient-to-r from-gray-800/90 via-gray-800/80 to-gray-700/80 backdrop-blur-md
           rounded-r-md border-r border-t border-b border-cyan-500/30
           transition-all duration-300 hover:from-gray-700/90 hover:to-gray-600/90
