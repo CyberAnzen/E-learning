@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Content from "./content";
-import { Shield, X } from "lucide-react";
+import { Maximize2, Shield, X } from "lucide-react";
 
 const courseData = [
   // Placeholder for initial course data
@@ -154,7 +154,7 @@ const AdminEditor = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-black via-gray-900  to-black mt-13 min-h-screen relative p-5" >
+    <div className="bg-gradient-to-br from-black via-gray-900  to-black mt-13 min-h-screen relative p-5">
       <h1 className="text-4xl font-bold mb-12 text-center">
         <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]">
           Course Content Editor
@@ -337,13 +337,35 @@ const AdminEditor = () => {
 
         {/* Live Preview */}
         <div className="bg-gradient-to-br from-gray-800/50 via-gray-800/30 to-gray-900/50 backdrop-blur-xl p-6 rounded-2xl border border-cyan-500/20 shadow-[0_0_30px_rgba(0,0,0,0.3)]">
-          <h2 className="text-xl font-bold mb-6 text-cyan-300">Live Preview</h2>
-          <button
-            onClick={() => setIsPreviewOpen(true)}
-            className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg transition-colors shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
-          >
-            Open Full-Screen Preview
-          </button>
+          <div className="flex justify-between">
+            <h2 className="text-xl font-bold mb-6 text-cyan-300">
+              Live Preview
+            </h2>
+            <button
+              onClick={() => setIsPreviewOpen(true)}
+              className="
+    relative inline-flex items-center justify-center
+    bg-cyan-400/10 backdrop-blur-lg
+    border border-white/20
+    text-white p-3 rounded-2xl
+    shadow-[0_4px_30px_rgba(0,0,0,0.1)]
+    transition transform duration-300 ease-in-out
+    hover:scale-105 hover:bg-cyan-300/20 hover:border-white/30 hover:shadow-[0_6px_40px_rgba(0,0,0,0.15)]
+    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/40
+    overflow-hidden
+  "
+            >
+              <Maximize2 className="w-5 h-5  text-cyan-400 group-hover:text-cyan-300 transition-colors" />
+              <span className="sr-only">Open Preview</span>
+              <span
+                className="
+      absolute inset-0 bg-white/20 opacity-0
+      transition-opacity duration-500 ease-out
+      hover:opacity-10
+    "
+              />
+            </button>
+          </div>
           <div
             ref={sidePreviewRef}
             className="mt-4 max-h-[80vh] overflow-y-auto"
