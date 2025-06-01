@@ -17,7 +17,7 @@ const detailedUserSchema = new mongoose.Schema({
     reg_date: { type: String, required: true }
   }
 });
-const DetailedUser = mongoose.model("User123", detailedUserSchema);
+const DetailedUser = mongoose.model("Users", detailedUserSchema);
 
 
 module.exports = {  DetailedUser };

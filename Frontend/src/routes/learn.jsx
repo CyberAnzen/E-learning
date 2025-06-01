@@ -65,6 +65,7 @@ const courses = [
     category: "Development",
   }, //bg-gradient-to-br from-gray-900 to-gray-800
 ];
+//comment everycode
 
 function LearnPage() {
   const navigate = useNavigate();

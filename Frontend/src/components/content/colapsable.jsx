@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown, Maximize2 } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const CollapsibleSection = ({
@@ -8,16 +8,14 @@ const CollapsibleSection = ({
   children,
   isOpen,
   onToggle,
-  onFullScreen,
+  // onFullScreen prop is no longer needed
 }) => {
   return (
-    <div
-      className={`border border-gray-700/50 rounded-lg overflow-hidden mb-4 transition-all duration-300 `}
-    >
+    <div className="border border-gray-700/50 rounded-lg overflow-hidden mb-4 transition-all duration-300">
       <button
         onClick={(e) => {
           e.stopPropagation();
-          onFullScreen();
+          onToggle();
         }}
         className="w-full px-4 py-3 bg-gray-800/50 flex items-center justify-between hover:bg-gray-700/50 transition-colors duration-200 focus:outline-none focus:bg-gray-700/70"
       >
@@ -25,13 +23,11 @@ const CollapsibleSection = ({
           {icon}
           <span className="text-white font-medium">{title}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <ChevronDown
-            className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-              isOpen ? "transform rotate-180" : ""
-            }`}
-          />
-        </div>
+        <ChevronDown
+          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+            isOpen ? "transform rotate-180" : ""
+          }`}
+        />
       </button>
       <AnimatePresence>
         {isOpen && (

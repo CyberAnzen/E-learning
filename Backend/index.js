@@ -1,19 +1,38 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
-const cookieParser = require('cookie-parser');
-const port = 4000
-const bodyParser = require("body-parser")
-const products = require('./router/productRoute')
-const login = require("./router/userRoute")
-const ConnectDataBase = require('./config/connectDataBase')
-ConnectDataBase()
-app.use(cors({
-  origin: 'http://localhost:5173', // explicitly specify your client origin
-  credentials: true,               // allow cookies to be sent
-}));
+const express = require("express");
+const app = express();
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const port = 4000;
+const bodyParser = require("body-parser");
+const products = require("./router/productRoute");
+const login = require("./router/userRoute");
+const event = require("./router/eventRoutes");
+const ConnectDataBase = require("./config/connectDataBase");
+ConnectDataBase();
+
+
+// Middleware to handle CORS
+//dont change it
+const whitelist = [
+
+    'http://localhost:5173'// react app url
+    // Add other allowed origins here, e.g. 'https://example.com'
+]
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (whitelist.includes(origin) || !origin) {
+            callback(null, true); // Allow
+        } else {
+            callback(new Error("Not allowed by CORS")); // Block
+        }
+    },
+    credentials: true // This allows credentials (cookies, authorization headers, etc.)
+}
+
+app.use(cors(corsOptions));
 app.use(cookieParser());
-app.use(bodyParser.json())
-app.use("/user",login)
-app.use("/api",products)
-app.listen(port)
+app.use(bodyParser.json());
+app.use("/api", products);
+app.use("/api/event", event);
+app.listen(port);

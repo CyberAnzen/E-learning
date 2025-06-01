@@ -325,6 +325,7 @@ const Footer = () => {
               <p>
                 Designed & Developed by{" "}
                 <span className="text-[#01ffdb]">Vetrivel</span> &{" "}
+                <span className="text-[#01ffdb]">Yogesh</span> &{" "}
                 <span className="text-[#01ffdb]">Jafrin Sam</span> | II year
                 2025
                 <br className="md:hidden" />
