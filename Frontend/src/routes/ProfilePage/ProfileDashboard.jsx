@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import RadialProgess from "./RadialProgess";
+import Avatargroup from "./Avatargroup";
+import SkillsSelector from "./SkillsSelector";
+import { Link } from "react-router-dom";
+import { SquarePen } from "lucide-react";
 
 const ProfileDashboard = () => {
   const [image, setImage] = useState(
@@ -27,6 +31,14 @@ const ProfileDashboard = () => {
       missiondescription: "Write tests and deploy to production.",
       missiondata: 70,
     },
+  ];
+
+  const MyCertifications = [
+    "https://tse4.mm.bing.net/th?id=OIP.yYwNZAfYKu7bt1tDMXIkbgHaFm&pid=Api&P=0&h=180",
+    "https://tse2.mm.bing.net/th?id=OIP.7ZoCMCnNIfCjPZJia2Bq0QHaE4&pid=Api&P=0&h=180",
+    "https://tse1.mm.bing.net/th?id=OIP.-kVdIcJXAaLK6XBKiiTPQQHaFY&pid=Api&P=0&h=180",
+    "https://tse1.mm.bing.net/th?id=OIP.iIuEYq48GYIbLeqHfuajoAHaFP&pid=Api&P=0&h=180",
+    "https://tse1.mm.bing.net/th?id=OIP.BZytSwOaaretcAGUwO-rbwHaFR&pid=Api&P=0&h=180",
   ];
 
   return (
@@ -102,10 +114,10 @@ const ProfileDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Badges */}
         <div className="bg-gray-800 rounded-xl p-4">
-          <h3 className="font-bold mb-1">My Badges</h3>
+          <h3 className="font-bold mb-1">Links</h3>
           <p className="text-sm text-gray-300">
-            You have not unlocked any badges yet.{" "}
-            <span className="text-blue-400 cursor-pointer">Get Badges</span>
+            Add all the relevant links that help in knowing you as a cyberAnzen{" "}
+            <span className="text-blue-400 cursor-pointer">Add Links</span>
           </p>
         </div>
 
@@ -114,8 +126,9 @@ const ProfileDashboard = () => {
           <h3 className="font-bold mb-1">My Certifications</h3>
           <p className="text-sm text-gray-300">
             You have not earned any certificates yet.{" "}
-            <span className="text-blue-400 cursor-pointer">Get Certified</span>
+            <Link to='/learn' className="text-blue-400 cursor-pointer">Get Certified</Link>
           </p>
+          <Avatargroup certifications={MyCertifications} />
         </div>
       </div>
 
@@ -138,8 +151,26 @@ const ProfileDashboard = () => {
         {/* Education */}
         <div className="bg-gray-800 rounded-xl p-4">
           <div className="flex justify-between items-center">
-            <h3 className="font-bold">Education</h3>
-            <button className="text-blue-400 text-sm">+ Add Education</button>
+            <h3 className="font-bold">My Skills</h3>
+            {/* You can open the modal using document.getElementById('ID').showModal() method */}
+            <button
+              className="btn btn-ghost text-blue-400 cursor-pointer bg-transparent shadow-none border-none font-normal"
+              onClick={() => document.getElementById("my_modal_3").showModal()}
+            >
+              + Add Skills
+            </button>
+            <dialog id="my_modal_3" className="modal">
+              <div className="modal-box">
+                <form method="dialog">
+                  {/* if there is a button in form, it will close the modal */}
+                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                    ✕
+                  </button>
+                </form>
+                
+                <SkillsSelector/>
+              </div>
+            </dialog>{" "}
           </div>
           <p className="text-sm text-gray-300 mt-1">
             We believe in skills over pedigree; but go ahead add your education
