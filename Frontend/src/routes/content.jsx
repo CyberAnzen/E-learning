@@ -23,7 +23,7 @@ import ContentHeader from "../components/content/ContentHeader";
 import "../content.css";
 
 // ────────────────────────────────────────────────────────────────────────────
-// Dummy “full” data map (read‐only) for looking up by ID (used when not preview)
+// Dummy “full” data map (read‐only) for looking up by ID
 // ────────────────────────────────────────────────────────────────────────────
 const chapterDetailsById = {
   1: {
@@ -44,8 +44,7 @@ const chapterDetailsById = {
         title: "Understanding Cyber Threats",
         completed: false,
         content: {
-          description:
-            "Learn about the fundamental concepts of cybersecurity and common threats in today's digital landscape.",
+          description: `Learn about the fundamental concepts of cybersecurity and common threats in today's digital landscape.`,
           objectives: [
             "Understand the basics of cybersecurity",
             "Identify common cyber threats",
@@ -222,7 +221,7 @@ According to Security Magazine, a cybersecurity industry magazine, there are ove
   // …Add more chapters as needed…
 };
 
-const Content = ({ selectedChapterId, chapters = [], isPreview = false }) => {
+const Content = ({ selectedChapterId, isPreview = false }) => {
   // ─── State Variables ─────────────────────────────────────────────────────
   const [activeSection, setActiveSection] = useState(null);
   const [fullScreenSection, setFullScreenSection] = useState(null);
@@ -238,79 +237,28 @@ const Content = ({ selectedChapterId, chapters = [], isPreview = false }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
 
-  // ─── EFFECT: On mount or when selectedChapterId/chapters change ─────────
+  // ─── EFFECT: When selectedChapterId changes, look up full data ───────────
   useEffect(() => {
-    if (isPreview) {
-      // In preview mode, we assume chapters[0] exists and has a shape:
-      // { id, chapter, icon, completed, content: { title, author, duration, image, description, questions: [string,…] } }
-      const previewData = chapters[0] || null;
-      if (!previewData) return;
+    if (selectedChapterId == null) return;
 
-      // Build a “mock” chapter that Content can consume
-      const mockChapter = {
-        id: previewData.id,
-        chapter: previewData.chapter,
-        content: {
-          title: previewData.content.title,
-          author: previewData.content.author,
-          duration: previewData.content.duration,
-          image: previewData.content.image,
-        },
-        tasks: [
-          {
-            id: "task-preview",
-            title: previewData.content.title,
-            completed: previewData.completed,
-            content: {
-              // In preview, we treat description as mainContent
-              mainContent: previewData.content.description || "",
-              // No “objectives” in preview
-              objectives: [],
-              // Convert each string question into { id, text, type } form
-              questions: (previewData.content.questions || []).map((q, i) => ({
-                id: `q-preview-${i}`,
-                text: q,
-                type: "text",
-              })),
-            },
-          },
-        ],
-      };
+    const fullChapter = chapterDetailsById[selectedChapterId] || null;
+    setCurrentChapter(fullChapter);
 
-      setCurrentChapter(mockChapter);
-      setCurrentTask(mockChapter.tasks[0]);
-
-      // Reset any UI state
-      setActiveSection(null);
-      setFullScreenSection(null);
-      setTaskProgress(0);
-      setSubmitted(false);
-      setAnswers({});
-      setCurrentStep(0);
-      setCompletedSteps([]);
+    if (fullChapter && fullChapter.tasks.length > 0) {
+      setCurrentTask(fullChapter.tasks[0]);
     } else {
-      // Not preview: lookup from chapterDetailsById by selectedChapterId
-      if (selectedChapterId == null) return;
-
-      const fullChapter = chapterDetailsById[selectedChapterId] || null;
-      setCurrentChapter(fullChapter);
-
-      if (fullChapter && fullChapter.tasks.length > 0) {
-        setCurrentTask(fullChapter.tasks[0]);
-      } else {
-        setCurrentTask(null);
-      }
-
-      // Reset UI state on chapter change
-      setActiveSection(null);
-      setFullScreenSection(null);
-      setTaskProgress(0);
-      setSubmitted(false);
-      setAnswers({});
-      setCurrentStep(0);
-      setCompletedSteps([]);
+      setCurrentTask(null);
     }
-  }, [selectedChapterId, chapters, isPreview]);
+
+    // Reset UI state on chapter change
+    setActiveSection(null);
+    setFullScreenSection(null);
+    setTaskProgress(0);
+    setSubmitted(false);
+    setAnswers({});
+    setCurrentStep(0);
+    setCompletedSteps([]);
+  }, [selectedChapterId]);
 
   // ─── EFFECT: Recalculate taskProgress when currentChapter changes ─────────
   useEffect(() => {
@@ -332,7 +280,7 @@ const Content = ({ selectedChapterId, chapters = [], isPreview = false }) => {
     setCompletedSteps([]);
   }, [currentTask]);
 
-  // ─── EFFECT: Listen for scroll to toggle scrolled ───────────────────────
+  // ─── EFFECT: Listen for scroll to toggle `scrolled` ───────────────────────
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
