@@ -9,10 +9,12 @@ import {
   Flag,
   Target,
   Lightbulb,
-  Check,
+  DotSquareIcon,
   Terminal,
   Maximize2,
   MoveRightIcon,
+  DotIcon,
+  DotSquare,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CollapsibleSection from "../components/content/colapsable";
@@ -412,7 +414,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                       key={idx}
                       className="flex items-center gap-2 p-2 bg-gray-700/30 rounded"
                     >
-                      <Check className="w-5 h-5 text-green-400" />
+                      <DotSquare className="w-5 h-5 text-green-400" />
                       <span className="text-gray-200">{objective}</span>
                     </div>
                   ))}
@@ -441,8 +443,9 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
             </div>
           </div>
 
-          {/* ─── Terminal Questions (static row icon; collapsible closed) ───────────────────────────── */}
-          <div className="border border-gray-700/50 rounded-lg overflow-hidden mb-4">
+          {/* ─── Terminal Questions: Inline on desktop, button on mobile ───────────────────────────── */}
+          {/* Inline on screens ≥ 640px */}
+          <div className="hidden sm:block border border-gray-700/50 rounded-lg overflow-hidden mb-4">
             <div className="w-full px-4 py-3 bg-gray-800/50 flex items-center gap-3">
               <Terminal className="w-5 h-5 text-green-400" />
               <span className="text-white font-medium">Questions</span>
@@ -461,6 +464,21 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                 totalObjectives={currentTask.content.objectives.length}
               />
             </div>
+          </div>
+
+          {/* Button on screens < 640px */}
+          <div className="block sm:hidden border border-gray-700/50 rounded-lg overflow-hidden mb-4">
+            <button
+              onClick={() => {
+                setActiveSection(null);
+                handleOpenFullScreen("questions");
+              }}
+              className="w-full px-4 py-3 bg-gray-800/50 flex items-center gap-3 hover:bg-gray-700/50 transition-colors duration-200 text-white"
+            >
+              <Terminal className="w-5 h-5 text-green-400" />
+              <span className="font-medium">View Questions</span>
+              <MoveRightIcon className="w-5 h-5 text-gray-400 ml-auto" />
+            </button>
           </div>
 
           <div className="flex justify-end">
@@ -499,31 +517,50 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
 
       {/* ─── Full‐Screen Modal ───────────────────────────────────────────── */}
       <AnimatePresence>
-        {fullScreenSection && (
+        {fullScreenSection === "content" && (
           <FullScreenReader
-            section={fullScreenSection}
+            section="content"
             content={
-              fullScreenSection === "content" ? (
-                <>
-                  <div className="mb-8 rounded-xl overflow-hidden shadow-2xl max-w-[70%] mx-auto">
-                    <img
-                      src={currentChapter.content.image}
-                      alt={currentChapter.content.title}
-                      className="w-full rounded-xl h-64 sm:h-72 md:h-80 lg:h-96 object-cover"
-                    />
-                  </div>
-                  <div className="prose prose-invert max-w-[95%] mx-auto">
-                    <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-                      {currentTask.content.mainContent}
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <></>
-              )
+              <>
+                <div className="mb-8 rounded-xl overflow-hidden shadow-2xl max-w-[70%] mx-auto">
+                  <img
+                    src={currentChapter.content.image}
+                    alt={currentChapter.content.title}
+                    className="w-full rounded-xl h-64 sm:h-72 md:h-80 lg:h-96 object-cover"
+                  />
+                </div>
+                <div className="prose prose-invert max-w-[95%] mx-auto">
+                  <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
+                    {currentTask.content.mainContent}
+                  </p>
+                </div>
+              </>
             }
             title="Chapter Content"
             icon={<Lightbulb className="w-6 h-6 text-yellow-400" />}
+            onClose={handleCloseFullScreen}
+          />
+        )}
+
+        {fullScreenSection === "questions" && (
+          <FullScreenReader
+            section="questions"
+            content={
+              <TerminalDesign
+                ip={ip}
+                chapterId={currentChapter.id}
+                chapterPath={getChapterPath()}
+                questions={currentTask.content.questions}
+                answers={answers}
+                taskId={currentTask.id}
+                onAnswerSubmit={handleAnswerSubmit}
+                isSubmitted={submitted}
+                completedSteps={completedSteps}
+                totalObjectives={currentTask.content.objectives.length}
+              />
+            }
+            title="Questions"
+            icon={<Terminal className="w-6 h-6 text-green-400" />}
             onClose={handleCloseFullScreen}
           />
         )}
