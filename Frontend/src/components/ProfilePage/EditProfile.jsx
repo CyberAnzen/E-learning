@@ -161,7 +161,7 @@ export default function EditProfile() {
   return (
     <div className="min-h-screen mt-3 mb-2 flex items-center justify-center relative ">
       <div className="w-full max-w-[1400px] px-4">
-        <div className=" pt-14 bg-gradient-to-br from-gray-90  via-68% via-black to-black backdrop-blur-xl rounded-2xl border-2 border-b-0 border-r-0 border-[#01ffdb]/20">
+        <div className=" pt-14 bg-gradient-to-br from-gray-90 via-68% via-black to-black backdrop-blur-xl rounded-2xl border-2 border-b-0 border-r-0 border-[#01ffdb]/20">
           <div className="flex max-md:flex-col items-center justify-center gap-20 mb-2 md:mb-10 ">
             <h1
               className="text-2xl  sm:text-4xl md:text-5xl font-bold text-white motion-safe:animate-glitch "

@@ -3,13 +3,16 @@ import RadialProgess from "./RadialProgess";
 import Avatargroup from "./Avatargroup";
 import SkillsSelector from "./SkillsSelector";
 import { Link } from "react-router-dom";
-import { SquarePen } from "lucide-react";
+import { Pencil, SquarePen } from "lucide-react";
+import { useAppContext } from "../../context/AppContext";
 
 const ProfileDashboard = () => {
   const [image, setImage] = useState(
     "https://i.pinimg.com/736x/af/70/bb/af70bb880077591b711b83ee7717c91b.jpg"
   );
+  const { savedSkills } = useAppContext();
 
+  const dummyskills = ["Css", "Javascript(Intermediate)"];
   const dummyData = [
     {
       missiondetails: "Frontend Development",
@@ -46,7 +49,13 @@ const ProfileDashboard = () => {
       {/* Top Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card */}
-        <div className="bg-gray-800 rounded-xl p-4 flex flex-col items-center text-center">
+        <div className="bg-gray-800 rounded-xl p-4 flex flex-col items-center text-center relative">
+          <Link
+            to="/profile/editprofile"
+            className="absolute top-3 right-4 text-blue-400 hover:text-cyan-700 cursor-pointer"
+          >
+            <SquarePen size={18} />
+          </Link>
           <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center text-3xl font-bold">
             <img src={image} alt="" className="rounded-full" />
           </div>
@@ -68,7 +77,7 @@ const ProfileDashboard = () => {
                 className="carousel-item relative w-full"
               >
                 <RadialProgess progessdata={item} />
-                <div className="absolute left-15 right-15 max-ms:left-right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
+                <div className="absolute left-3 right-3 max-ms:left-right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
                   <a href={prevSlide} className="btn btn-circle opacity-30">
                     ❮
                   </a>
@@ -85,7 +94,13 @@ const ProfileDashboard = () => {
       {/* Second Row: Personal Info, Resume, EEO */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Personal Info */}
-        <div className="bg-gray-800 rounded-xl p-4">
+        <div className="bg-gray-800 rounded-xl p-4 relative">
+          <Link
+            to="/profile/editprofile"
+            className="absolute top-3 right-4 text-blue-400 hover:text-cyan-700 cursor-pointer"
+          >
+            <SquarePen size={18} />
+          </Link>
           <h3 className="font-bold mb-2">Personal Information</h3>
           <ul className="text-sm text-gray-300 space-y-1">
             <li>📧 mexample@gmail.com</li>
@@ -98,7 +113,7 @@ const ProfileDashboard = () => {
         <div className="bg-gray-800 rounded-xl p-4">
           <h3 className="font-bold mb-2">My Resume</h3>
           <p className="text-sm text-gray-300 mb-2">Add your resume here</p>
-          <button className="bg-blue-600 hover:bg-blue-700 px-3 py-1 text-sm rounded">
+          <button className="bg-blue-900 hover:bg-cyan-900 px-3 py-1 text-sm rounded cursor-pointer">
             + Add Resume
           </button>
         </div>
@@ -126,14 +141,16 @@ const ProfileDashboard = () => {
           <h3 className="font-bold mb-1">My Certifications</h3>
           <p className="text-sm text-gray-300">
             You have not earned any certificates yet.{" "}
-            <Link to='/learn' className="text-blue-400 cursor-pointer">Get Certified</Link>
+            <Link to="/learn" className="text-blue-400 cursor-pointer">
+              Get Certified
+            </Link>
           </p>
           <Avatargroup certifications={MyCertifications} />
         </div>
       </div>
 
       {/* Work & Education */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="">
         {/* Work Experience */}
         <div className="bg-gray-800 rounded-xl p-4">
           <div className="flex justify-between items-center">
@@ -147,7 +164,8 @@ const ProfileDashboard = () => {
             well.
           </p>
         </div>
-
+      </div>
+      <div>
         {/* Education */}
         <div className="bg-gray-800 rounded-xl p-4">
           <div className="flex justify-between items-center">
@@ -157,7 +175,11 @@ const ProfileDashboard = () => {
               className="btn btn-ghost text-blue-400 cursor-pointer bg-transparent shadow-none border-none font-normal"
               onClick={() => document.getElementById("my_modal_3").showModal()}
             >
-              + Add Skills
+              {savedSkills.length > 0 ? (
+                <SquarePen size={20} className="hover:text-cyan-700" />
+              ) : (
+                "+ Add Skills"
+              )}
             </button>
             <dialog id="my_modal_3" className="modal">
               <div className="modal-box">
@@ -167,15 +189,25 @@ const ProfileDashboard = () => {
                     ✕
                   </button>
                 </form>
-                
-                <SkillsSelector/>
+
+                <SkillsSelector />
               </div>
             </dialog>{" "}
           </div>
           <p className="text-sm text-gray-300 mt-1">
-            We believe in skills over pedigree; but go ahead add your education
+            We believe in skills over pedigree but go ahead add your education
             for the recruiters who don’t.
           </p>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {savedSkills.map((skill) => (
+              <span
+                key={skill}
+                className="flex items-center bg-gradient-to-br from-gray-90 via-60% via-black to-black px-3 py-1 rounded-full text-sm"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </div>

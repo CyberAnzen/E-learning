@@ -8,7 +8,7 @@ const RadialProgess = ({
   },
 }) => {
   return (
-    <div className="bg-cyan-900  p-4 flex flex-col md:flex-row justify-between items-center w-full">
+    <div className="bg-cyan-900  p-4 md:px-12 lg:px-10 flex flex-col md:flex-row justify-between items-center w-full">
       <div className="mb-4 md:mb-0">
         <h3 className="text-lg font-bold">{progessdata.missiondetails}</h3>
         <p className="text-sm text-gray-300">

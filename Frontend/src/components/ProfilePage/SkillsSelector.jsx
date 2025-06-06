@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
+import { useAppContext } from "../../context/AppContext";
 
 const allSkills = [
   "Algorithm",
@@ -28,7 +29,7 @@ const quickSkills = [
 ];
 
 const SkillsSelector = ({ modalRef }) => {
-  const [savedSkills, setSavedSkills] = useState([]);
+  const { savedSkills, setSavedSkills } = useAppContext();
   const [draftSkills, setDraftSkills] = useState([...savedSkills]);
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -71,7 +72,7 @@ const SkillsSelector = ({ modalRef }) => {
             {skill}
             <button
               onClick={() => removeSkill(skill)}
-              className="ml-2 hover:text-red-400"
+              className="ml-2 hover:text-red-400 cursor-pointer"
             >
               <X size={16} />
             </button>
