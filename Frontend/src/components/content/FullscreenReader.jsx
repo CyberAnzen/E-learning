@@ -43,35 +43,54 @@ const FullScreenReader = ({ section, content, title, icon, onClose }) => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
+  // Framer Motion variants for the content area
+  const contentVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { delay: 0.1, duration: 0.3 },
+    },
+  };
+
   // Determine classes based on current theme
   const rootClasses =
     theme === "dark"
       ? "fixed inset-0 z-50 bg-gradient-to-b from-gray-800 to-gray-700 backdrop-blur-lg flex flex-col"
       : "fixed inset-0 z-50 bg-white flex flex-col";
+
   const headerClasses =
     theme === "dark"
       ? "p-4 flex items-center justify-between bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700"
       : "p-4 flex items-center justify-between bg-gray-50 border-b border-gray-200";
+
   const titleClasses =
     theme === "dark"
       ? "text-xl font-bold text-white"
       : "text-xl font-bold text-gray-900";
+
+  // ✏️ Here is the only change: we add [&_*]:text-gray-100 (or [&_*]:text-gray-900)
+  // so that every nested element gets that same color.
   const contentWrapperClasses =
     theme === "dark"
-      ? "flex-1 w-full overflow-y-auto p-6 md:p-10 custom-scrollbar bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100"
-      : "flex-1 w-full overflow-y-auto p-6 md:p-10 custom-scrollbar bg-white text-gray-900";
+      ? "flex-1 w-full overflow-y-auto p-6 md:p-10 custom-scrollbar bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 [&_*]:text-gray-100"
+      : "flex-1 w-full overflow-y-auto p-6 md:p-10 custom-scrollbar bg-white text-gray-900 [&_*]:text-gray-900";
+
   const footerClasses =
     theme === "dark"
       ? "p-4 bg-gradient-to-r from-gray-900 to-gray-800 border-t border-gray-700 flex justify-end"
       : "p-4 bg-gray-50 border-t border-gray-200 flex justify-end";
+
   const closeButtonHeaderClasses =
     theme === "dark"
       ? "p-2 rounded-full bg-gray-800/50 hover:bg-gray-700 transition-colors"
       : "p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors";
+
   const closeButtonFooterClasses =
     theme === "dark"
       ? "px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
       : "px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-900 rounded-lg transition-colors";
+
   const themeToggleButtonClasses =
     theme === "dark"
       ? "p-2 rounded-full bg-gray-800/50 hover:bg-gray-700 transition-colors"
@@ -85,6 +104,7 @@ const FullScreenReader = ({ section, content, title, icon, onClose }) => {
       transition={{ duration: 0.2 }}
       className={rootClasses}
     >
+      {/* ===== HEADER ===== */}
       <div className={headerClasses}>
         <div className="flex items-center gap-3">
           {icon}
@@ -110,15 +130,17 @@ const FullScreenReader = ({ section, content, title, icon, onClose }) => {
         </div>
       </div>
 
+      {/* ===== ANIMATED CONTENT WRAPPER (force‐override all nested text color) ===== */}
       <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.1, duration: 0.3 }}
+        variants={contentVariants}
+        initial="hidden"
+        animate="visible"
         className={contentWrapperClasses}
       >
         {content}
       </motion.div>
 
+      {/* ===== FOOTER ===== */}
       <div className={footerClasses}>
         <button onClick={onClose} className={closeButtonFooterClasses}>
           Close
