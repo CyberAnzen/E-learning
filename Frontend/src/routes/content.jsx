@@ -1,5 +1,3 @@
-// File: src/components/Content.jsx
-
 import React, { useState, useEffect } from "react";
 import {
   Clock,
@@ -9,23 +7,23 @@ import {
   Flag,
   Target,
   Lightbulb,
-  DotSquareIcon,
-  Terminal,
-  Maximize2,
-  MoveRightIcon,
-  DotIcon,
   DotSquare,
+  Terminal,
+  MoveRightIcon,
+  CheckCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CollapsibleSection from "../components/content/colapsable";
 import FullScreenReader from "../components/content/FullscreenReader";
+import FullscreenAnswerPage from "../components/content/FullScreenAnswerPage";
 import TerminalDesign from "../components/content/Terminal";
 import SubmitButton from "../components/content/SubmitButton";
 import ContentHeader from "../components/content/ContentHeader";
+import ChapterProgress from "../components/content/ChapterProgress";
 import "../content.css";
 
 // ────────────────────────────────────────────────────────────────────────────
-// Dummy “full” data map (read‐only) for looking up by ID
+// Dummy "full" data map (read‐only) for looking up by ID
 // ────────────────────────────────────────────────────────────────────────────
 const chapterDetailsById = {
   1: {
@@ -71,8 +69,34 @@ According to Security Magazine, a cybersecurity industry magazine, there are ove
             {
               id: "q2",
               text: "How many cyber attacks occur daily according to Security Magazine?",
-              type: "text",
+              type: "multiple-choice",
+              options: [
+                "Over 1,000",
+                "Over 2,200",
+                "Over 5,000",
+                "Over 10,000",
+              ],
+              correctAnswer: "Over 2,200",
               hint: "The number is mentioned in the content - over 2,200",
+            },
+            {
+              id: "q3",
+              text: "Which of the following are key areas where cybersecurity is relevant? (Select all that apply)",
+              type: "multiple-select",
+              options: [
+                "Strong password policies to protect emails",
+                "Business protection of devices and data",
+                "Personal information security",
+                "Network security",
+                "Social media marketing",
+              ],
+              correctAnswers: [
+                "Strong password policies to protect emails",
+                "Business protection of devices and data",
+                "Personal information security",
+                "Network security",
+              ],
+              hint: "Look for the areas mentioned in the cybersecurity relevance section",
             },
           ],
         },
@@ -89,13 +113,36 @@ According to Security Magazine, a cybersecurity industry magazine, there are ove
             "Understand basic tool usage",
             "Practice with sample scenarios",
           ],
-          mainContent: "Content for basic security tools...",
+          mainContent: `Security professionals use various tools to protect systems and networks. Common categories include:
+
+Network Scanning Tools:
+- Nmap: Network discovery and security auditing
+- Masscan: High-speed port scanner
+- Zmap: Internet-wide network scanner
+
+Vulnerability Assessment:
+- Nessus: Comprehensive vulnerability scanner
+- OpenVAS: Open-source vulnerability assessment
+- Qualys: Cloud-based security platform
+
+Web Application Testing:
+- Burp Suite: Web application security testing
+- OWASP ZAP: Web application security scanner
+- Nikto: Web server scanner`,
           questions: [
             {
-              id: "q3",
-              text: "Name three essential security tools mentioned in the lesson",
+              id: "q4",
+              text: "Which tool is primarily used for network discovery and security auditing?",
+              type: "multiple-choice",
+              options: ["Burp Suite", "Nmap", "Nessus", "OWASP ZAP"],
+              correctAnswer: "Nmap",
+              hint: "Look for tools mentioned in the Network Scanning Tools section",
+            },
+            {
+              id: "q5",
+              text: "Name three essential security tools mentioned in the lesson and their primary purposes.",
               type: "text",
-              hint: "Look for tools mentioned in the scanning and monitoring sections",
+              hint: "Choose from any of the tools mentioned in the scanning, vulnerability assessment, or web application testing sections",
             },
           ],
         },
@@ -124,12 +171,38 @@ According to Security Magazine, a cybersecurity industry magazine, there are ove
           description:
             "Explore the fundamentals of ethical hacking and penetration testing.",
           objectives: ["Understand penetration testing basics"],
-          mainContent: `Penetration testing (or pentesting) is the practice of testing a computer system, network, or web application to find vulnerabilities that an attacker could exploit.`,
+          mainContent: `Penetration testing (or pentesting) is the practice of testing a computer system, network, or web application to find vulnerabilities that an attacker could exploit.
+
+Types of Hackers:
+- White Hat Hackers: Ethical hackers who help organizations improve security
+- Black Hat Hackers: Malicious hackers who exploit vulnerabilities for personal gain
+- Gray Hat Hackers: Fall between white and black hat, may find vulnerabilities without permission but don't exploit them maliciously
+
+Penetration Testing Phases:
+1. Planning and Reconnaissance
+2. Scanning and Enumeration  
+3. Gaining Access
+4. Maintaining Access
+5. Analysis and Reporting`,
           questions: [
             {
-              id: "q4",
+              id: "q6",
               text: "What is the difference between black hat and white hat hacking?",
               type: "text",
+              hint: "Think about the intentions and ethics behind each type of hacking",
+            },
+            {
+              id: "q7",
+              text: "Which type of hacker helps organizations improve their security?",
+              type: "multiple-choice",
+              options: [
+                "Black Hat Hackers",
+                "White Hat Hackers",
+                "Gray Hat Hackers",
+                "Script Kiddies",
+              ],
+              correctAnswer: "White Hat Hackers",
+              hint: "Look for the type that works ethically to help organizations",
             },
           ],
         },
@@ -145,17 +218,48 @@ According to Security Magazine, a cybersecurity industry magazine, there are ove
             "Differentiate passive vs. active recon",
             "Use `whois`, `nslookup`, `nmap` basics",
           ],
-          mainContent: `Reconnaissance is the first phase of a penetration test. In passive reconnaissance, you gather public data from websites, social media, DNS records, etc. In active reconnaissance, you interact with the target directly (e.g., sending pings, port scanning).`,
+          mainContent: `Reconnaissance is the first phase of a penetration test. 
+
+Passive Reconnaissance:
+- Gathering public data from websites, social media, DNS records
+- Tools: whois, Google dorking, social media analysis
+- No direct interaction with target systems
+
+Active Reconnaissance:
+- Direct interaction with target systems
+- Tools: nmap, ping, traceroute
+- May be detected by target systems
+
+Common Tools:
+- whois: Domain registration information
+- nslookup: DNS lookup utility
+- nmap: Network mapping and port scanning`,
           questions: [
             {
-              id: "q5",
-              text: "Name one passive reconnaissance tool.",
-              type: "text",
+              id: "q8",
+              text: "Which of the following are passive reconnaissance techniques? (Select all that apply)",
+              type: "multiple-select",
+              options: [
+                "Google dorking",
+                "Port scanning with nmap",
+                "Whois lookups",
+                "Social media analysis",
+                "Ping sweeps",
+              ],
+              correctAnswers: [
+                "Google dorking",
+                "Whois lookups",
+                "Social media analysis",
+              ],
+              hint: "Passive techniques don't directly interact with target systems",
             },
             {
-              id: "q6",
-              text: "What `nmap` flag shows open TCP ports?",
-              type: "text",
+              id: "q9",
+              text: "What nmap flag is commonly used to perform a TCP SYN scan?",
+              type: "multiple-choice",
+              options: ["-sS", "-sT", "-sU", "-sP"],
+              correctAnswer: "-sS",
+              hint: "Think about the SYN scan option in nmap",
             },
           ],
         },
@@ -187,12 +291,39 @@ According to Security Magazine, a cybersecurity industry magazine, there are ove
             "Interpret firewall rule syntax",
             "Set up a basic UFW policy",
           ],
-          mainContent: `Firewalls filter network traffic based on predefined rules. In Linux, \`iptables\` or \`ufw\` are commonly used. UFW (Uncomplicated Firewall) is a simpler frontend for \`iptables\`.`,
+          mainContent: `Firewalls filter network traffic based on predefined rules. In Linux, iptables or ufw are commonly used. UFW (Uncomplicated Firewall) is a simpler frontend for iptables.
+
+Common UFW Commands:
+- ufw enable: Enable the firewall
+- ufw allow 22: Allow SSH (port 22)
+- ufw allow 80: Allow HTTP (port 80)
+- ufw allow 443: Allow HTTPS (port 443)
+- ufw deny 23: Deny Telnet (port 23)
+- ufw status: Check firewall status
+
+Firewall Types:
+- Packet Filtering: Examines packets and allows/denies based on rules
+- Stateful Inspection: Tracks connection states
+- Application Layer: Inspects application-specific data`,
           questions: [
             {
-              id: "q7",
+              id: "q10",
               text: "What command enables UFW and allows SSH (port 22)?",
               type: "text",
+              hint: "You need two commands: one to enable UFW and another to allow SSH",
+            },
+            {
+              id: "q11",
+              text: "Which type of firewall tracks connection states?",
+              type: "multiple-choice",
+              options: [
+                "Packet Filtering",
+                "Stateful Inspection",
+                "Application Layer",
+                "Network Address Translation",
+              ],
+              correctAnswer: "Stateful Inspection",
+              hint: "Look for the firewall type that monitors connection states",
             },
           ],
         },
@@ -208,12 +339,41 @@ According to Security Magazine, a cybersecurity industry magazine, there are ove
             "Define IDS vs. IPS",
             "Give an example of a popular IDS tool",
           ],
-          mainContent: `IDS (Intrusion Detection System) passively monitors traffic and alerts on suspicious activity. IPS (Intrusion Prevention System) actively blocks or mitigates threats in real-time.`,
+          mainContent: `IDS (Intrusion Detection System) passively monitors traffic and alerts on suspicious activity. IPS (Intrusion Prevention System) actively blocks or mitigates threats in real-time.
+
+Popular IDS/IPS Tools:
+- Snort: Open-source network intrusion detection
+- Suricata: High-performance network IDS/IPS
+- OSSEC: Host-based intrusion detection
+- Fail2ban: Intrusion prevention for log files
+
+Key Differences:
+- IDS: Detection and alerting only
+- IPS: Detection, alerting, and active blocking
+- HIDS: Host-based monitoring
+- NIDS: Network-based monitoring`,
           questions: [
             {
-              id: "q8",
-              text: "Name one open-source IDS tool.",
-              type: "text",
+              id: "q12",
+              text: "What is the main difference between IDS and IPS?",
+              type: "multiple-choice",
+              options: [
+                "IDS is faster than IPS",
+                "IDS only detects and alerts, while IPS actively blocks threats",
+                "IPS is open-source, IDS is commercial",
+                "There is no difference",
+              ],
+              correctAnswer:
+                "IDS only detects and alerts, while IPS actively blocks threats",
+              hint: "Think about passive monitoring vs. active blocking",
+            },
+            {
+              id: "q13",
+              text: "Which of the following are popular IDS/IPS tools? (Select all that apply)",
+              type: "multiple-select",
+              options: ["Snort", "Suricata", "OSSEC", "Nmap", "Fail2ban"],
+              correctAnswers: ["Snort", "Suricata", "OSSEC", "Fail2ban"],
+              hint: "Look for tools mentioned in the Popular IDS/IPS Tools section",
             },
           ],
         },
@@ -227,6 +387,8 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
   // ─── State Variables ─────────────────────────────────────────────────────
   const [activeSection, setActiveSection] = useState(null);
   const [fullScreenSection, setFullScreenSection] = useState(null);
+  const [showFullscreenAnswerPage, setShowFullscreenAnswerPage] =
+    useState(false);
   const [currentChapter, setCurrentChapter] = useState(null);
   const [currentTask, setCurrentTask] = useState(null);
   const [taskProgress, setTaskProgress] = useState(0);
@@ -238,6 +400,17 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
   );
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
+
+  // ─── NEW: Track if Objectives or Content have been opened ───────────────
+  const [objectivesOpened, setObjectivesOpened] = useState(false);
+  const [contentOpened, setContentOpened] = useState(false);
+
+  // NEW: Overall progress state
+  const [overallProgress, setOverallProgress] = useState({
+    percentage: 0,
+    completed: 0,
+    total: 0,
+  });
 
   // ─── EFFECT: When selectedChapterId changes, look up full data ───────────
   useEffect(() => {
@@ -255,11 +428,14 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
     // Reset UI state on chapter change
     setActiveSection(null);
     setFullScreenSection(null);
+    setShowFullscreenAnswerPage(false);
     setTaskProgress(0);
     setSubmitted(false);
     setAnswers({});
     setCurrentStep(0);
     setCompletedSteps([]);
+    setObjectivesOpened(false);
+    setContentOpened(false);
   }, [selectedChapterId]);
 
   // ─── EFFECT: Recalculate taskProgress when currentChapter changes ─────────
@@ -272,6 +448,13 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
       (completedCount / currentChapter.tasks.length) * 100
     );
     setTaskProgress(percentage);
+
+    // Calculate overall progress
+    setOverallProgress({
+      percentage,
+      completed: completedCount,
+      total: currentChapter.tasks.length,
+    });
   }, [currentChapter]);
 
   // ─── EFFECT: Reset answers & steps when currentTask changes ────────────────
@@ -345,10 +528,23 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
   const handleOpenFullScreen = (section) => {
     setFullScreenSection(section);
     document.body.style.overflow = "hidden";
+    if (section === "content") {
+      setContentOpened(true);
+    }
   };
 
   const handleCloseFullScreen = () => {
     setFullScreenSection(null);
+    document.body.style.overflow = "auto";
+  };
+
+  const handleOpenFullscreenAnswers = () => {
+    setShowFullscreenAnswerPage(true);
+    document.body.style.overflow = "hidden";
+  };
+
+  const handleCloseFullscreenAnswers = () => {
+    setShowFullscreenAnswerPage(false);
     document.body.style.overflow = "auto";
   };
 
@@ -358,7 +554,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
       : "";
   };
 
-  // If the chapter or task isn’t loaded yet, show a placeholder
+  // If the chapter or task isn't loaded yet, show a placeholder
   if (!currentChapter || !currentTask) {
     return (
       <div className="flex items-center justify-center h-full text-gray-400">
@@ -384,138 +580,153 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
         taskProgress={taskProgress}
       />
 
-      {/* ─── TASK CARD ────────────────────────────────────────────────────── */}
-      <center>
-        <div className="bg-gray-800/30 rounded-xl max-w-8/10 p-6 backdrop-blur-sm border border-gray-700/50 overflow-hidden">
-          <div className="mb-6 font-mono text-green-400">
-            <div className="flex items-center gap-3 mb-6">
-              <Flag className="w-6 h-6 text-green-400" />
-              <h2 className="text-lg sm:text-xl font-semibold">
-                Task {currentTask.id.split("-")[1]}: {currentTask.title}
-              </h2>
-            </div>
+      {/* ─── MAIN CONTENT CONTAINER ──────────────────────────────────────── */}
+      <div className="flex flex-col lg:flex-row gap-8 px-4 py-8 max-w-7xl mx-auto">
+        {/* Extracted ChapterProgress */}
+        <ChapterProgress
+          overallProgress={overallProgress}
+          tasks={currentChapter.tasks}
+          currentTaskId={currentTask.id}
+        />
 
-            <div className="overflow-y-auto pr-2">
-              {/* ─── Learning Objectives Collapsible ───────────────────── */}
-              <CollapsibleSection
-                title="Learning Objectives"
-                icon={<Target className="w-5 h-5 text-blue-400" />}
-                isOpen={activeSection === "objectives"}
-                onToggle={() => {
-                  // Toggle only this collapsible; do not affect others
-                  setActiveSection(
-                    activeSection === "objectives" ? null : "objectives"
-                  );
-                }}
-              >
-                <div className="space-y-2">
-                  {currentTask.content.objectives.map((objective, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2 p-2 bg-gray-700/30 rounded"
-                    >
-                      <DotSquare className="w-5 h-5 text-green-400" />
-                      <span className="text-gray-200">{objective}</span>
+        {/* ─── LEFT COLUMN: TASK CARD ────────────────────────────────────── */}
+        <div className="w-full lg:w-7/12 order-2 lg:order-1">
+          <div className="flex justify-center">
+            <div className="bg-gray-800/30 rounded-xl w-full max-w-3xl p-6 backdrop-blur-sm border border-gray-700/50 overflow-hidden">
+              <div className="mb-6 font-mono text-green-400">
+                <div className="flex items-center gap-3 mb-6">
+                  <Flag className="w-6 h-6 text-green-400" />
+                  <h2 className="text-lg sm:text-xl font-semibold">
+                    Task {currentTask.id.split("-")[1]}: {currentTask.title}
+                  </h2>
+                </div>
+
+                <div className="overflow-y-auto pr-2">
+                  {/* ─── Learning Objectives Collapsible ───────────────────── */}
+                  <CollapsibleSection
+                    title={
+                      <div className="flex items-center">
+                        <Target className="w-5 h-5 text-blue-400" />
+                        <span className="ml-2">Learning Objectives</span>
+                        {objectivesOpened && (
+                          <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
+                        )}
+                      </div>
+                    }
+                    isOpen={activeSection === "objectives"}
+                    onToggle={() => {
+                      const next =
+                        activeSection === "objectives" ? null : "objectives";
+                      setActiveSection(next);
+                      if (next === "objectives") setObjectivesOpened(true);
+                    }}
+                  >
+                    <div className="space-y-2">
+                      {currentTask.content.objectives.map((objective, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 p-2 bg-gray-700/30 rounded"
+                        >
+                          <DotSquare className="w-5 h-5 text-green-400" />
+                          <span className="text-gray-200">{objective}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </CollapsibleSection>
+                  </CollapsibleSection>
 
-              {/* ─── Chapter Content (entire div clickable; closes collapsible) ────────────────────────── */}
-              <div
-                className="border border-gray-700/50 rounded-lg overflow-hidden mb-4 cursor-pointer"
-                onClick={() => {
-                  // Close the Learning Objectives collapsible before opening fullscreen
-                  setActiveSection(null);
-                  handleOpenFullScreen("content");
-                }}
-              >
-                <div className="w-full px-4 py-3 bg-gray-800/50 flex items-center justify-between hover:bg-gray-700/50 transition-colors duration-200">
-                  <div className="flex items-center gap-3">
-                    <Lightbulb className="w-5 h-5 text-yellow-400" />
-                    <span className="text-white font-medium">
-                      Chapter Content
-                    </span>
+                  {/* ─── Chapter Content ────────────────────────── */}
+                  <div
+                    className="border border-gray-700/50 rounded-lg overflow-hidden mb-4 cursor-pointer"
+                    onClick={() => {
+                      setActiveSection(null);
+                      handleOpenFullScreen("content");
+                    }}
+                  >
+                    <div
+                      className="cyber-button w-full px-4 py-3 bg-transparent border border-[#01ffdb]/20
+                  font-medium rounded-lg hover:bg-transparent
+                  transition-all  font-mono relative overflow-hidden text-xltransition-colors duration-200 text-white flex items-center gap-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Lightbulb className="w-5 h-5 text-yellow-400" />
+                        <span className="text-white font-medium">
+                          Chapter Content
+                        </span>
+                        {contentOpened && (
+                          <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
+                        )}
+                      </div>
+                      <MoveRightIcon className="w-5 h-5 text-gray-400" />
+                    </div>
                   </div>
-                  <MoveRightIcon className="w-5 h-5 text-gray-400" />
                 </div>
+              </div>
+
+              {/* ─── Questions ───────────────────────────── */}
+              <div className="border border-gray-700/50 rounded-lg overflow-hidden mb-4">
+                <button
+                  onClick={() => {
+                    setActiveSection(null);
+                    handleOpenFullscreenAnswers();
+                  }}
+                  className="cyber-button w-full px-4 py-3 bg-[#01ffdb]/10 border border-[#01ffdb]/50
+                  font-medium rounded-lg hover:bg-[#01ffdb]/20 
+                  transition-all  font-mono relative overflow-hidden text-xltransition-colors duration-200 text-white flex items-center gap-3"
+                >
+                  <Terminal className="w-5 h-5 text-white" />
+                  <span className="font-medium">Answer Questions</span>
+                  <div className="ml-auto flex items-center gap-2">
+                    <span className="text-sm text-gray-200">
+                      {
+                        Object.keys(answers).filter((key) =>
+                          key.startsWith(currentTask.id)
+                        ).length
+                      }
+                      /{currentTask.content.questions.length}
+                    </span>
+                    {submitted && (
+                      <CheckCircle className="w-4 h-4 text-green-200" />
+                    )}
+                    <MoveRightIcon className="w-5 h-5 text-white" />
+                  </div>
+                </button>
               </div>
             </div>
           </div>
 
-          {/* ─── Terminal Questions: Inline on desktop, button on mobile ───────────────────────────── */}
-          {/* Inline on screens ≥ 640px */}
-          <div className="hidden sm:block border border-gray-700/50 rounded-lg overflow-hidden mb-4">
-            <div className="w-full px-4 py-3 bg-gray-800/50 flex items-center gap-3">
-              <Terminal className="w-5 h-5 text-green-400" />
-              <span className="text-white font-medium">Questions</span>
+          {/* ─── Navigation Buttons ─────────────────────────────────────────── */}
+          {!isPreview && (
+            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
+              <div className="flex gap-4 w-full sm:w-auto">
+                <button
+                  onClick={navigateToPrevious}
+                  disabled={isFirstTask}
+                  className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                >
+                  <ChevronLeft className="w-5 h-5" /> Previous
+                </button>
+                <button
+                  onClick={navigateToNext}
+                  disabled={isLastTask}
+                  className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                >
+                  Next <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>{" "}
+              <div className="flex justify-end w-full sm:w-auto">
+                <SubmitButton
+                  isSubmitted={submitted}
+                  completedSteps={completedSteps}
+                  totalObjectives={currentTask.content.objectives.length}
+                  onSubmit={handleSubmit}
+                />
+              </div>
             </div>
-            <div className="p-4 bg-gray-800/30">
-              <TerminalDesign
-                ip={ip}
-                chapterId={currentChapter.id}
-                chapterPath={getChapterPath()}
-                questions={currentTask.content.questions}
-                answers={answers}
-                taskId={currentTask.id}
-                onAnswerSubmit={handleAnswerSubmit}
-                isSubmitted={submitted}
-                completedSteps={completedSteps}
-                totalObjectives={currentTask.content.objectives.length}
-              />
-            </div>
-          </div>
-
-          {/* Button on screens < 640px */}
-          <div className="block sm:hidden border border-gray-700/50 rounded-lg overflow-hidden mb-4">
-            <button
-              onClick={() => {
-                setActiveSection(null);
-                handleOpenFullScreen("questions");
-              }}
-              className="w-full px-4 py-3 bg-gray-800/50 flex items-center gap-3 hover:bg-gray-700/50 transition-colors duration-200 text-white"
-            >
-              <Terminal className="w-5 h-5 text-green-400" />
-              <span className="font-medium">View Questions</span>
-              <MoveRightIcon className="w-5 h-5 text-gray-400 ml-auto" />
-            </button>
-          </div>
-
-          <div className="flex justify-end">
-            <SubmitButton
-              isSubmitted={submitted}
-              completedSteps={completedSteps}
-              totalObjectives={currentTask.content.objectives.length}
-              onSubmit={handleSubmit}
-              className="w-2/3 lg:w-2/6 max-h-16 p-2.5"
-            />
-          </div>
+          )}
         </div>
-      </center>
+      </div>
 
-      {/* ─── Navigation Buttons ─────────────────────────────────────────── */}
-      {!isPreview && (
-        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-between items-center px-4">
-          <div className="flex gap-4 w-full sm:w-auto">
-            <button
-              onClick={navigateToPrevious}
-              disabled={isFirstTask}
-              className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-700/50 text-white rounded-lg hover:bg-gray-600/50 transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="w-5 h-5" /> Previous
-            </button>
-            <button
-              onClick={navigateToNext}
-              disabled={isLastTask}
-              className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-700/50 text-white rounded-lg hover:bg-gray-600/50 transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ─── Full‐Screen Modal ───────────────────────────────────────────── */}
+      {/* ─── Full‐Screen Content Modal ───────────────────────────────────── */}
       <AnimatePresence>
         {fullScreenSection === "content" && (
           <FullScreenReader
@@ -541,30 +752,21 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
             onClose={handleCloseFullScreen}
           />
         )}
-
-        {fullScreenSection === "questions" && (
-          <FullScreenReader
-            section="questions"
-            content={
-              <TerminalDesign
-                ip={ip}
-                chapterId={currentChapter.id}
-                chapterPath={getChapterPath()}
-                questions={currentTask.content.questions}
-                answers={answers}
-                taskId={currentTask.id}
-                onAnswerSubmit={handleAnswerSubmit}
-                isSubmitted={submitted}
-                completedSteps={completedSteps}
-                totalObjectives={currentTask.content.objectives.length}
-              />
-            }
-            title="Questions"
-            icon={<Terminal className="w-6 h-6 text-green-400" />}
-            onClose={handleCloseFullScreen}
-          />
-        )}
       </AnimatePresence>
+
+      {/* ─── Fullscreen Answer Page ─────────────────────────────────────────── */}
+      <FullscreenAnswerPage
+        isOpen={showFullscreenAnswerPage}
+        onClose={handleCloseFullscreenAnswers}
+        questions={currentTask?.content?.questions || []}
+        answers={answers}
+        taskId={currentTask?.id}
+        onAnswerSubmit={handleAnswerSubmit}
+        isSubmitted={submitted}
+        ip={ip}
+        chapterId={currentChapter?.id}
+        chapterPath={getChapterPath()}
+      />
     </section>
   );
 };
