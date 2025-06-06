@@ -9,13 +9,14 @@ export const AppContext = createContext();
 export const AppContextProvider = ({children}) =>{
       const navigate = useNavigate();
       const [user, setUser] = useState(true);
-
-
+      const [savedSkills, setSavedSkills] = useState([]);
 
     const value ={
         axios,
         navigate,
-        user
+        user,
+        savedSkills, 
+        setSavedSkills,
     }
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
