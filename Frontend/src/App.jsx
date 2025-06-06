@@ -18,7 +18,7 @@ import ForgetPassword from "./routes/forgetPassword";
 import Terms from "./routes/terms";
 import Signup from "./routes/signup";
 import PrivacyPolicy from "./routes/privacyPolicy";
-import Profile from "./routes/ProfilePage/account";
+import Profile from "./routes/account";
 import Content from "./routes/content";
 import AdminEditor from "./routes/adminEditor";
 import {useAppContext} from "./context/AppContext"
@@ -31,9 +31,9 @@ import {
   useLocation,
 } from "react-router-dom";
 import NotFound from "./routes/notFound";
-import ProfileDashboard from "./routes/ProfilePage/ProfileDashboard";
-import EditProfile from "./routes/ProfilePage/EditProfile";
-import Account from "./routes/ProfilePage/account";
+import ProfileDashboard from "./components/ProfilePage/ProfileDashboard";
+import EditProfile from "./components/ProfilePage/EditProfile";
+import Account from "./routes/account"
 import ContentController from "./routes/ContentController";
 function App() {
   const { user }= useAppContext();

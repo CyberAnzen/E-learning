@@ -17,7 +17,9 @@ const CollapsibleSection = ({
           e.stopPropagation();
           onToggle();
         }}
-        className="w-full px-4 py-3 bg-gray-800/50 flex items-center justify-between hover:bg-gray-700/50 transition-colors duration-200 focus:outline-none focus:bg-gray-700/70"
+        className="cyber-button w-full px-4 py-3 bg-transparent border border-[#01ffdb]/20
+                  font-medium rounded-lg hover:bg-transparent
+                  transition-all  font-mono relative overflow-hidden text-xltransition-colors duration-200 text-white flex items-center gap-3"
       >
         <div className="flex items-center gap-3">
           {icon}
