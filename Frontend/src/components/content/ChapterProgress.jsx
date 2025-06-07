@@ -13,7 +13,7 @@ const RadarProgress = ({ overallProgress, tasks, currentTaskId }) => {
 
   return (
     <div className="w-full lg:w-5/12 order-1 lg:order-2">
-      <div className="relative bg-gradient-to-br from-gray-900/60 via-gray-800/40 to-gray-900/60 rounded-2xl p-4 lg:p-6 backdrop-blur-xl border border-gray-600/30 shadow-2xl sticky top-20 lg:top-24">
+      <div className=" bg-gradient-to-br from-gray-900/60 via-gray-800/40 to-gray-900/60 rounded-2xl p-4 lg:p-6 backdrop-blur-xl border border-gray-600/30 shadow-2xl sticky top-20 lg:top-24">
         {/* Subtle inner glow */}
         <div className="absolute inset-1 bg-gradient-to-br from-emerald-500/5 via-transparent to-cyan-500/5 rounded-xl pointer-events-none"></div>
 
