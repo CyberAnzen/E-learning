@@ -5,6 +5,8 @@ import SkillsSelector from "./SkillsSelector";
 import { Link } from "react-router-dom";
 import { Pencil, SquarePen } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
+import LinkForm from "./LinkForm";
+import Modal from "./Modal";
 
 const ProfileDashboard = () => {
   const [image, setImage] = useState(
@@ -128,12 +130,20 @@ const ProfileDashboard = () => {
       {/* Badges, Certifications */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Badges */}
-        <div className="bg-gray-800 rounded-xl p-4">
+        <div className="bg-gray-800 rounded-xl p-4 relative">
           <h3 className="font-bold mb-1">Links</h3>
           <p className="text-sm text-gray-300">
             Add all the relevant links that help in knowing you as a cyberAnzen{" "}
-            <span className="text-blue-400 cursor-pointer">Add Links</span>
           </p>
+          <button
+            className="btn btn-ghost text-blue-400 absolute top-4 right-1 cursor-pointer bg-transparent shadow-none border-none font-normal"
+            onClick={() => document.getElementById("link_modal").showModal()}
+          >
+            + Add Links{" "}
+          </button>
+          <Modal id="link_modal">
+            <LinkForm />
+          </Modal>
         </div>
 
         {/* Certifications */}
@@ -173,7 +183,7 @@ const ProfileDashboard = () => {
             {/* You can open the modal using document.getElementById('ID').showModal() method */}
             <button
               className="btn btn-ghost text-blue-400 cursor-pointer bg-transparent shadow-none border-none font-normal"
-              onClick={() => document.getElementById("my_modal_3").showModal()}
+              onClick={() => document.getElementById("skills_modal").showModal()}
             >
               {savedSkills.length > 0 ? (
                 <SquarePen size={20} className="hover:text-cyan-700" />
@@ -181,18 +191,9 @@ const ProfileDashboard = () => {
                 "+ Add Skills"
               )}
             </button>
-            <dialog id="my_modal_3" className="modal">
-              <div className="modal-box">
-                <form method="dialog">
-                  {/* if there is a button in form, it will close the modal */}
-                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                    ✕
-                  </button>
-                </form>
-
-                <SkillsSelector />
-              </div>
-            </dialog>{" "}
+            <Modal id="skills_modal">
+              <SkillsSelector/>
+            </Modal>
           </div>
           <p className="text-sm text-gray-300 mt-1">
             We believe in skills over pedigree but go ahead add your education

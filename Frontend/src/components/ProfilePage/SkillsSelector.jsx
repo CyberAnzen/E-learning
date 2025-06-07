@@ -61,7 +61,6 @@ const SkillsSelector = ({ modalRef }) => {
   return (
     <div className=" text-white p-6 rounded-lg w-full max-w-xl mx-auto relative">
       <div className="text-lg font-semibold mb-4">My Skills</div>
-
       {/* Draft selected skills */}
       <div className="flex flex-wrap gap-2 mb-4">
         {draftSkills.map((skill) => (
