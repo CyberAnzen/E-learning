@@ -33,4 +33,5 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use("/api/event", event);
+app.use("/api/user", login);
 app.listen(port);
