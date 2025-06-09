@@ -3,7 +3,7 @@ import RadialProgess from "./RadialProgess";
 import Avatargroup from "./Avatargroup";
 import SkillsSelector from "./SkillsSelector";
 import { Link } from "react-router-dom";
-import { Pencil, SquarePen } from "lucide-react";
+import { Contact, Github, Linkedin, Pencil, SquarePen } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import LinkForm from "./LinkForm";
 import Modal from "./Modal";
@@ -12,7 +12,7 @@ const ProfileDashboard = () => {
   const [image, setImage] = useState(
     "https://i.pinimg.com/736x/af/70/bb/af70bb880077591b711b83ee7717c91b.jpg"
   );
-  const { savedSkills } = useAppContext();
+  const { savedSkills, savedLinks } = useAppContext();
 
   const dummyskills = ["Css", "Javascript(Intermediate)"];
   const dummyData = [
@@ -45,6 +45,12 @@ const ProfileDashboard = () => {
     "https://tse1.mm.bing.net/th?id=OIP.iIuEYq48GYIbLeqHfuajoAHaFP&pid=Api&P=0&h=180",
     "https://tse1.mm.bing.net/th?id=OIP.BZytSwOaaretcAGUwO-rbwHaFR&pid=Api&P=0&h=180",
   ];
+
+  const SavedLinks = {
+    linkedin: "https://www.linkedin.com/feed/",
+    github: "https://github.com/yogesh4617",
+    portfolio: "https://github.com/yogesh4617",
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6 space-y-6">
@@ -139,11 +145,34 @@ const ProfileDashboard = () => {
             className="btn btn-ghost text-blue-400 absolute top-4 right-1 cursor-pointer bg-transparent shadow-none border-none font-normal"
             onClick={() => document.getElementById("link_modal").showModal()}
           >
-            + Add Links{" "}
+            {savedLinks ? (
+              <SquarePen size={20} className="hover:text-cyan-700" />
+            ) : (
+              "+ Add Skills"
+            )}
           </button>
           <Modal id="link_modal">
             <LinkForm />
           </Modal>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {savedLinks &&
+              Object.entries(savedLinks).map(([key, value]) =>
+                value ? (
+                  <a
+                    href={value}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    key={key}
+                    className="flex items-center gap-2 bg-gradient-to-br from-gray-900 via-black to-black px-3 py-1 rounded-full text-sm text-white hover:underline"
+                  >
+                    {key === "github" && <Github size={16} />}
+                    {key === "linkedin" && <Linkedin size={16} />}
+                    {key === "portfolio" && <Contact size={16} />}
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </a>
+                ) : null
+              )}
+          </div>
         </div>
 
         {/* Certifications */}
@@ -183,7 +212,9 @@ const ProfileDashboard = () => {
             {/* You can open the modal using document.getElementById('ID').showModal() method */}
             <button
               className="btn btn-ghost text-blue-400 cursor-pointer bg-transparent shadow-none border-none font-normal"
-              onClick={() => document.getElementById("skills_modal").showModal()}
+              onClick={() =>
+                document.getElementById("skills_modal").showModal()
+              }
             >
               {savedSkills.length > 0 ? (
                 <SquarePen size={20} className="hover:text-cyan-700" />
@@ -192,7 +223,7 @@ const ProfileDashboard = () => {
               )}
             </button>
             <Modal id="skills_modal">
-              <SkillsSelector/>
+              <SkillsSelector />
             </Modal>
           </div>
           <p className="text-sm text-gray-300 mt-1">

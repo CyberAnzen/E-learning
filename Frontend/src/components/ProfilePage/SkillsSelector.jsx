@@ -66,7 +66,7 @@ const SkillsSelector = ({ modalRef }) => {
         {draftSkills.map((skill) => (
           <span
             key={skill}
-            className="flex items-center bg-[#2e2e42] px-3 py-1 rounded-full text-sm"
+            className="flex items-center bg-cyan-500/50 px-3 py-1 rounded-full text-sm"
           >
             {skill}
             <button
@@ -82,7 +82,7 @@ const SkillsSelector = ({ modalRef }) => {
       <input
         type="text"
         placeholder="Search for skills"
-        className="w-full h-12 p-2 rounded-md mb-2 bg-[#2e2e42] text-white placeholder-gray-400 border border-gray-600"
+        className="w-full h-12 p-2 rounded-md mb-2 bg-slate-800 focus:outline-none text-white placeholder-gray-400 border border-gray-600 hover:border-cyan-500/50"
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
@@ -92,7 +92,7 @@ const SkillsSelector = ({ modalRef }) => {
       />
 
       {showDropdown && search && (
-        <div className="absolute z-10 w-full max-w-xl bg-[#2e2e42] border border-gray-700 mt-1 rounded-md max-h-60 overflow-y-auto">
+        <div className="absolute z-10 w-full max-w-xl bg-slate-800 focus:outline-none text-white placeholder-gray-400 border border-gray-600 hover:border-cyan-500/50 max-h-60 overflow-y-auto">
           {filteredSkills.length > 0 ? (
             filteredSkills.map((skill) => (
               <div
@@ -117,7 +117,7 @@ const SkillsSelector = ({ modalRef }) => {
           <button
             key={skill}
             onClick={() => addSkill(skill)}
-            className="px-3 py-1 rounded-md border border-white hover:bg-white hover:text-black transition text-sm"
+            className="px-3 py-1 rounded-md border border-white hover:border-cyan-500/50 hover:bg-cyan-500/50 hover:text-black transition text-sm"
           >
             {skill}
           </button>

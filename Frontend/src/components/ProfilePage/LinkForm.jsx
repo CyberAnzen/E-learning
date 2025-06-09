@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useAppContext } from "../../context/AppContext";
 
 const LinkForm = () => {
   const [links, setLinks] = useState({
@@ -7,12 +8,20 @@ const LinkForm = () => {
     portfolio: "",
   });
   console.log(links);
-  
 
   const [errors, setErrors] = useState({
     linkedin: "",
     github: "",
   });
+
+  const { savedLinks, setSavedLinks } = useAppContext();
+  console.log(savedLinks);
+
+  useEffect(() => {
+    if (savedLinks) {
+      setLinks(savedLinks); // ← PREFILL the form if links are saved
+    }
+  }, [savedLinks]);
 
   // Validation functions
   const validateLinkedIn = (url) =>
@@ -29,27 +38,72 @@ const LinkForm = () => {
     if (name === "linkedin") {
       setErrors((prev) => ({
         ...prev,
-        linkedin: validateLinkedIn(value) ? "" : "Invalid LinkedIn link",
+        linkedin:
+          value.trim() === "" || validateLinkedIn(value)
+            ? ""
+            : "Invalid LinkedIn link",
       }));
     }
 
     if (name === "github") {
       setErrors((prev) => ({
         ...prev,
-        github: validateGitHub(value) ? "" : "Invalid GitHub link",
+        github:
+          value.trim() === "" || validateGitHub(value)
+            ? ""
+            : "Invalid GitHub link",
       }));
     }
   };
+  const isValid = () => {
+    const linkedinFilled = links.linkedin.trim() !== "";
+    const githubFilled = links.github.trim() !== "";
+    const portfolioFilled = links.portfolio.trim() !== "";
 
-  const isValid = () =>
-    links.linkedin &&
-    validateLinkedIn(links.linkedin) &&
-    links.github &&
-    validateGitHub(links.github) ||
-    links.portfolio;
+    const linkedinValid = linkedinFilled
+      ? validateLinkedIn(links.linkedin)
+      : true;
+    const githubValid = githubFilled 
+      ? validateGitHub(links.github) 
+      : true;
+    const portfolioValid = portfolioFilled
+      ? validateURL(links.portfolio)
+      : true;
+
+    // At least one link must be filled and valid
+    const atLeastOneFilled = linkedinFilled || githubFilled || portfolioFilled;
+
+    return {/*atLeastOneFilled*/} && linkedinValid && githubValid && portfolioValid;
+  };
+
+  // Handle Save Button
+  const handleSave = () => {
+    const linkedinFilled = links.linkedin.trim() !== "";
+    const githubFilled = links.github.trim() !== "";
+    const portfolioFilled = links.portfolio.trim() !== "";
+
+    const linkedinValid = linkedinFilled
+      ? validateLinkedIn(links.linkedin)
+      : true;
+    const githubValid = githubFilled ? validateGitHub(links.github) : true;
+    const portfolioValid = portfolioFilled
+      ? validateURL(links.portfolio)
+      : true;
+
+    setErrors({
+      linkedin: linkedinValid ? "" : "Invalid LinkedIn link",
+      github: githubValid ? "" : "Invalid GitHub link",
+    });
+
+    if (linkedinValid && githubValid && portfolioValid) {
+      setSavedLinks({ ...links });
+    } else {
+      alert("Please fix validation errors before saving.");
+    }
+  };
 
   return (
-    <div className=" p-6 rounded-lg text-white space-y-4">
+    <div className="p-6 rounded-lg text-white space-y-4">
       <h2 className="text-xl font-semibold">Links</h2>
 
       {/* LinkedIn */}
@@ -70,7 +124,7 @@ const LinkForm = () => {
           placeholder="https://www.linkedin.com/"
           className={`input input-bordered w-full ${
             errors.linkedin && "input-error"
-          }`}
+          } bg-slate-800 focus:outline-none`}
           value={links.linkedin}
           onChange={handleChange}
         />
@@ -97,7 +151,7 @@ const LinkForm = () => {
           placeholder="https://github.com/username"
           className={`input input-bordered w-full ${
             errors.github && "input-error"
-          }`}
+          }  bg-slate-800 focus:outline-none`}
           value={links.github}
           onChange={handleChange}
         />
@@ -122,7 +176,7 @@ const LinkForm = () => {
           type="url"
           name="portfolio"
           placeholder="https://example.com/"
-          className="input input-bordered w-full"
+          className="input input-bordered w-full bg-slate-800 focus:outline-none"
           value={links.portfolio}
           onChange={handleChange}
         />
@@ -131,9 +185,15 @@ const LinkForm = () => {
       {/* Buttons */}
       <div className="flex justify-between items-center">
         <button className="link text-sm"></button>
-        <button className="btn btn-primary" disabled={!isValid()}>
-          Save
-        </button>
+        <form method="dialog">
+          <button
+            className="btn bg-green-500 hover:bg-green-600"
+            disabled={!isValid()}
+            onClick={handleSave}
+          >
+            Save
+          </button>
+        </form>
       </div>
     </div>
   );
