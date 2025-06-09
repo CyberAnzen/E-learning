@@ -3,10 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/layout/sidebar/Sidebar";
 import Content from "./content";
-import {
-  Shield,
-  Terminal,
-} from "lucide-react"; // Import whichever Lucide icons you want for each chapter
+import { useParams, useNavigate } from "react-router-dom";
+import { Shield, Terminal } from "lucide-react"; // Import whichever Lucide icons you want for each chapter
 import "../content.css";
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -17,7 +15,7 @@ const chapterDetailsById = {
   1: {
     id: 1,
     chapter: "Introduction to Cybersecurity",
-    icon: Shield,         // ← Lucide icon component
+    icon: Shield, // ← Lucide icon component
     completed: true,
     content: {
       title: "Introduction to Cybersecurity",
@@ -92,7 +90,7 @@ According to Security Magazine, a cybersecurity industry magazine, there are ove
   2: {
     id: 2,
     chapter: "Ethical Hacking Basics",
-    icon: Terminal,       // ← Lucide icon component
+    icon: Terminal, // ← Lucide icon component
     completed: false,
     content: {
       title: "Getting Started with Penetration Testing",
@@ -153,7 +151,7 @@ According to Security Magazine, a cybersecurity industry magazine, there are ove
   3: {
     id: 3,
     chapter: "Network Defense Fundamentals",
-    icon: Shield,        // ← Lucide icon component
+    icon: Shield, // ← Lucide icon component
     completed: false,
     content: {
       title: "Firewall and IDS/IPS Overview",
@@ -215,38 +213,37 @@ According to Security Magazine, a cybersecurity industry magazine, there are ove
 // It renders Sidebar (passing courseData + currentChapter) and the Content pane.
 // ────────────────────────────────────────────────────────────────────────────
 const ContentController = () => {
-  // ─── State: which chapter ID is currently selected ────────────────────────
-  const [selectedChapterId, setSelectedChapterId] = useState(null);
+  // Get the `id` from the URL and navigation function for updating the URL
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  // Convert our `chapterDetailsById` object into an array for Sidebar
+  // Convert `chapterDetailsById` object into an array for Sidebar
   // (Sidebar expects `courseData` to be an array of { id, chapter, icon, completed, ... })
   const courseData = Object.values(chapterDetailsById);
 
-  // Whenever `selectedChapterId` changes, we can derive currentChapter from the map
-  const currentChapter =
-    selectedChapterId !== null
-      ? chapterDetailsById[selectedChapterId]
-      : null;
+  // Use the `id` from the URL directly as the selected chapter ID
+  // (`id` is a string, matching keys in `chapterDetailsById`)
+  const selectedChapterId = id;
 
-  // On mount, default to the first chapter’s ID (if any exist)
+  // Derive the current chapter from the URL `id`
+  const currentChapter = chapterDetailsById[selectedChapterId];
+
+  // On mount or when `id` changes, redirect to the first chapter if `id` is missing or invalid
   useEffect(() => {
-    if (courseData.length > 0) {
-      setSelectedChapterId(courseData[0].id);
+    if (courseData.length > 0 && (!id || !chapterDetailsById[id])) {
+      navigate(`/chapter/${courseData[0].id}`);
     }
-    // Note: we intentionally do not include courseData in dependencies
-    // so that this runs only once on mount.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [id, navigate, courseData]);
 
   // Handler: when the user clicks a chapter tile in Sidebar
   const handleChapterSelect = (chapterItem) => {
-    // Sidebar calls onChapterSelect(item) where item is the full chapter object
-    setSelectedChapterId(chapterItem.id);
+    // Navigate to the chapter's URL, updating the `id` in the URL to keep it in sync
+    navigate(`/chapter/${chapterItem.id}`);
   };
 
   return (
     <div className="flex max-h-full overflow-hidden">
-      {/* ─── Sidebar: passes the full `courseData` array, plus `currentChapter`, plus callback ─── */}
+      {/* Sidebar: passes the full `courseData` array, the current chapter, and the selection callback */}
       <Sidebar
         isPreview={false}
         courseData={courseData}
@@ -254,14 +251,13 @@ const ContentController = () => {
         onChapterSelect={handleChapterSelect}
         title="Course Contents"
       />
-
-      {/* ─── Main Content: once a chapter is selected, pass its ID to <Content> ─── */}
+      {/* Main Content: renders the Content component if a valid chapter is selected */}
       <div className="flex-1 overflow-auto">
-        {selectedChapterId !== null ? (
+        {currentChapter ? (
           <Content selectedChapterId={selectedChapterId} />
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500">
-            No chapter selected.
+            No chapter selected or invalid chapter ID.
           </div>
         )}
       </div>

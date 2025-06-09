@@ -10,19 +10,21 @@ import {
   Terminal,
   AlertCircle,
   Lightbulb,
+  HelpCircle,
+  Clock,
 } from "lucide-react";
 
-const FullscreenAnswerPage = ({
+const QuestionInterface = ({
   isOpen,
   onClose,
   questions = [],
   answers,
   taskId,
   onAnswerSubmit,
-  isSubmitted,
-  ip,
-  chapterId,
-  chapterPath,
+  isSubmitted = false,
+  ip = "192.168.1.100",
+  chapterId = "ch1",
+  chapterPath = "cybersec/basics",
 }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [localAnswer, setLocalAnswer] = useState("");
@@ -37,49 +39,41 @@ const FullscreenAnswerPage = ({
     const handleEscapeKey = (e) => {
       if (e.key === "Escape") onClose();
     };
-    document.addEventListener("keydown", handleEscapeKey);
-    return () => document.removeEventListener("keydown", handleEscapeKey);
-  }, [onClose]);
-
-  // Lock body scroll when open
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscapeKey);
+      document.body.style.overflow = "hidden";
+    }
     return () => {
+      document.removeEventListener("keydown", handleEscapeKey);
       document.body.style.overflow = "auto";
     };
-  }, []);
+  }, [isOpen, onClose]);
 
-  // Track browser back button: close modal instead of navigating away
+  // Track browser back button
   useEffect(() => {
-    window.history.pushState({ fullscreenReader: true }, "");
-    const handlePopState = (e) => {
-      if (e.state && e.state.fullscreenReader) {
-        onClose();
-      }
-    };
-    window.addEventListener("popstate", handlePopState);
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-      // No history.back() here, so clicking back just closes the modal
-    };
-  }, [onClose]);
+    if (isOpen) {
+      window.history.pushState({ fullscreenReader: true }, "");
+      const handlePopState = () => onClose();
+      window.addEventListener("popstate", handlePopState);
+      return () => window.removeEventListener("popstate", handlePopState);
+    }
+  }, [isOpen, onClose]);
 
-  // Update local answer when switching questions or when answers prop changes
+  // Update local answer when switching questions
   useEffect(() => {
     if (currentQuestion) {
       const existingAnswer = answers[questionKey];
 
-      if (currentQuestion.type === "text") {
-        setLocalAnswer(existingAnswer || "");
-        setLocalSelectedOptions([]);
-      } else if (currentQuestion.type === "multiple-choice") {
+      if (
+        currentQuestion.type === "text" ||
+        currentQuestion.type === "multiple-choice"
+      ) {
         setLocalAnswer(existingAnswer || "");
         setLocalSelectedOptions([]);
       } else if (currentQuestion.type === "multiple-select") {
         setLocalAnswer("");
         setLocalSelectedOptions(existingAnswer || []);
       }
-
       setShowHint(false);
     }
   }, [currentQuestionIndex, currentQuestion, answers, questionKey]);
@@ -120,6 +114,8 @@ const FullscreenAnswerPage = ({
       answerToSubmit = localAnswer.trim();
     } else if (currentQuestion.type === "multiple-select") {
       answerToSubmit = localSelectedOptions;
+    } else {
+      return;
     }
 
     if (
@@ -168,12 +164,12 @@ const FullscreenAnswerPage = ({
             value={localAnswer}
             onChange={(e) => handleTextAnswerChange(e.target.value)}
             placeholder="Type your answer here..."
-            className="w-full p-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+            className="w-full p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
             rows={4}
             disabled={isSubmitted}
           />
-          {isAnswered && (
-            <div className="absolute top-3 right-3">
+          {answers[questionKey] && (
+            <div className="absolute top-4 right-4">
               <CheckCircle className="w-5 h-5 text-green-400" />
             </div>
           )}
@@ -182,13 +178,15 @@ const FullscreenAnswerPage = ({
     } else if (currentQuestion.type === "multiple-choice") {
       return (
         <div className="space-y-3">
-          {currentQuestion.options.map((option, index) => (
-            <label
+          {currentQuestion.options?.map((option, index) => (
+            <motion.label
               key={index}
-              className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-300 ${
                 localAnswer === option
-                  ? "border-blue-500 bg-blue-500/10"
-                  : "border-gray-600 bg-gray-900/30 hover:border-gray-500"
+                  ? "border-blue-500/50 bg-blue-500/10 backdrop-blur-sm"
+                  : "border-white/10 bg-white/5 backdrop-blur-sm hover:border-white/20 hover:bg-white/10"
               } ${isSubmitted ? "cursor-not-allowed opacity-75" : ""}`}
             >
               <input
@@ -201,31 +199,37 @@ const FullscreenAnswerPage = ({
                 className="sr-only"
               />
               <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
                   localAnswer === option
-                    ? "border-blue-500 bg-blue-500"
+                    ? "border-blue-500 bg-blue-500 shadow-lg shadow-blue-500/25"
                     : "border-gray-400"
                 }`}
               >
                 {localAnswer === option && (
-                  <div className="w-2 h-2 rounded-full bg-white"></div>
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="w-2 h-2 rounded-full bg-white"
+                  />
                 )}
               </div>
-              <span className="text-white">{option}</span>
-            </label>
+              <span className="text-white flex-1">{option}</span>
+            </motion.label>
           ))}
         </div>
       );
     } else if (currentQuestion.type === "multiple-select") {
       return (
         <div className="space-y-3">
-          {currentQuestion.options.map((option, index) => (
-            <label
+          {currentQuestion.options?.map((option, index) => (
+            <motion.label
               key={index}
-              className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-300 ${
                 localSelectedOptions.includes(option)
-                  ? "border-blue-500 bg-blue-500/10"
-                  : "border-gray-600 bg-gray-900/30 hover:border-gray-500"
+                  ? "border-green-500/50 bg-green-500/10 backdrop-blur-sm"
+                  : "border-white/10 bg-white/5 backdrop-blur-sm hover:border-white/20 hover:bg-white/10"
               } ${isSubmitted ? "cursor-not-allowed opacity-75" : ""}`}
             >
               <input
@@ -237,18 +241,20 @@ const FullscreenAnswerPage = ({
                 className="sr-only"
               />
               <div
-                className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-300 ${
                   localSelectedOptions.includes(option)
-                    ? "border-blue-500 bg-blue-500"
+                    ? "border-green-500 bg-green-500 shadow-lg shadow-green-500/25"
                     : "border-gray-400"
                 }`}
               >
                 {localSelectedOptions.includes(option) && (
-                  <CheckCircle className="w-3 h-3 text-white" />
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                    <CheckCircle className="w-3 h-3 text-white" />
+                  </motion.div>
                 )}
               </div>
-              <span className="text-white">{option}</span>
-            </label>
+              <span className="text-white flex-1">{option}</span>
+            </motion.label>
           ))}
         </div>
       );
@@ -260,18 +266,23 @@ const FullscreenAnswerPage = ({
     if (!isSubmitted || !answer) return null;
 
     return (
-      <div className="bg-green-900/20 border border-green-700/30 rounded-lg p-3">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-green-500/10 backdrop-blur-sm border border-green-500/30 rounded-xl p-4"
+      >
         <div className="flex items-center gap-2 text-green-400">
           <CheckCircle className="w-5 h-5" />
           <span className="font-medium">Answer submitted</span>
         </div>
-        <div className="text-green-200 text-sm mt-1">
+        <div className="text-green-200 text-sm mt-2">
           <span className="font-medium">Your answer: </span>
           {Array.isArray(answer) ? (
-            <div className="mt-1">
+            <div className="mt-1 space-y-1">
               {answer.map((item, index) => (
-                <div key={index} className="ml-2">
-                  • {item}
+                <div key={index} className="ml-2 flex items-center gap-2">
+                  <Circle className="w-2 h-2 fill-current" />
+                  {item}
                 </div>
               ))}
             </div>
@@ -279,7 +290,7 @@ const FullscreenAnswerPage = ({
             `"${answer}"`
           )}
         </div>
-      </div>
+      </motion.div>
     );
   };
 
@@ -288,6 +299,7 @@ const FullscreenAnswerPage = ({
   const isAnswered = answers[questionKey];
   const isFirstQuestion = currentQuestionIndex === 0;
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const answeredCount = Object.keys(answers).length;
 
   return (
     <AnimatePresence>
@@ -295,131 +307,151 @@ const FullscreenAnswerPage = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex flex-col"
+        className="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex flex-col"
       >
         {/* Header */}
-        <div className="flex-shrink-0 bg-gray-900/90 border-b border-gray-700/50 px-4 py-3">
+        <div className="flex-shrink-0 bg-black/20 backdrop-blur-md border-b border-white/10 px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Terminal className="w-6 h-6 text-green-400" />
+            <div className="flex items-center gap-4">
+              <div className="p-2 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl backdrop-blur-sm border border-white/10">
+                <Terminal className="w-6 h-6 text-blue-400" />
+              </div>
               <div>
-                <h2 className="text-white font-semibold text-lg">Questions</h2>
-                <p className="text-gray-400 text-sm">
-                  {currentQuestionIndex + 1} of {questions.length}
+                <h2 className="text-white font-semibold text-xl">
+                  Interactive Assessment
+                </h2>
+                <p className="text-gray-400 text-sm flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4" />
+                  Question {currentQuestionIndex + 1} of {questions.length}
+                  <span className="text-green-400">
+                    • {answeredCount} answered
+                  </span>
                 </p>
               </div>
             </div>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+              className="p-3 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/10"
             >
               <X className="w-6 h-6" />
-            </button>
+            </motion.button>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="flex-shrink-0 bg-gray-900/50 px-4 py-2">
-          <div className="flex gap-1">
+        <div className="flex-shrink-0 bg-black/10 backdrop-blur-sm px-6 py-3">
+          <div className="flex gap-2">
             {questions.map((_, index) => (
-              <div
+              <motion.div
                 key={index}
-                className={`flex-1 h-1 rounded-full transition-colors duration-300 ${
+                className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${
                   index === currentQuestionIndex
-                    ? "bg-blue-500"
+                    ? "bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg shadow-blue-500/25"
                     : index < currentQuestionIndex
-                    ? "bg-green-500"
+                    ? "bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg shadow-green-500/25"
                     : answers[`${taskId}-${questions[index].id}`]
-                    ? "bg-green-500/50"
-                    : "bg-gray-700"
+                    ? "bg-gradient-to-r from-green-500/50 to-emerald-500/50"
+                    : "bg-white/10"
                 }`}
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: index * 0.1 }}
               />
             ))}
           </div>
         </div>
 
         {/* Terminal Header */}
-        <div className="flex-shrink-0 bg-gray-900/80 px-4 py-3 border-b border-gray-700/30">
+        <div className="flex-shrink-0 bg-black/30 backdrop-blur-sm px-6 py-4 border-b border-white/5">
           <div className="font-mono text-sm">
             <div className="flex items-center gap-2 text-green-400">
               <span className="text-gray-500">┌──(</span>
-              <span className="text-blue-400">student@kali</span>
+              <span className="text-blue-400">student@assessment</span>
               <span className="text-gray-500">)-[</span>
-              <span className="text-yellow-400">~/{chapterPath}</span>
+              <span className="text-amber-400">~/{chapterPath}</span>
               <span className="text-gray-500">]</span>
             </div>
             <div className="flex items-center gap-2 text-green-400 mt-1">
               <span className="text-gray-500">└─</span>
               <span className="text-green-400">$</span>
-              <span className="text-white ml-2">Connection: {ip}</span>
+              <span className="text-white ml-2 flex items-center gap-2">
+                Connection: {ip}
+                <Clock className="w-3 h-3 text-gray-400" />
+              </span>
             </div>
           </div>
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto px-4 py-6">
+        <div className="flex-1 overflow-y-auto px-6 py-6">
           <motion.div
             key={currentQuestionIndex}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
+            transition={{ duration: 0.3 }}
+            className="max-w-4xl mx-auto space-y-6"
           >
-            {/* Question */}
-            <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
-              <div className="flex items-start gap-3 mb-4">
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-semibold text-sm">
+            {/* Question Card */}
+            <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-2xl">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25">
+                  <span className="text-white font-bold text-sm">
                     {currentQuestionIndex + 1}
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-white font-medium mb-2">
+                  <h3 className="text-white font-semibold text-lg mb-3 leading-relaxed">
                     {currentQuestion.text}
                   </h3>
 
                   {/* Question Type Badge */}
-                  <div className="mb-3">
+                  <div className="mb-4">
                     <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm ${
                         currentQuestion.type === "text"
-                          ? "bg-purple-900/30 text-purple-300 border border-purple-700/30"
+                          ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
                           : currentQuestion.type === "multiple-choice"
-                          ? "bg-blue-900/30 text-blue-300 border border-blue-700/30"
-                          : "bg-green-900/30 text-green-300 border border-green-700/30"
+                          ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                          : "bg-green-500/20 text-green-300 border border-green-500/30"
                       }`}
                     >
-                      {currentQuestion.type === "text" && "Text Answer"}
+                      {currentQuestion.type === "text" && "Free Text Response"}
                       {currentQuestion.type === "multiple-choice" &&
-                        "Single Choice"}
+                        "Single Selection"}
                       {currentQuestion.type === "multiple-select" &&
-                        "Multiple Choice"}
+                        "Multiple Selection"}
                     </span>
                   </div>
 
                   {/* Hint Toggle */}
                   {currentQuestion.hint && (
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={toggleHint}
-                      className="flex items-center gap-2 text-yellow-400 hover:text-yellow-300 text-sm transition-colors"
+                      className="flex items-center gap-2 text-amber-400 hover:text-amber-300 text-sm transition-colors bg-amber-500/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-amber-500/20"
                     >
                       <Lightbulb className="w-4 h-4" />
-                      {showHint ? "Hide Hint" : "Show Hint"}
-                    </button>
+                      {showHint ? "Hide Hint" : "Need a Hint?"}
+                    </motion.button>
                   )}
 
                   {/* Hint Content */}
                   <AnimatePresence>
                     {showHint && (
                       <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="mt-3 p-3 bg-yellow-900/20 border border-yellow-700/30 rounded-lg"
+                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                        animate={{ opacity: 1, height: "auto", marginTop: 16 }}
+                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="p-4 bg-amber-500/10 backdrop-blur-sm border border-amber-500/30 rounded-xl"
                       >
-                        <div className="flex items-start gap-2">
-                          <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
-                          <p className="text-yellow-200 text-sm">
+                        <div className="flex items-start gap-3">
+                          <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                          <p className="text-amber-200 text-sm leading-relaxed">
                             {currentQuestion.hint}
                           </p>
                         </div>
@@ -430,19 +462,21 @@ const FullscreenAnswerPage = ({
               </div>
 
               {/* Answer Input */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {renderAnswerInput()}
 
                 {/* Submit Button */}
                 {!isSubmitted && (
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleSubmitAnswer}
                     disabled={!canSubmit()}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white py-4 px-6 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-blue-500/25 backdrop-blur-sm"
                   >
-                    <Send className="w-4 h-4" />
+                    <Send className="w-5 h-5" />
                     Submit Answer
-                  </button>
+                  </motion.button>
                 )}
 
                 {/* Submitted State */}
@@ -453,47 +487,53 @@ const FullscreenAnswerPage = ({
         </div>
 
         {/* Navigation Footer */}
-        <div className="flex-shrink-0 bg-gray-900/90 border-t border-gray-700/50 px-4 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <button
+        <div className="flex-shrink-0 bg-black/20 backdrop-blur-md border-t border-white/10 px-6 py-4">
+          <div className="flex items-center justify-between gap-4 max-w-4xl mx-auto">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={handlePrevious}
               disabled={isFirstQuestion}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg transition-colors disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:text-gray-500 text-white rounded-xl transition-all duration-300 disabled:cursor-not-allowed backdrop-blur-sm border border-white/10"
             >
               <ChevronLeft className="w-4 h-4" />
               Previous
-            </button>
+            </motion.button>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {questions.map((_, index) => (
-                <button
+                <motion.button
                   key={index}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setCurrentQuestionIndex(index)}
-                  className={`w-8 h-8 rounded-full border-2 transition-colors ${
+                  className={`w-10 h-10 rounded-xl border-2 transition-all duration-300 backdrop-blur-sm ${
                     index === currentQuestionIndex
-                      ? "border-blue-500 bg-blue-500 text-white"
+                      ? "border-blue-500 bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/25"
                       : answers[`${taskId}-${questions[index].id}`]
-                      ? "border-green-500 bg-green-500 text-white"
-                      : "border-gray-600 bg-gray-800 text-gray-400 hover:border-gray-500"
+                      ? "border-green-500 bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25"
+                      : "border-white/20 bg-white/5 text-gray-400 hover:border-white/40 hover:bg-white/10"
                   }`}
                 >
                   {answers[`${taskId}-${questions[index].id}`] ? (
-                    <CheckCircle className="w-4 h-4 mx-auto" />
+                    <CheckCircle className="w-5 h-5 mx-auto" />
                   ) : (
-                    <span className="text-xs">{index + 1}</span>
+                    <span className="text-sm font-medium">{index + 1}</span>
                   )}
-                </button>
+                </motion.button>
               ))}
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={handleNext}
               disabled={isLastQuestion}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg transition-colors disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:text-gray-500 text-white rounded-xl transition-all duration-300 disabled:cursor-not-allowed backdrop-blur-sm border border-white/10"
             >
               Next
               <ChevronRight className="w-4 h-4" />
-            </button>
+            </motion.button>
           </div>
         </div>
       </motion.div>
@@ -501,4 +541,4 @@ const FullscreenAnswerPage = ({
   );
 };
 
-export default FullscreenAnswerPage;
+export default QuestionInterface;
