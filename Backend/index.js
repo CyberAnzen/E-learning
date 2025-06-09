@@ -4,7 +4,6 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const port = 4000;
 const bodyParser = require("body-parser");
-const products = require("./router/productRoute");
 const login = require("./router/userRoute");
 const event = require("./router/eventRoutes");
 const ConnectDataBase = require("./config/connectDataBase");
@@ -33,6 +32,5 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use("/api", products);
 app.use("/api/event", event);
 app.listen(port);
