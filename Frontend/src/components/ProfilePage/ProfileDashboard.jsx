@@ -53,7 +53,7 @@ const ProfileDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white p-6 space-y-6">
       {/* Top Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card */}

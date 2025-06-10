@@ -19,7 +19,7 @@ const CollapsibleSection = ({
         }}
         className="cyber-button w-full px-4 py-3 bg-transparent border border-[#01ffdb]/20
                   font-medium rounded-lg hover:bg-transparent
-                  transition-all  font-mono relative overflow-hidden text-xltransition-colors duration-200 text-white flex items-center gap-3"
+                  transition-all  font-mono relative overflow-hidden text-xltransition-colors duration-200 text-white flex items-center justify-between gap-3"
       >
         <div className="flex items-center gap-3">
           {icon}

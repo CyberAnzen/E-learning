@@ -12,44 +12,105 @@ import {
   Lightbulb,
   HelpCircle,
   Clock,
+  Trophy,
+  Target,
+  Zap,
+  Award,
+  TrendingUp,
+  RotateCcw,
 } from "lucide-react";
+
+const VALIDATE_ENDPOINT = "/api/validate-answer";
+const SUBMIT_ENDPOINT = "/api/submit-assessment";
+
+export const validateAnswer = async (questionId, answer) => {
+  try {
+    const response = await fetch(VALIDATE_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ questionId, answer }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Validation failed");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Validation error:", error);
+    return {
+      isCorrect: false,
+      explanation: "Validation failed. Please try again.",
+    };
+  }
+};
+
+export const submitAssessment = async (answers, startTime) => {
+  try {
+    const response = await fetch(SUBMIT_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ answers, startTime }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Submission failed");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Submission error:", error);
+    return {
+      score: 0,
+      totalQuestions: Object.keys(answers).length,
+      percentage: 0,
+      results: {},
+      timeSpent: Date.now() - startTime,
+    };
+  }
+};
 
 const QuestionInterface = ({
   isOpen,
   onClose,
   questions = [],
-  answers,
   taskId,
-  onAnswerSubmit,
-  isSubmitted = false,
   ip = "192.168.1.100",
   chapterId = "ch1",
   chapterPath = "cybersec/basics",
 }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [showHint, setShowHint] = useState(false);
+  const [isSubmittingAssessment, setIsSubmittingAssessment] = useState(false);
+  const [assessmentResult, setAssessmentResult] = useState(null);
+  const [startTime] = useState(Date.now());
   const [localAnswer, setLocalAnswer] = useState("");
   const [localSelectedOptions, setLocalSelectedOptions] = useState([]);
-  const [showHint, setShowHint] = useState(false);
 
   const currentQuestion = questions[currentQuestionIndex];
-  const questionKey = `${taskId}-${currentQuestion?.id}`;
+  const currentAnswerState = answers[currentQuestion?.id];
 
-  // Handle escape key press to close
   useEffect(() => {
     const handleEscapeKey = (e) => {
       if (e.key === "Escape") onClose();
     };
+
     if (isOpen) {
       document.addEventListener("keydown", handleEscapeKey);
       document.body.style.overflow = "hidden";
     }
+
     return () => {
       document.removeEventListener("keydown", handleEscapeKey);
       document.body.style.overflow = "auto";
     };
   }, [isOpen, onClose]);
 
-  // Track browser back button
   useEffect(() => {
     if (isOpen) {
       window.history.pushState({ fullscreenReader: true }, "");
@@ -59,72 +120,132 @@ const QuestionInterface = ({
     }
   }, [isOpen, onClose]);
 
-  // Update local answer when switching questions
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentQuestionIndex(0);
+      setShowHint(false);
+      setAnswers({});
+      setAssessmentResult(null);
+      setLocalAnswer("");
+      setLocalSelectedOptions([]);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (currentQuestion) {
-      const existingAnswer = answers[questionKey];
+      const answerState = answers[currentQuestion.id];
 
       if (
         currentQuestion.type === "text" ||
         currentQuestion.type === "multiple-choice"
       ) {
-        setLocalAnswer(existingAnswer || "");
+        setLocalAnswer(answerState?.value || "");
         setLocalSelectedOptions([]);
       } else if (currentQuestion.type === "multiple-select") {
         setLocalAnswer("");
-        setLocalSelectedOptions(existingAnswer || []);
+        setLocalSelectedOptions(answerState?.value || []);
       }
       setShowHint(false);
     }
-  }, [currentQuestionIndex, currentQuestion, answers, questionKey]);
+  }, [currentQuestionIndex, currentQuestion, answers]);
 
-  // Reset when opening
   useEffect(() => {
-    if (isOpen) {
-      setCurrentQuestionIndex(0);
-      setShowHint(false);
-    }
-  }, [isOpen]);
+    if (questions.length === 0) return;
 
-  const handleTextAnswerChange = (value) => {
-    setLocalAnswer(value);
+    const answeredQuestions = Object.keys(answers).filter(
+      (id) => answers[id].validation && !answers[id].isValidating
+    );
+
+    if (answeredQuestions.length === questions.length && !assessmentResult) {
+      handleCompleteAssessment();
+    }
+  }, [answers, questions, assessmentResult]);
+
+  const handleAnswerSubmission = async (questionId, answer) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: {
+        value: answer,
+        isValidating: true,
+        isLocked: false,
+      },
+    }));
+
+    try {
+      const validation = await validateAnswer(questionId, answer);
+
+      setAnswers((prev) => ({
+        ...prev,
+        [questionId]: {
+          value: answer,
+          isValidating: false,
+          validation,
+          isLocked: true,
+        },
+      }));
+    } catch (error) {
+      console.error("Error validating answer:", error);
+      setAnswers((prev) => ({
+        ...prev,
+        [questionId]: {
+          value: answer,
+          isValidating: false,
+          isLocked: false,
+        },
+      }));
+    }
+  };
+
+  const handleTextAnswerSubmit = () => {
+    if (
+      localAnswer.trim() &&
+      (!currentAnswerState || !currentAnswerState.isLocked)
+    ) {
+      handleAnswerSubmission(currentQuestion.id, localAnswer.trim());
+    }
   };
 
   const handleMultipleChoiceChange = (option) => {
+    if (currentAnswerState?.isLocked) return;
+
     setLocalAnswer(option);
+    handleAnswerSubmission(currentQuestion.id, option);
   };
 
   const handleMultipleSelectChange = (option) => {
-    setLocalSelectedOptions((prev) => {
-      if (prev.includes(option)) {
-        return prev.filter((item) => item !== option);
-      } else {
-        return [...prev, option];
-      }
-    });
+    if (currentAnswerState?.isLocked) return;
+
+    const newSelection = localSelectedOptions.includes(option)
+      ? localSelectedOptions.filter((item) => item !== option)
+      : [...localSelectedOptions, option];
+
+    setLocalSelectedOptions(newSelection);
   };
 
-  const handleSubmitAnswer = () => {
-    let answerToSubmit;
-
+  const handleMultipleSelectSubmit = () => {
     if (
-      currentQuestion.type === "text" ||
-      currentQuestion.type === "multiple-choice"
+      localSelectedOptions.length > 0 &&
+      (!currentAnswerState || !currentAnswerState.isLocked)
     ) {
-      answerToSubmit = localAnswer.trim();
-    } else if (currentQuestion.type === "multiple-select") {
-      answerToSubmit = localSelectedOptions;
-    } else {
-      return;
+      handleAnswerSubmission(currentQuestion.id, localSelectedOptions);
     }
+  };
 
-    if (
-      answerToSubmit &&
-      (typeof answerToSubmit === "string"
-        ? answerToSubmit.length > 0
-        : answerToSubmit.length > 0)
-    ) {
-      onAnswerSubmit(currentQuestion.id, answerToSubmit);
+  const handleCompleteAssessment = async () => {
+    setIsSubmittingAssessment(true);
+
+    try {
+      const submissionAnswers = {};
+      Object.entries(answers).forEach(([questionId, answerState]) => {
+        submissionAnswers[questionId] = answerState.value;
+      });
+
+      const result = await submitAssessment(submissionAnswers, startTime);
+      setAssessmentResult(result);
+    } catch (error) {
+      console.error("Error submitting assessment:", error);
+    } finally {
+      setIsSubmittingAssessment(false);
     }
   };
 
@@ -144,162 +265,561 @@ const QuestionInterface = ({
     setShowHint(!showHint);
   };
 
-  const canSubmit = () => {
-    if (
-      currentQuestion.type === "text" ||
-      currentQuestion.type === "multiple-choice"
-    ) {
-      return localAnswer.trim().length > 0;
-    } else if (currentQuestion.type === "multiple-select") {
-      return localSelectedOptions.length > 0;
-    }
-    return false;
+  const resetAssessment = () => {
+    setAnswers({});
+    setAssessmentResult(null);
+    setCurrentQuestionIndex(0);
+    setLocalAnswer("");
+    setLocalSelectedOptions([]);
   };
 
   const renderAnswerInput = () => {
+    const isLocked = currentAnswerState?.isLocked;
+    const isValidating = currentAnswerState?.isValidating;
+    const validation = currentAnswerState?.validation;
+
     if (currentQuestion.type === "text") {
       return (
-        <div className="relative">
-          <textarea
-            value={localAnswer}
-            onChange={(e) => handleTextAnswerChange(e.target.value)}
-            placeholder="Type your answer here..."
-            className="w-full p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
-            rows={4}
-            disabled={isSubmitted}
-          />
-          {answers[questionKey] && (
-            <div className="absolute top-4 right-4">
-              <CheckCircle className="w-5 h-5 text-green-400" />
-            </div>
+        <div className="space-y-4">
+          <div className="relative">
+            <textarea
+              value={localAnswer}
+              onChange={(e) => setLocalAnswer(e.target.value)}
+              placeholder="Type your answer here..."
+              className={`w-full p-4 bg-white/5 backdrop-blur-sm border rounded-xl text-white placeholder-gray-400 resize-none focus:outline-none transition-all duration-300 ${
+                isLocked
+                  ? "border-gray-500/50 cursor-not-allowed opacity-75"
+                  : "border-white/10 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+              }`}
+              rows={4}
+              disabled={isLocked}
+            />
+            {isValidating && (
+              <div className="absolute top-4 right-4">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full"
+                />
+              </div>
+            )}
+          </div>
+          {!isLocked && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleTextAnswerSubmit}
+              disabled={!localAnswer.trim()}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white py-3 px-6 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-blue-500/25"
+            >
+              <Send className="w-4 h-4" />
+              Submit Answer
+            </motion.button>
           )}
         </div>
       );
     } else if (currentQuestion.type === "multiple-choice") {
       return (
         <div className="space-y-3">
-          {currentQuestion.options?.map((option, index) => (
-            <motion.label
-              key={index}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-300 ${
-                localAnswer === option
-                  ? "border-blue-500/50 bg-blue-500/10 backdrop-blur-sm"
-                  : "border-white/10 bg-white/5 backdrop-blur-sm hover:border-white/20 hover:bg-white/10"
-              } ${isSubmitted ? "cursor-not-allowed opacity-75" : ""}`}
-            >
-              <input
-                type="radio"
-                name={`question-${currentQuestion.id}`}
-                value={option}
-                checked={localAnswer === option}
-                onChange={() => handleMultipleChoiceChange(option)}
-                disabled={isSubmitted}
-                className="sr-only"
-              />
-              <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                  localAnswer === option
-                    ? "border-blue-500 bg-blue-500 shadow-lg shadow-blue-500/25"
-                    : "border-gray-400"
-                }`}
+          {currentQuestion.options?.map((option, index) => {
+            const isSelected = localAnswer === option;
+            const isCorrectOption = validation?.correctAnswer === option;
+            const isIncorrectSelection =
+              isLocked && isSelected && !validation?.isCorrect;
+
+            return (
+              <motion.label
+                key={index}
+                whileHover={!isLocked ? { scale: 1.01 } : {}}
+                whileTap={!isLocked ? { scale: 0.99 } : {}}
+                className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-300 ${
+                  isLocked
+                    ? isCorrectOption
+                      ? "border-green-500/50 bg-green-500/10 backdrop-blur-sm"
+                      : isIncorrectSelection
+                      ? "border-red-500/50 bg-red-500/10 backdrop-blur-sm"
+                      : "border-white/10 bg-white/5 backdrop-blur-sm opacity-60"
+                    : isSelected
+                    ? "border-blue-500/50 bg-blue-500/10 backdrop-blur-sm"
+                    : "border-white/10 bg-white/5 backdrop-blur-sm hover:border-white/20 hover:bg-white/10"
+                } ${isLocked ? "cursor-not-allowed" : ""}`}
               >
-                {localAnswer === option && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="w-2 h-2 rounded-full bg-white"
-                  />
+                <input
+                  type="radio"
+                  name={`question-${currentQuestion.id}`}
+                  value={option}
+                  checked={isSelected}
+                  onChange={() => handleMultipleChoiceChange(option)}
+                  disabled={isLocked}
+                  className="sr-only"
+                />
+                <div
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                    isLocked
+                      ? isCorrectOption
+                        ? "border-green-500 bg-green-500 shadow-lg shadow-green-500/25"
+                        : isIncorrectSelection
+                        ? "border-red-500 bg-red-500 shadow-lg shadow-red-500/25"
+                        : "border-gray-400"
+                      : isSelected
+                      ? "border-blue-500 bg-blue-500 shadow-lg shadow-blue-500/25"
+                      : "border-gray-400"
+                  }`}
+                >
+                  {((isLocked && isCorrectOption) ||
+                    (!isLocked && isSelected)) && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="w-2 h-2 rounded-full bg-white"
+                    />
+                  )}
+                  {isLocked && isIncorrectSelection && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="w-2 h-2 rounded-full bg-white"
+                    />
+                  )}
+                </div>
+                <span
+                  className={`flex-1 ${
+                    isLocked
+                      ? isCorrectOption
+                        ? "text-green-300 font-medium"
+                        : isIncorrectSelection
+                        ? "text-red-300"
+                        : "text-gray-400"
+                      : "text-white"
+                  }`}
+                >
+                  {option}
+                </span>
+                {isLocked && isCorrectOption && (
+                  <CheckCircle className="w-5 h-5 text-green-400" />
                 )}
-              </div>
-              <span className="text-white flex-1">{option}</span>
-            </motion.label>
-          ))}
+                {isLocked && isIncorrectSelection && (
+                  <X className="w-5 h-5 text-red-400" />
+                )}
+              </motion.label>
+            );
+          })}
+          {isValidating && (
+            <div className="flex items-center justify-center py-4">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full"
+              />
+              <span className="ml-3 text-blue-400">Validating answer...</span>
+            </div>
+          )}
         </div>
       );
     } else if (currentQuestion.type === "multiple-select") {
       return (
-        <div className="space-y-3">
-          {currentQuestion.options?.map((option, index) => (
-            <motion.label
-              key={index}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-300 ${
-                localSelectedOptions.includes(option)
-                  ? "border-green-500/50 bg-green-500/10 backdrop-blur-sm"
-                  : "border-white/10 bg-white/5 backdrop-blur-sm hover:border-white/20 hover:bg-white/10"
-              } ${isSubmitted ? "cursor-not-allowed opacity-75" : ""}`}
+        <div className="space-y-4">
+          <div className="space-y-3">
+            {currentQuestion.options?.map((option, index) => {
+              const isSelected = localSelectedOptions.includes(option);
+              const correctAnswers = validation?.correctAnswer || [];
+              const isCorrectOption = correctAnswers.includes(option);
+              const isIncorrectSelection =
+                isLocked && isSelected && !isCorrectOption;
+
+              return (
+                <motion.label
+                  key={index}
+                  whileHover={!isLocked ? { scale: 1.01 } : {}}
+                  whileTap={!isLocked ? { scale: 0.99 } : {}}
+                  className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-300 ${
+                    isLocked
+                      ? isCorrectOption
+                        ? "border-green-500/50 bg-green-500/10 backdrop-blur-sm"
+                        : isIncorrectSelection
+                        ? "border-red-500/50 bg-red-500/10 backdrop-blur-sm"
+                        : "border-white/10 bg-white/5 backdrop-blur-sm opacity-60"
+                      : isSelected
+                      ? "border-green-500/50 bg-green-500/10 backdrop-blur-sm"
+                      : "border-white/10 bg-white/5 backdrop-blur-sm hover:border-white/20 hover:bg-white/10"
+                  } ${isLocked ? "cursor-not-allowed" : ""}`}
+                >
+                  <input
+                    type="checkbox"
+                    value={option}
+                    checked={isSelected}
+                    onChange={() => handleMultipleSelectChange(option)}
+                    disabled={isLocked}
+                    className="sr-only"
+                  />
+                  <div
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-300 ${
+                      isLocked
+                        ? isCorrectOption
+                          ? "border-green-500 bg-green-500 shadow-lg shadow-green-500/25"
+                          : isIncorrectSelection
+                          ? "border-red-500 bg-red-500 shadow-lg shadow-red-500/25"
+                          : "border-gray-400"
+                        : isSelected
+                        ? "border-green-500 bg-green-500 shadow-lg shadow-green-500/25"
+                        : "border-gray-400"
+                    }`}
+                  >
+                    {((isLocked && isCorrectOption) ||
+                      (!isLocked && isSelected)) && (
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                        <CheckCircle className="w-3 h-3 text-white" />
+                      </motion.div>
+                    )}
+                    {isLocked && isIncorrectSelection && (
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                        <X className="w-3 h-3 text-white" />
+                      </motion.div>
+                    )}
+                  </div>
+                  <span
+                    className={`flex-1 ${
+                      isLocked
+                        ? isCorrectOption
+                          ? "text-green-300 font-medium"
+                          : isIncorrectSelection
+                          ? "text-red-300"
+                          : "text-gray-400"
+                        : "text-white"
+                    }`}
+                  >
+                    {option}
+                  </span>
+                </motion.label>
+              );
+            })}
+          </div>
+          {!isLocked && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleMultipleSelectSubmit}
+              disabled={localSelectedOptions.length === 0}
+              className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white py-3 px-6 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-green-500/25"
             >
-              <input
-                type="checkbox"
-                value={option}
-                checked={localSelectedOptions.includes(option)}
-                onChange={() => handleMultipleSelectChange(option)}
-                disabled={isSubmitted}
-                className="sr-only"
+              <Send className="w-4 h-4" />
+              Submit Selection
+            </motion.button>
+          )}
+          {isValidating && (
+            <div className="flex items-center justify-center py-4">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-6 h-6 border-2 border-green-400 border-t-transparent rounded-full"
               />
-              <div
-                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-300 ${
-                  localSelectedOptions.includes(option)
-                    ? "border-green-500 bg-green-500 shadow-lg shadow-green-500/25"
-                    : "border-gray-400"
-                }`}
-              >
-                {localSelectedOptions.includes(option) && (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                    <CheckCircle className="w-3 h-3 text-white" />
-                  </motion.div>
-                )}
-              </div>
-              <span className="text-white flex-1">{option}</span>
-            </motion.label>
-          ))}
+              <span className="ml-3 text-green-400">
+                Validating selection...
+              </span>
+            </div>
+          )}
         </div>
       );
     }
   };
 
-  const renderSubmittedState = () => {
-    const answer = answers[questionKey];
-    if (!isSubmitted || !answer) return null;
+  const renderValidationFeedback = () => {
+    const validation = currentAnswerState?.validation;
+    if (!validation || currentAnswerState?.isValidating) return null;
 
     return (
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-green-500/10 backdrop-blur-sm border border-green-500/30 rounded-xl p-4"
+        className={`p-4 rounded-xl backdrop-blur-sm border ${
+          validation.isCorrect
+            ? "bg-green-500/10 border-green-500/30"
+            : "bg-red-500/10 border-red-500/30"
+        }`}
       >
-        <div className="flex items-center gap-2 text-green-400">
-          <CheckCircle className="w-5 h-5" />
-          <span className="font-medium">Answer submitted</span>
-        </div>
-        <div className="text-green-200 text-sm mt-2">
-          <span className="font-medium">Your answer: </span>
-          {Array.isArray(answer) ? (
-            <div className="mt-1 space-y-1">
-              {answer.map((item, index) => (
-                <div key={index} className="ml-2 flex items-center gap-2">
-                  <Circle className="w-2 h-2 fill-current" />
-                  {item}
-                </div>
-              ))}
-            </div>
+        <div
+          className={`flex items-center gap-2 ${
+            validation.isCorrect ? "text-green-400" : "text-red-400"
+          }`}
+        >
+          {validation.isCorrect ? (
+            <CheckCircle className="w-5 h-5" />
           ) : (
-            `"${answer}"`
+            <X className="w-5 h-5" />
           )}
+          <span className="font-medium">
+            {validation.isCorrect ? "Correct!" : "Incorrect"}
+          </span>
         </div>
+        {validation.explanation && (
+          <p
+            className={`text-sm mt-2 ${
+              validation.isCorrect ? "text-green-200" : "text-red-200"
+            }`}
+          >
+            {validation.explanation}
+          </p>
+        )}
+      </motion.div>
+    );
+  };
+
+  const renderResultsScreen = () => {
+    if (!assessmentResult) return null;
+
+    const timeMinutes = Math.floor(assessmentResult.timeSpent / 60000);
+    const timeSeconds = Math.floor((assessmentResult.timeSpent % 60000) / 1000);
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="max-w-4xl mx-auto space-y-6"
+      >
+        <div className="text-center space-y-4">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring" }}
+            className="w-24 h-24 mx-auto bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl shadow-yellow-500/25"
+          >
+            <Trophy className="w-12 h-12 text-white" />
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-4xl font-bold text-white"
+          >
+            Assessment Complete!
+          </motion.h2>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="flex items-center justify-center gap-8 text-gray-300"
+          >
+            <div className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-blue-400" />
+              <span>
+                {assessmentResult.score}/{assessmentResult.totalQuestions}{" "}
+                Correct
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-green-400" />
+              <span>{assessmentResult.percentage}% Score</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-purple-400" />
+              <span>
+                {timeMinutes}m {timeSeconds}s
+              </span>
+            </div>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 shadow-2xl"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-400 mb-2">
+                {assessmentResult.score}
+              </div>
+              <div className="text-gray-400">Correct Answers</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-400 mb-2">
+                {assessmentResult.percentage}%
+              </div>
+              <div className="text-gray-400">Overall Score</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-400 mb-2">
+                {timeMinutes}:{timeSeconds.toString().padStart(2, "0")}
+              </div>
+              <div className="text-gray-400">Time Taken</div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-2xl"
+        >
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Award className="w-6 h-6 text-yellow-400" />
+            Question Breakdown
+          </h3>
+
+          <div className="space-y-4">
+            {questions.map((question, index) => {
+              const result = assessmentResult.results[question.id];
+              return (
+                <motion.div
+                  key={question.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7 + index * 0.1 }}
+                  className={`p-4 rounded-xl border backdrop-blur-sm ${
+                    result?.isCorrect
+                      ? "bg-green-500/10 border-green-500/30"
+                      : "bg-red-500/10 border-red-500/30"
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        result?.isCorrect
+                          ? "bg-green-500 text-white"
+                          : "bg-red-500 text-white"
+                      }`}
+                    >
+                      {result?.isCorrect ? (
+                        <CheckCircle className="w-4 h-4" />
+                      ) : (
+                        <X className="w-4 h-4" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-white font-medium mb-2">
+                        Question {index + 1}: {question.text}
+                      </div>
+                      {result?.explanation && (
+                        <div
+                          className={`text-sm ${
+                            result.isCorrect ? "text-green-200" : "text-red-200"
+                          }`}
+                        >
+                          {result.explanation}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="flex flex-col sm:flex-row gap-4 justify-center"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={resetAssessment}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg shadow-blue-500/25 backdrop-blur-sm"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Try Again
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onClose}
+            className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-all duration-300 backdrop-blur-sm border border-white/10"
+          >
+            <X className="w-4 h-4" />
+            Close
+          </motion.button>
+        </motion.div>
       </motion.div>
     );
   };
 
   if (!isOpen || !currentQuestion) return null;
 
-  const isAnswered = answers[questionKey];
+  const answeredCount = Object.keys(answers).filter(
+    (id) => answers[id].validation && !answers[id].isValidating
+  ).length;
   const isFirstQuestion = currentQuestionIndex === 0;
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
-  const answeredCount = Object.keys(answers).length;
+
+  if (assessmentResult) {
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex flex-col"
+        >
+          <div className="flex-shrink-0 bg-black/20 backdrop-blur-md border-b border-white/10 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-xl backdrop-blur-sm border border-white/10">
+                  <Trophy className="w-6 h-6 text-yellow-400" />
+                </div>
+                <div>
+                  <h2 className="text-white font-semibold text-xl">
+                    Assessment Results
+                  </h2>
+                  <p className="text-gray-400 text-sm">
+                    {assessmentResult.score}/{assessmentResult.totalQuestions}{" "}
+                    correct • {assessmentResult.percentage}% score
+                  </p>
+                </div>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onClose}
+                className="p-3 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/10"
+              >
+                <X className="w-6 h-6" />
+              </motion.button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-6 py-6">
+            {renderResultsScreen()}
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+
+  if (isSubmittingAssessment) {
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex items-center justify-center"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 shadow-2xl text-center"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full mx-auto mb-4"
+            />
+            <h3 className="text-white text-xl font-semibold mb-2">
+              Processing Assessment
+            </h3>
+            <p className="text-gray-400">Calculating your results...</p>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
 
   return (
     <AnimatePresence>
@@ -309,7 +829,6 @@ const QuestionInterface = ({
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex flex-col"
       >
-        {/* Header */}
         <div className="flex-shrink-0 bg-black/20 backdrop-blur-md border-b border-white/10 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -324,7 +843,7 @@ const QuestionInterface = ({
                   <HelpCircle className="w-4 h-4" />
                   Question {currentQuestionIndex + 1} of {questions.length}
                   <span className="text-green-400">
-                    • {answeredCount} answered
+                    • {answeredCount} completed
                   </span>
                 </p>
               </div>
@@ -340,30 +859,34 @@ const QuestionInterface = ({
           </div>
         </div>
 
-        {/* Progress Bar */}
         <div className="flex-shrink-0 bg-black/10 backdrop-blur-sm px-6 py-3">
           <div className="flex gap-2">
-            {questions.map((_, index) => (
-              <motion.div
-                key={index}
-                className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${
-                  index === currentQuestionIndex
-                    ? "bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg shadow-blue-500/25"
-                    : index < currentQuestionIndex
-                    ? "bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg shadow-green-500/25"
-                    : answers[`${taskId}-${questions[index].id}`]
-                    ? "bg-gradient-to-r from-green-500/50 to-emerald-500/50"
-                    : "bg-white/10"
-                }`}
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: index * 0.1 }}
-              />
-            ))}
+            {questions.map((_, index) => {
+              const questionId = questions[index].id;
+              const isAnswered = answers[questionId]?.validation;
+              const isCorrect = answers[questionId]?.validation?.isCorrect;
+
+              return (
+                <motion.div
+                  key={index}
+                  className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${
+                    index === currentQuestionIndex
+                      ? "bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg shadow-blue-500/25"
+                      : isAnswered
+                      ? isCorrect
+                        ? "bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg shadow-green-500/25"
+                        : "bg-gradient-to-r from-red-500 to-red-600 shadow-lg shadow-red-500/25"
+                      : "bg-white/10"
+                  }`}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                />
+              );
+            })}
           </div>
         </div>
 
-        {/* Terminal Header */}
         <div className="flex-shrink-0 bg-black/30 backdrop-blur-sm px-6 py-4 border-b border-white/5">
           <div className="font-mono text-sm">
             <div className="flex items-center gap-2 text-green-400">
@@ -378,13 +901,13 @@ const QuestionInterface = ({
               <span className="text-green-400">$</span>
               <span className="text-white ml-2 flex items-center gap-2">
                 Connection: {ip}
-                <Clock className="w-3 h-3 text-gray-400" />
+                <Zap className="w-3 h-3 text-yellow-400" />
+                <span className="text-yellow-400">Auto-submit enabled</span>
               </span>
             </div>
           </div>
         </div>
 
-        {/* Content Area */}
         <div className="flex-1 overflow-y-auto px-6 py-6">
           <motion.div
             key={currentQuestionIndex}
@@ -394,20 +917,34 @@ const QuestionInterface = ({
             transition={{ duration: 0.3 }}
             className="max-w-4xl mx-auto space-y-6"
           >
-            {/* Question Card */}
             <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-2xl">
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25">
-                  <span className="text-white font-bold text-sm">
-                    {currentQuestionIndex + 1}
-                  </span>
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ${
+                    currentAnswerState?.validation
+                      ? currentAnswerState.validation.isCorrect
+                        ? "bg-gradient-to-br from-green-500 to-emerald-500 shadow-green-500/25"
+                        : "bg-gradient-to-br from-red-500 to-red-600 shadow-red-500/25"
+                      : "bg-gradient-to-br from-blue-500 to-purple-500 shadow-blue-500/25"
+                  }`}
+                >
+                  {currentAnswerState?.validation ? (
+                    currentAnswerState.validation.isCorrect ? (
+                      <CheckCircle className="w-5 h-5 text-white" />
+                    ) : (
+                      <X className="w-5 h-5 text-white" />
+                    )
+                  ) : (
+                    <span className="text-white font-bold text-sm">
+                      {currentQuestionIndex + 1}
+                    </span>
+                  )}
                 </div>
                 <div className="flex-1">
                   <h3 className="text-white font-semibold text-lg mb-3 leading-relaxed">
                     {currentQuestion.text}
                   </h3>
 
-                  {/* Question Type Badge */}
                   <div className="mb-4">
                     <span
                       className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm ${
@@ -420,13 +957,12 @@ const QuestionInterface = ({
                     >
                       {currentQuestion.type === "text" && "Free Text Response"}
                       {currentQuestion.type === "multiple-choice" &&
-                        "Single Selection"}
+                        "Single Selection • Auto-submit"}
                       {currentQuestion.type === "multiple-select" &&
                         "Multiple Selection"}
                     </span>
                   </div>
 
-                  {/* Hint Toggle */}
                   {currentQuestion.hint && (
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -439,7 +975,6 @@ const QuestionInterface = ({
                     </motion.button>
                   )}
 
-                  {/* Hint Content */}
                   <AnimatePresence>
                     {showHint && (
                       <motion.div
@@ -461,32 +996,14 @@ const QuestionInterface = ({
                 </div>
               </div>
 
-              {/* Answer Input */}
               <div className="space-y-4">
                 {renderAnswerInput()}
-
-                {/* Submit Button */}
-                {!isSubmitted && (
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleSubmitAnswer}
-                    disabled={!canSubmit()}
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white py-4 px-6 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-blue-500/25 backdrop-blur-sm"
-                  >
-                    <Send className="w-5 h-5" />
-                    Submit Answer
-                  </motion.button>
-                )}
-
-                {/* Submitted State */}
-                {renderSubmittedState()}
+                {renderValidationFeedback()}
               </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Navigation Footer */}
         <div className="flex-shrink-0 bg-black/20 backdrop-blur-md border-t border-white/10 px-6 py-4">
           <div className="flex items-center justify-between gap-4 max-w-4xl mx-auto">
             <motion.button
@@ -501,27 +1018,40 @@ const QuestionInterface = ({
             </motion.button>
 
             <div className="flex items-center gap-3">
-              {questions.map((_, index) => (
-                <motion.button
-                  key={index}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setCurrentQuestionIndex(index)}
-                  className={`w-10 h-10 rounded-xl border-2 transition-all duration-300 backdrop-blur-sm ${
-                    index === currentQuestionIndex
-                      ? "border-blue-500 bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/25"
-                      : answers[`${taskId}-${questions[index].id}`]
-                      ? "border-green-500 bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25"
-                      : "border-white/20 bg-white/5 text-gray-400 hover:border-white/40 hover:bg-white/10"
-                  }`}
-                >
-                  {answers[`${taskId}-${questions[index].id}`] ? (
-                    <CheckCircle className="w-5 h-5 mx-auto" />
-                  ) : (
-                    <span className="text-sm font-medium">{index + 1}</span>
-                  )}
-                </motion.button>
-              ))}
+              {questions.map((_, index) => {
+                const questionId = questions[index].id;
+                const answerState = answers[questionId];
+                const isAnswered = answerState?.validation;
+                const isCorrect = answerState?.validation?.isCorrect;
+
+                return (
+                  <motion.button
+                    key={index}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setCurrentQuestionIndex(index)}
+                    className={`w-10 h-10 rounded-xl border-2 transition-all duration-300 backdrop-blur-sm ${
+                      index === currentQuestionIndex
+                        ? "border-blue-500 bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/25"
+                        : isAnswered
+                        ? isCorrect
+                          ? "border-green-500 bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25"
+                          : "border-red-500 bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg shadow-red-500/25"
+                        : "border-white/20 bg-white/5 text-gray-400 hover:border-white/40 hover:bg-white/10"
+                    }`}
+                  >
+                    {isAnswered ? (
+                      isCorrect ? (
+                        <CheckCircle className="w-5 h-5 mx-auto" />
+                      ) : (
+                        <X className="w-5 h-5 mx-auto" />
+                      )
+                    ) : (
+                      <span className="text-sm font-medium">{index + 1}</span>
+                    )}
+                  </motion.button>
+                );
+              })}
             </div>
 
             <motion.button

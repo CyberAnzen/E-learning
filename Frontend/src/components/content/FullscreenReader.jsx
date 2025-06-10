@@ -140,12 +140,12 @@ const FullScreenReader = ({ section, content, title, icon, onClose }) => {
         {content}
       </motion.div>
 
-      {/* ===== FOOTER ===== */}
+      {/* ===== FOOTER =====
       <div className={footerClasses}>
         <button onClick={onClose} className={closeButtonFooterClasses}>
           Close
         </button>
-      </div>
+      </div> */}
     </motion.div>
   );
 };

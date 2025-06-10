@@ -25,7 +25,7 @@ import "../content.css";
 // ────────────────────────────────────────────────────────────────────────────
 // Dummy "full" data map (read‐only) for looking up by ID
 // ────────────────────────────────────────────────────────────────────────────
-import chapterDetailsById from "./content.json"
+import chapterDetailsById from "./content.json";
 const Content = ({ selectedChapterId, isPreview = false }) => {
   // ─── State Variables ─────────────────────────────────────────────────────
   const [activeSection, setActiveSection] = useState(null);
@@ -234,7 +234,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
 
         {/* ─── LEFT COLUMN: TASK CARD ────────────────────────────────────── */}
         <div className="w-full lg:w-7/12 order-2 lg:order-1">
-          <div className="flex justify-center">
+          <main className="flex justify-center">
             <div className="bg-gray-800/30 rounded-xl w-full max-w-3xl p-6 backdrop-blur-sm border border-gray-700/50 overflow-hidden">
               <div className="mb-6 font-mono text-green-400">
                 <div className="flex items-center gap-3 mb-6">
@@ -248,7 +248,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                   {/* ─── Learning Objectives Collapsible ───────────────────── */}
                   <CollapsibleSection
                     title={
-                      <div className="flex items-center">
+                      <div className="relative flex justify-center items-center w-full">
                         <Target className="w-5 h-5 text-blue-400" />
                         <span className="ml-2">Learning Objectives</span>
                         {objectivesOpened && (
@@ -288,9 +288,9 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                     <div
                       className="cyber-button w-full px-4 py-3 bg-transparent border border-[#01ffdb]/20
                   font-medium rounded-lg hover:bg-transparent
-                  transition-all  font-mono relative overflow-hidden text-xltransition-colors duration-200 text-white flex items-center gap-3"
+                  transition-all  font-mono relative overflow-hidden text-xltransition-colors duration-200 text-white flex items-center justify-between gap-3"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify- gap-3">
                         <Lightbulb className="w-5 h-5 text-yellow-400" />
                         <span className="text-white font-medium">
                           Chapter Content
@@ -335,7 +335,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                 </button>
               </div>
             </div>
-          </div>
+          </main>
 
           {/* ─── Navigation Buttons ─────────────────────────────────────────── */}
           {!isPreview && (
