@@ -16,7 +16,7 @@ const TaskSchema = mongoose.Schema({
         options: [String],
         correctAnswer: String,
         correctAnswers: [String],
-        hint: String,
+        hint: { String, default: "No Hint for this question" },
       },
     },
   ],
