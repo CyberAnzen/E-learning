@@ -6,7 +6,7 @@ const TaskSchema = mongoose.Schema({
       description: { type: String, required: true },
       objectives: [String],
       mainContent: { type: String, required: true },
-      questions: {
+      questions: [{
         text: { type: String, required: true },
         type: {
           type: String,
@@ -16,8 +16,8 @@ const TaskSchema = mongoose.Schema({
         options: [String],
         correctAnswer: String,
         correctAnswers: [String],
-        hint: { String, default: "No Hint for this question" },
-      },
+        hint: { type: String, default: "No Hint for this question" },
+      }],
     },
   ],
 });

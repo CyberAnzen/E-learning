@@ -1,6 +1,6 @@
-const bcrypt = require('bcryptjs')
+const bcrypt = require("bcryptjs");
 const { DetailedUser } = require("../../model/UserModel"); // Use DetailedUser for detailed registration
-const OTP = require("../../model/OTPModel")
+const OTP = require("../../model/OTPModel");
 
 exports.PasswordReset = async (req, res) => {
   try {
@@ -26,6 +26,10 @@ exports.PasswordReset = async (req, res) => {
     if (!otps) {
       return res.status(400).send("OTP not found");
     } else {
+      if (new Date() > otps.expiresAt) {
+        return res.status(400).json({ message: "OTP has expired" });
+      }
+
       if (otp == otps.otp) {
         // Hash the new password
         const hashed = await hashPassword(newPassword);
@@ -35,8 +39,8 @@ exports.PasswordReset = async (req, res) => {
             "userDetails.regNumber": otps.reNumber,
             $or: [
               { "userDetails.email": otps.email },
-              { "userDetails.officialEmail": otps.email }
-            ]
+              { "userDetails.officialEmail": otps.email },
+            ],
           },
           { $set: { password: hashed } }
         );

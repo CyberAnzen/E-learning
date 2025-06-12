@@ -4,9 +4,13 @@ const ContentSchema = require("../schema/ContentSchema");
 const TaskSchema = require("../schema/TaskSchema");
 const LessonModel = new mongoose.Schema(
   {
-    classificationId: { type: ObjectId, required: true },
-    lessonNum: { type: Number, required: true },
-    lesson: { type: String, required: true },
+    classificationId: {
+      type: mongoose.SchemaTypes.ObjectId,
+      required: true,
+      ref: "Classification",
+    },
+    lessonNum: { type: Number, required: true, unique: true },
+    lesson: { type: String, required: true, unique: true },
     icon: String,
     content: ContentSchema,
     tasks: TaskSchema,
@@ -18,4 +22,4 @@ const LessonModel = new mongoose.Schema(
 
 const Lesson = mongoose.model("Lessons", LessonModel);
 
-module.exports = { Lesson };
+module.exports = Lesson;

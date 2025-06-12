@@ -1,10 +1,8 @@
 const ClassificationModel = require("../../../model/ClassificationModel");
 exports.deleteClassification = async (req, res) => {
-  const { classificationId } = req.body;
+  const { id } = req.params;
   try {
-    const deleted = await ClassificationModel.findByIdAndDelete(
-      classificationId
-    );
+    const deleted = await ClassificationModel.findByIdAndDelete(id);
     if (!deleted) {
       return res
         .status(500)

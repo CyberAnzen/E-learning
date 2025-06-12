@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const login = require("./router/userRoute");
 const event = require("./router/eventRoutes");
 const classification = require("./router/classificationRoutes");
+const lesson = require("./router/lessonRoute");
 const ConnectDataBase = require("./config/connectDataBase");
 ConnectDataBase();
 
@@ -34,4 +35,5 @@ app.use(bodyParser.json());
 app.use("/api/event", event);
 app.use("/api/user", login);
 app.use("/api/classification", classification);
+app.use("/api/lesson", lesson);
 app.listen(port);

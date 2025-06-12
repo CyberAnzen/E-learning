@@ -13,6 +13,7 @@ exports.updateClassification = async (req, res) => {
 
     const update = await ClassificationModel.findByIdAndUpdate(id, newdata, {
       new: true,
+      runValidators: true,
     });
 
     if (!update) {
