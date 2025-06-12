@@ -7,6 +7,7 @@ import { Contact, Github, Linkedin, Pencil, SquarePen } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import LinkForm from "./LinkForm";
 import Modal from "./Modal";
+import Carousel from "./Carousel";
 
 const ProfileDashboard = () => {
   const [image, setImage] = useState(
@@ -72,31 +73,9 @@ const ProfileDashboard = () => {
         </div>
 
         {/* Complete Profile Prompt (Spans 2 columns on large screens) */}
-        <div className="carousel col-span-1 lg:col-span-2 rounded-xl w-full h-auto">
-          {dummyData.map((item, index) => {
-            const prevSlide = `#slide${index === 0 ? dummyData.length : index}`;
-            const nextSlide = `#slide${
-              index === dummyData.length - 1 ? 1 : index + 2
-            }`;
-            return (
-              <div
-                key={index}
-                id={`slide${index + 1}`}
-                className="carousel-item relative w-full"
-              >
-                <RadialProgess progessdata={item} />
-                <div className="absolute left-3 right-3 max-ms:left-right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
-                  <a href={prevSlide} className="btn btn-circle opacity-30">
-                    ❮
-                  </a>
-                  <a href={nextSlide} className="btn btn-circle opacity-30">
-                    ❯
-                  </a>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <Carousel data={dummyData} dataKey="progessdata" carouselId="progress">
+          <RadialProgess />
+        </Carousel>
       </div>
 
       {/* Second Row: Personal Info, Resume, EEO */}

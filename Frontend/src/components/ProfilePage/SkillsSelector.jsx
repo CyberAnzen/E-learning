@@ -15,17 +15,20 @@ const allSkills = [
   "HTML5",
   "Machine Learning",
   "MongoDB",
+  "React.js",
 ];
 
 const quickSkills = [
   "Algorithm",
-  "Angular",
+  "React.js",
   "Css",
   "Data Structure",
   "Javascript(Intermediate)",
   "Python(Advanced)",
-  "SQL",
+  "HTML5",
+  "MongoDB",
   "Python(Intermediate)",
+  
 ];
 
 const SkillsSelector = ({ modalRef }) => {
@@ -66,7 +69,7 @@ const SkillsSelector = ({ modalRef }) => {
         {draftSkills.map((skill) => (
           <span
             key={skill}
-            className="flex items-center bg-cyan-500/50 px-3 py-1 rounded-full text-sm"
+            className="flex items-center font-medium bg-cyan-500/50 text-black px-3 py-1 rounded-full text-sm"
           >
             {skill}
             <button
@@ -117,7 +120,7 @@ const SkillsSelector = ({ modalRef }) => {
           <button
             key={skill}
             onClick={() => addSkill(skill)}
-            className="px-3 py-1 rounded-md border border-white hover:border-cyan-500/50 hover:bg-cyan-500/50 hover:text-black transition text-sm"
+            className="px-3 py-1 rounded-md border border-white hover:border-cyan-500/50 hover:bg-cyan-500/50 hover:text-black font-medium transition text-sm cursor-pointer"
           >
             {skill}
           </button>

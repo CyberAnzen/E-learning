@@ -7,6 +7,8 @@ const RadialProgess = ({
     missiondata: 50,
   },
 }) => {
+  console.log(progessdata);
+  
   return (
     <div className="bg-cyan-900  p-4 md:px-12 lg:px-10 flex flex-col md:flex-row justify-between items-center w-full">
       <div className="mb-4 md:mb-0">
