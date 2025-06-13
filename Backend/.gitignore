@@ -9,3 +9,6 @@ Thumbs.db
 logs
 *.log
 .env
+
+# event images
+uploads/events/images

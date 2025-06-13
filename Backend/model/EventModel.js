@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
 
 const eventSchema = new mongoose.Schema({
-    event_name: { type: String, required: true },
-    event_image: { type: String, required: true },
-    event_details: {
+    eventName: { type: String, required: true },
+    eventImage: { type: String, required: true },
+    eventDetails: {
         description: { type: String, required: true },
         date: { type: Date, required: true },
         time: { type: String, required: true },
         venue: { type: String, required: true },
-        organizer_name: { type: String, required: true },
-        organizer_email: { type: String, required: true }
+        organizerName: { type: String, required: true },
+        organizerEmail: { type: String, required: true }
   }
 },{ timestamps: true });
 

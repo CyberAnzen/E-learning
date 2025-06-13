@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+require("dotenv").config();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const port = 4000;
@@ -11,7 +12,10 @@ const lesson = require("./router/lessonRoutes");
 const answer = require("./router/ValidationRoutes");
 const ConnectDataBase = require("./config/connectDataBase");
 
+const initializeCaches = require("./cache/initCache")
 ConnectDataBase();
+initializeCaches();
+
 
 // Middleware to handle CORS
 //dont change it

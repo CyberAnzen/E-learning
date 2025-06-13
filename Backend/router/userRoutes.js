@@ -3,14 +3,10 @@ const router = express.Router();
 const rateLimit = require("express-rate-limit");
 
 // Importing the user controllers
-const {signup}=require("../controller/user/Signup")
-const {login}=require("../controller/user/Login")
-const {checkusername}=require("../controller/user/CheckUsername")
-const {PasswordReset}=require("../controller/user/PasswordReset")
+const userManager = require("../controller/manager/userManager");
 
 // Importing the OTP controllers
-const {OtpGenerator}=require("../controller/otp/OtpGenerator")
-const {OtpVerification}=require("../controller/otp/OtpVerification")
+const OtpManager = require("../controller/manager/OtpManager");
 
 // Rate limiter for signup: Limit to 5 attempts per hour
 const signupLimiter = rateLimit({
@@ -76,12 +72,12 @@ const passwordResetLimiter = rateLimit({
 });
 
 // Routes with applied rate limiters
-router.post("/signup", signupLimiter, signup);
-router.post("/login", loginLimiter, login);
-router.get("/check-username", checkUsernameLimiter, checkusername);
+router.post("/signup", signupLimiter, userManager.signup);
+router.post("/login", loginLimiter, userManager.login);
+router.get("/check-username", checkUsernameLimiter, userManager.checkusername);
 //router.post("/send-email", emailLimiter, SMTP);
-router.post("/forgot-password", otpGeneratorLimiter, OtpGenerator);
-router.post("/verify-otp", otpVerifyLimiter, OtpVerification);
-router.post("/reset-password", passwordResetLimiter, PasswordReset);
+router.post("/forgot-password", otpGeneratorLimiter, OtpManager.OtpGenerator);
+router.post("/verify-otp", otpVerifyLimiter, OtpManager.OtpVerification);
+router.post("/reset-password", passwordResetLimiter, userManager.PasswordReset);
 
 module.exports = router;
