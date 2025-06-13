@@ -13,25 +13,20 @@ const classificationSchema = new Schema(
   }
 );
 
-//
 // STATIC: count how many lessons reference this classification
-//
 classificationSchema.statics.countLessons = function (classificationId) {
-  // `this` is the Classification model
-  return mongoose
-    .model("Lesson")
-    .countDocuments({ classificationId: Types.ObjectId(classificationId) })
+  return this.model("Lessons")
+    .countDocuments({
+      classificationId: new Types.ObjectId(classificationId),
+    })
     .exec();
 };
 
-//
-// STATIC: fetch all lessons (only _id and lessonNum/title) for this classification
-//
+// STATIC: fetch all lessons (only _id, lessonNum, and lesson title) for this classification
 classificationSchema.statics.getLessonsSummary = function (classificationId) {
-  return mongoose
-    .model("Lesson")
+  return this.model("Lessons")
     .find(
-      { classificationId: Types.ObjectId(classificationId) },
+      { classificationId: new Types.ObjectId(classificationId) },
       { _id: 1, lessonNum: 1, lesson: 1 }
     )
     .sort({ lessonNum: 1 })

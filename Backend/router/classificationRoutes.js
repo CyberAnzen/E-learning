@@ -15,9 +15,12 @@ const {
 const {
   updateClassification,
 } = require("../controller/learn/classification/updateClassification");
+const { getSummary } = require("../controller/learn/classification/getSummary");
 router.get("/", getallClassification);
 router.get("/:id", getClassification);
+router.get("/sidebar/:id", getSummary);
 router.post("/create", createClassification);
 router.delete("/delete", deleteClassification);
 router.patch("/update", updateClassification);
+
 module.exports = router;
