@@ -4,11 +4,13 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const port = 4000;
 const bodyParser = require("body-parser");
-const login = require("./router/userRoute");
+const login = require("./router/userRoutes");
 const event = require("./router/eventRoutes");
 const classification = require("./router/classificationRoutes");
-const lesson = require("./router/lessonRoute");
+const lesson = require("./router/lessonRoutes");
+const answer = require("./router/ValidationRoutes");
 const ConnectDataBase = require("./config/connectDataBase");
+
 ConnectDataBase();
 
 // Middleware to handle CORS
@@ -36,4 +38,5 @@ app.use("/api/event", event);
 app.use("/api/user", login);
 app.use("/api/classification", classification);
 app.use("/api/lesson", lesson);
+app.use("/api/answer", answer);
 app.listen(port);
