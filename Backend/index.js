@@ -11,8 +11,10 @@ const classification = require("./router/classificationRoutes");
 const lesson = require("./router/lessonRoutes");
 const answer = require("./router/ValidationRoutes");
 const ConnectDataBase = require("./config/connectDataBase");
-
 const initializeCaches = require("./cache/initCache")
+const helmet = require("helmet");
+const xssSanitizer = require("./middleware/xssSanitizer");
+
 ConnectDataBase();
 initializeCaches();
 
@@ -35,12 +37,14 @@ const corsOptions = {
   credentials: true, // This allows credentials (cookies, authorization headers, etc.)
 };
 
+
+app.use(helmet()); // Use Helmet for security headers
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use("/api/event", event);
-app.use("/api/user", login);
-app.use("/api/classification", classification);
-app.use("/api/lesson", lesson);
+app.use("/api/event",xssSanitizer(), event);
+app.use("/api/user",xssSanitizer(), login);
+app.use("/api/classification",xssSanitizer(), classification);
+app.use("/api/lesson",xssSanitizer(), lesson);
 app.use("/api/answer", answer);
 app.listen(port);
