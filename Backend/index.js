@@ -9,15 +9,15 @@ const login = require("./router/userRoutes");
 const event = require("./router/eventRoutes");
 const classification = require("./router/classificationRoutes");
 const lesson = require("./router/lessonRoutes");
-const answer = require("./router/ValidationRoutes");
+const validate = require("./router/ValidationRoutes");
+const submit = require("./router/SubmissionRoutes");
 const ConnectDataBase = require("./config/connectDataBase");
-const initializeCaches = require("./cache/initCache")
+const initializeCaches = require("./cache/initCache");
 const helmet = require("helmet");
 const xssSanitizer = require("./middleware/xssSanitizer");
 
 ConnectDataBase();
 initializeCaches();
-
 
 // Middleware to handle CORS
 //dont change it
@@ -37,14 +37,14 @@ const corsOptions = {
   credentials: true, // This allows credentials (cookies, authorization headers, etc.)
 };
 
-
 app.use(helmet()); // Use Helmet for security headers
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use("/api/event",xssSanitizer(), event);
-app.use("/api/user",xssSanitizer(), login);
-app.use("/api/classification",xssSanitizer(), classification);
-app.use("/api/lesson",xssSanitizer(), lesson);
-app.use("/api/answer", answer);
+app.use("/api/event", xssSanitizer(), event);
+app.use("/api/user", xssSanitizer(), login);
+app.use("/api/classification", xssSanitizer(), classification);
+app.use("/api/lesson", xssSanitizer(), lesson);
+app.use("/api/answer", validate);
+app.use("/api/final", submit);
 app.listen(port);

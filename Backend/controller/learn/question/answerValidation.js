@@ -1,97 +1,108 @@
-const mongoose = require("mongoose");
 const LessonModel = require("../../../model/LessonModel");
 
 exports.answerValidation = async (req, res) => {
   const { input, questionId, lessonId } = req.body;
 
-  try {
-    // 1. Validate request body
-    if (input === undefined || questionId == null || lessonId == null) {
-      return res
-        .status(400)
-        .json({ message: "input, questionId and lessonId are all required" });
-    }
+  if (input === undefined || input === null) {
+    return res.status(400).json({ message: "Input is required" });
+  }
 
-    // 2. Fetch the lesson
-    const lesson = await LessonModel.findById(lessonId).lean();
+  if (!questionId || !lessonId) {
+    return res
+      .status(400)
+      .json({ message: "questionId and lessonId are required" });
+  }
+
+  try {
+    const lesson = await LessonModel.findOne(
+      { _id: lessonId, "tasks.content.questions._id": questionId },
+      { "tasks.content.$": 1 }
+    ).lean();
+
     if (!lesson) {
       return res.status(404).json({ message: "Lesson not found" });
     }
 
-    // 3. Ensure tasks.content is iterable
-    if (!lesson.tasks || !Array.isArray(lesson.tasks.content)) {
-      return res
-        .status(500)
-        .json({ message: "Lesson format invalid: no tasks.content array" });
+    const question = lesson.tasks.content[0]?.questions?.find(
+      (q) => q._id.toString() === questionId
+    );
+
+    if (!question) {
+      return res.status(404).json({ message: "Question not found" });
     }
 
-    // 4. Find the question by ID
-    let foundQuestion = null;
-    for (const section of lesson.tasks.content) {
-      if (!Array.isArray(section.questions)) continue;
-      for (const question of section.questions) {
-        if (question._id.toString() === questionId) {
-          foundQuestion = question;
-          break;
-        }
-      }
-      if (foundQuestion) break;
-    }
+    const normalize = (str) => {
+      if (typeof str !== "string") return String(str);
+      return str
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "")
+        .replace(/[^\w\s]/gi, "")
+        .replace(/\s+/g, " ");
+    };
 
-    if (!foundQuestion) {
-      return res.status(404).json({ message: "Question not found in lesson" });
-    }
+    let isCorrect = false;
+    let correctAnswerPayload = null;
 
-    // 5. Validate the answer based on question type
-    let valid = false;
-    let correctAnswerPayload;
-
-    switch (foundQuestion.type) {
+    switch (question.type) {
       case "text":
-        correctAnswerPayload = foundQuestion.correctAnswers || [];
-        valid =
-          Array.isArray(foundQuestion.correctAnswers) &&
-          foundQuestion.correctAnswers.some(
-            (ans) =>
-              ans.trim().toLowerCase() === String(input).trim().toLowerCase()
-          );
+        // Support either `correctAnswer` or `correctAnswers`
+        const correctAnswer =
+          typeof question.correctAnswer === "string"
+            ? question.correctAnswer
+            : Array.isArray(question.correctAnswers) &&
+              question.correctAnswers.length > 0
+            ? question.correctAnswers[0]
+            : null;
+
+        if (!correctAnswer) {
+          return res
+            .status(400)
+            .json({ message: "No correct answer found for text question" });
+        }
+
+        correctAnswerPayload = correctAnswer;
+        isCorrect = normalize(input) === normalize(correctAnswer);
         break;
 
       case "multiple-choice":
-        correctAnswerPayload = foundQuestion.correctAnswer;
-        valid = foundQuestion.correctAnswer === input;
+        correctAnswerPayload = question.correctAnswer;
+        isCorrect = normalize(input) === normalize(correctAnswerPayload);
         break;
 
       case "multiple-select":
-        correctAnswerPayload = foundQuestion.correctAnswers || [];
+        correctAnswerPayload = question.correctAnswers || [];
+
         if (!Array.isArray(input)) {
           return res.status(400).json({
             message: "For multiple-select questions, input must be an array",
           });
         }
-        const userSorted = [...input].sort();
-        const correctSorted = [...foundQuestion.correctAnswers].sort();
-        valid =
-          userSorted.length === correctSorted.length &&
-          userSorted.every((val, idx) => val === correctSorted[idx]);
+
+        const userNormalized = input.map(normalize).sort();
+        const correctNormalized = correctAnswerPayload.map(normalize).sort();
+
+        isCorrect =
+          userNormalized.length === correctNormalized.length &&
+          userNormalized.every((val, i) => val === correctNormalized[i]);
         break;
 
       default:
         return res.status(400).json({ message: "Unknown question type" });
     }
 
-    // 6. Return the result including the correct answer(s)
     return res.status(200).json({
-      lessonId,
-      questionId,
-      valid,
+      isCorrect,
       correctAnswer: correctAnswerPayload,
+      explanation: question.explanation || "",
     });
   } catch (error) {
     console.error("answerValidation error:", error);
     return res.status(500).json({
       message: "Internal server error",
       error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });
   }
 };
