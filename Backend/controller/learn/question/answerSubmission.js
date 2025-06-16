@@ -120,32 +120,41 @@ exports.answerSubmission = async (req, res) => {
       }
     });
 
-    // Handle question numbering (q1, q2, q3)
+    // Create question ID map for direct lookup
+    const questionMap = {};
+    allQuestions.forEach((question) => {
+      questionMap[question.id] = question;
+    });
+
     const results = {};
     let score = 0;
-    const questionKeys = Object.keys(answers).sort();
 
-    for (const key of questionKeys) {
-      const match = key.match(/^q(\d+)$/);
-      if (!match) continue;
+    // Process answers using question IDs
+    Object.entries(answers).forEach(([questionId, userAnswer]) => {
+      const question = questionMap[questionId];
 
-      const index = parseInt(match[1]) - 1;
-      if (index >= 0 && index < allQuestions.length) {
-        const question = allQuestions[index];
-        try {
-          const validationResult = validateAnswer(question, answers[key]);
-          results[question.id] = validationResult;
-          if (validationResult.isCorrect) score++;
-        } catch (error) {
-          results[question.id] = {
-            isCorrect: false,
-            explanation: error.message,
-            correctAnswer:
-              question.correctAnswer || question.correctAnswers || null,
-          };
-        }
+      if (!question) {
+        results[questionId] = {
+          isCorrect: false,
+          explanation: `Question ID ${questionId} not found in lesson`,
+          correctAnswer: null,
+        };
+        return;
       }
-    }
+
+      try {
+        const validationResult = validateAnswer(question, userAnswer);
+        results[questionId] = validationResult;
+        if (validationResult.isCorrect) score++;
+      } catch (error) {
+        results[questionId] = {
+          isCorrect: false,
+          explanation: error.message,
+          correctAnswer:
+            question.correctAnswer || question.correctAnswers || null,
+        };
+      }
+    });
 
     const totalQuestions = allQuestions.length;
     const percentage =
