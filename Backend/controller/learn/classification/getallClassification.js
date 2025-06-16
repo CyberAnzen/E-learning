@@ -25,7 +25,7 @@ exports.getallClassification = async (req, res) => {
     );
 
     // 3. Return the array with counts
-    res.status(200).json({ data: results });
+    res.status(200).json({ data: { overallProgress: 50, results } });
   } catch (error) {
     console.error("Failed to fetch classifications with counts:", error);
     res
