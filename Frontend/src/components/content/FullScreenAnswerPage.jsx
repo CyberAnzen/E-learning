@@ -19,18 +19,18 @@ import {
   TrendingUp,
   RotateCcw,
 } from "lucide-react";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const VALIDATE_ENDPOINT = `${BACKEND_URL}/answer/validate`;
+const SUBMIT_ENDPOINT = `${BACKEND_URL}/amswer/submit`;
 
-const VALIDATE_ENDPOINT = "/api/validate-answer";
-const SUBMIT_ENDPOINT = "/api/submit-assessment";
-
-export const validateAnswer = async (questionId, answer) => {
+export const validateAnswer = async (questionId, answer,) => {
   try {
     const response = await fetch(VALIDATE_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ questionId, answer }),
+      body: JSON.stringify({ questionId, input: answer }),
     });
 
     if (!response.ok) {

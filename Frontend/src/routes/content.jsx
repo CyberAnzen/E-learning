@@ -15,7 +15,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import CollapsibleSection from "../components/content/colapsable";
 import FullScreenReader from "../components/content/FullscreenReader";
-import FullscreenAnswerPage from "../components/content/FullScreenAnswerPage";
+import QuestionInterface from "../components/content/AnswerPage/QuestionInterface";
 import TerminalDesign from "../components/content/Terminal";
 import SubmitButton from "../components/content/SubmitButton";
 import ContentHeader from "../components/content/ContentHeader";
@@ -29,8 +29,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
   // ─── State Variables ─────────────────────────────────────────────────────
   const [activeSection, setActiveSection] = useState(null);
   const [fullScreenSection, setFullScreenSection] = useState(null);
-  const [showFullscreenAnswerPage, setShowFullscreenAnswerPage] =
-    useState(false);
+  const [showQuestionInterface, setShowQuestionInterface] = useState(false);
   const [currentChapter, setCurrentChapter] = useState(null);
   const [currentTask, setCurrentTask] = useState(null);
   const [taskProgress, setTaskProgress] = useState(0);
@@ -66,7 +65,11 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
           description: task.description,
           objectives: task.objectives,
           mainContent: task.mainContent,
-          questions: task.questions,
+          // Ensure questions have proper IDs
+          questions: task.questions.map((q) => ({
+            ...q,
+            id: q._id, // Map MongoDB _id to expected id property
+          })),
         },
       })),
     };
@@ -98,7 +101,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
           // Reset UI state on chapter change
           setActiveSection(null);
           setFullScreenSection(null);
-          setShowFullscreenAnswerPage(false);
+          setShowQuestionInterface(false);
           setTaskProgress(0);
           setSubmitted(false);
           setAnswers({});
@@ -217,13 +220,13 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
     document.body.style.overflow = "auto";
   };
 
-  const handleOpenFullscreenAnswers = () => {
-    setShowFullscreenAnswerPage(true);
+  const handleOpenQuestionInterface = () => {
+    setShowQuestionInterface(true);
     document.body.style.overflow = "hidden";
   };
 
-  const handleCloseFullscreenAnswers = () => {
-    setShowFullscreenAnswerPage(false);
+  const handleCloseQuestionInterface = () => {
+    setShowQuestionInterface(false);
     document.body.style.overflow = "auto";
   };
 
@@ -333,7 +336,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                 <button
                   onClick={() => {
                     setActiveSection(null);
-                    handleOpenFullscreenAnswers();
+                    handleOpenQuestionInterface();
                   }}
                   className="cyber-button w-full px-4 py-3 bg-[#01ffdb]/10 border border-[#01ffdb]/50
                   font-medium rounded-lg hover:bg-[#01ffdb]/20 transition-all font-mono relative overflow-hidden
@@ -417,17 +420,18 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
           />
         )}
       </AnimatePresence>
-      <FullscreenAnswerPage
-        isOpen={showFullscreenAnswerPage}
-        onClose={handleCloseFullscreenAnswers}
+
+      <QuestionInterface
+        isOpen={showQuestionInterface}
+        onClose={handleCloseQuestionInterface}
         questions={currentTask?.content?.questions || []}
         answers={answers}
-        taskId={currentTask?.id}
         onAnswerSubmit={handleAnswerSubmit}
         isSubmitted={submitted}
         ip={ip}
         chapterId={currentChapter?.id}
         chapterPath={getChapterPath()}
+        lessonId={selectedChapterId}
       />
     </section>
   );
