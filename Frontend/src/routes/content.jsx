@@ -316,7 +316,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                     <div
                       className="cyber-button w-full px-4 py-3 bg-transparent border border-[#01ffdb]/20
                       font-medium rounded-lg hover:bg-transparent transition-all font-mono relative overflow-hidden
-                      text-xl transition-colors duration-200 text-white flex items-center justify-between gap-3"
+                      text-xl  duration-200 text-white flex items-center justify-between gap-3"
                     >
                       <div className="flex items-center justify- gap-3">
                         <Lightbulb className="w-5 h-5 text-yellow-400" />
@@ -340,7 +340,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                   }}
                   className="cyber-button w-full px-4 py-3 bg-[#01ffdb]/10 border border-[#01ffdb]/50
                   font-medium rounded-lg hover:bg-[#01ffdb]/20 transition-all font-mono relative overflow-hidden
-                  text-xl transition-colors duration-200 text-white flex items-center gap-3"
+                  text-xl duration-200 text-white flex items-center gap-3"
                 >
                   <Terminal className="w-5 h-5 text-white" />
                   <span className="font-medium">Answer Questions</span>
