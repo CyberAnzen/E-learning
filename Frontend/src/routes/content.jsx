@@ -22,10 +22,9 @@ import ContentHeader from "../components/content/ContentHeader";
 import ChapterProgress from "../components/content/ChapterProgress";
 import "../content.css";
 
-// ────────────────────────────────────────────────────────────────────────────
-// Dummy "full" data map (read‐only) for looking up by ID
-// ────────────────────────────────────────────────────────────────────────────
-import chapterDetailsById from "./content.json";
+// Define backend URL from environment variables
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 const Content = ({ selectedChapterId, isPreview = false }) => {
   // ─── State Variables ─────────────────────────────────────────────────────
   const [activeSection, setActiveSection] = useState(null);
@@ -43,42 +42,83 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
   );
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
-
-  // ─── NEW: Track if Objectives or Content have been opened ───────────────
   const [objectivesOpened, setObjectivesOpened] = useState(false);
   const [contentOpened, setContentOpened] = useState(false);
-
-  // NEW: Overall progress state
   const [overallProgress, setOverallProgress] = useState({
     percentage: 0,
     completed: 0,
     total: 0,
   });
 
-  // ─── EFFECT: When selectedChapterId changes, look up full data ───────────
+  // Function to transform API response to match expected structure
+  const transformLessonData = (data) => {
+    return {
+      id: data._id,
+      chapter: data.lesson,
+      icon: data.icon || "Shield", // Default icon if null
+      completed: false, // Progress not provided by API
+      content: data.content,
+      tasks: data.tasks.content.map((task, index) => ({
+        id: task._id,
+        title: `Task ${index + 1}`, // API doesn't provide task titles
+        completed: false, // Progress not provided by API
+        content: {
+          description: task.description,
+          objectives: task.objectives,
+          mainContent: task.mainContent,
+          questions: task.questions,
+        },
+      })),
+    };
+  };
+
+  // ─── EFFECT: Fetch lesson data when selectedChapterId changes ───────────
   useEffect(() => {
     if (selectedChapterId == null) return;
 
-    const fullChapter = chapterDetailsById[selectedChapterId] || null;
-    setCurrentChapter(fullChapter);
+    let isMounted = true;
 
-    if (fullChapter && fullChapter.tasks.length > 0) {
-      setCurrentTask(fullChapter.tasks[0]);
-    } else {
-      setCurrentTask(null);
-    }
+    const fetchLesson = async () => {
+      try {
+        const response = await fetch(
+          `${BACKEND_URL}/lesson/${selectedChapterId}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch lesson data");
+        }
+        const { data } = await response.json();
+        if (isMounted) {
+          const fullChapter = transformLessonData(data);
+          setCurrentChapter(fullChapter);
+          if (fullChapter && fullChapter.tasks.length > 0) {
+            setCurrentTask(fullChapter.tasks[0]);
+          } else {
+            setCurrentTask(null);
+          }
+          // Reset UI state on chapter change
+          setActiveSection(null);
+          setFullScreenSection(null);
+          setShowFullscreenAnswerPage(false);
+          setTaskProgress(0);
+          setSubmitted(false);
+          setAnswers({});
+          setCurrentStep(0);
+          setCompletedSteps([]);
+          setObjectivesOpened(false);
+          setContentOpened(false);
+        }
+      } catch (error) {
+        console.error("Error fetching lesson:", error);
+        // Optionally set an error state to display to the user
+      }
+    };
 
-    // Reset UI state on chapter change
-    setActiveSection(null);
-    setFullScreenSection(null);
-    setShowFullscreenAnswerPage(false);
-    setTaskProgress(0);
-    setSubmitted(false);
-    setAnswers({});
-    setCurrentStep(0);
-    setCompletedSteps([]);
-    setObjectivesOpened(false);
-    setContentOpened(false);
+    fetchLesson();
+
+    // Cleanup to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    };
   }, [selectedChapterId]);
 
   // ─── EFFECT: Recalculate taskProgress when currentChapter changes ─────────
@@ -91,8 +131,6 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
       (completedCount / currentChapter.tasks.length) * 100
     );
     setTaskProgress(percentage);
-
-    // Calculate overall progress
     setOverallProgress({
       percentage,
       completed: completedCount,
@@ -120,9 +158,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
     fetch("https://api.ipify.org?format=json")
       .then((res) => res.json())
       .then((data) => setIp(data.ip))
-      .catch(() => {
-        // Keep the random IP if fetching fails
-      });
+      .catch(() => {});
   }, []);
 
   // ─── HANDLERS ─────────────────────────────────────────────────────────────
@@ -197,7 +233,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
       : "";
   };
 
-  // If the chapter or task isn't loaded yet, show a placeholder
+  // Loading state
   if (!currentChapter || !currentTask) {
     return (
       <div className="flex items-center justify-center h-full text-gray-400">
@@ -206,7 +242,6 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
     );
   }
 
-  // Determine whether this is the first or last task in the chapter
   const taskIdx = currentChapter.tasks.findIndex(
     (t) => t.id === currentTask.id
   );
@@ -216,23 +251,17 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
   // ─── JSX RETURN ──────────────────────────────────────────────────────────
   return (
     <section className="bg-gradient-to-br from-black via-gray-900 to-black mt-13 min-h-screen relative">
-      {/* ─── HEADER (SSH‐like) ────────────────────────────────────────────── */}
       <ContentHeader
         currentChapter={currentChapter}
         scrolled={scrolled}
         taskProgress={taskProgress}
       />
-
-      {/* ─── MAIN CONTENT CONTAINER ──────────────────────────────────────── */}
       <div className="flex flex-col lg:flex-row gap-8 px-4 py-8 max-w-7xl mx-auto">
-        {/* Extracted ChapterProgress */}
         <ChapterProgress
           overallProgress={overallProgress}
           tasks={currentChapter.tasks}
           currentTaskId={currentTask.id}
         />
-
-        {/* ─── LEFT COLUMN: TASK CARD ────────────────────────────────────── */}
         <div className="w-full lg:w-7/12 order-2 lg:order-1">
           <main className="flex justify-center">
             <div className="bg-gray-800/30 rounded-xl w-full max-w-3xl p-6 backdrop-blur-sm border border-gray-700/50 overflow-hidden">
@@ -243,9 +272,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                     Task {currentTask.id.split("-")[1]}: {currentTask.title}
                   </h2>
                 </div>
-
                 <div className="overflow-y-auto pr-2">
-                  {/* ─── Learning Objectives Collapsible ───────────────────── */}
                   <CollapsibleSection
                     title={
                       <div className="relative flex justify-center items-center w-full">
@@ -276,8 +303,6 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                       ))}
                     </div>
                   </CollapsibleSection>
-
-                  {/* ─── Chapter Content ────────────────────────── */}
                   <div
                     className="border border-gray-700/50 rounded-lg overflow-hidden mb-4 cursor-pointer"
                     onClick={() => {
@@ -287,8 +312,8 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                   >
                     <div
                       className="cyber-button w-full px-4 py-3 bg-transparent border border-[#01ffdb]/20
-                  font-medium rounded-lg hover:bg-transparent
-                  transition-all  font-mono relative overflow-hidden text-xltransition-colors duration-200 text-white flex items-center justify-between gap-3"
+                      font-medium rounded-lg hover:bg-transparent transition-all font-mono relative overflow-hidden
+                      text-xl transition-colors duration-200 text-white flex items-center justify-between gap-3"
                     >
                       <div className="flex items-center justify- gap-3">
                         <Lightbulb className="w-5 h-5 text-yellow-400" />
@@ -304,8 +329,6 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                   </div>
                 </div>
               </div>
-
-              {/* ─── Questions ───────────────────────────── */}
               <div className="border border-gray-700/50 rounded-lg overflow-hidden mb-4">
                 <button
                   onClick={() => {
@@ -313,8 +336,8 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
                     handleOpenFullscreenAnswers();
                   }}
                   className="cyber-button w-full px-4 py-3 bg-[#01ffdb]/10 border border-[#01ffdb]/50
-                  font-medium rounded-lg hover:bg-[#01ffdb]/20 
-                  transition-all  font-mono relative overflow-hidden text-xltransition-colors duration-200 text-white flex items-center gap-3"
+                  font-medium rounded-lg hover:bg-[#01ffdb]/20 transition-all font-mono relative overflow-hidden
+                  text-xl transition-colors duration-200 text-white flex items-center gap-3"
                 >
                   <Terminal className="w-5 h-5 text-white" />
                   <span className="font-medium">Answer Questions</span>
@@ -336,26 +359,26 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
               </div>
             </div>
           </main>
-
-          {/* ─── Navigation Buttons ─────────────────────────────────────────── */}
           {!isPreview && (
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
               <div className="flex gap-4 w-full sm:w-auto">
                 <button
                   onClick={navigateToPrevious}
                   disabled={isFirstTask}
-                  className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                  className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600
+                  transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                 >
                   <ChevronLeft className="w-5 h-5" /> Previous
                 </button>
                 <button
                   onClick={navigateToNext}
                   disabled={isLastTask}
-                  className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                  className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600
+                  transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                 >
                   Next <ChevronRight className="w-5 h-5" />
                 </button>
-              </div>{" "}
+              </div>
               <div className="flex justify-end w-full sm:w-auto">
                 <SubmitButton
                   isSubmitted={submitted}
@@ -368,8 +391,6 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
           )}
         </div>
       </div>
-
-      {/* ─── Full‐Screen Content Modal ───────────────────────────────────── */}
       <AnimatePresence>
         {fullScreenSection === "content" && (
           <FullScreenReader
@@ -396,8 +417,6 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
           />
         )}
       </AnimatePresence>
-
-      {/* ─── Fullscreen Answer Page ─────────────────────────────────────────── */}
       <FullscreenAnswerPage
         isOpen={showFullscreenAnswerPage}
         onClose={handleCloseFullscreenAnswers}

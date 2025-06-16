@@ -1,77 +1,77 @@
-import React from "react";
-import {
-  BookOpen,
-  Network,
-  Shield,
-  Lock,
-  Brain,
-  Code,
-  BarChart,
-} from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { BookOpen, BarChart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-// Mock data - in a real app this would come from your backend
-const courses = [
-  {
-    id: 1,
-    title: "Network Security",
-    description:
-      "Learn about securing networks and preventing unauthorized access.",
-    icon: Network,
-    progress: 65,
-    totalLessons: 12,
-    completedLessons: 8,
-    category: "Security",
-  },
-  {
-    id: 2,
-    title: "Ethical Hacking",
-    description:
-      "Discover techniques used by ethical hackers to identify vulnerabilities.",
-    icon: Shield,
-    progress: 30,
-    totalLessons: 15,
-    completedLessons: 4,
-    category: "Security",
-  },
-  {
-    id: 3,
-    title: "Cryptography",
-    description: "Understand encryption and secure communication principles.",
-    icon: Lock,
-    progress: 45,
-    totalLessons: 10,
-    completedLessons: 5,
-    category: "Security",
-  },
-  {
-    id: 4,
-    title: "AI Security",
-    description:
-      "Learn about securing AI systems and preventing adversarial attacks.",
-    icon: Brain,
-    progress: 20,
-    totalLessons: 8,
-    completedLessons: 2,
-    category: "AI",
-  },
-  {
-    id: 5,
-    title: "Secure Coding",
-    description: "Master the principles of writing secure and robust code.",
-    icon: Code,
-    progress: 80,
-    totalLessons: 14,
-    completedLessons: 11,
-    category: "Development",
-  }, //bg-gradient-to-br from-gray-900 to-gray-800
-];
-//comment everycode
+import CourseCard from "../components/Learn/CourseCard";
+import CourseCardSkeleton from "../components/Learn/CourseSkeleton";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-function LearnPage() {
+/**
+ * Learning Center page component
+ * Displays courses with loading skeletons and progress tracking
+ */
+const LearnPage = () => {
   const navigate = useNavigate();
+  const [courses, setCourses] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [overallProgress, setOverallProgress] = useState(0);
+  const retryTimeoutRef = useRef(null);
+
+  const loadCourses = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${BACKEND_URL}/classification`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch courses");
+      }
+      const { data } = await response.json();
+      const transformedCourses = (data.results || []).map((course) => ({
+        id: course._id,
+        title: course.title,
+        description: course.description,
+        icon: course.icon,
+        category: course.category,
+        progress: course.progress || 0,
+        completedLessons: course.completedLessons || 0,
+        totalLessons: course.lessonCount || 0,
+      }));
+      setCourses(transformedCourses);
+      setOverallProgress(data.overallProgress || 0);
+      setError(null); // Clear error on success
+      clearTimeout(retryTimeoutRef.current); // Clear any scheduled retry
+      setIsLoading(false); // Stop loading only on success
+    } catch (err) {
+      console.error("Error fetching courses:", err);
+      // Schedule an auto-retry after 5 seconds
+      retryTimeoutRef.current = setTimeout(() => {
+        loadCourses();
+      }, 5000);
+    }
+  };
+
+  // Fetch courses on component mount and cleanup on unmount
+  useEffect(() => {
+    loadCourses();
+    return () => {
+      clearTimeout(retryTimeoutRef.current); // Cleanup to prevent memory leaks
+    };
+  }, []);
+
+  // Handle course navigation
+  const handleCourseClick = (courseId) => {
+    navigate(`/learn/${courseId}`);
+  };
+
+  // Handle manual retry (optional, kept for user control)
+  const handleRetry = () => {
+    clearTimeout(retryTimeoutRef.current); // Cancel any scheduled retry
+    loadCourses(); // Trigger immediate retry
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black mt-12">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
       <div className="container mx-auto px-4 sm:px-6 py-12">
+        {/* Header section */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 flex items-center gap-3">
@@ -82,72 +82,68 @@ function LearnPage() {
               Explore our comprehensive cybersecurity courses
             </p>
           </div>
+
+          {/* Overall progress indicator */}
           <div className="hidden sm:flex items-center gap-4">
             <BarChart className="w-6 h-6 text-gray-400" />
             <div className="text-right">
               <p className="text-sm text-gray-400">Overall Progress</p>
-              <p className="text-xl font-semibold text-white">48%</p>
+              {isLoading ? (
+                <div className="w-12 h-6 bg-gray-600 rounded animate-pulse"></div>
+              ) : (
+                <p className="text-xl font-semibold text-white">
+                  {overallProgress}%
+                </p>
+              )}
             </div>
           </div>
         </div>
 
+        {/* Retry feedback */}
+        {error && isLoading && (
+          <div className="mb-8 p-4 bg-yellow-900/50 border border-yellow-500/50 rounded-lg">
+            <p className="text-yellow-300">{error}</p>
+            <button
+              onClick={handleRetry}
+              className="mt-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors duration-200"
+            >
+              Retry Now
+            </button>
+          </div>
+        )}
+
+        {/* Course grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => {
-            const Icon = course.icon;
-            return (
-              <div
-                key={course.id}
-                className="group relative bg-gray-800/50 backdrop-blur-xl p-6 rounded-xl border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-3 bg-gray-700/50 rounded-lg">
-                    <Icon className="w-6 h-6 text-cyan-400" />
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-sm text-gray-400">Progress</span>
-                    <span className="text-lg font-semibold text-white">
-                      {course.progress}%
-                    </span>
-                  </div>
-                </div>
-
-                <h2 className="text-xl font-semibold text-white mb-2">
-                  {course.title}
-                </h2>
-                <p className="text-gray-400 mb-4">{course.description}</p>
-
-                <div className="mt-auto">
-                  <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
-                    <div
-                      className="bg-cyan-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${course.progress}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">
-                      {course.completedLessons} of {course.totalLessons} lessons
-                    </span>
-                    <span className="text-cyan-400">{course.category}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    navigate(`/learn/${course.id}`);
-                  }}
-                  className="absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex hover:cursor-pointer items-center justify-center bg-cyan-500/10 rounded-xl"
-                >
-                  {/*   <span className="px-4 py-2 bg-cyan-500 text-white rounded-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                    Continue Learning
-                  </span>*/}
-                </button>
-              </div>
-            );
-          })}
+          {isLoading
+            ? // Show skeletons while loading
+              Array.from({ length: 6 }).map((_, index) => (
+                <CourseCardSkeleton key={index} />
+              ))
+            : // Show actual course cards
+              courses.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  onCourseClick={handleCourseClick}
+                />
+              ))}
         </div>
+
+        {/* Empty state */}
+        {!isLoading && courses.length === 0 && (
+          <div className="text-center py-12">
+            <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-400 mb-2">
+              No courses available
+            </h3>
+            <p className="text-gray-500">
+              Check back later for new learning opportunities.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
-}
+};
 
 export default LearnPage;
