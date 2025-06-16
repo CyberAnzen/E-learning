@@ -5,11 +5,12 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const port = 4000;
 const bodyParser = require("body-parser");
-const login = require("./router/userRoutes");
+const userRoutes = require('./router/userRoutes');
 const event = require("./router/eventRoutes");
 const classification = require("./router/classificationRoutes");
 const lesson = require("./router/lessonRoutes");
 const validate = require("./router/ValidationRoutes");
+
 const ConnectDataBase = require("./config/connectDataBase");
 const initializeCaches = require("./cache/initCache");
 const helmet = require("helmet");
@@ -41,8 +42,10 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use("/api/event", xssSanitizer(), event);
-app.use("/api/user", xssSanitizer(), login);
+app.use("/api/user", xssSanitizer(), userRoutes);
 app.use("/api/classification", xssSanitizer(), classification);
 app.use("/api/lesson", xssSanitizer(), lesson);
 app.use("/api/answer", validate);
+
+
 app.listen(port);
