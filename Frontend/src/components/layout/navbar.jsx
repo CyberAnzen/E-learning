@@ -176,7 +176,7 @@ export default function Navbar() {
                       <div className="relative w-10 flex items-center h-15">
                         <center>
                           <motion.img
-                            src="favicon.png"
+                            src="/favicon.png"
                             alt="CyberAnzen Logo"
                             className="w-13 h-11 object-cover"
                             style={{ filter: "drop-shadow(0 0 8px #01ffdb)" }}

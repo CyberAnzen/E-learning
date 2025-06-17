@@ -1,20 +1,23 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { motion } from 'framer-motion';
-import { X, Terminal, HelpCircle, Shield } from 'lucide-react';
+import React from "react";
+import PropTypes from "prop-types";
+import { motion } from "framer-motion";
+import { X, Terminal, HelpCircle, Shield } from "lucide-react";
 
-const QuestionHeader = ({ 
-  currentQuestionIndex, 
-  totalQuestions, 
-  answeredCount, 
-  onClose 
+const QuestionHeader = ({
+  currentQuestionIndex,
+  totalQuestions,
+  answeredCount,
+  onClose,
 }) => {
   return (
     <div className="flex-shrink-0 bg-gradient-to-r from-black/40 to-gray-900/40 backdrop-blur-md border-b-2 border-cyan-400/30 px-4 sm:px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 sm:gap-4">
           <div className="p-3 bg-gradient-to-br from-cyan-400/20 to-teal-500/20 rounded-2xl backdrop-blur-sm border-2 border-cyan-400/30 shadow-lg shadow-cyan-400/20">
-            <Shield className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
+            <img
+              src="/favicon.png"
+              className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400"
+            />
           </div>
           <div>
             <h2 className="text-cyan-300 font-bold text-lg sm:text-2xl drop-shadow-lg">
@@ -22,7 +25,9 @@ const QuestionHeader = ({
             </h2>
             <p className="text-gray-300 text-sm sm:text-base flex items-center gap-2 flex-wrap">
               <Terminal className="w-4 h-4 text-cyan-400" />
-              <span className="font-bold">Question {currentQuestionIndex + 1} of {totalQuestions}</span>
+              <span className="font-bold">
+                Question {currentQuestionIndex + 1} of {totalQuestions}
+              </span>
               <span className="text-green-400 font-bold flex items-center gap-1">
                 <HelpCircle className="w-4 h-4" />
                 {answeredCount} COMPLETED

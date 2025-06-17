@@ -110,7 +110,7 @@ const Intro = () => {
     <div className="relative min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center justify-center overflow-hidden px-4">
       {/* Optimized favicon with enhanced glow */}
       <motion.img
-        src="favicon.png"
+        src="/favicon.png"
         alt="CyberAnzen Logo"
         className={`w-32 md:w-48 ${isMobile ? "" : "glitch-effect"}`}
         initial={{ opacity: 0, scale: 0.9, filter: "brightness(0)" }}
@@ -229,7 +229,7 @@ const Intro = () => {
         transition={{ duration: 0.3, delay: 0.3 }}
       >
         <motion.img
-          src="broken_security.png"
+          src="/broken_security.png"
           alt="Broken Security Icon"
           className="w-6 md:w-7"
           style={{ filter: "brightness(0) invert(1)" }}
