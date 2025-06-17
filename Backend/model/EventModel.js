@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const eventSchema = new mongoose.Schema({
     eventName: { type: String, required: true },
     eventImage: { type: String, required: true },
+    imagePath: { type: String, required: true },
     eventDetails: {
         description: { type: String, required: true },
         date: { type: Date, required: true },

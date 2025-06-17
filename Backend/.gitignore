@@ -11,4 +11,5 @@ logs
 .env
 
 # event images
-uploads/events/images
+uploads/events/images/**
+uploads/events/temp/**
