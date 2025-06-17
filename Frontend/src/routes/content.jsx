@@ -253,7 +253,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
 
   // ─── JSX RETURN ──────────────────────────────────────────────────────────
   return (
-    <section className="bg-gradient-to-br from-black via-gray-900 to-black mt-13 min-h-screen relative">
+    <section className="bg-gradient-to-br from-black via-gray-900 to-black mt-23 min-h-screen relative">
       <ContentHeader
         currentChapter={currentChapter}
         scrolled={scrolled}
