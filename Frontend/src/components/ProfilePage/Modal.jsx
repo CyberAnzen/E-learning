@@ -11,7 +11,7 @@ const Modal = ({ id, children }) => {
   return (
     <dialog id={id} className="modal" onClick={handleOverlayClick}>
       <div
-        className="modal-box bg-gray-800/50 backdrop-blur-xl rounded-xl border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
+        className="modal-box bg-gray-800/50 backdrop-blur-xl rounded-xl border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 px-0"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the box
       >
         <form method="dialog">
