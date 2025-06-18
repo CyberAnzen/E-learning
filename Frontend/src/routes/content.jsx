@@ -51,25 +51,30 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
 
   // Function to transform API response to match expected structure
   const transformLessonData = (data) => {
+    // Ensure tasks is always an array
+    const tasksArray = Array.isArray(data.tasks) ? data.tasks : [data.tasks];
+
     return {
       id: data._id,
       chapter: data.lesson,
-      icon: data.icon || "Shield", // Default icon if null
-      completed: false, // Progress not provided by API
+      icon: data.icon || "Shield",
+      completed: false,
       content: data.content,
-      tasks: data.tasks.content.map((task, index) => ({
-        id: task._id,
-        title: `Task ${index + 1}`, // API doesn't provide task titles
-        completed: false, // Progress not provided by API
+      tasks: tasksArray.map((task, index) => ({
+        id: task.id || task._id,
+        title: task.title || `Task ${index + 1}`,
+        completed: task.completed || false,
         content: {
-          description: task.description,
-          objectives: task.objectives,
-          mainContent: task.mainContent,
-          // Ensure questions have proper IDs
-          questions: task.questions.map((q) => ({
-            ...q,
-            id: q._id, // Map MongoDB _id to expected id property
-          })),
+          description: task.content.description,
+          objectives: task.content.objectives,
+          mainContent:
+            task.content.mainContent || task.content.maincontent || "",
+          questions: Array.isArray(task.content.questions)
+            ? task.content.questions.map((q) => ({
+                ...q,
+                id: q.id || q._id,
+              }))
+            : [],
         },
       })),
     };

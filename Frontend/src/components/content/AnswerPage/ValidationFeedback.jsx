@@ -9,6 +9,7 @@ const ValidationFeedback = ({ currentAnswerState }) => {
   if (!validation || currentAnswerState?.isValidating) {
     return null;
   }
+  // console.log(currentAnswerState.validation.correctAnswer);
 
   return (
     <motion.div
@@ -31,7 +32,7 @@ const ValidationFeedback = ({ currentAnswerState }) => {
 
       <div
         className={`flex items-center gap-3 mb-3 ${
-          validation.isCorrect ? "text-green-300" : "text-red-300"
+          validation.isCorrect ? "text-green-300" : "text-white"
         }`}
       >
         <div
@@ -48,7 +49,12 @@ const ValidationFeedback = ({ currentAnswerState }) => {
           )}
         </div>
         <span className="font-bold text-lg">
-          {validation.isCorrect ? "✓ CORRECT ANSWER!" : "✗ INCORRECT ANSWER"}
+          {validation.isCorrect ? " CORRECT ANSWER!" : " INCORRECT ANSWER"}
+          {!validation.isCorrect && (
+            <div className="text-red-200 pt-2">
+              correct Answer: {currentAnswerState.validation.correctAnswer}
+            </div>
+          )}
         </span>
       </div>
 
@@ -64,9 +70,9 @@ const ValidationFeedback = ({ currentAnswerState }) => {
             {/* <AlertTriangle className="w-5 h-5 text-amber-400" /> */}
           </div>
           <div>
-            {/* <div className="text-cyan-300 font-bold text-base mb-2">
-              EXPLANATION:
-            </div> */}
+            <div className="text-cyan-300 font-bold text-base mb-2">
+              Correct Answer: {currentAnswerState.validation.correctAnswer}
+            </div>
             <p
               className={`text-base leading-relaxed ${
                 validation.isCorrect ? "text-green-200" : "text-red-200"

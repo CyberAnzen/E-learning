@@ -21,24 +21,25 @@ initializeCaches();
 
 // Middleware to handle CORS
 //dont change it
-const whitelist = [
-  "http://localhost:5173", // react app url
-  // Add other allowed origins here, e.g. 'https://example.com'
-];
+// const whitelist = [
+//   "http://localhost:5173", // react app url
+//   // Add other allowed origins here, e.g. 'https://example.com'
+// ];
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (whitelist.includes(origin) || !origin) {
-      callback(null, true); // Allow
-    } else {
-      callback(new Error("Not allowed by CORS")); // Block
-    }
-  },
-  credentials: true, // This allows credentials (cookies, authorization headers, etc.)
-};
+// const corsOptions = {
+//   origin: (origin, callback) => {
+//     if (whitelist.includes(origin) || !origin) {
+//       callback(null, true); // Allow
+//     } else {
+//       callback(new Error("Not allowed by CORS")); // Block
+//     }
+//   },
+//   credentials: true, // This allows credentials (cookies, authorization headers, etc.)
+// };
 
 app.use(helmet()); // Use Helmet for security headers
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+app.use(cors())
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use("/api/event", xssSanitizer(), event);

@@ -20,7 +20,7 @@ const LearnPage = () => {
   const loadCourses = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${BACKEND_URL}/classification`);
+      const response = await fetch(`${BACKEND_URL}/classification/`);
       if (!response.ok) {
         throw new Error("Failed to fetch courses");
       }
