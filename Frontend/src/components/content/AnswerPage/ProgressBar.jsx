@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 
 const ProgressBar = ({ questions, currentQuestionIndex, answers }) => {
   return (
-    <div className="flex-shrink-0 bg-gradient-to-r from-black/20 to-gray-900/20 backdrop-blur-sm px-4 sm:px-6 py-4 border-b border-cyan-400/20">
-      <div className="flex gap-1 sm:gap-2 max-w-6xl mx-auto">
+    <div className="flex-shrink-0 bg-gradient-to-r from-black/20 to-gray-900/20 backdrop-blur-sm px-4 sm:px-6  ">
+      <div className="flex gap-1 sm:gap-2 max-w-[95vw] mx-auto">
         {questions.map((_, index) => {
           const questionId = questions[index].id;
           const isAnswered = answers[questionId]?.validation;
@@ -14,13 +14,13 @@ const ProgressBar = ({ questions, currentQuestionIndex, answers }) => {
           return (
             <motion.div
               key={index}
-              className={`flex-1 h-2 sm:h-3 rounded-full transition-all duration-500 relative overflow-hidden ${
+              className={`flex-1 h-2 sm:h-1 rounded-full transition-all duration-500 relative overflow-hidden ${
                 index === currentQuestionIndex
-                  ? "bg-gradient-to-r from-cyan-400 to-teal-500 shadow-lg shadow-cyan-400/30"
+                  ? "bg-gradient-to-r from-cyan-700 via-blue-100 to-teal-700 shadow-lg shadow-cyan-400/30"
                   : isAnswered
                   ? isCorrect
-                    ? "bg-gradient-to-r from-green-400 to-emerald-500 shadow-lg shadow-green-400/30"
-                    : "bg-gradient-to-r from-red-400 to-pink-500 shadow-lg shadow-red-400/30"
+                    ? "bg-gradient-to-r from-green-700 via-green-200  to-green-700 shadow-lg shadow-green-400/30"
+                    : "bg-gradient-to-r from-red-700 via-red-300 to-red-700 shadow-lg shadow-red-400/30"
                   : "bg-black/40 border border-cyan-400/20"
               }`}
               initial={{ scaleX: 0 }}

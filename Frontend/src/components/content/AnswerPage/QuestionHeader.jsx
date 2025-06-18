@@ -21,11 +21,11 @@ const QuestionHeader = ({
   }, [showCyber]);
 
   return (
-    <div className="flex-shrink-0 bg-gradient-to-r from-black/40 to-gray-900/40 backdrop-blur-md border-b-2 border-cyan-400/30 px-4 sm:px-6 py-4">
+    <div className="flex-shrink-0 bg-gradient-to-r from-black/40 to-gray-900/40 backdrop-blur-md  px-4 sm:px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 sm:gap-4">
           <motion.div
-            className="cube-container"
+            className="cube-container min-w-60 flex justify-center"
             style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
           >
             <AnimatePresence mode="wait">
@@ -37,42 +37,40 @@ const QuestionHeader = ({
                   exit={{ rotateY: 90, opacity: 0 }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
                 >
-                  <Link to="/about">
-                    <motion.div
-                      className="flex items-center gap-3"
-                      whileHover={{ scale: 1.05 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 10,
-                      }}
-                    >
-                      <div className="relative w-10 h-15 flex items-center">
-                        <motion.img
-                          src="/favicon.png"
-                          alt="CyberAnzen Logo"
-                          className="w-13 h-11 object-cover"
-                          style={{ filter: "drop-shadow(0 0 8px #01ffdb)" }}
-                          animate={{
-                            scale: [1, 1.05, 1],
-                            filter: [
-                              "drop-shadow(0 0 8px #01ffdb)",
-                              "drop-shadow(0 0 16px #01ffdb)",
-                              "drop-shadow(0 0 8px #01ffdb)",
-                            ],
-                          }}
-                          transition={{
-                            duration: 2.5,
-                            repeat: Infinity,
-                            repeatType: "reverse",
-                          }}
-                        />
-                      </div>
-                      <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#16e8da] via-[#01fff7] to-[#01ffdb] tracking-tight hover:from-[#00c3ff] hover:to-[#01ffdb] transition-all duration-300">
-                        CyberAnzen
-                      </h1>
-                    </motion.div>
-                  </Link>
+                  <motion.div
+                    className="flex items-center gap-3"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 400,
+                      damping: 10,
+                    }}
+                  >
+                    <div className="relative w-10 h-15 flex items-center">
+                      <motion.img
+                        src="/favicon.png"
+                        alt="CyberAnzen Logo"
+                        className="w-13 h-11 object-cover"
+                        style={{ filter: "drop-shadow(0 0 8px #01ffdb)" }}
+                        animate={{
+                          scale: [1, 1.05, 1],
+                          filter: [
+                            "drop-shadow(0 0 8px #01ffdb)",
+                            "drop-shadow(0 0 16px #01ffdb)",
+                            "drop-shadow(0 0 8px #01ffdb)",
+                          ],
+                        }}
+                        transition={{
+                          duration: 2.5,
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                        }}
+                      />
+                    </div>
+                    <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#16e8da] via-[#01fff7] to-[#01ffdb] tracking-tight hover:from-[#00c3ff] hover:to-[#01ffdb] transition-all duration-300">
+                      CyberAnzen
+                    </h1>
+                  </motion.div>
                 </motion.div>
               ) : (
                 <motion.div
@@ -82,15 +80,13 @@ const QuestionHeader = ({
                   exit={{ rotateY: -90, opacity: 0 }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
                 >
-                  <Link to="/about">
-                    <div className="relative w-30 h-15 overflow-hidden">
-                      <img
-                        src="https://lirp.cdn-website.com/5db65efd/dms3rep/multi/opt/Mask-group--282-29-1920w.png"
-                        alt="SRMIST Trichy"
-                        className="w-full h-14 object-cover transform transition-all duration-300 group-hover:scale-105 group-hover:brightness-110"
-                      />
-                    </div>
-                  </Link>
+                  <div className="relative w-30 h-15 overflow-hidden">
+                    <img
+                      src="https://lirp.cdn-website.com/5db65efd/dms3rep/multi/opt/Mask-group--282-29-1920w.png"
+                      alt="SRMIST Trichy"
+                      className="w-full h-14 object-cover transform transition-all duration-300 group-hover:scale-105 group-hover:brightness-110"
+                    />
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

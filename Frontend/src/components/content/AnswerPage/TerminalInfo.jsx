@@ -6,7 +6,7 @@ const TerminalInfo = ({ ip, chapterPath }) => {
   return (
     <div className="flex-shrink-0 bg-gradient-to-r from-black/60 to-gray-900/60 backdrop-blur-sm px-4 sm:px-6 py-4 border-b border-cyan-400/20 relative overflow-hidden">
       {/* Cyber accent line */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400/50 via-teal-400/50 to-cyan-300/50"></div>
+      {/* <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400/50 via-teal-400/50 to-cyan-300/50"></div> */}
 
       <div className="font-mono text-sm sm:text-base max-w-6xl mx-auto">
         <div className="flex items-center gap-2 text-green-400 flex-wrap">
