@@ -6,12 +6,10 @@ const normalize = (str) => {
   if (typeof str !== "string") str = String(str);
 
   return str
-    .trim()
     .toLowerCase()
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
-    .replace(/[^\w\s]/gi, "")
-    .replace(/\s+/g, " ");
+    .replace(/[^\w]/g, ""); // Removes non-alphanumeric characters, including spaces
 };
 
 // Validation logic with improved text handling
@@ -22,21 +20,25 @@ const validateAnswer = (question, userAnswer) => {
 
   switch (question.type) {
     case "text":
-      // Handle various correct answer formats
-      const correctAnswers = Array.isArray(question.correctAnswers)
-        ? question.correctAnswers
-        : question.correctAnswer
-        ? [question.correctAnswer]
-        : [];
+      // Handle correct answer (prioritize string format)
+      const correctAnswer = question.correctAnswer || "";
 
-      // Normalize all correct answers
-      const normalizedCorrectAnswers = correctAnswers
-        .map(normalize)
-        .filter((a) => a);
-      const normalizedUserAnswer = normalize(userAnswer);
+      // Normalize both correct answer and user input
+      const normalizedCorrect = normalize(correctAnswer);
+      const normalizedUser = normalize(userAnswer);
+      console.log(normalizedCorrect);
 
-      isCorrect = normalizedCorrectAnswers.includes(normalizedUserAnswer);
-      correctAnswerPayload = correctAnswers[0] || "";
+      // Check for empty correct answer after normalization
+      if (!normalizedCorrect) {
+        // console.log(normalizedCorrect)
+        isCorrect = false;
+        correctAnswerPayload = correctAnswer;
+        break;
+      }
+
+      // Compare normalized values
+      isCorrect = normalizedCorrect === normalizedUser;
+      correctAnswerPayload = correctAnswer;
       break;
 
     case "multiple-choice":
@@ -95,30 +97,30 @@ exports.answerSubmission = async (req, res) => {
       return res.status(404).json({ message: "Lesson not found" });
     }
 
-    // Extract sections from the lesson
-    const sections = [];
+    // Collect all questions directly from lesson.tasks.content.questions
+    const allQuestions = [];
     if (
       lesson.tasks &&
       lesson.tasks.content &&
-      Array.isArray(lesson.tasks.content)
+      Array.isArray(lesson.tasks.content.questions)
     ) {
-      sections.push(...lesson.tasks.content);
+      lesson.tasks.content.questions.forEach((question) => {
+        allQuestions.push({
+          ...question,
+          id: question._id.toString(),
+        });
+      });
     } else {
       console.warn(`Lesson ${lessonId} has unexpected tasks structure`);
+      return res.status(400).json({ message: "Invalid lesson structure" });
     }
 
-    // Collect all questions
-    const allQuestions = [];
-    sections.forEach((section) => {
-      if (section.questions && Array.isArray(section.questions)) {
-        section.questions.forEach((question) => {
-          allQuestions.push({
-            ...question,
-            id: question._id.toString(),
-          });
-        });
-      }
-    });
+    // Ensure there are questions to process
+    if (allQuestions.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "No questions found in the lesson" });
+    }
 
     // Create question ID map for direct lookup
     const questionMap = {};

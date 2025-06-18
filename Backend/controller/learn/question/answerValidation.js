@@ -31,15 +31,16 @@ exports.answerValidation = async (req, res) => {
       return res.status(404).json({ message: "Question not found" });
     }
 
+    // Enhanced normalization function
     const normalize = (str) => {
-      if (typeof str !== "string") return String(str);
+      if (str === null || str === undefined) return "";
+      if (typeof str !== "string") str = String(str);
+
       return str
-        .trim()
         .toLowerCase()
         .normalize("NFD")
         .replace(/\p{Diacritic}/gu, "")
-        .replace(/[^\w\s]/gi, "")
-        .replace(/\s+/g, " ");
+        .replace(/[^\w]/g, ""); // Removes non-alphanumeric characters, including spaces
     };
 
     let isCorrect = false;
