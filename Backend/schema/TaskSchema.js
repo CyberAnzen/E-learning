@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const QuestionSchema = new Schema({
-  id: { type: String, required: true },
   text: { type: String, required: true },
   type: {
     type: String,
@@ -54,7 +53,6 @@ const QuestionSchema = new Schema({
 });
 
 const TaskSchema = new Schema({
-  id: { type: String, required: true },
   title: { type: String, required: true },
   completed: { type: Boolean, default: false },
   content: {

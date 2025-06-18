@@ -16,14 +16,14 @@ exports.answerValidation = async (req, res) => {
   try {
     const lesson = await LessonModel.findOne(
       { _id: lessonId, "tasks.content.questions._id": questionId },
-      { "tasks.content.$": 1 }
+      { "tasks.content": 1 }
     ).lean();
 
     if (!lesson) {
       return res.status(404).json({ message: "Lesson not found" });
     }
 
-    const question = lesson.tasks.content[0]?.questions?.find(
+    const question = lesson.tasks.content.questions.find(
       (q) => q._id.toString() === questionId
     );
 
@@ -47,7 +47,6 @@ exports.answerValidation = async (req, res) => {
 
     switch (question.type) {
       case "text":
-        // Support either `correctAnswer` or `correctAnswers`
         const correctAnswer =
           typeof question.correctAnswer === "string"
             ? question.correctAnswer
