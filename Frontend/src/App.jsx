@@ -35,6 +35,7 @@ import ProfileDashboard from "./components/ProfilePage/ProfileDashboard";
 import EditProfile from "./components/ProfilePage/EditProfile";
 import Account from "./routes/account"
 import ContentController from "./routes/ContentController";
+import CertificateList from "./components/ProfilePage/CertificateList";
 function App() {
   const { user }= useAppContext();
   const [intro, setIntro] = useState(true);
@@ -79,6 +80,7 @@ function App() {
           <Route path="/profile" element={user ? <Account /> : <LoginPage />}>
           <Route index element={user ? <ProfileDashboard /> : null} />
             <Route path="editprofile" element={<EditProfile />} />
+            <Route path="certificatelist" element={<CertificateList/>}/>
           </Route>
           <Route path="/*" element={<NotFound />} />
         </Routes>

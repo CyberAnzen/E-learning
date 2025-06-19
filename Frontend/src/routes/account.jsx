@@ -96,7 +96,7 @@ export default function Account() {
           <div className="drawer-content">
             <label
               htmlFor="my-drawer"
-              className="btn drawer-button bg-gradient-to-br from-gray-90  via-65% via-black to-gray-900 ml-0 mt-15 transition-all duration-300 ease-in-out transform hover:scale-102 hover:shadow-lg active:scale-95"
+              className="btn drawer-button bg-gradient-to-br from-gray-90  via-65% via-black to-gray-900 ml-0 mt-13 transition-all duration-300 ease-in-out transform hover:scale-102 hover:shadow-lg active:scale-95"
             >
               <UserCog size={30} />
               More

@@ -4,6 +4,8 @@ import RadialProgess from "./RadialProgess";
 import Modal from "./Modal";
 import CertificateImg from "./CertificateImg";
 import Carousel from "./Carousel";
+import CertificateList from "./CertificateList";
+import { Link } from "react-router-dom";
 
 const Avatargroup = ({
   certifications = [
@@ -55,11 +57,7 @@ const Avatargroup = ({
 
   return (
     <>
-      <button
-        className="cursor-pointer"
-        onClick={() => document.getElementById("certificate_modal").showModal()}
-      >
-        <div className="avatar-group -space-x-6 relative">
+        <Link to="/profile/certificatelist" className="avatar-group -space-x-6 relative">
           {certifications.slice(0, 3).map((cert, index) => (
             <div className="avatar transform transition-all duration-300 hover:scale-[1.2]" key={index}>
               <div className="w-12">
@@ -74,17 +72,8 @@ const Avatargroup = ({
               </div>
             </div>
           )}
-        </div>
-      </button>
-      <Modal id="certificate_modal">
-        <Carousel
-          data={Certifications}
-          dataKey="Certificatedata"
-          carouselId="certificates"
-        >
-          <CertificateImg />
-        </Carousel>
-      </Modal>
+        </Link>
+
     </>
   );
 };
