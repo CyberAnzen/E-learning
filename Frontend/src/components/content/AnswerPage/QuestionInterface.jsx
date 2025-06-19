@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, X } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { motion, AnimatePresence } from "framer-motion";
+import { Trophy, X } from "lucide-react";
 
-import { validateAnswer, submitAssessment } from '../utils/api';
-import QuestionHeader from './QuestionHeader';
-import ProgressBar from './ProgressBar';
-import TerminalInfo from './TerminalInfo';
-import QuestionDisplay from './QuestionDisplay';
-import AnswerInput from './AnswerInput';
-import ValidationFeedback from './ValidationFeedback';
-import NavigationControls from './NavigationControls';
-import LoadingScreen from './LoadingScreen';
-import ResultsScreen from './ResultsScreen';
+import { validateAnswer, submitAssessment } from "../utils/api";
+import QuestionHeader from "./QuestionHeader";
+import ProgressBar from "./ProgressBar";
+import TerminalInfo from "./TerminalInfo";
+import QuestionDisplay from "./QuestionDisplay";
+import AnswerInput from "./AnswerInput";
+import ValidationFeedback from "./ValidationFeedback";
+import NavigationControls from "./NavigationControls";
+import LoadingScreen from "./LoadingScreen";
+import ResultsScreen from "./ResultsScreen";
 
 const QuestionInterface = ({
   isOpen = false,
   onClose = () => {},
   questions = [],
-  lessonId = '',
+  lessonId = "",
   ip = "192.168.1.100",
   chapterId = "ch1",
   chapterPath = "cybersec/basics",
@@ -76,7 +76,10 @@ const QuestionInterface = ({
     if (currentQuestion) {
       const answerState = answers[currentQuestion.id];
 
-      if (currentQuestion.type === "text" || currentQuestion.type === "multiple-choice") {
+      if (
+        currentQuestion.type === "text" ||
+        currentQuestion.type === "multiple-choice"
+      ) {
         setLocalAnswer(answerState?.value || "");
         setLocalSelectedOptions([]);
       } else if (currentQuestion.type === "multiple-select") {
@@ -135,7 +138,10 @@ const QuestionInterface = ({
   };
 
   const handleTextAnswerSubmit = () => {
-    if (localAnswer.trim() && (!currentAnswerState || !currentAnswerState.isLocked)) {
+    if (
+      localAnswer.trim() &&
+      (!currentAnswerState || !currentAnswerState.isLocked)
+    ) {
       handleAnswerSubmission(currentQuestion.id, localAnswer.trim());
     }
   };
@@ -157,7 +163,10 @@ const QuestionInterface = ({
   };
 
   const handleMultipleSelectSubmit = () => {
-    if (localSelectedOptions.length > 0 && (!currentAnswerState || !currentAnswerState.isLocked)) {
+    if (
+      localSelectedOptions.length > 0 &&
+      (!currentAnswerState || !currentAnswerState.isLocked)
+    ) {
       handleAnswerSubmission(currentQuestion.id, localSelectedOptions);
     }
   };
@@ -171,7 +180,11 @@ const QuestionInterface = ({
         submissionAnswers[questionId] = answerState.value;
       });
 
-      const result = await submitAssessment(lessonId, submissionAnswers, startTime);
+      const result = await submitAssessment(
+        lessonId,
+        submissionAnswers,
+        startTime
+      );
       setAssessmentResult(result);
     } catch (error) {
       console.error("Error submitting assessment:", error);
@@ -227,9 +240,12 @@ const QuestionInterface = ({
                   <Trophy className="w-6 h-6 text-yellow-400" />
                 </div>
                 <div>
-                  <h2 className="text-white font-semibold text-xl">Assessment Results</h2>
+                  <h2 className="text-white font-semibold text-xl">
+                    Assessment Results
+                  </h2>
                   <p className="text-gray-400 text-sm">
-                    {assessmentResult.score}/{assessmentResult.totalQuestions} correct • {assessmentResult.percentage}% score
+                    {assessmentResult.score}/{assessmentResult.totalQuestions}{" "}
+                    correct • {assessmentResult.percentage}% score
                   </p>
                 </div>
               </div>
@@ -284,7 +300,7 @@ const QuestionInterface = ({
           answers={answers}
         />
 
-        <TerminalInfo ip={ip} chapterPath={chapterPath} />
+        {/* <TerminalInfo ip={ip} chapterPath={chapterPath} /> */}
 
         <div className="flex-1 overflow-y-auto px-6 py-6">
           <motion.div
@@ -343,4 +359,4 @@ QuestionInterface.propTypes = {
   chapterPath: PropTypes.string,
 };
 
-export default QuestionInterface;
+export default React.memo(QuestionInterface);

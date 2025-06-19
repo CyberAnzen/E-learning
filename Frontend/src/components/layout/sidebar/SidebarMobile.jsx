@@ -74,7 +74,7 @@ const SidebarMobile = ({
               className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-md"
               onClick={() => setIsSidebarOpen(false)}
             />
-            
+
             {/* Sidebar */}
             <motion.aside
               key="mobile-sidebar"
@@ -87,7 +87,7 @@ const SidebarMobile = ({
               {/* Cyber accent lines */}
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600/80 via-cyan-400/50 to-blue-600/80"></div>
               <div className="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-cyan-400/50 via-blue-600/30 to-cyan-400/50"></div>
-              
+
               {/* Header */}
               <div className="relative">
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-cyan-500/10 via-blue-600/5 to-transparent pointer-events-none"></div>
@@ -96,7 +96,7 @@ const SidebarMobile = ({
                   <span className="absolute bottom-0 left-0 w-1/3 h-0.5 bg-cyan-400/50"></span>
                 </h1>
               </div>
-              
+
               {/* Content */}
               <div className="mt-3 pb-4">
                 {courseData.map((item) => (
@@ -119,4 +119,4 @@ const SidebarMobile = ({
   );
 };
 
-export default SidebarMobile;
+export default React.memo(SidebarMobile);

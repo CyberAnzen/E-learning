@@ -21,7 +21,7 @@ const ProgressBar = ({ questions, currentQuestionIndex, answers }) => {
                   ? isCorrect
                     ? "bg-gradient-to-r from-green-700 via-green-200  to-green-700 shadow-lg shadow-green-400/30"
                     : "bg-gradient-to-r from-red-700 via-red-300 to-red-700 shadow-lg shadow-red-400/30"
-                  : "bg-black/40 border border-cyan-400/20"
+                  : "bg-cyan-200/20 border border-cyan-400/20"
               }`}
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}

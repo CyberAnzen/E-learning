@@ -50,7 +50,7 @@ const QuestionDisplay = ({
             {question.text}
           </h3>
 
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <span
               className={`inline-flex items-center px-4 py-2 rounded-2xl text-sm font-bold backdrop-blur-sm border-2 shadow-lg ${
                 question.type === "text"
@@ -66,7 +66,7 @@ const QuestionDisplay = ({
                 "SINGLE SELECTION • AUTO-SUBMIT"}
               {question.type === "multiple-select" && "MULTIPLE SELECTION"}
             </span>
-          </div>
+          </div> */}
 
           {question.hint && (
             <motion.button

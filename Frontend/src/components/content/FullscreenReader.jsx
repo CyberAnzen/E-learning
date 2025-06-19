@@ -150,4 +150,4 @@ const FullScreenReader = ({ section, content, title, icon, onClose }) => {
   );
 };
 
-export default FullScreenReader;
+export default React.memo(FullScreenReader);

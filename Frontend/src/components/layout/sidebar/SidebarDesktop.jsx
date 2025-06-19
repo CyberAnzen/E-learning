@@ -84,4 +84,4 @@ const SidebarDesktop = ({
   );
 };
 
-export default SidebarDesktop;
+export default React.memo(SidebarDesktop);

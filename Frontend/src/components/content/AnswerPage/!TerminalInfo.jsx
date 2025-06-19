@@ -1,10 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Zap, Shield, Terminal } from "lucide-react";
 
 const TerminalInfo = ({ ip, chapterPath }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className="flex-shrink-0 bg-gradient-to-r from-black/60 to-gray-900/60 backdrop-blur-sm px-4 sm:px-6 py-4 border-b border-cyan-400/20 relative overflow-hidden">
+    <div
+      className={`flex-shrink-0 bg-gradient-to-r from-black/60 to-gray-900/60 backdrop-blur-sm px-4 sm:px-6 py-4 border-b border-cyan-400/20 relative overflow-hidden transition-opacity duration-500 ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
+    >
       {/* Cyber accent line */}
       {/* <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400/50 via-teal-400/50 to-cyan-300/50"></div> */}
 
@@ -23,12 +34,13 @@ const TerminalInfo = ({ ip, chapterPath }) => {
           <span className="text-gray-500">└─</span>
           <Terminal className="w-4 h-4 text-cyan-400" />
           <span className="text-green-400 font-bold">$</span>
+          <span className="text-green-400 cursor">|</span>
           <span className="text-cyan-100 ml-2 flex items-center gap-2 flex-wrap">
             <span className="font-bold">Connection: {ip}</span>
-            <Zap className="w-4 h-4 text-yellow-400" />
+            {/* <Zap className="w-4 h-4 text-yellow-400" />
             <span className="text-yellow-400 font-bold">
               AUTO-SUBMIT ENABLED
-            </span>
+            </span> */}
           </span>
         </div>
       </div>
@@ -41,4 +53,4 @@ TerminalInfo.propTypes = {
   chapterPath: PropTypes.string.isRequired,
 };
 
-export default TerminalInfo;
+export default React.memo(TerminalInfo);

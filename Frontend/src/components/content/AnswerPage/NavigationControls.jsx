@@ -177,7 +177,7 @@ const NavigationControls = ({
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
           <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 relative z-10" />
           <span className="relative z-10 hidden sm:inline">PREV</span>
-          <span className="relative z-10 hidden lg:inline">IOUS</span>
+          <span className="relative z-10 hidden lg: -ml-2 lg:inline">IOUS</span>
         </motion.button>
 
         <div
@@ -229,6 +229,8 @@ const NavigationControls = ({
               const isCorrect = answerState?.validation?.isCorrect;
 
               return (
+                
+                
                 <motion.button
                   key={index}
                   data-question-index={index}

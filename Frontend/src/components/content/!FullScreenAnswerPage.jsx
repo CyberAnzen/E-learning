@@ -1071,4 +1071,4 @@ const QuestionInterface = ({
   );
 };
 
-export default QuestionInterface;
+export default React(QuestionInterface);

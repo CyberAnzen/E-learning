@@ -45,4 +45,4 @@ const SidebarButton = ({ isOpen, isPinned, setIsPinned, setButtonHovered }) => {
   );
 };
 
-export default SidebarButton;
+export default React.memo(SidebarButton);

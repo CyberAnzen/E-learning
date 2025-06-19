@@ -52,4 +52,4 @@ const SidebarItem = ({ item, currentChapter, onChapterSelect }) => {
   );
 };
 
-export default SidebarItem;
+export default React.memo(SidebarItem);
