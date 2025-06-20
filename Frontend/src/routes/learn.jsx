@@ -3,6 +3,9 @@ import { BookOpen, BarChart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CourseCard from "../components/Learn/CourseCard";
 import CourseCardSkeleton from "../components/Learn/CourseSkeleton";
+import AddCourse from "../components/Admin/Learn/AddClassification";
+import ModifyClassification from "../components/Admin/Learn/ModifyClassification";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 /**
@@ -16,7 +19,7 @@ const LearnPage = () => {
   const [error, setError] = useState(null);
   const [overallProgress, setOverallProgress] = useState(0);
   const retryTimeoutRef = useRef(null);
-
+  const isadmin = true;
   const loadCourses = async () => {
     try {
       setIsLoading(true);
@@ -47,7 +50,14 @@ const LearnPage = () => {
         loadCourses();
       }, 5000);
     }
-  };
+  }; // Scroll to top and disable page scrolling on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
 
   // Fetch courses on component mount and cleanup on unmount
   useEffect(() => {
@@ -99,7 +109,7 @@ const LearnPage = () => {
           </div>
         </div>
 
-        {/* Retry feedback */}
+        {/* Retry feedback
         {error && isLoading && (
           <div className="mb-8 p-4 bg-yellow-900/50 border border-yellow-500/50 rounded-lg">
             <p className="text-yellow-300">{error}</p>
@@ -110,27 +120,45 @@ const LearnPage = () => {
               Retry Now
             </button>
           </div>
-        )}
+        )} */}
 
         {/* Course grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoading
-            ? // Show skeletons while loading
-              Array.from({ length: 6 }).map((_, index) => (
+          {!isadmin ? (
+            isLoading ? (
+              Array.from({ length: 9 }).map((_, index) => (
                 <CourseCardSkeleton key={index} />
               ))
-            : // Show actual course cards
+            ) : courses.length > 0 ? (
               courses.map((course) => (
                 <CourseCard
                   key={course.id}
                   course={course}
                   onCourseClick={handleCourseClick}
                 />
+              ))
+            ) : null
+          ) : isLoading ? (
+            Array.from({ length: 9 }).map((_, index) => (
+              <CourseCardSkeleton key={index} />
+            ))
+          ) : (
+            <>
+              {courses.map((course) => (
+                <ModifyClassification
+                  key={course.id}
+                  course={course}
+                  handleRetry={handleRetry}
+                  onCourseClick={handleCourseClick}
+                />
               ))}
+              <AddCourse handleRetry={handleRetry} />
+            </>
+          )}
         </div>
 
         {/* Empty state */}
-        {!isLoading && courses.length === 0 && (
+        {!isLoading && courses.length === 0 && !isadmin && (
           <div className="text-center py-12">
             <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-400 mb-2">

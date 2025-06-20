@@ -1,14 +1,37 @@
 import React from "react";
-import { Network, Shield, Lock, Brain, Code } from "lucide-react";
+import {
+  GraduationCap,
+  Cpu,
+  Shield,
+  Terminal,
+  BookOpen,
+  Brain,
+  Lightbulb,
+  Network,
+  Code,
+  Book,
+  Globe,
+  Server,
+  Plus,
+  Lock,
+} from "lucide-react";
 
 // Icon mapping for course icons
 const iconMap = {
-  Network,
-  Shield,
-  Lock,
-  Brain,
-  Code,
-  Bulb: Brain, // Map Bulb to Brain or another icon
+  Learning: GraduationCap,
+  Tech: Cpu,
+  Cybersecurity: Shield,
+  Coding: Terminal,
+  Knowledge: BookOpen,
+  Brain: Brain,
+  Ideas: Lightbulb,
+  Networks: Network,
+  Code: Code,
+  Books: Book,
+  Web: Globe,
+  Server: Server,
+  Security: Lock,
+  Bulb: Brain, // Map Bulb to Brain, as per the example
 };
 
 /**
