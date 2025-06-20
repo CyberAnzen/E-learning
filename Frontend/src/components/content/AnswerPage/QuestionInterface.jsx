@@ -6,7 +6,7 @@ import { Trophy, X } from "lucide-react";
 import { validateAnswer, submitAssessment } from "../utils/api";
 import QuestionHeader from "./QuestionHeader";
 import ProgressBar from "./ProgressBar";
-import TerminalInfo from "./TerminalInfo";
+// import TerminalInfo from "./TerminalInfo";
 import QuestionDisplay from "./QuestionDisplay";
 import AnswerInput from "./AnswerInput";
 import ValidationFeedback from "./ValidationFeedback";
