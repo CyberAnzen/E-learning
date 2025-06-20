@@ -20,7 +20,7 @@ router.get("/", getallClassification);
 router.get("/:id", getClassification);
 router.get("/sidebar/:id", getSummary);
 router.post("/create", createClassification);
-router.delete("/delete", deleteClassification);
-router.patch("/update", updateClassification);
+router.delete("/delete/:id", deleteClassification);
+router.patch("/update/:id", updateClassification);
 
 module.exports = router;

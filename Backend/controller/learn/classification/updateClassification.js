@@ -1,7 +1,8 @@
 const ClassificationModel = require("../../../model/ClassificationModel");
 
 exports.updateClassification = async (req, res) => {
-  const { title, description, icon, category, id } = req.body;
+  const { id } = req.params;
+  const { title, description, icon, category } = req.body;
 
   try {
     const newdata = {
