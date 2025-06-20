@@ -385,7 +385,7 @@ const AddCourse = ({ handleRetry }) => {
           className="
             group
             relative
-            bg-gray-800/50
+            bg-cyan-900/50
             backdrop-blur-xl
             p-6
             rounded-xl

@@ -144,6 +144,8 @@ const LearnPage = () => {
             ))
           ) : (
             <>
+              {" "}
+              <AddCourse handleRetry={handleRetry} />
               {courses.map((course) => (
                 <ModifyClassification
                   key={course.id}
@@ -152,7 +154,6 @@ const LearnPage = () => {
                   onCourseClick={handleCourseClick}
                 />
               ))}
-              <AddCourse handleRetry={handleRetry} />
             </>
           )}
         </div>
