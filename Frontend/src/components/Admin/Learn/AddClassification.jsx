@@ -309,7 +309,7 @@ const AddCourse = ({ handleRetry }) => {
                       value={formData.category}
                       onChange={handleInputChange}
                       placeholder={selectedIcon.name}
-                      className="text-cyan-400 text-end bg-transparent border-b border-gray-600 focus:border-cyan-500 focus:outline-none w-32 text-right"
+                      className="text-cyan-400  bg-transparent border-b border-gray-600 focus:border-cyan-500 focus:outline-none w-32 text-right"
                     />
                   </div>
                 </div>
