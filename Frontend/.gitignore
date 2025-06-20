@@ -8,4 +8,4 @@ Thumbs.db
 # Optional: logs
 logs
 *.log
-#.env
+.env
