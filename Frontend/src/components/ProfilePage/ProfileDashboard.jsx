@@ -1,9 +1,16 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import RadialProgess from "./RadialProgess";
 import Avatargroup from "./Avatargroup";
 import SkillsSelector from "./SkillsSelector";
 import { Link } from "react-router-dom";
-import { Contact, Github, Linkedin, Pencil, SquarePen } from "lucide-react";
+import {
+  Contact,
+  FileUser,
+  Github,
+  Linkedin,
+  Pencil,
+  SquarePen,
+} from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import LinkForm from "./LinkForm";
 import Modal from "./Modal";
@@ -14,6 +21,19 @@ const ProfileDashboard = () => {
     "https://i.pinimg.com/736x/af/70/bb/af70bb880077591b711b83ee7717c91b.jpg"
   );
   const { savedSkills, savedLinks } = useAppContext();
+  const [myResume, setMyResume] = useState(null);
+  const fileInputRef = useRef();
+
+  const handleImageClick = () => {
+    fileInputRef.current.click(); // trigger file input click
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setMyResume(URL.createObjectURL(file));
+    }
+  };
 
   const dummyskills = ["Css", "Javascript(Intermediate)"];
   const dummyData = [
@@ -97,12 +117,48 @@ const ProfileDashboard = () => {
         </div>
 
         {/* Resume */}
-        <div className="bg-gray-800 rounded-xl p-4">
+        <div className="bg-gray-800 rounded-xl p-4 text-white">
           <h3 className="font-bold mb-2">My Resume</h3>
-          <p className="text-sm text-gray-300 mb-2">Add your resume here</p>
-          <button className="bg-blue-900 hover:bg-cyan-900 px-3 py-1 text-sm rounded cursor-pointer">
-            + Add Resume
-          </button>
+          {/* Dynamic label */}
+          {!myResume ? (
+            <p className="text-sm text-gray-300 ">Add your resume here</p>
+          ) : (
+            <p className="text-sm text-cyan-400">Resume Preview :</p>
+          )}
+
+          {/* Show Add Button Only If No Resume */}
+          {!myResume && (
+            <button
+              className="bg-blue-900 hover:bg-cyan-900 px-3 py-1 text-sm rounded cursor-pointer"
+              onClick={handleImageClick}
+            >
+              + Add Resume
+            </button>
+          )}
+
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx,image/*"
+            onChange={handleImageChange}
+            ref={fileInputRef}
+            className="hidden"
+          />
+
+          {/* Show View Button If Resume is Added */}
+          {myResume && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              <a
+                title="Resume Preview"
+                href={myResume}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 bg-cyan-600 px-3 py-1 rounded-full text-sm text-black font-bold hover:underline"
+              >
+                <FileUser size={24} />
+                View Uploaded Resume
+              </a>
+            </div>
+          )}
         </div>
 
         {/* EEO Settings */}
