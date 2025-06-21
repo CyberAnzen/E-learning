@@ -1,5 +1,5 @@
 import React from "react";
-import { Medal } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 
 const SidebarItem = ({
   item,
@@ -61,8 +61,8 @@ const SidebarItem = ({
             {item.chapter}
           </p>
         </div>
-        {item.completed && (
-          <Medal className="w-5 h-5 text-yellow-400 filter drop-shadow-[0_0_3px_rgba(250,204,21,0.7)]" />
+        {true && (
+          <CheckCircle className="w-5 h-5 text-yellow-400 filter drop-shadow-[0_0_3px_rgba(250,204,21,0.7)]" />
         )}
       </div>
     </div>

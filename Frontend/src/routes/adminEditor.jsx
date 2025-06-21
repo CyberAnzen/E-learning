@@ -115,7 +115,7 @@ const AdminEditor = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-black via-gray-900 to-black min-h-screen p-5">
+    <div className="bg-gradient-to-br from-black via-gray-900 to-black min-h-screen p-5 mt-23">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         {/* Editor Form */}
         <div className="bg-gray-800/30 rounded-xl p-6 backdrop-blur-sm border border-gray-700/50">
@@ -269,8 +269,16 @@ const AdminEditor = () => {
               <Maximize2 className="w-5 h-5" />
             </button>
           </div>
-          <div ref={sidePreviewRef} className="max-h-[80vh] overflow-y-auto">
-            <Content selectedChapterId={selectedChapterId} isPreview={true} />
+          <div
+            ref={sidePreviewRef}
+            className="max-h-[80vh] max-w-[40vw] overflow-y-auto"
+          >
+            <Content
+              selectedChapterId={selectedChapterId}
+              isPreview={true}
+              PreviewData={placeholderData}
+              PreviewScreen={true}
+            />
           </div>
         </div>
       </div>
@@ -285,42 +293,14 @@ const AdminEditor = () => {
             <X className="w-6 h-6" />
           </button>
           <div ref={fullPreviewRef} className="h-full overflow-y-auto">
-            <Content selectedChapterId={selectedChapterId} isPreview={true} />
+            <Content
+              selectedChapterId={selectedChapterId}
+              isPreview={true}
+              PreviewData={placeholderData}
+            />
           </div>
         </div>
       )}
-
-      {/* Existing Chapters */}
-      <div className="mt-8">
-        <h2 className="text-xl text-white mb-4">Existing Chapters</h2>
-        <div className="space-y-4">
-          {chapters.map((chapter) => (
-            <div
-              key={chapter.id}
-              className="bg-gray-800/30 rounded-xl p-4 backdrop-blur-sm border border-gray-700/50 flex justify-between items-center"
-            >
-              <div>
-                <h3 className="text-white">{chapter.content.title}</h3>
-                <p className="text-gray-400">{chapter.content.author}</p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setEditingChapter(chapter)}
-                  className="px-4 py-2 bg-blue-500/50 rounded hover:bg-blue-600/50"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(chapter.id)}
-                  className="px-4 py-2 bg-red-500/50 rounded hover:bg-red-600/50"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

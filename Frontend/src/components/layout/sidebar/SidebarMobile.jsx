@@ -11,9 +11,10 @@ const SidebarMobile = ({
   currentChapter,
   onChapterSelect,
   title,
+  clicked,
+  setClicked,
 }) => {
   const isAdmin = true;
-  const [clicked, setClicked] = useState();
   const [hover, setHover] = useState();
   return (
     <>

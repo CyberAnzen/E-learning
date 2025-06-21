@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Clock,
   User,
@@ -21,12 +21,22 @@ import SubmitButton from "../components/content/SubmitButton";
 import ContentHeader from "../components/content/ContentHeader";
 import ChapterProgress from "../components/content/ChapterProgress";
 import "../content.css";
+import AdminEditor from "./adminEditor";
+import { AppContext } from "../context/AppContext";
+import AdminButtons from "../components/Admin/Content/AdminButtons";
 
 // Define backend URL from environment variables
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-const Content = ({ selectedChapterId, isPreview = false }) => {
+const Content = ({
+  selectedChapterId,
+  isPreview = false,
+  PreviewData,
+  PreviewScreen = false,
+}) => {
   // ─── State Variables ─────────────────────────────────────────────────────
+  const { LearnAdd, setLearnAdd } = useContext(AppContext);
+  const isAdmin = true;
   const [activeSection, setActiveSection] = useState(null);
   const [fullScreenSection, setFullScreenSection] = useState(null);
   const [showQuestionInterface, setShowQuestionInterface] = useState(false);
@@ -53,7 +63,6 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
   const transformLessonData = (data) => {
     // Ensure tasks is always an array
     const tasksArray = Array.isArray(data.tasks) ? data.tasks : [data.tasks];
-
     return {
       id: data._id,
       chapter: data.lesson,
@@ -88,14 +97,38 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
 
     const fetchLesson = async () => {
       try {
-        const response = await fetch(
-          `${BACKEND_URL}/lesson/${selectedChapterId}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch lesson data");
+        if (!isPreview) {
+          const response = await fetch(
+            `${BACKEND_URL}/lesson/${selectedChapterId}`
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch lesson data");
+          }
+          const { data } = await response.json();
+          if (isMounted) {
+            const fullChapter = transformLessonData(data);
+            setCurrentChapter(fullChapter);
+            if (fullChapter && fullChapter.tasks.length > 0) {
+              setCurrentTask(fullChapter.tasks[0]);
+            } else {
+              setCurrentTask(null);
+            }
+            // Reset UI state on chapter change
+            setActiveSection(null);
+            setFullScreenSection(null);
+            setShowQuestionInterface(false);
+            setTaskProgress(0);
+            setSubmitted(false);
+            setAnswers({});
+            setCurrentStep(0);
+            setCompletedSteps([]);
+            setObjectivesOpened(false);
+            setContentOpened(false);
+          }
         }
-        const { data } = await response.json();
-        if (isMounted) {
+        if (isPreview) {
+          const data = PreviewData;
           const fullChapter = transformLessonData(data);
           setCurrentChapter(fullChapter);
           if (fullChapter && fullChapter.tasks.length > 0) {
@@ -236,7 +269,7 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
   };
 
   const getChapterPath = () => {
-    return currentChapter
+    return !isPreview && currentChapter
       ? currentChapter.chapter.toLowerCase().replace(/\s+/g, "_")
       : "";
   };
@@ -257,189 +290,248 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
   const isLastTask = taskIdx === currentChapter.tasks.length - 1;
 
   // ─── JSX RETURN ──────────────────────────────────────────────────────────
-  return (
-    <section className="bg-gradient-to-br from-black via-gray-900 to-black mt-23 min-h-screen relative">
-      <ContentHeader
-        currentChapter={currentChapter}
-        scrolled={scrolled}
-        taskProgress={taskProgress}
-      />
-      <div className="flex flex-col lg:flex-row gap-8 px-4 py-8 max-w-7xl mx-auto">
-        <ChapterProgress
-          overallProgress={overallProgress}
-          tasks={currentChapter.tasks}
-          currentTaskId={currentTask.id}
+
+  //  ADMIN LAYOUT MOUNTING
+  if (!isPreview && LearnAdd && isAdmin) {
+    return <AdminEditor />;
+  } //Users Component
+  {
+    return (
+      <section className="bg-gradient-to-br from-black via-gray-900 to-black mt-23 min-h-screen relative">
+        {isAdmin && !isPreview && (
+          // 1) Absolute wrapper takes no space in the document flow
+          <div className="absolute inset-2 pointer-events-none">
+            {/* 
+      2) This inner div is the only one in the flow of scrolling; 
+         it sits at the top of the page and scrolls normally.
+    */}
+            <div className="sticky top-[20%] flex justify-end pointer-events-auto z-40">
+              {/* 
+        3) Margin-right to pull it in from the edge, gap-2 to space buttons
+      */}
+              <div className="mr-10 flex gap-2">
+                <AdminButtons />
+              </div>
+            </div>
+          </div>
+        )}
+        {/*Header */}
+
+        <ContentHeader
+          currentChapter={currentChapter}
+          scrolled={scrolled}
+          taskProgress={taskProgress}
         />
-        <div className="w-full lg:w-7/12 order-2 lg:order-1">
-          <main className="flex justify-center">
-            <div className="bg-gray-800/30 rounded-xl w-full max-w-3xl p-6 backdrop-blur-sm border border-gray-700/50 overflow-hidden">
-              <div className="mb-6 font-mono text-green-400">
-                <div className="flex items-center gap-3 mb-6">
-                  <Flag className="w-6 h-6 text-green-400" />
-                  <h2 className="text-lg sm:text-xl font-semibold">
-                    Task {currentTask.id.split("-")[1]}: {currentTask.title}
-                  </h2>
-                </div>
-                <div className="overflow-y-auto pr-2">
-                  <CollapsibleSection
-                    title={
-                      <div className="relative flex justify-center items-center w-full">
-                        <Target className="w-5 h-5 text-blue-400" />
-                        <span className="ml-2">Learning Objectives</span>
-                        {objectivesOpened && (
-                          <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
+
+        {/*Radar and Main content  */}
+
+        <div
+          className={`flex flex-col gap-8 px-4 py-8 max-w-7xl mx-auto ${
+            PreviewScreen ? "w-screen" : "lg:flex-row"
+          }`}
+        >
+          <ChapterProgress
+            overallProgress={overallProgress}
+            tasks={currentChapter.tasks}
+            currentTaskId={currentTask.id}
+            PreviewScreen={PreviewScreen}
+          />
+
+          <div
+            className={`w-full ${PreviewScreen ? "" : "lg:w-7/12"} order-2 ${
+              PreviewScreen ? "" : "lg:order-1"
+            }`}
+          >
+            <main className="flex justify-center">
+              <div className="bg-gray-800/30 rounded-xl w-full max-w-3xl p-6 backdrop-blur-sm border border-gray-700/50 overflow-hidden">
+                <div className="mb-6 font-mono text-green-400">
+                  <div className="flex items-center gap-3 mb-6">
+                    <Flag className="w-6 h-6 text-green-400" />
+                    <h2 className="text-lg sm:text-xl font-semibold">
+                      Task {currentTask.id.split("-")[1]}: {currentTask.title}
+                    </h2>
+                  </div>
+                  <div className="overflow-y-auto pr-2">
+                    <CollapsibleSection
+                      title={
+                        <div className="relative flex justify-center items-center w-full">
+                          <Target className="w-5 h-5 text-blue-400" />
+                          <span className="ml-2">Learning Objectives</span>
+                          {objectivesOpened && (
+                            <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
+                          )}
+                        </div>
+                      }
+                      isOpen={activeSection === "objectives"}
+                      onToggle={() => {
+                        const next =
+                          activeSection === "objectives" ? null : "objectives";
+                        setActiveSection(next);
+                        if (next === "objectives") setObjectivesOpened(true);
+                      }}
+                    >
+                      <div className="space-y-2">
+                        {currentTask.content.objectives.map(
+                          (objective, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2 p-2 bg-gray-700/30 rounded"
+                            >
+                              <DotSquare className="w-5 h-5 text-green-400" />
+                              <span className="text-gray-200">{objective}</span>
+                            </div>
+                          )
                         )}
                       </div>
-                    }
-                    isOpen={activeSection === "objectives"}
-                    onToggle={() => {
-                      const next =
-                        activeSection === "objectives" ? null : "objectives";
-                      setActiveSection(next);
-                      if (next === "objectives") setObjectivesOpened(true);
-                    }}
-                  >
-                    <div className="space-y-2">
-                      {currentTask.content.objectives.map((objective, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center gap-2 p-2 bg-gray-700/30 rounded"
-                        >
-                          <DotSquare className="w-5 h-5 text-green-400" />
-                          <span className="text-gray-200">{objective}</span>
+                    </CollapsibleSection>
+                    <div
+                      className="border border-gray-700/50 rounded-lg overflow-hidden mb-4 cursor-pointer"
+                      onClick={() => {
+                        setActiveSection(null);
+                        handleOpenFullScreen("content");
+                      }}
+                    >
+                      <div
+                        className="cyber-button w-full px-4 py-3 bg-transparent border border-[#01ffdb]/20
+                font-medium rounded-lg hover:bg-transparent transition-all font-mono relative overflow-hidden
+                text-xl duration-200 text-white flex items-center justify-between gap-3"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Lightbulb className="w-5 h-5 text-yellow-400" />
+                          <span className="text-white font-medium">
+                            Chapter Content
+                          </span>
+                          {contentOpened && (
+                            <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
+                          )}
                         </div>
-                      ))}
+                        <MoveRightIcon className="w-5 h-5 text-gray-400" />
+                      </div>
                     </div>
-                  </CollapsibleSection>
-                  <div
-                    className="border border-gray-700/50 rounded-lg overflow-hidden mb-4 cursor-pointer"
+                  </div>
+                </div>
+                <div className="border border-gray-700/50 rounded-lg overflow-hidden mb-4">
+                  <button
                     onClick={() => {
                       setActiveSection(null);
-                      handleOpenFullScreen("content");
+                      handleOpenQuestionInterface();
                     }}
+                    className="cyber-button w-full px-4 py-3 bg-[#01ffdb]/10 border border-[#01ffdb]/50
+            font-medium rounded-lg hover:bg-[#01ffdb]/20 transition-all font-mono relative overflow-hidden
+            text-xl duration-200 text-white flex items-center gap-3"
                   >
-                    <div
-                      className="cyber-button w-full px-4 py-3 bg-transparent border border-[#01ffdb]/20
-                      font-medium rounded-lg hover:bg-transparent transition-all font-mono relative overflow-hidden
-                      text-xl  duration-200 text-white flex items-center justify-between gap-3"
-                    >
-                      <div className="flex items-center justify- gap-3">
-                        <Lightbulb className="w-5 h-5 text-yellow-400" />
-                        <span className="text-white font-medium">
-                          Chapter Content
-                        </span>
-                        {contentOpened && (
-                          <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
-                        )}
-                      </div>
-                      <MoveRightIcon className="w-5 h-5 text-gray-400" />
+                    <Terminal className="w-5 h-5 text-white" />
+                    <span className="font-medium">Answer Questions</span>
+                    <div className="ml-auto flex items-center gap-2">
+                      <span className="text-sm text-gray-200">
+                        {
+                          Object.keys(answers).filter((key) =>
+                            key.startsWith(currentTask.id)
+                          ).length
+                        }
+                        /{currentTask.content.questions.length}
+                      </span>
+                      {submitted && (
+                        <CheckCircle className="w-4 h-4 text-green-200" />
+                      )}
+                      <MoveRightIcon className="w-5 h-5 text-white" />
                     </div>
-                  </div>
+                  </button>
                 </div>
               </div>
-              <div className="border border-gray-700/50 rounded-lg overflow-hidden mb-4">
-                <button
-                  onClick={() => {
-                    setActiveSection(null);
-                    handleOpenQuestionInterface();
-                  }}
-                  className="cyber-button w-full px-4 py-3 bg-[#01ffdb]/10 border border-[#01ffdb]/50
-                  font-medium rounded-lg hover:bg-[#01ffdb]/20 transition-all font-mono relative overflow-hidden
-                  text-xl duration-200 text-white flex items-center gap-3"
+            </main>
+            {!isPreview && (
+              <div
+                className={`mt-8 flex flex-col ${
+                  PreviewScreen ? "" : "sm:flex-row"
+                } gap-4 justify-between items-center`}
+              >
+                <div
+                  className={`flex gap-4 w-full ${
+                    PreviewScreen ? "" : "sm:w-auto"
+                  }`}
                 >
-                  <Terminal className="w-5 h-5 text-white" />
-                  <span className="font-medium">Answer Questions</span>
-                  <div className="ml-auto flex items-center gap-2">
-                    <span className="text-sm text-gray-200">
-                      {
-                        Object.keys(answers).filter((key) =>
-                          key.startsWith(currentTask.id)
-                        ).length
-                      }
-                      /{currentTask.content.questions.length}
-                    </span>
-                    {submitted && (
-                      <CheckCircle className="w-4 h-4 text-green-200" />
-                    )}
-                    <MoveRightIcon className="w-5 h-5 text-white" />
+                  <button
+                    onClick={navigateToPrevious}
+                    disabled={isFirstTask}
+                    className={`flex-1 ${
+                      PreviewScreen ? "" : "sm:flex-none"
+                    } px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600
+            transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md`}
+                  >
+                    <ChevronLeft className="w-5 h-5" /> Previous
+                  </button>
+                  <button
+                    onClick={navigateToNext}
+                    disabled={isLastTask}
+                    className={`flex-1 ${
+                      PreviewScreen ? "" : "sm:flex-none"
+                    } px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600
+            transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md`}
+                  >
+                    Next <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+                {!isAdmin && (
+                  <div
+                    className={`flex justify-end w-full ${
+                      PreviewScreen ? "" : "sm:w-auto"
+                    }`}
+                  >
+                    <SubmitButton
+                      isSubmitted={submitted}
+                      completedSteps={completedSteps}
+                      totalObjectives={currentTask.content.objectives.length}
+                      onSubmit={handleSubmit}
+                    />
                   </div>
-                </button>
+                )}
               </div>
-            </div>
-          </main>
-          {!isPreview && (
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
-              <div className="flex gap-4 w-full sm:w-auto">
-                <button
-                  onClick={navigateToPrevious}
-                  disabled={isFirstTask}
-                  className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600
-                  transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                >
-                  <ChevronLeft className="w-5 h-5" /> Previous
-                </button>
-                <button
-                  onClick={navigateToNext}
-                  disabled={isLastTask}
-                  className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600
-                  transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                >
-                  Next <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="flex justify-end w-full sm:w-auto">
-                <SubmitButton
-                  isSubmitted={submitted}
-                  completedSteps={completedSteps}
-                  totalObjectives={currentTask.content.objectives.length}
-                  onSubmit={handleSubmit}
-                />
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
-      <AnimatePresence>
-        {fullScreenSection === "content" && (
-          <FullScreenReader
-            section="content"
-            content={
-              <>
-                <div className="mb-8 rounded-xl overflow-hidden shadow-2xl max-w-[70%] mx-auto">
-                  <img
-                    src={currentChapter.content.image}
-                    alt={currentChapter.content.title}
-                    className="w-full rounded-xl h-64 sm:h-72 md:h-80 lg:h-96 object-cover"
-                  />
-                </div>
-                <div className="prose prose-invert max-w-[95%] mx-auto">
-                  <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-                    {currentTask.content.mainContent}
-                  </p>
-                </div>
-              </>
-            }
-            title="Chapter Content"
-            icon={<Lightbulb className="w-6 h-6 text-yellow-400" />}
-            onClose={handleCloseFullScreen}
-          />
-        )}
-      </AnimatePresence>
-
-      <QuestionInterface
-        isOpen={showQuestionInterface}
-        onClose={handleCloseQuestionInterface}
-        questions={currentTask?.content?.questions || []}
-        answers={answers}
-        onAnswerSubmit={handleAnswerSubmit}
-        isSubmitted={submitted}
-        ip={ip}
-        chapterId={currentChapter?.id}
-        chapterPath={getChapterPath()}
-        lessonId={selectedChapterId}
-      />
-    </section>
-  );
+        {/*FullScreen components*/}
+        <AnimatePresence>
+          {fullScreenSection === "content" && (
+            <FullScreenReader
+              section="content"
+              content={
+                <>
+                  <div className="mb-8 rounded-xl overflow-hidden shadow-2xl max-w-[70%] mx-auto">
+                    <img
+                      src={currentChapter.content.image}
+                      alt={currentChapter.content.title}
+                      className="w-full rounded-xl h-64 sm:h-72 md:h-80 lg:h-96 object-cover"
+                    />
+                  </div>
+                  <div className="prose prose-invert max-w-[95%] mx-auto">
+                    <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
+                      {currentTask.content.mainContent}
+                    </p>
+                  </div>
+                </>
+              }
+              title="Chapter Content"
+              icon={<Lightbulb className="w-6 h-6 text-yellow-400" />}
+              onClose={handleCloseFullScreen}
+            />
+          )}
+        </AnimatePresence>
+        <QuestionInterface
+          isOpen={showQuestionInterface}
+          onClose={handleCloseQuestionInterface}
+          questions={currentTask?.content?.questions || []}
+          answers={answers}
+          onAnswerSubmit={handleAnswerSubmit}
+          isSubmitted={submitted}
+          ip={ip}
+          chapterId={currentChapter?.id}
+          chapterPath={getChapterPath()}
+          lessonId={selectedChapterId}
+        />
+      </section>
+    );
+  }
 };
 
 export default Content;
