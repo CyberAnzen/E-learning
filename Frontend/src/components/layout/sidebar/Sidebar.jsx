@@ -60,7 +60,7 @@ const Sidebar = ({
 
   // Determine if sidebar should be open
   const isOpen = isPinned || hoverIntent;
-
+  const isAdmin = true;
   return (
     <>
       {/* Mobile Sidebar */}
@@ -96,6 +96,7 @@ const Sidebar = ({
           setIsPinned={setIsPinned}
           setButtonHovered={setIsButtonHovered}
         />
+        
       )}
     </>
   );

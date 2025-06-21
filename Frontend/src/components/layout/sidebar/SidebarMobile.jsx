@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Plus } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 
 const SidebarMobile = ({
@@ -12,6 +12,9 @@ const SidebarMobile = ({
   onChapterSelect,
   title,
 }) => {
+  const isAdmin = true;
+  const [clicked, setClicked] = useState();
+  const [hover, setHover] = useState();
   return (
     <>
       {/* Mobile Menu Button */}
@@ -104,12 +107,55 @@ const SidebarMobile = ({
                     key={item.id}
                     item={item}
                     currentChapter={currentChapter}
+                    isClicked={clicked}
+                    setClicked={setClicked}
                     onChapterSelect={(item) => {
                       onChapterSelect(item);
                       setIsSidebarOpen(false);
                     }}
                   />
                 ))}
+                {isAdmin && (
+                  <section
+                    onClick={() => setClicked(true)}
+                    onMouseEnter={() => setHover(true)}
+                    onMouseOut={() => setHover(false)}
+                    className={`mx-2 mb-2 p-6 rounded-lg transition-all cursor-pointer backdrop-blur-sm flex justify-center py-9
+                ${
+                  clicked
+                    ? "bg-gradient-to-r from-blue-500/20 to-cyan-400/10 shadow-[0_0_15px_rgba(59,130,246,0.3)] border-l-4 border-cyan-400/60 scale-[1.02]"
+                    : "hover:bg-white/5 bg-cyan-900/25 hover:shadow-[0_0_10px_rgba(59,130,246,0.15)]"
+                }
+              group relative overflow-hidden`}
+                  >
+                    {" "}
+                    {/* Glow effect */}
+                    <div
+                      className={`absolute inset-0 ${
+                        clicked
+                          ? "bg-gradient-to-r from-teal-400/20 via-teal-600/20 to-transparent"
+                          : "bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100"
+                      } transition-opacity duration-300`}
+                    />
+                    {/* Cyber accent line */}
+                    <div
+                      className={`absolute h-full w-1 left-0 top-0 ${
+                        clicked
+                          ? "bg-cyan-600/40 shadow-[0_0_10px_rgba(34,211,238,0.7)]"
+                          : "bg-gray-700"
+                      }`}
+                    />
+                    {/*Plus Button*/}
+                    <div
+                      className={`w-10 h-10 rounded-full  flex items-center justify-center
+                    ${
+                      !clicked && hover ? "bg-cyan-300/35" : "bg-gray-400/15 "
+                    }`}
+                    >
+                      <Plus size={27} />
+                    </div>
+                  </section>
+                )}
               </div>
             </motion.aside>
           </>

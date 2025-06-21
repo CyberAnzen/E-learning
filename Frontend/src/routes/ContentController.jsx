@@ -22,7 +22,6 @@ const ContentController = () => {
   const [courseData, setCourseData] = useState([]); // Store fetched data
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
-
   // Fetch data from the endpoint
   useEffect(() => {
     const fetchCourseData = async () => {

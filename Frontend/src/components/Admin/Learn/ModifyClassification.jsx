@@ -349,18 +349,29 @@ const MdodifyClassification = ({ course, onCourseClick, handleRetry }) => {
               onClick={(e) => e.stopPropagation()}
               className="relative bg-cyan-800/40 p-6 rounded-xl border border-cyan-500/50 max-w-md w-full mx-4"
             >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-red-500/20 rounded-lg">
+              {/* Header */}
+              <div className="flex items-center gap-4 mb-5">
+                <div className="p-3 bg-red-500/20 rounded-xl">
                   <AlertTriangle className="w-6 h-6 text-red-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-white">
+                <h3 className="text-2xl font-bold text-white">
                   Delete Classification
                 </h3>
               </div>
 
-              <p className="text-gray-300 mb-6">
-                Are you sure you want to delete "{course.title}"? This action
-                cannot be undone.
+              {/* Body */}
+              <p className="text-gray-300 mb-8 leading-relaxed">
+                Are you sure you want to delete{" "}
+                <span className="font-semibold text-white">{course.title}</span>{" "}
+                and{" "}
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-cyan-400/30 backdrop-blur-sm shadow-sm mx-1">
+                  <span className="text-red-400 text-md  font-bold">
+                    {course.totalLessons}
+                  </span>
+                </span>{" "}
+                lessons? This action{" "}
+                <span className="font-semibold text-red-400">cannot</span> be
+                undone.
               </p>
 
               <div className="flex gap-3">

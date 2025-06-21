@@ -39,6 +39,7 @@ const AddCourse = ({ handleRetry }) => {
   const [isAdd, setIsAdd] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState(icons[0]);
   const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -377,84 +378,92 @@ const AddCourse = ({ handleRetry }) => {
         )}
       </AnimatePresence>
 
-      {!isAdd && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2 }}
-          className="
+      {/*Add CARD before clicking*/}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.2 }}
+        className="
             group
             relative
-            bg-cyan-900/50
+            bg-blue-400/10
             backdrop-blur-xl
             p-6
             rounded-xl
             border border-gray-700
-            hover:border-cyan-500/50
+            hover:border-teal-500/50
             transition-all duration-300 ease-out
             hover:shadow-lg hover:shadow-cyan-500/10
           "
-        >
-          <section
-            className="
+      >
+        <section
+          className="
               absolute
               inset-0
               bg-black/60
               opacity-60
               backdrop-blur-2xl
-              border-1
-              border-gray-400
-              blur-sm
+              border-0.5
+              border-gray-400/40
               rounded-xl
               z-0
             "
-          />
+        />
 
-          <div className="relative z-10 flex flex-col h-full">
-            <div className="flex items-start justify-between mb-4">
-              <div className="p-3 bg-gray-700/50 rounded-lg">
-                <Code className="w-6 h-6 text-cyan-400" />
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="text-sm text-gray-400">Progress</span>
-                <span className="text-lg font-semibold text-white">NA%</span>
-              </div>
+        <div
+          className={` ${
+            hover ? "blur-sm" : "blur-xs"
+          }  relative z-10 flex flex-col h-full `}
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 bg-gray-700/50 rounded-lg">
+              <Code className="w-6 h-6 text-cyan-400" />
             </div>
-            <h2 className="text-xl font-semibold text-white mb-2">
-              Add Classification Title
-            </h2>
-            <p className="text-gray-400 mb-4">
-              Add The Description of the new Classification{" "}
-            </p>
-
-            <div className="mt-auto">
-              <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
-                <div
-                  className="bg-cyan-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `16%` }}
-                />
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">none of none lessons</span>
-                <span className="text-cyan-400">Security</span>
-              </div>
+            <div className="flex flex-col items-end">
+              <span className="text-sm text-gray-400">Progress</span>
+              <span className="text-lg font-semibold text-white">NA%</span>
             </div>
           </div>
+          <h2 className="text-xl font-semibold text-white mb-2">
+            Add Classification Title
+          </h2>
+          <p className="text-gray-400 mb-4">
+            Add The Description of the new Classification{" "}
+          </p>
 
-          <motion.button
-            whileHover={{ backgroundColor: "rgba(1, 255, 219, 0.15)" }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => {
-              setIsAdd(true);
-              // Reset form when reopening
-              setFormData({ title: "", description: "", category: "" });
-              setSelectedIcon(icons[0]);
-              setValidationErrors({ title: false, description: false });
-              setErrorMessage("");
-              setSubmitSuccess(false);
-            }}
-            className="
+          <div className="mt-auto">
+            <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
+              <div
+                className="bg-cyan-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `16%` }}
+              />
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">none of none lessons</span>
+              <span className="text-cyan-400">Security</span>
+            </div>
+          </div>
+        </div>
+
+        <motion.button
+          onMouseEnter={() => {
+            setHover(true);
+          }}
+          onMouseLeave={() => {
+            setHover(false);
+          }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ duration: 0.2 }}
+          onClick={() => {
+            setIsAdd(true);
+            // Reset form when reopening
+            setFormData({ title: "", description: "", category: "" });
+            setSelectedIcon(icons[0]);
+            setValidationErrors({ title: false, description: false });
+            setErrorMessage("");
+            setSubmitSuccess(false);
+          }}
+          className={`
               absolute inset-0
               flex items-center justify-center
               transition-all duration-300 ease-out
@@ -462,26 +471,25 @@ const AddCourse = ({ handleRetry }) => {
               rounded-xl
               z-20
               cursor-pointer
-            "
-          >
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="
-                px-4 py-4
-                bg-gray-400/60
+              ${hover ? "bg-blue-400/10" : "bg-transperent"}
+            `}
+        >
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className={` ${
+              !hover ? "bg-gray-400" : " bg-gray-400/60"
+            }    px-4 py-4
                 backdrop-blur-md
                 text-white
                 rounded-lg
-                transform group-hover:translate-y-0
-              "
-            >
-              <Plus size={30} />
-            </motion.span>
-          </motion.button>
-        </motion.div>
-      )}
+                transform group-hover:translate-y-0`}
+          >
+            <Plus size={30} />
+          </motion.span>
+        </motion.button>
+      </motion.div>
     </>
   );
 };
