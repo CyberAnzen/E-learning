@@ -11,7 +11,11 @@ export const AppContextProvider = ({ children }) => {
   const [user, setUser] = useState(true);
   const [savedSkills, setSavedSkills] = useState([]);
   const [savedLinks, setSavedLinks] = useState(null); // final saved data
+  //Admin Add card Toggle
   const [LearnAdd, setLearnAdd] = useState(false);
+  const [Admin, setAdmin] = useState(true);
+  //Classification globalState
+  const [classificationId, setClassificationId] = useState();
   const value = {
     axios,
     navigate,
@@ -22,6 +26,9 @@ export const AppContextProvider = ({ children }) => {
     setSavedLinks,
     LearnAdd,
     setLearnAdd,
+    Admin,
+    classificationId,
+    setClassificationId,
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

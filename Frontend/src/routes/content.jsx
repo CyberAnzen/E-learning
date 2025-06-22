@@ -22,9 +22,9 @@ import ContentHeader from "../components/content/ContentHeader";
 import ChapterProgress from "../components/content/ChapterProgress";
 import "../content.css";
 import AdminEditor from "./adminEditor";
-import { AppContext } from "../context/AppContext";
+import { AppContext, AppContextProvider } from "../context/AppContext";
 import AdminButtons from "../components/Admin/Content/AdminButtons";
-
+import DeleteModal from "../components/Admin/layout/DeleteModal";
 // Define backend URL from environment variables
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -34,9 +34,16 @@ const Content = ({
   PreviewData,
   PreviewScreen = false,
 }) => {
-  // ─── State Variables ─────────────────────────────────────────────────────
+  //------AppContext Variable------------------------
+  const { Admin } = useContext(AppContext);
   const { LearnAdd, setLearnAdd } = useContext(AppContext);
-  const isAdmin = true;
+  const { classificationId, setClassificationId } = useContext(AppContext); //globally storing the Classification ID
+
+  //------Delete Modal States-----------------------------------
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // ─── State Variables ─────────────────────────────────────────────────────
   const [activeSection, setActiveSection] = useState(null);
   const [fullScreenSection, setFullScreenSection] = useState(null);
   const [showQuestionInterface, setShowQuestionInterface] = useState(false);
@@ -58,6 +65,9 @@ const Content = ({
     completed: 0,
     total: 0,
   });
+  useEffect(()=>{
+if(selectedChapterId==null) setselectedChapterId()
+  },[])
 
   // Function to transform API response to match expected structure
   const transformLessonData = (data) => {
@@ -65,6 +75,7 @@ const Content = ({
     const tasksArray = Array.isArray(data.tasks) ? data.tasks : [data.tasks];
     return {
       id: data._id,
+      classsificationID: data.classificationId,
       chapter: data.lesson,
       icon: data.icon || "Shield",
       completed: false,
@@ -89,6 +100,36 @@ const Content = ({
     };
   };
 
+  // Handle delete confirmation
+  const handleDelete = async () => {
+    setIsDeleting(true);
+
+    try {
+      const response = await fetch(
+        `${BACKEND_URL}/lesson/delete/${selectedChapterId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.message || "Failed to delete lesson");
+      }
+
+      // Close modal and trigger refresh
+      setShowDeleteConfirm(false);
+      setIsDeleting(false);
+      handleRetry();
+    } catch (error) {
+      console.error("Delete API Error:", error.message);
+      setIsDeleting(false);
+      // You might want to show an error message to the user
+    }
+  };
   // ─── EFFECT: Fetch lesson data when selectedChapterId changes ───────────
   useEffect(() => {
     if (selectedChapterId == null) return;
@@ -106,6 +147,10 @@ const Content = ({
             throw new Error("Failed to fetch lesson data");
           }
           const { data } = await response.json();
+          if (classificationId !== data.classificationId) {
+            setClassificationId(data.classificationId);
+          }
+
           if (isMounted) {
             const fullChapter = transformLessonData(data);
             setCurrentChapter(fullChapter);
@@ -161,6 +206,7 @@ const Content = ({
       isMounted = false;
     };
   }, [selectedChapterId]);
+  // console.log(currentChapter.classsificationID);
 
   // ─── EFFECT: Recalculate taskProgress when currentChapter changes ─────────
   useEffect(() => {
@@ -288,43 +334,41 @@ const Content = ({
   );
   const isFirstTask = taskIdx === 0;
   const isLastTask = taskIdx === currentChapter.tasks.length - 1;
+  console.log(classificationId);
 
   // ─── JSX RETURN ──────────────────────────────────────────────────────────
 
   //  ADMIN LAYOUT MOUNTING
-  if (!isPreview && LearnAdd && isAdmin) {
+  if (!isPreview && LearnAdd && Admin) {
     return <AdminEditor />;
   } //Users Component
   {
     return (
       <section className="bg-gradient-to-br from-black via-gray-900 to-black mt-23 min-h-screen relative">
-        {isAdmin && !isPreview && (
+        {Admin && !isPreview && (
           // 1) Absolute wrapper takes no space in the document flow
           <div className="absolute inset-2 pointer-events-none">
             {/* 
       2) This inner div is the only one in the flow of scrolling; 
          it sits at the top of the page and scrolls normally.
     */}
-            <div className="sticky top-[20%] flex justify-end pointer-events-auto z-40">
+            <div className="sticky top-1/6 md:top-1/7 lg:top-[20%] flex justify-end pointer-events-auto z-10">
               {/* 
         3) Margin-right to pull it in from the edge, gap-2 to space buttons
       */}
               <div className="mr-10 flex gap-2">
-                <AdminButtons />
+                <AdminButtons setShowDeleteConfirm={setShowDeleteConfirm} />
               </div>
             </div>
           </div>
         )}
         {/*Header */}
-
         <ContentHeader
           currentChapter={currentChapter}
           scrolled={scrolled}
           taskProgress={taskProgress}
         />
-
         {/*Radar and Main content  */}
-
         <div
           className={`flex flex-col gap-8 px-4 py-8 max-w-7xl mx-auto ${
             PreviewScreen ? "w-screen" : "lg:flex-row"
@@ -472,7 +516,7 @@ const Content = ({
                     Next <ChevronRight className="w-5 h-5" />
                   </button>
                 </div>
-                {!isAdmin && (
+                {!Admin && (
                   <div
                     className={`flex justify-end w-full ${
                       PreviewScreen ? "" : "sm:w-auto"
@@ -529,6 +573,25 @@ const Content = ({
           chapterPath={getChapterPath()}
           lessonId={selectedChapterId}
         />
+        {/*Delete pop up Modal Component*/}
+        <DeleteModal
+          showDeleteConfirm={showDeleteConfirm}
+          setShowDeleteConfirm={setShowDeleteConfirm}
+          isDeleting={isDeleting}
+          handleDelete={handleDelete}
+          modaltitle="Delete Classification"
+          message={
+            <div>
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-white">
+                {currentChapter?.chapter}
+              </span>
+              ? This action{" "}
+              <span className="font-semibold text-red-400">cannot</span> be
+              undone.
+            </div>
+          }
+        />{" "}
       </section>
     );
   }
