@@ -2,6 +2,23 @@ const mongoose = require("mongoose");
 
 const ContentSchema = require("../schema/ContentSchema");
 const TaskSchema = require("../schema/TaskSchema");
+const icons = [
+  "Learning",
+  "Tech",
+  "Cybersecurity",
+  "Coding",
+  "Knowledge",
+  "Brain",
+  "Ideas",
+  "Networks",
+  "Code",
+  "Books",
+  "Web",
+  "Server",
+  "Security",
+  "Bulb",
+];
+
 const LessonModel = new mongoose.Schema(
   {
     classificationId: {
@@ -11,7 +28,11 @@ const LessonModel = new mongoose.Schema(
     },
     lessonNum: { type: Number, required: true, unique: true },
     lesson: { type: String, required: true, unique: true },
-    icon: String,
+    icon: {
+      type: String,
+      enum: icons,
+      required: true,
+    },
     content: ContentSchema,
     tasks: TaskSchema,
   },

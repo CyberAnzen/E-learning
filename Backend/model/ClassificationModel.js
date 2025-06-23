@@ -23,11 +23,12 @@ classificationSchema.statics.countLessons = function (classificationId) {
 };
 
 // STATIC: fetch all lessons (only _id, lessonNum, and lesson title) for this classification
+
 classificationSchema.statics.getLessonsSummary = function (classificationId) {
   return this.model("Lessons")
     .find(
       { classificationId: new Types.ObjectId(classificationId) },
-      { _id: 1, lessonNum: 1, lesson: 1 }
+      { _id: 1, lessonNum: 1, lesson: 1, icon: 1 } // <-- added icon here
     )
     .sort({ lessonNum: 1 })
     .lean()
