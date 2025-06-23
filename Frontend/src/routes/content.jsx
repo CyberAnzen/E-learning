@@ -240,6 +240,9 @@ const Content = ({
     setAnswers({});
     setCurrentStep(0);
     setCompletedSteps([]);
+    setActiveSection(null);
+    setFullScreenSection(null);
+    setShowQuestionInterface(false);
   }, [currentTask]);
 
   // ─── EFFECT: Listen for scroll to toggle `scrolled` ───────────────────────
