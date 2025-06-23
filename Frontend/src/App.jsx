@@ -20,7 +20,6 @@ import Signup from "./routes/signup";
 import PrivacyPolicy from "./routes/privacyPolicy";
 import Profile from "./routes/account";
 import Content from "./routes/content";
-import AdminEditor from "./routes/adminEditor";
 import { useAppContext } from "./context/AppContext";
 
 import {

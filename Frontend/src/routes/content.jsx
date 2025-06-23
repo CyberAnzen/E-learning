@@ -23,7 +23,7 @@ import SubmitButton from "../components/content/SubmitButton";
 import ContentHeader from "../components/content/ContentHeader";
 import ChapterProgress from "../components/content/ChapterProgress";
 import "../content.css";
-import AdminEditor from "./adminEditor";
+import AdminEditor from "../components/Admin/Content/adminEditor";
 import { AppContext, AppContextProvider } from "../context/AppContext";
 import AdminButtons from "../components/Admin/Content/AdminButtons";
 import DeleteModal from "../components/Admin/layout/DeleteModal";
@@ -135,14 +135,42 @@ const Content = ({
     }
   };
   // ─── EFFECT: Fetch lesson data when selectedChapterId changes ───────────
+  // Create reusable UI reset function
+  const resetUIState = () => {
+    setActiveSection(null);
+    setFullScreenSection(null);
+    setShowQuestionInterface(false);
+    setTaskProgress(0);
+    setSubmitted(false);
+    setAnswers({});
+    setCurrentStep(0);
+    setCompletedSteps([]);
+    setObjectivesOpened(false);
+    setContentOpened(false);
+  };
+
+  // ─── EFFECT: Fetch lesson data when dependencies change ───────────
   useEffect(() => {
-    if (selectedChapterId == null) return;
+    if (selectedChapterId == null && !isPreview) return;
 
     let isMounted = true;
 
-    const fetchLesson = async () => {
+    const fetchOrProcessData = async () => {
       try {
-        if (!isPreview) {
+        if (isPreview && PreviewData) {
+          // PREVIEW MODE: Use directly passed preview data
+          const fullChapter = transformLessonData(PreviewData);
+          if (isMounted) {
+            setCurrentChapter(fullChapter);
+            if (fullChapter.tasks.length > 0) {
+              setCurrentTask(fullChapter.tasks[0]);
+            } else {
+              setCurrentTask(null);
+            }
+            resetUIState();
+          }
+        } else if (selectedChapterId && ClassificationId) {
+          // LIVE MODE: Fetch data from backend
           const response = await fetch(
             `${BACKEND_URL}/lesson/${ClassificationId}/${selectedChapterId}`
           );
@@ -150,66 +178,43 @@ const Content = ({
           if (!response.ok) {
             throw new Error("Failed to fetch lesson data");
           }
-          const { data } = await response.json();
-          if (classificationId !== id) {
-            setClassificationId(id);
-          }
 
+          const { data } = await response.json();
           if (isMounted) {
+            // Update global classification ID if needed
+            if (classificationId !== selectedChapterId) {
+              setClassificationId(selectedChapterId);
+            }
+
             const fullChapter = transformLessonData(data);
             setCurrentChapter(fullChapter);
-            if (fullChapter && fullChapter.tasks.length > 0) {
+            if (fullChapter.tasks.length > 0) {
               setCurrentTask(fullChapter.tasks[0]);
             } else {
               setCurrentTask(null);
             }
-            // Reset UI state on chapter change
-            setActiveSection(null);
-            setFullScreenSection(null);
-            setShowQuestionInterface(false);
-            setTaskProgress(0);
-            setSubmitted(false);
-            setAnswers({});
-            setCurrentStep(0);
-            setCompletedSteps([]);
-            setObjectivesOpened(false);
-            setContentOpened(false);
+            resetUIState();
           }
-        }
-        if (isPreview) {
-          const data = PreviewData;
-          const fullChapter = transformLessonData(data);
-          setCurrentChapter(fullChapter);
-          if (fullChapter && fullChapter.tasks.length > 0) {
-            setCurrentTask(fullChapter.tasks[0]);
-          } else {
-            setCurrentTask(null);
-          }
-          // Reset UI state on chapter change
-          setActiveSection(null);
-          setFullScreenSection(null);
-          setShowQuestionInterface(false);
-          setTaskProgress(0);
-          setSubmitted(false);
-          setAnswers({});
-          setCurrentStep(0);
-          setCompletedSteps([]);
-          setObjectivesOpened(false);
-          setContentOpened(false);
         }
       } catch (error) {
-        console.error("Error fetching lesson:", error);
+        console.error("Data loading error:", error);
         // Optionally set an error state to display to the user
       }
     };
 
-    fetchLesson();
+    fetchOrProcessData();
 
     // Cleanup to prevent state updates after unmount
     return () => {
       isMounted = false;
     };
-  }, [selectedChapterId]);
+  }, [
+    selectedChapterId,
+    isPreview,
+    PreviewData,
+    ClassificationId,
+    setClassificationId,
+  ]);
   // console.log(currentChapter.classsificationID);
 
   // ─── EFFECT: Recalculate taskProgress when currentChapter changes ─────────
@@ -241,7 +246,10 @@ const Content = ({
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      setLearnAdd(false);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   // ─── EFFECT: Fetch public IP once on mount ───────────────────────────────
