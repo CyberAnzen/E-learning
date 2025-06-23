@@ -32,7 +32,7 @@ const Navbar = () => {
     location.pathname.startsWith(route)
   );
 
-  const menublacklist = ["/learn/"];
+  const menublacklist = ["/lesson/"];
   const ismenuBlacklisted = menublacklist.some((route) =>
     location.pathname.startsWith(route)
   );

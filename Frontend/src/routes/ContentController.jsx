@@ -17,7 +17,7 @@ const getIconForLesson = (lessonNum) => {
 };
 
 const ContentController = () => {
-  const { id } = useParams(); // Get chapter ID from URL
+  const { ClassificationId, LessonId } = useParams(); // Get chapter ID from URL
   const navigate = useNavigate(); // For URL navigation
   const [courseData, setCourseData] = useState([]); // Store fetched data
   const [isLoading, setIsLoading] = useState(true); // Loading state
@@ -29,7 +29,7 @@ const ContentController = () => {
         setIsLoading(true);
         setError(null);
         const response = await fetch(
-          `${BACKEND_URL}/classification/sidebar/${id}`
+          `${BACKEND_URL}/classification/sidebar/${ClassificationId}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch course data");
@@ -57,18 +57,17 @@ const ContentController = () => {
   }, []); // Empty dependency array: fetch once on mount
 
   // Derive the current chapter from the URL `id`
-  const currentChapter = courseData.find((chapter) => chapter.id === id);
-
+  const currentChapter = courseData.find((chapter) => chapter.id === LessonId);
   // Redirect to the first chapter if `id` is missing or invalid
   useEffect(() => {
-    if (courseData.length > 0 && (!id || !currentChapter)) {
-      navigate(`/learn/${courseData[0].id}`);
+    if (courseData.length > 0 && (!LessonId || !currentChapter)) {
+      navigate(`/lesson/${ClassificationId}/${courseData[0].id}`);
     }
-  }, [id, navigate, courseData]);
+  }, [LessonId, navigate, courseData, currentChapter, ClassificationId]);
 
   // Handler: when the user clicks a chapter tile in Sidebar
   const handleChapterSelect = (chapterItem) => {
-    navigate(`/learn/${chapterItem.id}`);
+    navigate(`/lesson/${ClassificationId}/${chapterItem.id}`);
   };
 
   return (
@@ -92,7 +91,10 @@ const ContentController = () => {
             {error}
           </div>
         ) : currentChapter ? (
-          <Content selectedChapterId={id} />
+          <Content
+            selectedChapterId={LessonId}
+            ClassificationId={ClassificationId}
+          />
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500">
             No chapter selected or invalid chapter ID.

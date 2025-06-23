@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
+
 import {
   Clock,
   User,
@@ -33,7 +35,9 @@ const Content = ({
   isPreview = false,
   PreviewData,
   PreviewScreen = false,
+  ClassificationId,
 }) => {
+  const { id } = useParams(); // Get chapter ID from URL
   //------AppContext Variable------------------------
   const { Admin } = useContext(AppContext);
   const { LearnAdd, setLearnAdd } = useContext(AppContext);
@@ -65,9 +69,9 @@ const Content = ({
     completed: 0,
     total: 0,
   });
-  useEffect(()=>{
-if(selectedChapterId==null) setselectedChapterId()
-  },[])
+  useEffect(() => {
+    if (selectedChapterId == null) setselectedChapterId();
+  }, []);
 
   // Function to transform API response to match expected structure
   const transformLessonData = (data) => {
@@ -140,15 +144,15 @@ if(selectedChapterId==null) setselectedChapterId()
       try {
         if (!isPreview) {
           const response = await fetch(
-            `${BACKEND_URL}/lesson/${selectedChapterId}`
+            `${BACKEND_URL}/lesson/${ClassificationId}/${selectedChapterId}`
           );
 
           if (!response.ok) {
             throw new Error("Failed to fetch lesson data");
           }
           const { data } = await response.json();
-          if (classificationId !== data.classificationId) {
-            setClassificationId(data.classificationId);
+          if (classificationId !== id) {
+            setClassificationId(id);
           }
 
           if (isMounted) {
@@ -344,7 +348,7 @@ if(selectedChapterId==null) setselectedChapterId()
   } //Users Component
   {
     return (
-      <section className="bg-gradient-to-br from-black via-gray-900 to-black mt-23 min-h-screen relative">
+      <section className="bg-gradient-to-br from-black via-gray-900 to-black mt-23 min-h-screen  relative">
         {Admin && !isPreview && (
           // 1) Absolute wrapper takes no space in the document flow
           <div className="absolute inset-2 pointer-events-none">
