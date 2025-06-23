@@ -13,3 +13,9 @@ logs
 # event images
 uploads/events/images/**
 uploads/events/temp/**
+
+#public images
+public/** 
+
+#temporary files
+temp/uploads/*/**

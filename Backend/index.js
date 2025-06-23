@@ -39,6 +39,9 @@ initializeCaches();
 
 app.use(helmet()); // Use Helmet for security headers
 // app.use(cors(corsOptions));
+
+app.use(express.static("public")); // Serve static files from the 'public' directory
+app.use(express.json()); // Parse JSON bodies
 app.use(cors())
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -47,5 +50,7 @@ app.use("/api/user", xssSanitizer(), userRoutes);
 app.use("/api/classification", xssSanitizer(), classification);
 app.use("/api/lesson", lesson);
 app.use("/api/answer", validate);
+
+app.use("/api/image", require("./router/imageRoutes"));
 
 app.listen(port);

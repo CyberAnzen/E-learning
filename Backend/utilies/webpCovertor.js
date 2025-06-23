@@ -52,12 +52,13 @@ async function convertToWebP(fileName, inputPath, outputPath,deleteOriginal = tr
         else if (typeof fileName === 'string') {
             const webPath = path.join(outputPath, fileName.replace(/\.[^/.]+$/, ".webp"));
             const result = await convertor(path.join(inputPath, fileName), webPath, deleteOriginal);
+            let image= fileName.replace(/\.[^/.]+$/, ".webp")
 
             return {
                 success: result.success,
                 failure: !result.success,
                 message: result.message,
-                convertedImages: result.success ? webPath : null,
+                convertedImages: result.success ? image : null,
                 unconvertedImages: result.success ? [] : [fileName],
                 error: result.error
             };
