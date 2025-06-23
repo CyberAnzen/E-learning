@@ -1,13 +1,18 @@
 const LessonModel = require("../../../model/LessonModel");
 
 exports.getLesson = async (req, res) => {
-  const { id } = req.params;
+  const { ClassificationId, LessonId } = req.params;
 
   try {
-    const lesson = await LessonModel.findById(id).lean(); // lean makes it a plain object
+    const lesson = await LessonModel.findById(LessonId).lean(); // lean makes it a plain object
 
-    if (!lesson)
-      return res.status(500).json({ message: "Lesson is not fetched" });
+    // Fix: compare ObjectId with string correctly
+    if (
+      !ClassificationId ||
+      lesson.classificationId.toString() !== ClassificationId
+    ) {
+      return res.status(404).json({ message: "Failed in loading lesson" });
+    }
 
     // Remove unwanted fields
     if (lesson.tasks?.content?.length) {
@@ -26,7 +31,7 @@ exports.getLesson = async (req, res) => {
     delete lesson.createdAt;
     delete lesson.updatedAt;
 
-    res.status(200).json({ data: lesson });
+    return res.status(200).json({ data: lesson });
   } catch (error) {
     res.status(404).json({ message: "Failed in loading lesson" });
   }

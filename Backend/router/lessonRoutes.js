@@ -5,7 +5,7 @@ const { getLesson } = require("../controller/learn/lesson/getLesson");
 const { deleteLesson } = require("../controller/learn/lesson/deleteLesson");
 const { updateLesson } = require("../controller/learn/lesson/updateLesson");
 
-router.get("/:id", getLesson);
+router.get("/:ClassificationId/:LessonId", getLesson);
 router.post("/create", createLesson);
 router.delete("/delete/:id", deleteLesson);
 router.patch("/update", updateLesson);
