@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Plus } from "lucide-react";
 import SidebarItem from "./SidebarItem";
-
+import { useNavigate } from "react-router-dom";
 const SidebarMobile = ({
   isSidebarOpen,
   setIsSidebarOpen,
@@ -13,9 +13,11 @@ const SidebarMobile = ({
   title,
   clicked,
   setClicked,
+  ClassificationId,
 }) => {
   const isAdmin = true;
   const [hover, setHover] = useState();
+  const Navigate = useNavigate();
   return (
     <>
       {/* Mobile Menu Button */}
@@ -118,7 +120,9 @@ const SidebarMobile = ({
                 ))}
                 {isAdmin && (
                   <section
-                    onClick={() => setClicked(true)}
+                    onClick={() =>
+                      Navigate(`/lesson/${ClassificationId}/create`)
+                    }
                     onMouseEnter={() => setHover(true)}
                     onMouseOut={() => setHover(false)}
                     className={`mx-2 mb-2 p-6 rounded-lg transition-all cursor-pointer backdrop-blur-sm flex justify-center py-9

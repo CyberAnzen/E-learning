@@ -1,10 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { X, Sun, Moon } from "lucide-react";
 import { motion } from "framer-motion";
 
-const FullScreenReader = ({ section, content, title, icon, onClose }) => {
-  // Local theme state: 'dark' or 'light'
+const FullScreenReader = ({
+  section,
+  content,
+  title,
+  icon,
+  onClose,
+  isPreview,
+}) => {
   const [theme, setTheme] = useState("dark");
+  const scrollRef = useRef(null);
 
   // Handle escape key press to close
   useEffect(() => {
@@ -15,15 +22,17 @@ const FullScreenReader = ({ section, content, title, icon, onClose }) => {
     return () => document.removeEventListener("keydown", handleEscapeKey);
   }, [onClose]);
 
-  // Lock body scroll when open
+  // Lock body scroll when open (but not in preview mode)
   useEffect(() => {
-    document.body.style.overflow = "hidden";
+    if (!isPreview) {
+      document.body.style.overflow = "hidden";
+    }
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, []);
+  }, [isPreview]);
 
-  // Track browser back button: close modal instead of navigating away
+  // Track browser back button
   useEffect(() => {
     window.history.pushState({ fullscreenReader: true }, "");
     const handlePopState = (e) => {
@@ -34,16 +43,24 @@ const FullScreenReader = ({ section, content, title, icon, onClose }) => {
     window.addEventListener("popstate", handlePopState);
     return () => {
       window.removeEventListener("popstate", handlePopState);
-      // No history.back() here, so clicking back just closes the modal
     };
   }, [onClose]);
 
-  // Toggle between 'dark' and 'light' themes
+  // Scroll the content container when isPreview is true
+  useEffect(() => {
+    if (isPreview && scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [isPreview, content]);
+
+  // Toggle theme
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
-  // Framer Motion variants for the content area
   const contentVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
@@ -53,7 +70,6 @@ const FullScreenReader = ({ section, content, title, icon, onClose }) => {
     },
   };
 
-  // Determine classes based on current theme
   const rootClasses =
     theme === "dark"
       ? "fixed inset-0 z-50 bg-gradient-to-b from-gray-800 to-gray-700 backdrop-blur-lg flex flex-col"
@@ -69,11 +85,9 @@ const FullScreenReader = ({ section, content, title, icon, onClose }) => {
       ? "text-xl font-bold text-white"
       : "text-xl font-bold text-gray-900";
 
-  // ✏️ Here is the only change: we add [&_*]:text-gray-100 (or [&_*]:text-gray-900)
-  // so that every nested element gets that same color.
   const contentWrapperClasses =
     theme === "dark"
-      ? "flex-1 w-full overflow-y-auto p-6 md:p-10 custom-scrollbar bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 [&_*]:text-gray-100"
+      ? "flex-1 w-full overflow-y-auto p-6 md:p-10 custom-scrollbar bg-gradient-to-br from-black via-gray-900  to-black  text-gray-100 [&_*]:text-gray-100"
       : "flex-1 w-full overflow-y-auto p-6 md:p-10 custom-scrollbar bg-white text-gray-900 [&_*]:text-gray-900";
 
   const footerClasses =
@@ -104,7 +118,7 @@ const FullScreenReader = ({ section, content, title, icon, onClose }) => {
       transition={{ duration: 0.2 }}
       className={rootClasses}
     >
-      {/* ===== HEADER ===== */}
+      {/* Header */}
       <div className={headerClasses}>
         <div className="flex items-center gap-3">
           {icon}
@@ -130,8 +144,9 @@ const FullScreenReader = ({ section, content, title, icon, onClose }) => {
         </div>
       </div>
 
-      {/* ===== ANIMATED CONTENT WRAPPER (force‐override all nested text color) ===== */}
+      {/* Content Wrapper */}
       <motion.div
+        ref={scrollRef}
         variants={contentVariants}
         initial="hidden"
         animate="visible"
@@ -140,8 +155,8 @@ const FullScreenReader = ({ section, content, title, icon, onClose }) => {
         {content}
       </motion.div>
 
-      {/* ===== FOOTER =====
-      <div className={footerClasses}>
+      {/* Footer (commented out) */}
+      {/* <div className={footerClasses}>
         <button onClick={onClose} className={closeButtonFooterClasses}>
           Close
         </button>

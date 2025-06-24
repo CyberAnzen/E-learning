@@ -35,6 +35,7 @@ import EditProfile from "./components/ProfilePage/EditProfile";
 import Account from "./routes/account";
 import ContentController from "./routes/ContentController";
 import CertificateList from "./components/ProfilePage/CertificateList";
+import AdminEditor from "./components/Admin/Content/adminEditor";
 function App() {
   const { user } = useAppContext();
   const [intro, setIntro] = useState(true);
@@ -70,6 +71,10 @@ function App() {
           <Route
             path="/lesson/:ClassificationId/:LessonId"
             element={<ContentController />}
+          />
+          <Route
+            path="/lesson/:ClassificationId/create"
+            element={<AdminEditor />}
           />
           <Route path="/contest" element={<ContestPage />} />
           <Route path="/login" element={<LoginPage />} />

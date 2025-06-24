@@ -79,6 +79,7 @@ const ContentController = () => {
         currentChapter={currentChapter || {}}
         onChapterSelect={handleChapterSelect}
         title="Course Contents"
+        ClassificationId={ClassificationId}
       />
       {/* Main Content: renders based on loading, error, or chapter selection */}
       <div className="flex-1 overflow-auto">

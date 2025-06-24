@@ -22,6 +22,7 @@ const QuestionInterface = ({
   ip = "192.168.1.100",
   chapterId = "ch1",
   chapterPath = "cybersec/basics",
+  isPreview,
 }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -41,14 +42,21 @@ const QuestionInterface = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscapeKey);
-      document.body.style.overflow = "hidden";
     }
 
     return () => {
       document.removeEventListener("keydown", handleEscapeKey);
-      document.body.style.overflow = "auto";
     };
   }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (!isPreview) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "auto";
+      };
+    }
+  }, []);
 
   // Handle browser back button
   useEffect(() => {

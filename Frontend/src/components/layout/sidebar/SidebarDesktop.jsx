@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SidebarItem from "./SidebarItem";
 import { Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const SidebarDesktop = ({
   isOpen,
@@ -15,10 +16,13 @@ const SidebarDesktop = ({
   sidebarHeader,
   className = "",
   clicked,
-  setClicked
+  setClicked,
+  ClassificationId,
 }) => {
   const isAdmin = true;
   const [hover, setHover] = useState();
+  const Navigate = useNavigate();
+
   return (
     <>
       {/* Blur Overlay */}
@@ -86,7 +90,7 @@ const SidebarDesktop = ({
             ))}
             {isAdmin && (
               <section
-                onClick={() => setClicked(true)}
+                onClick={() => Navigate(`/lesson/${ClassificationId}/create`)}
                 onMouseEnter={() => setHover(true)}
                 onMouseOut={() => setHover(false)}
                 className={`mx-2 mb-2 p-6 rounded-lg transition-all cursor-pointer backdrop-blur-sm flex justify-center py-9

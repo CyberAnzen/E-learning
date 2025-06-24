@@ -13,6 +13,7 @@ const Sidebar = ({
   customButton,
   sidebarHeader,
   className = "",
+  ClassificationId,
   title = "Course Contents",
 }) => {
   const [isPinned, setIsPinned] = useState(false);
@@ -76,6 +77,7 @@ const Sidebar = ({
         title={title}
         clicked={LearnAdd}
         setClicked={setLearnAdd}
+        ClassificationId={ClassificationId}
       />
 
       {/* Desktop Sidebar */}
@@ -92,6 +94,7 @@ const Sidebar = ({
         className={className}
         clicked={LearnAdd}
         setClicked={setLearnAdd}
+        ClassificationId={ClassificationId}
       />
 
       {/* Toggle Button */}

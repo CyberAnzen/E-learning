@@ -36,6 +36,7 @@ const Content = ({
   PreviewData,
   PreviewScreen = false,
   ClassificationId,
+  focusedSection,
 }) => {
   const { id } = useParams(); // Get chapter ID from URL
   //------AppContext Variable------------------------
@@ -137,17 +138,36 @@ const Content = ({
   // ─── EFFECT: Fetch lesson data when selectedChapterId changes ───────────
   // Create reusable UI reset function
   const resetUIState = () => {
-    setActiveSection(null);
-    setFullScreenSection(null);
-    setShowQuestionInterface(false);
-    setTaskProgress(0);
-    setSubmitted(false);
-    setAnswers({});
-    setCurrentStep(0);
-    setCompletedSteps([]);
-    setObjectivesOpened(false);
-    setContentOpened(false);
+    if (!isPreview) {
+      setActiveSection(null);
+      setFullScreenSection(null);
+      setShowQuestionInterface(false);
+      setTaskProgress(0);
+      setSubmitted(false);
+      setAnswers({});
+      setCurrentStep(0);
+      setCompletedSteps([]);
+      setObjectivesOpened(false);
+      setContentOpened(false);
+    }
   };
+  //-----------EFFECT: for the Preview in the Admin panel to force open sections in fullscreen based on focus field
+  // In Content.jsx
+  useEffect(() => {
+    if (Admin && isPreview) {
+      if (focusedSection === null) {
+        setFullScreenSection(null);
+        setActiveSection(null);
+        setShowQuestionInterface(false);
+      } else if (focusedSection === "mainContent") {
+        setFullScreenSection("content");
+      } else if (focusedSection === "questions") {
+        setShowQuestionInterface(true);
+      } else if (focusedSection === "objectives") {
+        setActiveSection("objectives");
+      }
+    }
+  }, [focusedSection]);
 
   // ─── EFFECT: Fetch lesson data when dependencies change ───────────
   useEffect(() => {
@@ -236,6 +256,9 @@ const Content = ({
 
   // ─── EFFECT: Reset answers & steps when currentTask changes ────────────────
   useEffect(() => {
+    if (isPreview) {
+      return; // Skip reset in preview mode
+    }
     setSubmitted(false);
     setAnswers({});
     setCurrentStep(0);
@@ -243,7 +266,7 @@ const Content = ({
     setActiveSection(null);
     setFullScreenSection(null);
     setShowQuestionInterface(false);
-  }, [currentTask]);
+  }, [currentTask, isPreview]);
 
   // ─── EFFECT: Listen for scroll to toggle `scrolled` ───────────────────────
   useEffect(() => {
@@ -349,17 +372,21 @@ const Content = ({
   );
   const isFirstTask = taskIdx === 0;
   const isLastTask = taskIdx === currentChapter.tasks.length - 1;
-  console.log(classificationId);
+  console.log(currentTask.content.mainContent);
 
   // ─── JSX RETURN ──────────────────────────────────────────────────────────
 
-  //  ADMIN LAYOUT MOUNTING
-  if (!isPreview && LearnAdd && Admin) {
-    return <AdminEditor />;
-  } //Users Component
+  // //  ADMIN LAYOUT MOUNTING
+  // if (!isPreview && LearnAdd && Admin) {
+  //   return <AdminEditor />;
+  // } //Users Component
   {
     return (
-      <section className="bg-gradient-to-br from-black via-gray-900 to-black mt-23 min-h-screen  relative">
+      <section
+        className={`bg-gradient-to-br from-black via-gray-900 to-black ${
+          isPreview ? "mt-0 " : "mt-23"
+        } min-h-screen  relative`}
+      >
         {Admin && !isPreview && (
           // 1) Absolute wrapper takes no space in the document flow
           <div className="absolute inset-2 pointer-events-none">
@@ -556,7 +583,7 @@ const Content = ({
               section="content"
               content={
                 <>
-                  <div className="mb-8 rounded-xl overflow-hidden shadow-2xl max-w-[70%] mx-auto">
+                  <div className="mb-8 rounded-xl overflow-hidden  shadow-2xl max-w-[70%] mx-auto">
                     <img
                       src={currentChapter.content.image}
                       alt={currentChapter.content.title}
@@ -564,15 +591,20 @@ const Content = ({
                     />
                   </div>
                   <div className="prose prose-invert max-w-[95%] mx-auto">
-                    <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-                      {currentTask.content.mainContent}
-                    </p>
+                    <main
+                      className="leading-relaxed whitespace-pre-wrap"
+                      dangerouslySetInnerHTML={{
+                        __html: currentTask.content.mainContent,
+                      }}
+                    />
+                    {/* <div>{currentTask.content.mainContent}</div> */}
                   </div>
                 </>
               }
               title="Chapter Content"
               icon={<Lightbulb className="w-6 h-6 text-yellow-400" />}
               onClose={handleCloseFullScreen}
+              isPreview={isPreview}
             />
           )}
         </AnimatePresence>
@@ -587,6 +619,7 @@ const Content = ({
           chapterId={currentChapter?.id}
           chapterPath={getChapterPath()}
           lessonId={selectedChapterId}
+          isPreview={isPreview}
         />
         {/*Delete pop up Modal Component*/}
         <DeleteModal
