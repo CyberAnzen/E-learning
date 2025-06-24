@@ -26,7 +26,7 @@ const LessonModel = new mongoose.Schema(
       required: true,
       ref: "Classification",
     },
-    lessonNum: { type: Number, required: true, unique: true },
+    lessonNum: { type: Number, required: true },
     lesson: { type: String, required: true, unique: true },
     icon: {
       type: String,
@@ -40,6 +40,31 @@ const LessonModel = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+//-----------Static Function to validate the Lesson Number
+
+LessonModel.statics.LessonNumberValidation = function (
+  classificationId,
+  lessonNum
+) {
+  return this.exists({
+    classificationId: new mongoose.Types.ObjectId(classificationId),
+    lessonNum: lessonNum,
+  }).then((doc) => !!doc);
+};
+
+//-----------Static Function to get the Next Lesson Number
+
+LessonModel.statics.getNextLessonNumber = async function (classificationId) {
+  const lastLesson = await this.findOne({
+    classificationId: new mongoose.Types.ObjectId(classificationId),
+  })
+    .sort({ lessonNum: -1 }) // highest lessonNum first
+    .select("lessonNum")
+    .lean();
+
+  return lastLesson ? lastLesson.lessonNum + 1 : 1;
+};
 
 const Lesson = mongoose.model("Lessons", LessonModel);
 

@@ -3,7 +3,7 @@ const ClassificationModel = require("../../../model/ClassificationModel");
 
 exports.createLesson = async (req, res) => {
   try {
-    const { classificationId } = req.body;
+    const { classificationId, lessonNum } = req.body;
 
     if (!classificationId) {
       return res.status(400).json({ message: "classificationId is required" });
@@ -16,7 +16,15 @@ exports.createLesson = async (req, res) => {
     if (!classification) {
       return res.status(404).json({ message: "Invalid classificationId" });
     }
-
+    const exists = await LessonModel.LessonNumberValidation(
+      classificationId,
+      lessonNum
+    );
+    if (exists) {
+      return res.status(400).json({
+        message: "Lesson number already exists in this classification.",
+      });
+    }
     const lesson = await LessonModel.create(req.body);
 
     if (!lesson) {
