@@ -74,11 +74,11 @@ const ProfileDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white p-6 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-black via-65% via-gray-900 to-black text-white p-6 space-y-6">
       {/* Top Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card */}
-        <div className="bg-gray-800 rounded-xl p-4 flex flex-col items-center text-center relative">
+        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4 flex flex-col items-center text-center relative">
           <Link
             to="/profile/editprofile"
             className="absolute top-3 right-4 text-blue-400 hover:text-cyan-700 cursor-pointer"
@@ -101,7 +101,7 @@ const ProfileDashboard = () => {
       {/* Second Row: Personal Info, Resume, EEO */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Personal Info */}
-        <div className="bg-gray-800 rounded-xl p-4 relative">
+        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4 relative">
           <Link
             to="/profile/editprofile"
             className="absolute top-3 right-4 text-blue-400 hover:text-cyan-700 cursor-pointer"
@@ -117,7 +117,7 @@ const ProfileDashboard = () => {
         </div>
 
         {/* Resume */}
-        <div className="bg-gray-800 rounded-xl p-4 text-white">
+        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
           <h3 className="font-bold mb-2">My Resume</h3>
           {/* Dynamic label */}
           {!myResume ? (
@@ -129,7 +129,7 @@ const ProfileDashboard = () => {
           {/* Show Add Button Only If No Resume */}
           {!myResume && (
             <button
-              className="bg-blue-900 hover:bg-cyan-900 px-3 py-1 text-sm rounded cursor-pointer"
+              className="bg-blue-900 hover:bg-cyan-600/80 px-3 py-1 text-sm rounded cursor-pointer"
               onClick={handleImageClick}
             >
               + Add Resume
@@ -152,7 +152,8 @@ const ProfileDashboard = () => {
                 href={myResume}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 bg-cyan-600 px-3 py-1 rounded-full text-sm text-black font-bold hover:underline"
+                className="flex items-center gap-1
+                 bg-cyan-600 px-3 py-1 rounded-full text-sm text-black font-bold hover:underline"
               >
                 <FileUser size={24} />
                 View Uploaded Resume
@@ -162,7 +163,7 @@ const ProfileDashboard = () => {
         </div>
 
         {/* EEO Settings */}
-        <div className="bg-gray-800 rounded-xl p-4">
+        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
           <h3 className="font-bold mb-2">EEO Settings</h3>
           <p className="text-sm text-gray-300">No data added</p>
         </div>
@@ -171,7 +172,7 @@ const ProfileDashboard = () => {
       {/* Badges, Certifications */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Badges */}
-        <div className="bg-gray-800 rounded-xl p-4 relative">
+        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4 relative">
           <h3 className="font-bold mb-1">Links</h3>
           <p className="text-sm text-gray-300">
             Add all the relevant links that help in knowing you as a cyberAnzen{" "}
@@ -198,7 +199,7 @@ const ProfileDashboard = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     key={key}
-                    className="flex items-center gap-2 bg-gradient-to-br from-gray-900 via-black to-black px-3 py-1 rounded-full text-sm text-white hover:underline"
+                    className="flex items-center gap-2 bg-cyan-600 text-black font-bold px-3 py-1 mt-3 rounded-full text-sm hover:underline"
                   >
                     {key === "github" && <Github size={16} />}
                     {key === "linkedin" && <Linkedin size={16} />}
@@ -211,7 +212,7 @@ const ProfileDashboard = () => {
         </div>
 
         {/* Certifications */}
-        <div className="bg-gray-800 rounded-xl p-4">
+        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
           <h3 className="font-bold mb-1">My Certifications</h3>
           <p className="text-sm text-gray-300">
             You have not earned any certificates yet.{" "}
@@ -226,7 +227,7 @@ const ProfileDashboard = () => {
       {/* Work & Education */}
       <div className="">
         {/* Work Experience */}
-        <div className="bg-gray-800 rounded-xl p-4">
+        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
           <div className="flex justify-between items-center">
             <h3 className="font-bold">Work Experience</h3>
             <button className="text-blue-400 text-sm">
@@ -241,7 +242,7 @@ const ProfileDashboard = () => {
       </div>
       <div>
         {/* Education */}
-        <div className="bg-gray-800 rounded-xl p-4">
+        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
           <div className="flex justify-between items-center">
             <h3 className="font-bold">My Skills</h3>
             {/* You can open the modal using document.getElementById('ID').showModal() method */}
@@ -269,7 +270,7 @@ const ProfileDashboard = () => {
             {savedSkills.map((skill) => (
               <span
                 key={skill}
-                className="flex items-center bg-gradient-to-br from-gray-90 via-60% via-black to-black px-3 py-1 rounded-full text-sm"
+                className="flex items-center bg-cyan-600 text-black font-bold px-3 py-1 rounded-full text-sm"
               >
                 {skill}
               </span>

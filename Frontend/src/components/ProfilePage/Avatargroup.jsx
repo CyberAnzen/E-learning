@@ -57,16 +57,16 @@ const Avatargroup = ({
 
   return (
     <>
-        <Link to="/profile/certificatelist" className="avatar-group -space-x-6 relative">
+        <Link to="/profile/certificatelist" className="avatar-group -space-x-6 relative mt-1">
           {certifications.slice(0, 3).map((cert, index) => (
-            <div className="avatar transform transition-all duration-300 hover:scale-[1.2]" key={index}>
+            <div className="avatar border-black transform transition-all duration-300 hover:scale-[1.2]" key={index}>
               <div className="w-12">
                 <img src={cert} alt={`Avatar ${index + 1}`} />
               </div>
             </div>
           ))}
           {certifications.length > 3 && (
-            <div className="avatar avatar-placeholder">
+            <div className="avatar border-black avatar-placeholder">
               <div className="bg-neutral text-neutral-content w-12">
                 <span>+{certifications.length - 3}</span>
               </div>

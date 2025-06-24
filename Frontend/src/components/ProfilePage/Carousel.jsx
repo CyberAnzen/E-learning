@@ -7,7 +7,7 @@ const Carousel = ({
   carouselId = "carousel",
 }) => {
   return (
-    <div className="carousel col-span-1 lg:col-span-2 rounded-xl w-full h-auto">
+    <div className="carousel col-span-1 lg:col-span-2 rounded-xl w-full h-auto border-[#38bdf8]/20 border-1 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10">
       {data.map((item, index) => {
         const slideId = `${carouselId}-slide${index + 1}`;
         const prevSlide = `#${carouselId}-slide${

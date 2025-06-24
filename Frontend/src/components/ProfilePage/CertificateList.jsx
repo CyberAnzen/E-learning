@@ -35,7 +35,7 @@ const CertificateList = () => {
       {courses.map((course, index) => (
         <div
           key={index}
-          className=" opacity-70 shadow-md rounded-lg p-4 flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0  bg-gray-800/50 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
+          className=" shadow-md rounded-lg p-4 flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0  bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
         >
           <div className="flex items-start space-x-4">
             <div className="p-4 rounded-md">
