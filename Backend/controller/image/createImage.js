@@ -2,19 +2,19 @@ const {listAllFiles,renameFile}=require('../../utilies/fileUtilies')
 const {convertToWebP}=require('../../utilies/webpCovertor')
 const fs= require('fs')
 const path =require('path')
-const createImage = async (req, res) => {
+const createImage = (folderName) => async (req, res) => {
     let image=req.file.filename;
     const filePath = "temp/uploads/images/" ; // Assuming the temp folder is where the file is uploaded
     let outputPath=""  // Assuming the output path in public
     const order=parseInt(req.body?.order)
     try {
-        if (!req.body.path) {
+        if (!folderName || folderName.trim() === "") {
         return res.status(400).json({
             success: false,
             message: "No path provided in the request body"
         });
         }
-        outputPath=path.join("public", req.body.path.toString().trim().toLowerCase());
+        outputPath=path.join("public", folderName.toString().trim().toLowerCase());
         if (!fs.existsSync(path.join(process.cwd(), outputPath))) {
             fs.mkdirSync(path.join(process.cwd(), outputPath), { recursive: true });
         }
