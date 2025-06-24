@@ -21,54 +21,16 @@ import RichTextEditor from "./RichTextEditor";
 
 // Create a context for the focused section
 const FocusedSectionContext = createContext();
-
+import Placeholder from "./Placeholder.json";
 // Initial placeholder data matching the JSON structure
-const placeholderData = {
-  _id: "",
-  classificationId: "",
-  lessonNum: 1,
-  lesson: "Introduction to Course",
-  icon: "Shield",
-  content: {
-    title: "Sample Lesson",
-    author: "Course Admin",
-    duration: "30-minutes",
-    image: "https://images.pexels.com/photos/3861958/pexels-photo-3861958.jpeg",
-    _id: "",
-  },
-  tasks: {
-    title: "Getting Started",
-    completed: false,
-    content: {
-      description:
-        "Learn about the fundamental concepts and get started with the course.",
-      objectives: [
-        "Understand the basics",
-        "Complete initial setup",
-        "Review course materials",
-      ],
-      mainContent:
-        "Welcome to this comprehensive course. This lesson will introduce you to the fundamental concepts and provide you with the foundation needed for the upcoming lessons.",
-      questions: [
-        {
-          text: "What is the main purpose of this course?",
-          type: "text",
-          correctAnswer: "To provide fundamental knowledge and skills",
-          correctAnswers: [],
-          hint: "Think about the learning objectives",
-          _id: "",
-        },
-      ],
-    },
-    _id: "",
-  },
-};
 
-const AdminEditor = () => {
+const AdminEditor = (isEditing = false, OldData) => {
+  const initialData = isEditing && OldData ? OldData : Placeholder;
+
   const [selectedChapterId, setSelectedChapterId] = useState(1);
   const [chapters, setChapters] = useState([]);
   const [editingChapter, setEditingChapter] = useState(null);
-  const [formData, setFormData] = useState(placeholderData);
+  const [formData, setFormData] = useState(initialData);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [newObjective, setNewObjective] = useState("");
   const [focusedSection, setFocusedSection] = useState(null);
@@ -118,7 +80,7 @@ const AdminEditor = () => {
       setChapters([...chapters, updatedFormData]);
     }
 
-    setFormData(placeholderData);
+    setFormData(initialData);
     setEditingChapter(null);
   };
 
