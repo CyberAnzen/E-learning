@@ -72,10 +72,8 @@ function App() {
             path="/lesson/:ClassificationId/:LessonId"
             element={<ContentController />}
           />
-          <Route
-            path="/lesson/:ClassificationId/create"
-            element={<AdminEditor />}
-          />
+          <Route path="/lesson/create" element={<AdminEditor />} />
+
           <Route path="/contest" element={<ContestPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />

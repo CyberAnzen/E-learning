@@ -28,7 +28,7 @@ const LearnPage = () => {
         throw new Error("Failed to fetch courses");
       }
       const { data } = await response.json();
-      const transformedCourses = (data.results || []).map((course) => ({
+      const transformedCourses = (data.Classications || []).map((course) => ({
         id: course._id,
         title: course.title,
         description: course.description,

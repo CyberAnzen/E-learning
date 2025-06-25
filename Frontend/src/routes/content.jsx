@@ -269,15 +269,37 @@ const Content = ({
   }, [currentTask, isPreview]);
 
   // ─── EFFECT: Listen for scroll to toggle `scrolled` ───────────────────────
+  // useEffect(() => {
+  //   const handleScroll = () => setScrolled(window.scrollY > 20);
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => {
+  //     setLearnAdd(false);
+  //     window.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, []);
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
+    // Smooth scroll to top
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+
+    // Prevent scrolling
+    document.body.style.overflow = "auto";
+    document.body.style.position = "auto";
+    document.documentElement.style.overflow = "auto";
+
+    // Optional: Prevent touchmove to block scrolling more robustly
+    const preventTouchMove = (e) => e.preventDefault();
+    document.addEventListener("touchmove", preventTouchMove, {
+      passive: false,
+    });
+
+    // Cleanup on unmount
     return () => {
-      setLearnAdd(false);
-      window.removeEventListener("scroll", handleScroll);
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.documentElement.style.overflow = "";
+      document.removeEventListener("touchmove", preventTouchMove);
     };
   }, []);
-
   // ─── EFFECT: Fetch public IP once on mount ───────────────────────────────
   useEffect(() => {
     fetch("https://api.ipify.org?format=json")
@@ -372,7 +394,7 @@ const Content = ({
   );
   const isFirstTask = taskIdx === 0;
   const isLastTask = taskIdx === currentChapter.tasks.length - 1;
-  console.log(currentTask.content.mainContent);
+  // console.log(currentTask.content.mainContent);
 
   // ─── JSX RETURN ──────────────────────────────────────────────────────────
 
@@ -583,14 +605,19 @@ const Content = ({
               section="content"
               content={
                 <>
-                  <div className="mb-8 rounded-xl overflow-hidden  shadow-2xl max-w-[70%] mx-auto">
-                    <img
-                      src={currentChapter.content.image}
-                      alt={currentChapter.content.title}
-                      className="w-full rounded-xl h-64 sm:h-72 md:h-80 lg:h-96 object-cover"
-                    />
-                  </div>
+                  {/* <div className="mb-8 rounded-xl overflow-hidden  shadow-2xl max-w-[70%] mx-auto">
+                      <img
+                        src={currentChapter.content.image}
+                        alt={currentChapter.content.title}
+                        className="w-full rounded-xl h-64 sm:h-72 md:h-80 lg:h-96 object-cover"
+                      />
+                    </div> */}
                   <div className="prose prose-invert max-w-[95%] mx-auto">
+                    <center>
+                      <h1 className="md:text-5xl lg:text-5xl xl:text-4xl font-extrabold mb-7">
+                        {currentChapter.content.title}
+                      </h1>
+                    </center>
                     <main
                       className="leading-relaxed whitespace-pre-wrap"
                       dangerouslySetInnerHTML={{

@@ -15,18 +15,406 @@ import {
   Eye,
   Sigma,
   Signal,
+  GraduationCap,
+  Cpu,
+  Terminal,
+  BookOpen,
+  Brain,
+  Lightbulb,
+  Network,
+  Code,
+  Book,
+  Globe,
+  Server,
+  Lock,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import Content from "../../../routes/content";
-import RichTextEditor from "./RichTextEditor";
+import RichTextEditor from "./!RichTextEditor";
+import { useLocation } from "react-router-dom";
+
+// Icon options for lesson classification with enhanced dropdown styling
+const icons = [
+  { name: "Learning", icon: GraduationCap },
+  { name: "Tech", icon: Cpu },
+  { name: "Cybersecurity", icon: Shield },
+  { name: "Coding", icon: Terminal },
+  { name: "Knowledge", icon: BookOpen },
+  { name: "Brain", icon: Brain },
+  { name: "Ideas", icon: Lightbulb },
+  { name: "Networks", icon: Network },
+  { name: "Code", icon: Code },
+  { name: "Books", icon: Book },
+  { name: "Web", icon: Globe },
+  { name: "Server", icon: Server },
+  { name: "Security", icon: Lock },
+];
 
 // Create a context for the focused section
 const FocusedSectionContext = createContext();
-import Placeholder from "./Placeholder.json";
+
 // Initial placeholder data matching the JSON structure
+import Placeholder from "./Placeholder.json";
 
-const AdminEditor = (isEditing = false, OldData) => {
+// Define backend URL from environment variables
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+/**
+ * Enhanced Icon Dropdown Component with beautiful animations
+ * Styled similar to the AddCourse component dropdown
+ */
+const IconDropdown = ({ selectedIcon, onIconSelect, onFocus }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleIconSelect = (icon) => {
+    onIconSelect(icon.name);
+    setIsOpen(false);
+  };
+
+  const selectedIconData =
+    icons.find((icon) => icon.name === selectedIcon) || icons[0];
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => {
+          setIsOpen(!isOpen);
+          onFocus && onFocus();
+        }}
+        className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10 flex items-center justify-between hover:bg-cyan-300/20"
+      >
+        <div className="flex items-center gap-3">
+          <selectedIconData.icon className="w-5 h-5 text-cyan-400" />
+          <span>{selectedIconData.name}</span>
+        </div>
+        {isOpen ? (
+          <ChevronUp className="w-4 h-4 text-cyan-400" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-cyan-400" />
+        )}
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.15, ease: "easeInOut" }}
+            className="absolute top-full left-0 right-0 z-50 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl shadow-cyan-500/20 max-h-60 overflow-y-auto"
+          >
+            <div className="p-1 space-y-1">
+              {icons.map((icon, index) => (
+                <motion.button
+                  key={icon.name}
+                  type="button"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: index * 0.03 }}
+                  onClick={() => handleIconSelect(icon)}
+                  className={`w-full flex items-center gap-2 text-cyan-300 hover:bg-gray-700 px-2 py-1 rounded transition-all ${
+                    selectedIcon === icon.name
+                      ? "bg-cyan-500/20 border border-cyan-500/50"
+                      : ""
+                  }`}
+                >
+                  <icon.icon className="w-4 h-4" />
+                  <span className="text-sm">{icon.name}</span>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/**
+ * Enhanced Classification Dropdown Component
+ * Styled with the same beautiful animations as the icon dropdown
+ */
+const ClassificationDropdown = ({
+  classifications,
+  selectedId,
+  onSelect,
+  onFocus,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelect = (classification) => {
+    onSelect(classification._id);
+    setIsOpen(false);
+  };
+
+  const selectedClassification = classifications.find(
+    (c) => c._id === selectedId
+  );
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => {
+          setIsOpen(!isOpen);
+          onFocus && onFocus();
+        }}
+        className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10 flex items-center justify-between hover:bg-cyan-300/20"
+      >
+        <span>
+          {selectedClassification
+            ? selectedClassification.title
+            : "Select a classification"}
+        </span>
+        {isOpen ? (
+          <ChevronUp className="w-4 h-4 text-cyan-400" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-cyan-400" />
+        )}
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.15, ease: "easeInOut" }}
+            className="absolute top-full left-0 right-0 z-50 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl shadow-cyan-500/20 max-h-60 overflow-y-auto"
+          >
+            <div className="p-1 space-y-1">
+              {classifications.map((classification, index) => (
+                <motion.button
+                  key={classification._id}
+                  type="button"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: index * 0.03 }}
+                  onClick={() => handleSelect(classification)}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-all font-mono text-sm ${
+                    selectedId === classification._id
+                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50"
+                      : "text-gray-300 hover:bg-gray-700/50 hover:text-cyan-300"
+                  }`}
+                >
+                  {classification.title}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/**
+ * Enhanced Question Type Dropdown Component
+ * Styled with the same beautiful animations
+ */
+const QuestionTypeDropdown = ({ selectedType, onSelect, onFocus }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const questionTypes = [
+    { value: "text", label: "Text Answer" },
+    { value: "multiple-choice", label: "Multiple Choice" },
+    { value: "multiple-select", label: "Multiple Select" },
+  ];
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelect = (type) => {
+    onSelect(type.value);
+    setIsOpen(false);
+  };
+
+  const selectedTypeData =
+    questionTypes.find((type) => type.value === selectedType) ||
+    questionTypes[0];
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => {
+          setIsOpen(!isOpen);
+          onFocus && onFocus();
+        }}
+        className="w-full bg-gray-700/50 rounded-lg p-2 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono flex items-center justify-between hover:bg-cyan-300/20"
+      >
+        <span>{selectedTypeData.label}</span>
+        {isOpen ? (
+          <ChevronUp className="w-4 h-4 text-cyan-400" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-cyan-400" />
+        )}
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.15, ease: "easeInOut" }}
+            className="absolute top-full left-0 right-0 z-50 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl shadow-cyan-500/20"
+          >
+            <div className="p-1 space-y-1">
+              {questionTypes.map((type, index) => (
+                <motion.button
+                  key={type.value}
+                  type="button"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: index * 0.03 }}
+                  onClick={() => handleSelect(type)}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-all font-mono text-sm ${
+                    selectedType === type.value
+                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50"
+                      : "text-gray-300 hover:bg-gray-700/50 hover:text-cyan-300"
+                  }`}
+                >
+                  {type.label}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/**
+ * Enhanced Correct Answer Dropdown Component for Multiple Choice Questions
+ */
+const CorrectAnswerDropdown = ({
+  options,
+  selectedAnswer,
+  onSelect,
+  onFocus,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelect = (option) => {
+    onSelect(option);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => {
+          setIsOpen(!isOpen);
+          onFocus && onFocus();
+        }}
+        className="w-full bg-gray-700/50 rounded-lg p-2 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono flex items-center justify-between hover:bg-cyan-300/20"
+      >
+        <span>{selectedAnswer || "Select correct answer"}</span>
+        {isOpen ? (
+          <ChevronUp className="w-4 h-4 text-cyan-400" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-cyan-400" />
+        )}
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.15, ease: "easeInOut" }}
+            className="absolute top-full left-0 right-0 z-50 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl shadow-cyan-500/20 max-h-40 overflow-y-auto"
+          >
+            <div className="p-1 space-y-1">
+              {options?.map((option, index) => (
+                <motion.button
+                  key={index}
+                  type="button"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: index * 0.03 }}
+                  onClick={() => handleSelect(option)}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-all font-mono text-sm ${
+                    selectedAnswer === option
+                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50"
+                      : "text-gray-300 hover:bg-gray-700/50 hover:text-cyan-300"
+                  }`}
+                >
+                  {option}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+//
+const AdminEditor = ({ isEditing = false, OldData }) => {
   const initialData = isEditing && OldData ? OldData : Placeholder;
-
+  const location = useLocation();
+  const initialClassificationId = location.state?.ClassificationId || null;
+  const [ClassificationId, setClassificationId] = useState(
+    initialClassificationId
+  );
   const [selectedChapterId, setSelectedChapterId] = useState(1);
   const [chapters, setChapters] = useState([]);
   const [editingChapter, setEditingChapter] = useState(null);
@@ -34,11 +422,60 @@ const AdminEditor = (isEditing = false, OldData) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [newObjective, setNewObjective] = useState("");
   const [focusedSection, setFocusedSection] = useState(null);
+  const retryTimeoutRef = useRef(null);
 
   const sidePreviewRef = useRef(null);
   const fullPreviewRef = useRef(null);
   const objectivesContainerRef = useRef(null);
   const questionsContainerRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  //--------------FETCHED DATA-----------------------------
+  const [ClassificationsData, setClassicationsData] = useState();
+  const [LessonNum, setLessonNum] = useState(1);
+  const [minLessonNum, setMinLessonNum] = useState(1);
+
+  //-----------Fetching Functions to get the needed datas
+  useEffect(() => {
+    const FetchClassifcations = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`${BACKEND_URL}/classification/`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch courses");
+        }
+        const { data } = await response.json();
+        setClassicationsData(data);
+      } catch (err) {
+        console.error("Error fetching courses:", err);
+        // Schedule an auto-retry after 5 seconds
+        retryTimeoutRef.current = setTimeout(() => {
+          loadCourses();
+        }, 5000);
+      }
+    };
+
+    FetchClassifcations();
+  }, []);
+  console.log(ClassificationId);
+
+  useEffect(() => {
+    if (!ClassificationsData) return; // wait for data
+
+    const selected = ClassificationsData.Classications.find(
+      (c) => c._id === ClassificationId
+    );
+
+    if (selected) {
+      const nextLessonNum = selected.lessonCount + 1;
+      setClassificationId(selected._id);
+      setMinLessonNum(nextLessonNum);
+      setFormData((prev) => ({
+        ...prev,
+        lessonNum: nextLessonNum,
+      }));
+    }
+  }, [ClassificationsData, ClassificationId]);
 
   useEffect(() => {
     if (editingChapter) {
@@ -235,7 +672,7 @@ const AdminEditor = (isEditing = false, OldData) => {
     <FocusedSectionContext.Provider
       value={{ focusedSection, setFocusedSection }}
     >
-      <div className="bg-gradient-to-br from-gray-900 via-black mt-23 to-gray-900 min-h-screen p-5">
+      <div className="bg-gradient-to-br from-black via-gray-900 to-black mt-23 min-h-screen p-5">
         <section className=" lg:mt-0 xl:-ml-20 lg:max-w-[45vw] xl:max-w-[100vw]">
           <div className="max-w-7xl mx-auto ">
             <div className="text-left mb-8">
@@ -261,18 +698,20 @@ const AdminEditor = (isEditing = false, OldData) => {
                     </h3>
                     <div>
                       <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
-                        CLASSIFICATION ID
+                        CLASSIFICATION
                       </label>
-                      <input
-                        type="text"
-                        className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
-                        value={formData.classificationId}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            classificationId: e.target.value,
-                          })
+                      <ClassificationDropdown
+                        classifications={
+                          ClassificationsData?.Classications || []
                         }
+                        selectedId={ClassificationId}
+                        onSelect={(selectedId) => {
+                          setClassificationId(selectedId);
+                          setFormData((prev) => ({
+                            ...prev,
+                            classificationId: selectedId,
+                          }));
+                        }}
                         onFocus={() => setFocusedSection("classificationId")}
                       />
                     </div>
@@ -283,13 +722,17 @@ const AdminEditor = (isEditing = false, OldData) => {
                       <input
                         type="number"
                         className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
-                        value={formData.lessonNum}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            lessonNum: parseInt(e.target.value) || 1,
-                          })
-                        }
+                        value={formData.lessonNum || minLessonNum}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value);
+                          if (value >= minLessonNum) {
+                            setFormData((prev) => ({
+                              ...prev,
+                              lessonNum: value,
+                            }));
+                          }
+                        }}
+                        min={minLessonNum}
                         required
                         onFocus={() => setFocusedSection("lessonNum")}
                       />
@@ -313,43 +756,20 @@ const AdminEditor = (isEditing = false, OldData) => {
                       <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
                         ICON
                       </label>
-                      <input
-                        type="text"
-                        className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
-                        value={formData.icon}
-                        onChange={(e) =>
-                          setFormData({ ...formData, icon: e.target.value })
+                      <IconDropdown
+                        selectedIcon={formData.icon}
+                        onIconSelect={(iconName) =>
+                          setFormData({ ...formData, icon: iconName })
                         }
-                        placeholder="e.g., Shield, Terminal, Lock"
                         onFocus={() => setFocusedSection("icon")}
                       />
                     </div>
                   </div>
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-cyan-400 border-b border-cyan-500/30 pb-2 font-mono">
-                      CONTENT DETAILS
+                      HEADER DETAILS
                     </h3>
-                    <div>
-                      <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
-                        CONTENT TITLE
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
-                        value={formData.content.title}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            content: {
-                              ...formData.content,
-                              title: e.target.value,
-                            },
-                          })
-                        }
-                        required
-                        onFocus={() => setFocusedSection("contentTitle")}
-                      />
-                    </div>
+
                     <div>
                       <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
                         AUTHOR
@@ -375,25 +795,56 @@ const AdminEditor = (isEditing = false, OldData) => {
                       <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
                         DURATION
                       </label>
-                      <input
-                        type="text"
-                        className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
-                        value={formData.content.duration}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            content: {
-                              ...formData.content,
-                              duration: e.target.value,
-                            },
-                          })
-                        }
-                        placeholder="e.g., 30-minutes"
-                        required
-                        onFocus={() => setFocusedSection("contentDuration")}
-                      />
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          min={1}
+                          className="w-1/2 bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
+                          value={formData.content.duration.split("-")[0] || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              content: {
+                                ...formData.content,
+                                duration: `${e.target.value}-${
+                                  formData.content.duration.split("-")[1] ||
+                                  "minutes"
+                                }`,
+                              },
+                            })
+                          }
+                          placeholder="Enter number"
+                          onFocus={() => setFocusedSection("contentDuration")}
+                          required
+                        />
+
+                        <select
+                          className="w-1/2 bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
+                          value={
+                            formData.content.duration.split("-")[1] || "minutes"
+                          }
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              content: {
+                                ...formData.content,
+                                duration: `${
+                                  formData.content.duration.split("-")[0] ||
+                                  "30"
+                                }-${e.target.value}`,
+                              },
+                            })
+                          }
+                          onFocus={() => setFocusedSection("contentDuration")}
+                          required
+                        >
+                          <option value="minutes">Minutes</option>
+                          <option value="hours">Hours</option>
+                        </select>
+                      </div>
                     </div>
-                    <div>
+
+                    {/* <div>
                       <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
                         IMAGE URL
                       </label>
@@ -413,7 +864,7 @@ const AdminEditor = (isEditing = false, OldData) => {
                         required
                         onFocus={() => setFocusedSection("contentImage")}
                       />
-                    </div>
+                    </div> */}
                   </div>
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-cyan-400 border-b border-cyan-500/30 pb-2 font-mono">
@@ -437,7 +888,7 @@ const AdminEditor = (isEditing = false, OldData) => {
                         onFocus={() => setFocusedSection("taskTitle")}
                       />
                     </div>
-                    <div>
+                    {/* <div>
                       <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
                         DESCRIPTION
                       </label>
@@ -459,6 +910,28 @@ const AdminEditor = (isEditing = false, OldData) => {
                         required
                         rows="3"
                         onFocus={() => setFocusedSection("taskDescription")}
+                      />
+                    </div> */}
+                    <div>
+                      <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
+                        CONTENT TITLE
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
+                        value={formData.content.title}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            content: {
+                              ...formData.content,
+                              title: e.target.value,
+                            },
+                          })
+                        }
+                        required
+                        onFocus={() => setFocusedSection("mainContent")}
+                        onBlur={() => setFocusedSection(null)}
                       />
                     </div>
                     <div>
@@ -579,14 +1052,6 @@ const AdminEditor = (isEditing = false, OldData) => {
                       <h3 className="text-lg font-semibold text-cyan-400 border-b border-cyan-500/30 pb-2 font-mono">
                         QUESTIONS
                       </h3>
-                      <button
-                        type="button"
-                        onClick={addQuestion}
-                        className="px-4 py-2 bg-green-500/20 border border-green-500/50 rounded-lg hover:bg-green-500/30 text-green-400 transition-all flex items-center gap-2 shadow-lg shadow-green-500/10"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span className="font-mono">ADD QUESTION</span>
-                      </button>
                     </div>
                     {formData.tasks.content.questions.map(
                       (question, qIndex) => (
@@ -623,21 +1088,13 @@ const AdminEditor = (isEditing = false, OldData) => {
                             <label className="block text-cyan-300 mb-1 font-mono text-sm">
                               QUESTION TYPE
                             </label>
-                            <select
-                              className="w-full bg-gray-700/50 rounded-lg p-2 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono"
-                              value={question.type}
-                              onChange={(e) =>
-                                updateQuestion(qIndex, "type", e.target.value)
+                            <QuestionTypeDropdown
+                              selectedType={question.type}
+                              onSelect={(type) =>
+                                updateQuestion(qIndex, "type", type)
                               }
-                            >
-                              <option value="text">Text Answer</option>
-                              <option value="multiple-choice">
-                                Multiple Choice
-                              </option>
-                              <option value="multiple-select">
-                                Multiple Select
-                              </option>
-                            </select>
+                              onFocus={() => setFocusedSection("questions")}
+                            />
                           </div>
                           {(question.type === "multiple-choice" ||
                             question.type === "multiple-select") && (
@@ -689,26 +1146,18 @@ const AdminEditor = (isEditing = false, OldData) => {
                                 CORRECT ANSWER
                               </label>
                               {question.type === "multiple-choice" ? (
-                                <select
-                                  className="w-full bg-gray-700/50 rounded-lg p-2 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono"
-                                  value={question.correctAnswer}
-                                  onChange={(e) =>
+                                <CorrectAnswerDropdown
+                                  options={question.options}
+                                  selectedAnswer={question.correctAnswer}
+                                  onSelect={(answer) =>
                                     updateQuestion(
                                       qIndex,
                                       "correctAnswer",
-                                      e.target.value
+                                      answer
                                     )
                                   }
-                                >
-                                  <option value="">
-                                    Select correct answer
-                                  </option>
-                                  {question.options?.map((option, oIndex) => (
-                                    <option key={oIndex} value={option}>
-                                      {option}
-                                    </option>
-                                  ))}
-                                </select>
+                                  onFocus={() => setFocusedSection("questions")}
+                                />
                               ) : (
                                 <textarea
                                   className="w-full bg-gray-700/50 rounded-lg p-2 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono"
@@ -791,13 +1240,12 @@ const AdminEditor = (isEditing = false, OldData) => {
                   </div>
                   <div className="flex justify-end gap-4">
                     <button
-                      type="submit"
-                      className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg text-white font-medium transition-all font-mono shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30"
+                      type="button"
+                      onClick={addQuestion}
+                      className="px-4 py-2 bg-green-500/20 border border-green-500/50 rounded-lg hover:bg-green-500/30 text-green-400 transition-all flex items-center gap-2 shadow-lg shadow-green-500/10"
                     >
-                      <span className="flex items-center gap-2">
-                        <Save className="w-4 h-4" />
-                        {editingChapter ? "UPDATE CHAPTER" : "SAVE CHAPTER"}
-                      </span>
+                      <Plus className="w-4 h-4" />
+                      <span className="font-mono">ADD QUESTION</span>
                     </button>
                   </div>
                 </form>
@@ -807,17 +1255,29 @@ const AdminEditor = (isEditing = false, OldData) => {
             <div className="fixed top-18 right-5 bg-gray-900/50 max-h-[85vh] max-w-[50vw] rounded-xl p-6 backdrop-blur-sm border mt-8 border-purple-500/30 shadow-2xl shadow-purple-500/10">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-3">
-                  <Signal className="w-6 h-6 text-purple-400" />
+                  <button
+                    onClick={() => setIsPreviewOpen(true)}
+                    className="p-2 bg-purple-500/20 border border-purple-500/50 rounded-lg hover:bg-purple-500/30 text-purple-400 transition-all shadow-lg shadow-purple-500/10"
+                  >
+                    <Maximize2 className="w-5 h-5" />
+                  </button>{" "}
                   <h2 className="text-xl text-purple-300 font-semibold font-mono">
                     LIVE PREVIEW
                   </h2>
                 </div>
-                <button
-                  onClick={() => setIsPreviewOpen(true)}
-                  className="p-2 bg-purple-500/20 border border-purple-500/50 rounded-lg hover:bg-purple-500/30 text-purple-400 transition-all shadow-lg shadow-purple-500/10"
-                >
-                  <Maximize2 className="w-5 h-5" />
-                </button>
+                <section className="flex items-center gap-3">
+                  <motion.button
+                    type="submit"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-6 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg text-purple-200 font-medium transition-all font-mono shadow-lg shadow-purple-500/10 hover:bg-purple-500/30 hover:shadow-purple-500/20"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Save className="w-4 h-4" />
+                      {editingChapter ? "UPDATE CHAPTER" : "SAVE CHAPTER"}
+                    </span>
+                  </motion.button>
+                </section>
               </div>
               <div
                 ref={sidePreviewRef}
@@ -835,7 +1295,12 @@ const AdminEditor = (isEditing = false, OldData) => {
           </div>
 
           {isPreviewOpen && (
-            <div className="fixed inset-0 bg-black/95 z-50 p-8 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/95 z-50 p-8 overflow-y-auto"
+            >
               <button
                 onClick={() => setIsPreviewOpen(false)}
                 className="absolute top-4 right-4 p-2 hover:bg-gray-700/50 rounded-lg text-white z-10 transition-all"
@@ -851,7 +1316,7 @@ const AdminEditor = (isEditing = false, OldData) => {
                   focusedSection={focusedSection}
                 />
               </div>
-            </div>
+            </motion.div>
           )}
         </section>
       </div>

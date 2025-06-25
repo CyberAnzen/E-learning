@@ -19,15 +19,15 @@ const Footer = () => {
   const location = useLocation();
 
   const [showCyber, setShowCyber] = useState(true);
-  // const menublacklist = ["/lesson/:Classificatiin/create"];
-  // const ismenuBlacklisted = menublacklist.some((route) =>
-  //   location.pathname.startsWith(route)
-  // );
-  const blacklistPatterns = [/^\/lesson\/[^/]+\/create$/];
-
-  const ismenuBlacklisted = blacklistPatterns.some((pattern) =>
-    pattern.test(location.pathname)
+  const menublacklist = ["/lesson/create"];
+  const ismenuBlacklisted = menublacklist.some((route) =>
+    location.pathname.startsWith(route)
   );
+  // const blacklistPatterns = ["lesson/create"];
+
+  // const ismenuBlacklisted = blacklistPatterns.some((pattern) =>
+  //   pattern.test(location.pathname)
+  // );
 
   const scrollToTop = () => {
     window.scrollTo({

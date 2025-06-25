@@ -90,7 +90,11 @@ const SidebarDesktop = ({
             ))}
             {isAdmin && (
               <section
-                onClick={() => Navigate(`/lesson/${ClassificationId}/create`)}
+                onClick={() => {
+                  Navigate("/lesson/create", {
+                    state: { ClassificationId: ClassificationId },
+                  });
+                }}
                 onMouseEnter={() => setHover(true)}
                 onMouseOut={() => setHover(false)}
                 className={`mx-2 mb-2 p-6 rounded-lg transition-all cursor-pointer backdrop-blur-sm flex justify-center py-9
