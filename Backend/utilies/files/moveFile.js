@@ -1,8 +1,17 @@
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const path = require('path');
 
 async function moveFile(fileName, oldPath,newPath) {
   try {
+    if (!fileName || !oldPath || !newPath) {
+        return {
+            success: false,
+            error: 'File name, old path, and new path are required.'}
+    }
+    if (!fsSync.existsSync(path.join(process.cwd(), newPath))) {
+        fsSync.mkdirSync(path.join(process.cwd(), newPath), { recursive: true });
+    }
     //console.log('Renaming file:', oldFileName, 'to', newFileName, 'in', filePath);
     const oldFullPath= path.join(process.cwd(),oldPath, fileName);
     const newFullPath = path.join(process.cwd(), newPath, fileName);
