@@ -7,10 +7,10 @@ exports.getallClassification = async (req, res) => {
     const classifications = await ClassificationModel.find().lean();
 
     // 2. Process each classification: add lesson count & next lessonNum
-    const results = await Promise.all(
+    const Classications = await Promise.all(
       classifications.map(async (cls) => {
         const lessonCount = await ClassificationModel.countLessons(cls._id);
-        const nextLessonNum = await Lesson.getNextLessonNumber(cls._id);
+        // const nextLessonNum = await Lesson.getNextLessonNumber(cls._id);
 
         delete cls.__v;
         delete cls.createdAt;
@@ -19,13 +19,13 @@ exports.getallClassification = async (req, res) => {
         return {
           ...cls,
           lessonCount,
-          nextLessonNum,
+          // nextLessonNum,
         };
       })
     );
 
     // 3. Return everything
-    res.status(200).json({ data: { overallProgress: 50, results } });
+    res.status(200).json({ data: { overallProgress: 50, Classications } });
   } catch (error) {
     console.error("Failed to fetch classifications with counts:", error);
     res

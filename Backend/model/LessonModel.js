@@ -53,18 +53,18 @@ LessonModel.statics.LessonNumberValidation = function (
   }).then((doc) => !!doc);
 };
 
-//-----------Static Function to get the Next Lesson Number
+// //-----------Static Function to get the Next Lesson Number
 
-LessonModel.statics.getNextLessonNumber = async function (classificationId) {
-  const lastLesson = await this.findOne({
-    classificationId: new mongoose.Types.ObjectId(classificationId),
-  })
-    .sort({ lessonNum: -1 }) // highest lessonNum first
-    .select("lessonNum")
-    .lean();
+// LessonModel.statics.getNextLessonNumber = async function (classificationId) {
+//   const lastLesson = await this.findOne({
+//     classificationId: new mongoose.Types.ObjectId(classificationId),
+//   })
+//     .sort({ lessonNum: -1 }) // highest lessonNum first
+//     .select("lessonNum")
+//     .lean();
 
-  return lastLesson ? lastLesson.lessonNum + 1 : 1;
-};
+//   return lastLesson ? lastLesson.lessonNum + 1 : 1;
+// };
 
 const Lesson = mongoose.model("Lessons", LessonModel);
 
