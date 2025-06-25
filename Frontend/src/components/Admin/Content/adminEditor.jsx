@@ -236,8 +236,8 @@ const AdminEditor = (isEditing = false, OldData) => {
       value={{ focusedSection, setFocusedSection }}
     >
       <div className="bg-gradient-to-br from-gray-900 via-black mt-23 to-gray-900 min-h-screen p-5">
-        <section className="-ml-30">
-          <div className="max-w-7xl mx-auto">
+        <section className=" lg:mt-0 xl:-ml-20 lg:max-w-[45vw] xl:max-w-[100vw]">
+          <div className="max-w-7xl mx-auto ">
             <div className="text-left mb-8">
               <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">
                 CYBER COURSE EDITOR
