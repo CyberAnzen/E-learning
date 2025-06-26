@@ -22,7 +22,7 @@ initializeCaches();
 
 // Middleware to handle CORS
 const whitelist = [
-  "https://cyberanzen.netlify.app/", // react app url
+  "https://cyberanzen.netlify.app", // react app url
   // Add other allowed origins here, e.g. 'https://example.com'
 ];
 
