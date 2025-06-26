@@ -118,7 +118,7 @@ const ProfileDashboard = () => {
 
         {/* Resume */}
         <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
-          <h3 className="font-bold mb-2">My Resume</h3>
+          <h3 className="font-bold mb-2 ">My Resume</h3>
           {/* Dynamic label */}
           {!myResume ? (
             <p className="text-sm text-gray-300 ">Add your resume here</p>
@@ -129,7 +129,7 @@ const ProfileDashboard = () => {
           {/* Show Add Button Only If No Resume */}
           {!myResume && (
             <button
-              className="bg-blue-900 hover:bg-cyan-600/80 px-3 py-1 text-sm rounded cursor-pointer"
+              className="bg-cyan-800 hover:bg-cyan-600 px-3 py-1 text-sm rounded cursor-pointer"
               onClick={handleImageClick}
             >
               + Add Resume
