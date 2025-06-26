@@ -25,8 +25,10 @@ exports.createLesson = async (req, res) => {
         message: "Lesson number already exists in this classification.",
       });
     }
-    const lesson = await LessonModel.create(req.body);
-
+    const lesson = await LessonModel.create({
+      images_URL: req.body.addedImages,
+      ...req.body,
+    });
     if (!lesson) {
       return res.status(500).json({ message: "Failed to create lesson" });
     }

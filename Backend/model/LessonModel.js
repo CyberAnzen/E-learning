@@ -28,6 +28,7 @@ const LessonModel = new mongoose.Schema(
     },
     lessonNum: { type: Number, required: true },
     lesson: { type: String, required: true, unique: true },
+    images_URL: [{ type: String }],
     icon: {
       type: String,
       enum: icons,
