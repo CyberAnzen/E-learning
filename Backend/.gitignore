@@ -9,3 +9,13 @@ Thumbs.db
 logs
 *.log
 .env
+
+# event images
+uploads/events/images/**
+uploads/events/temp/**
+
+#public images
+public/** 
+
+#temporary files
+temp/uploads/*/**

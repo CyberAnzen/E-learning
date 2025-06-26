@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
+
 import {
   Clock,
   User,
@@ -15,380 +17,41 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import CollapsibleSection from "../components/content/colapsable";
 import FullScreenReader from "../components/content/FullscreenReader";
-import FullscreenAnswerPage from "../components/content/FullScreenAnswerPage";
+import QuestionInterface from "../components/content/AnswerPage/QuestionInterface";
 import TerminalDesign from "../components/content/Terminal";
 import SubmitButton from "../components/content/SubmitButton";
 import ContentHeader from "../components/content/ContentHeader";
 import ChapterProgress from "../components/content/ChapterProgress";
 import "../content.css";
+import AdminEditor from "../components/Admin/Content/adminEditor";
+import { AppContext, AppContextProvider } from "../context/AppContext";
+import AdminButtons from "../components/Admin/Content/AdminButtons";
+import DeleteModal from "../components/Admin/layout/DeleteModal";
+// Define backend URL from environment variables
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-// ────────────────────────────────────────────────────────────────────────────
-// Dummy "full" data map (read‐only) for looking up by ID
-// ────────────────────────────────────────────────────────────────────────────
-const chapterDetailsById = {
-  1: {
-    id: 1,
-    chapter: "Introduction to Cybersecurity",
-    icon: null,
-    completed: true,
-    content: {
-      title: "Introduction to Cybersecurity",
-      author: "Dr. Sarah Chen",
-      duration: "45 minutes",
-      image:
-        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=2070",
-    },
-    tasks: [
-      {
-        id: "task-1",
-        title: "Understanding Cyber Threats",
-        completed: false,
-        content: {
-          description: `Learn about the fundamental concepts of cybersecurity and common threats in today's digital landscape.`,
-          objectives: [
-            "Understand the basics of cybersecurity",
-            "Identify common cyber threats",
-            "Learn basic security terminology",
-          ],
-          mainContent: `Before teaching you the technical hands-on aspects of ethical hacking, you'll need to understand more about what a penetration tester's job responsibilities are and what processes are followed in performing pentests.
+const Content = ({
+  selectedChapterId,
+  isPreview = false,
+  PreviewData,
+  PreviewScreen = false,
+  ClassificationId,
+  focusedSection,
+}) => {
+  const { id } = useParams(); // Get chapter ID from URL
+  //------AppContext Variable------------------------
+  const { Admin } = useContext(AppContext);
+  const { LearnAdd, setLearnAdd } = useContext(AppContext);
+  const { classificationId, setClassificationId } = useContext(AppContext); //globally storing the Classification ID
 
-Cybersecurity is relevant to all people in the modern world, including:
-- Strong password policies to protect emails
-- Business protection of devices and data
-- Personal information security
-- Network security
+  //------Delete Modal States-----------------------------------
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-According to Security Magazine, a cybersecurity industry magazine, there are over 2,200 cyber attacks every day - 1 attack every 39 seconds.`,
-          questions: [
-            {
-              id: "q1",
-              text: "What is the primary goal of a penetration test?",
-              type: "text",
-              hint: "Think about the ethical aspects and defensive nature of the activity",
-            },
-            {
-              id: "q2",
-              text: "How many cyber attacks occur daily according to Security Magazine?",
-              type: "multiple-choice",
-              options: [
-                "Over 1,000",
-                "Over 2,200",
-                "Over 5,000",
-                "Over 10,000",
-              ],
-              correctAnswer: "Over 2,200",
-              hint: "The number is mentioned in the content - over 2,200",
-            },
-            {
-              id: "q3",
-              text: "Which of the following are key areas where cybersecurity is relevant? (Select all that apply)",
-              type: "multiple-select",
-              options: [
-                "Strong password policies to protect emails",
-                "Business protection of devices and data",
-                "Personal information security",
-                "Network security",
-                "Social media marketing",
-              ],
-              correctAnswers: [
-                "Strong password policies to protect emails",
-                "Business protection of devices and data",
-                "Personal information security",
-                "Network security",
-              ],
-              hint: "Look for the areas mentioned in the cybersecurity relevance section",
-            },
-          ],
-        },
-      },
-      {
-        id: "task-2",
-        title: "Basic Security Tools",
-        completed: false,
-        content: {
-          description:
-            "Introduction to essential security tools and their usage.",
-          objectives: [
-            "Learn about common security tools",
-            "Understand basic tool usage",
-            "Practice with sample scenarios",
-          ],
-          mainContent: `Security professionals use various tools to protect systems and networks. Common categories include:
-
-Network Scanning Tools:
-- Nmap: Network discovery and security auditing
-- Masscan: High-speed port scanner
-- Zmap: Internet-wide network scanner
-
-Vulnerability Assessment:
-- Nessus: Comprehensive vulnerability scanner
-- OpenVAS: Open-source vulnerability assessment
-- Qualys: Cloud-based security platform
-
-Web Application Testing:
-- Burp Suite: Web application security testing
-- OWASP ZAP: Web application security scanner
-- Nikto: Web server scanner`,
-          questions: [
-            {
-              id: "q4",
-              text: "Which tool is primarily used for network discovery and security auditing?",
-              type: "multiple-choice",
-              options: ["Burp Suite", "Nmap", "Nessus", "OWASP ZAP"],
-              correctAnswer: "Nmap",
-              hint: "Look for tools mentioned in the Network Scanning Tools section",
-            },
-            {
-              id: "q5",
-              text: "Name three essential security tools mentioned in the lesson and their primary purposes.",
-              type: "text",
-              hint: "Choose from any of the tools mentioned in the scanning, vulnerability assessment, or web application testing sections",
-            },
-          ],
-        },
-      },
-    ],
-  },
-
-  2: {
-    id: 2,
-    chapter: "Ethical Hacking Basics",
-    icon: null,
-    completed: false,
-    content: {
-      title: "Getting Started with Penetration Testing",
-      author: "Mark Rodriguez",
-      duration: "60 minutes",
-      image:
-        "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=2070",
-    },
-    tasks: [
-      {
-        id: "task-3",
-        title: "Penetration Testing Basics",
-        completed: false,
-        content: {
-          description:
-            "Explore the fundamentals of ethical hacking and penetration testing.",
-          objectives: ["Understand penetration testing basics"],
-          mainContent: `Penetration testing (or pentesting) is the practice of testing a computer system, network, or web application to find vulnerabilities that an attacker could exploit.
-
-Types of Hackers:
-- White Hat Hackers: Ethical hackers who help organizations improve security
-- Black Hat Hackers: Malicious hackers who exploit vulnerabilities for personal gain
-- Gray Hat Hackers: Fall between white and black hat, may find vulnerabilities without permission but don't exploit them maliciously
-
-Penetration Testing Phases:
-1. Planning and Reconnaissance
-2. Scanning and Enumeration  
-3. Gaining Access
-4. Maintaining Access
-5. Analysis and Reporting`,
-          questions: [
-            {
-              id: "q6",
-              text: "What is the difference between black hat and white hat hacking?",
-              type: "text",
-              hint: "Think about the intentions and ethics behind each type of hacking",
-            },
-            {
-              id: "q7",
-              text: "Which type of hacker helps organizations improve their security?",
-              type: "multiple-choice",
-              options: [
-                "Black Hat Hackers",
-                "White Hat Hackers",
-                "Gray Hat Hackers",
-                "Script Kiddies",
-              ],
-              correctAnswer: "White Hat Hackers",
-              hint: "Look for the type that works ethically to help organizations",
-            },
-          ],
-        },
-      },
-      {
-        id: "task-4",
-        title: "Reconnaissance Techniques",
-        completed: true,
-        content: {
-          description:
-            "Learn how to gather information about targets using passive and active reconnaissance.",
-          objectives: [
-            "Differentiate passive vs. active recon",
-            "Use `whois`, `nslookup`, `nmap` basics",
-          ],
-          mainContent: `Reconnaissance is the first phase of a penetration test. 
-
-Passive Reconnaissance:
-- Gathering public data from websites, social media, DNS records
-- Tools: whois, Google dorking, social media analysis
-- No direct interaction with target systems
-
-Active Reconnaissance:
-- Direct interaction with target systems
-- Tools: nmap, ping, traceroute
-- May be detected by target systems
-
-Common Tools:
-- whois: Domain registration information
-- nslookup: DNS lookup utility
-- nmap: Network mapping and port scanning`,
-          questions: [
-            {
-              id: "q8",
-              text: "Which of the following are passive reconnaissance techniques? (Select all that apply)",
-              type: "multiple-select",
-              options: [
-                "Google dorking",
-                "Port scanning with nmap",
-                "Whois lookups",
-                "Social media analysis",
-                "Ping sweeps",
-              ],
-              correctAnswers: [
-                "Google dorking",
-                "Whois lookups",
-                "Social media analysis",
-              ],
-              hint: "Passive techniques don't directly interact with target systems",
-            },
-            {
-              id: "q9",
-              text: "What nmap flag is commonly used to perform a TCP SYN scan?",
-              type: "multiple-choice",
-              options: ["-sS", "-sT", "-sU", "-sP"],
-              correctAnswer: "-sS",
-              hint: "Think about the SYN scan option in nmap",
-            },
-          ],
-        },
-      },
-    ],
-  },
-
-  3: {
-    id: 3,
-    chapter: "Network Defense Fundamentals",
-    icon: null,
-    completed: false,
-    content: {
-      title: "Firewall and IDS/IPS Overview",
-      author: "Alex Kim",
-      duration: "50 minutes",
-      image:
-        "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=2070",
-    },
-    tasks: [
-      {
-        id: "task-5",
-        title: "Configuring a Basic Firewall",
-        completed: false,
-        content: {
-          description:
-            "Understand firewall rules and how to configure a basic iptables or UFW setup.",
-          objectives: [
-            "Interpret firewall rule syntax",
-            "Set up a basic UFW policy",
-          ],
-          mainContent: `Firewalls filter network traffic based on predefined rules. In Linux, iptables or ufw are commonly used. UFW (Uncomplicated Firewall) is a simpler frontend for iptables.
-
-Common UFW Commands:
-- ufw enable: Enable the firewall
-- ufw allow 22: Allow SSH (port 22)
-- ufw allow 80: Allow HTTP (port 80)
-- ufw allow 443: Allow HTTPS (port 443)
-- ufw deny 23: Deny Telnet (port 23)
-- ufw status: Check firewall status
-
-Firewall Types:
-- Packet Filtering: Examines packets and allows/denies based on rules
-- Stateful Inspection: Tracks connection states
-- Application Layer: Inspects application-specific data`,
-          questions: [
-            {
-              id: "q10",
-              text: "What command enables UFW and allows SSH (port 22)?",
-              type: "text",
-              hint: "You need two commands: one to enable UFW and another to allow SSH",
-            },
-            {
-              id: "q11",
-              text: "Which type of firewall tracks connection states?",
-              type: "multiple-choice",
-              options: [
-                "Packet Filtering",
-                "Stateful Inspection",
-                "Application Layer",
-                "Network Address Translation",
-              ],
-              correctAnswer: "Stateful Inspection",
-              hint: "Look for the firewall type that monitors connection states",
-            },
-          ],
-        },
-      },
-      {
-        id: "task-6",
-        title: "Intro to IDS/IPS",
-        completed: false,
-        content: {
-          description:
-            "Learn what an Intrusion Detection System (IDS) and Intrusion Prevention System (IPS) do.",
-          objectives: [
-            "Define IDS vs. IPS",
-            "Give an example of a popular IDS tool",
-          ],
-          mainContent: `IDS (Intrusion Detection System) passively monitors traffic and alerts on suspicious activity. IPS (Intrusion Prevention System) actively blocks or mitigates threats in real-time.
-
-Popular IDS/IPS Tools:
-- Snort: Open-source network intrusion detection
-- Suricata: High-performance network IDS/IPS
-- OSSEC: Host-based intrusion detection
-- Fail2ban: Intrusion prevention for log files
-
-Key Differences:
-- IDS: Detection and alerting only
-- IPS: Detection, alerting, and active blocking
-- HIDS: Host-based monitoring
-- NIDS: Network-based monitoring`,
-          questions: [
-            {
-              id: "q12",
-              text: "What is the main difference between IDS and IPS?",
-              type: "multiple-choice",
-              options: [
-                "IDS is faster than IPS",
-                "IDS only detects and alerts, while IPS actively blocks threats",
-                "IPS is open-source, IDS is commercial",
-                "There is no difference",
-              ],
-              correctAnswer:
-                "IDS only detects and alerts, while IPS actively blocks threats",
-              hint: "Think about passive monitoring vs. active blocking",
-            },
-            {
-              id: "q13",
-              text: "Which of the following are popular IDS/IPS tools? (Select all that apply)",
-              type: "multiple-select",
-              options: ["Snort", "Suricata", "OSSEC", "Nmap", "Fail2ban"],
-              correctAnswers: ["Snort", "Suricata", "OSSEC", "Fail2ban"],
-              hint: "Look for tools mentioned in the Popular IDS/IPS Tools section",
-            },
-          ],
-        },
-      },
-    ],
-  },
-  // …Add more chapters as needed…
-};
-
-const Content = ({ selectedChapterId, isPreview = false }) => {
   // ─── State Variables ─────────────────────────────────────────────────────
   const [activeSection, setActiveSection] = useState(null);
   const [fullScreenSection, setFullScreenSection] = useState(null);
-  const [showFullscreenAnswerPage, setShowFullscreenAnswerPage] =
-    useState(false);
+  const [showQuestionInterface, setShowQuestionInterface] = useState(false);
   const [currentChapter, setCurrentChapter] = useState(null);
   const [currentTask, setCurrentTask] = useState(null);
   const [taskProgress, setTaskProgress] = useState(0);
@@ -400,43 +63,179 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
   );
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
-
-  // ─── NEW: Track if Objectives or Content have been opened ───────────────
   const [objectivesOpened, setObjectivesOpened] = useState(false);
   const [contentOpened, setContentOpened] = useState(false);
-
-  // NEW: Overall progress state
   const [overallProgress, setOverallProgress] = useState({
     percentage: 0,
     completed: 0,
     total: 0,
   });
-
-  // ─── EFFECT: When selectedChapterId changes, look up full data ───────────
   useEffect(() => {
-    if (selectedChapterId == null) return;
+    if (selectedChapterId == null) setselectedChapterId();
+  }, []);
 
-    const fullChapter = chapterDetailsById[selectedChapterId] || null;
-    setCurrentChapter(fullChapter);
+  // Function to transform API response to match expected structure
+  const transformLessonData = (data) => {
+    // Ensure tasks is always an array
+    const tasksArray = Array.isArray(data.tasks) ? data.tasks : [data.tasks];
+    return {
+      id: data._id,
+      classsificationID: data.classificationId,
+      chapter: data.lesson,
+      icon: data.icon || "Shield",
+      completed: false,
+      content: data.content,
+      tasks: tasksArray.map((task, index) => ({
+        id: task.id || task._id,
+        title: task.title || `Task ${index + 1}`,
+        completed: task.completed || false,
+        content: {
+          description: task.content.description,
+          objectives: task.content.objectives,
+          mainContent:
+            task.content.mainContent || task.content.maincontent || "",
+          questions: Array.isArray(task.content.questions)
+            ? task.content.questions.map((q) => ({
+                ...q,
+                id: q.id || q._id,
+              }))
+            : [],
+        },
+      })),
+    };
+  };
 
-    if (fullChapter && fullChapter.tasks.length > 0) {
-      setCurrentTask(fullChapter.tasks[0]);
-    } else {
-      setCurrentTask(null);
+  // Handle delete confirmation
+  const handleDelete = async () => {
+    setIsDeleting(true);
+
+    try {
+      const response = await fetch(
+        `${BACKEND_URL}/lesson/delete/${selectedChapterId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.message || "Failed to delete lesson");
+      }
+
+      // Close modal and trigger refresh
+      setShowDeleteConfirm(false);
+      setIsDeleting(false);
+      handleRetry();
+    } catch (error) {
+      console.error("Delete API Error:", error.message);
+      setIsDeleting(false);
+      // You might want to show an error message to the user
     }
+  };
+  // ─── EFFECT: Fetch lesson data when selectedChapterId changes ───────────
+  // Create reusable UI reset function
+  const resetUIState = () => {
+    if (!isPreview) {
+      setActiveSection(null);
+      setFullScreenSection(null);
+      setShowQuestionInterface(false);
+      setTaskProgress(0);
+      setSubmitted(false);
+      setAnswers({});
+      setCurrentStep(0);
+      setCompletedSteps([]);
+      setObjectivesOpened(false);
+      setContentOpened(false);
+    }
+  };
+  //-----------EFFECT: for the Preview in the Admin panel to force open sections in fullscreen based on focus field
+  // In Content.jsx
+  useEffect(() => {
+    if (Admin && isPreview) {
+      if (focusedSection === null) {
+        setFullScreenSection(null);
+        setActiveSection(null);
+        setShowQuestionInterface(false);
+      } else if (focusedSection === "mainContent") {
+        setFullScreenSection("content");
+      } else if (focusedSection === "questions") {
+        setShowQuestionInterface(true);
+      } else if (focusedSection === "objectives") {
+        setActiveSection("objectives");
+      }
+    }
+  }, [focusedSection]);
 
-    // Reset UI state on chapter change
-    setActiveSection(null);
-    setFullScreenSection(null);
-    setShowFullscreenAnswerPage(false);
-    setTaskProgress(0);
-    setSubmitted(false);
-    setAnswers({});
-    setCurrentStep(0);
-    setCompletedSteps([]);
-    setObjectivesOpened(false);
-    setContentOpened(false);
-  }, [selectedChapterId]);
+  // ─── EFFECT: Fetch lesson data when dependencies change ───────────
+  useEffect(() => {
+    if (selectedChapterId == null && !isPreview) return;
+
+    let isMounted = true;
+
+    const fetchOrProcessData = async () => {
+      try {
+        if (isPreview && PreviewData) {
+          // PREVIEW MODE: Use directly passed preview data
+          const fullChapter = transformLessonData(PreviewData);
+          if (isMounted) {
+            setCurrentChapter(fullChapter);
+            if (fullChapter.tasks.length > 0) {
+              setCurrentTask(fullChapter.tasks[0]);
+            } else {
+              setCurrentTask(null);
+            }
+            resetUIState();
+          }
+        } else if (selectedChapterId && ClassificationId) {
+          // LIVE MODE: Fetch data from backend
+          const response = await fetch(
+            `${BACKEND_URL}/lesson/${ClassificationId}/${selectedChapterId}`
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch lesson data");
+          }
+
+          const { data } = await response.json();
+          if (isMounted) {
+            // Update global classification ID if needed
+            if (classificationId !== selectedChapterId) {
+              setClassificationId(selectedChapterId);
+            }
+
+            const fullChapter = transformLessonData(data);
+            setCurrentChapter(fullChapter);
+            if (fullChapter.tasks.length > 0) {
+              setCurrentTask(fullChapter.tasks[0]);
+            } else {
+              setCurrentTask(null);
+            }
+            resetUIState();
+          }
+        }
+      } catch (error) {
+        console.error("Data loading error:", error);
+        // Optionally set an error state to display to the user
+      }
+    };
+
+    fetchOrProcessData();
+
+    // Cleanup to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    selectedChapterId,
+    isPreview,
+    PreviewData,
+    ClassificationId,
+    setClassificationId,
+  ]);
+  // console.log(currentChapter.classsificationID);
 
   // ─── EFFECT: Recalculate taskProgress when currentChapter changes ─────────
   useEffect(() => {
@@ -448,8 +247,6 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
       (completedCount / currentChapter.tasks.length) * 100
     );
     setTaskProgress(percentage);
-
-    // Calculate overall progress
     setOverallProgress({
       percentage,
       completed: completedCount,
@@ -459,27 +256,56 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
 
   // ─── EFFECT: Reset answers & steps when currentTask changes ────────────────
   useEffect(() => {
+    if (isPreview) {
+      return; // Skip reset in preview mode
+    }
     setSubmitted(false);
     setAnswers({});
     setCurrentStep(0);
     setCompletedSteps([]);
-  }, [currentTask]);
+    setActiveSection(null);
+    setFullScreenSection(null);
+    setShowQuestionInterface(false);
+  }, [currentTask, isPreview]);
 
   // ─── EFFECT: Listen for scroll to toggle `scrolled` ───────────────────────
+  // useEffect(() => {
+  //   const handleScroll = () => setScrolled(window.scrollY > 20);
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => {
+  //     setLearnAdd(false);
+  //     window.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, []);
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    // Smooth scroll to top
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 
+    // Prevent scrolling
+    document.body.style.overflow = "auto";
+    document.body.style.position = "auto";
+    document.documentElement.style.overflow = "auto";
+
+    // Optional: Prevent touchmove to block scrolling more robustly
+    const preventTouchMove = (e) => e.preventDefault();
+    document.addEventListener("touchmove", preventTouchMove, {
+      passive: false,
+    });
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.documentElement.style.overflow = "";
+      document.removeEventListener("touchmove", preventTouchMove);
+    };
+  }, []);
   // ─── EFFECT: Fetch public IP once on mount ───────────────────────────────
   useEffect(() => {
     fetch("https://api.ipify.org?format=json")
       .then((res) => res.json())
       .then((data) => setIp(data.ip))
-      .catch(() => {
-        // Keep the random IP if fetching fails
-      });
+      .catch(() => {});
   }, []);
 
   // ─── HANDLERS ─────────────────────────────────────────────────────────────
@@ -538,23 +364,23 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
     document.body.style.overflow = "auto";
   };
 
-  const handleOpenFullscreenAnswers = () => {
-    setShowFullscreenAnswerPage(true);
+  const handleOpenQuestionInterface = () => {
+    setShowQuestionInterface(true);
     document.body.style.overflow = "hidden";
   };
 
-  const handleCloseFullscreenAnswers = () => {
-    setShowFullscreenAnswerPage(false);
+  const handleCloseQuestionInterface = () => {
+    setShowQuestionInterface(false);
     document.body.style.overflow = "auto";
   };
 
   const getChapterPath = () => {
-    return currentChapter
+    return !isPreview && currentChapter
       ? currentChapter.chapter.toLowerCase().replace(/\s+/g, "_")
       : "";
   };
 
-  // If the chapter or task isn't loaded yet, show a placeholder
+  // Loading state
   if (!currentChapter || !currentTask) {
     return (
       <div className="flex items-center justify-center h-full text-gray-400">
@@ -563,212 +389,287 @@ const Content = ({ selectedChapterId, isPreview = false }) => {
     );
   }
 
-  // Determine whether this is the first or last task in the chapter
   const taskIdx = currentChapter.tasks.findIndex(
     (t) => t.id === currentTask.id
   );
   const isFirstTask = taskIdx === 0;
   const isLastTask = taskIdx === currentChapter.tasks.length - 1;
+  // console.log(currentTask.content.mainContent);
 
   // ─── JSX RETURN ──────────────────────────────────────────────────────────
-  return (
-    <section className="bg-gradient-to-br from-black via-gray-900 to-black mt-13 min-h-screen relative">
-      {/* ─── HEADER (SSH‐like) ────────────────────────────────────────────── */}
-      <ContentHeader
-        currentChapter={currentChapter}
-        scrolled={scrolled}
-        taskProgress={taskProgress}
-      />
 
-      {/* ─── MAIN CONTENT CONTAINER ──────────────────────────────────────── */}
-      <div className="flex flex-col lg:flex-row gap-8 px-4 py-8 max-w-7xl mx-auto">
-        {/* Extracted ChapterProgress */}
-        <ChapterProgress
-          overallProgress={overallProgress}
-          tasks={currentChapter.tasks}
-          currentTaskId={currentTask.id}
-        />
-
-        {/* ─── LEFT COLUMN: TASK CARD ────────────────────────────────────── */}
-        <div className="w-full lg:w-7/12 order-2 lg:order-1">
-          <div className="flex justify-center">
-            <div className="bg-gray-800/30 rounded-xl w-full max-w-3xl p-6 backdrop-blur-sm border border-gray-700/50 overflow-hidden">
-              <div className="mb-6 font-mono text-green-400">
-                <div className="flex items-center gap-3 mb-6">
-                  <Flag className="w-6 h-6 text-green-400" />
-                  <h2 className="text-lg sm:text-xl font-semibold">
-                    Task {currentTask.id.split("-")[1]}: {currentTask.title}
-                  </h2>
-                </div>
-
-                <div className="overflow-y-auto pr-2">
-                  {/* ─── Learning Objectives Collapsible ───────────────────── */}
-                  <CollapsibleSection
-                    title={
-                      <div className="flex items-center">
-                        <Target className="w-5 h-5 text-blue-400" />
-                        <span className="ml-2">Learning Objectives</span>
-                        {objectivesOpened && (
-                          <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
-                        )}
-                      </div>
-                    }
-                    isOpen={activeSection === "objectives"}
-                    onToggle={() => {
-                      const next =
-                        activeSection === "objectives" ? null : "objectives";
-                      setActiveSection(next);
-                      if (next === "objectives") setObjectivesOpened(true);
-                    }}
-                  >
-                    <div className="space-y-2">
-                      {currentTask.content.objectives.map((objective, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center gap-2 p-2 bg-gray-700/30 rounded"
-                        >
-                          <DotSquare className="w-5 h-5 text-green-400" />
-                          <span className="text-gray-200">{objective}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CollapsibleSection>
-
-                  {/* ─── Chapter Content ────────────────────────── */}
-                  <div
-                    className="border border-gray-700/50 rounded-lg overflow-hidden mb-4 cursor-pointer"
-                    onClick={() => {
-                      setActiveSection(null);
-                      handleOpenFullScreen("content");
-                    }}
-                  >
-                    <div
-                      className="cyber-button w-full px-4 py-3 bg-transparent border border-[#01ffdb]/20
-                  font-medium rounded-lg hover:bg-transparent
-                  transition-all  font-mono relative overflow-hidden text-xltransition-colors duration-200 text-white flex items-center gap-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Lightbulb className="w-5 h-5 text-yellow-400" />
-                        <span className="text-white font-medium">
-                          Chapter Content
-                        </span>
-                        {contentOpened && (
-                          <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
-                        )}
-                      </div>
-                      <MoveRightIcon className="w-5 h-5 text-gray-400" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* ─── Questions ───────────────────────────── */}
-              <div className="border border-gray-700/50 rounded-lg overflow-hidden mb-4">
-                <button
-                  onClick={() => {
-                    setActiveSection(null);
-                    handleOpenFullscreenAnswers();
-                  }}
-                  className="cyber-button w-full px-4 py-3 bg-[#01ffdb]/10 border border-[#01ffdb]/50
-                  font-medium rounded-lg hover:bg-[#01ffdb]/20 
-                  transition-all  font-mono relative overflow-hidden text-xltransition-colors duration-200 text-white flex items-center gap-3"
-                >
-                  <Terminal className="w-5 h-5 text-white" />
-                  <span className="font-medium">Answer Questions</span>
-                  <div className="ml-auto flex items-center gap-2">
-                    <span className="text-sm text-gray-200">
-                      {
-                        Object.keys(answers).filter((key) =>
-                          key.startsWith(currentTask.id)
-                        ).length
-                      }
-                      /{currentTask.content.questions.length}
-                    </span>
-                    {submitted && (
-                      <CheckCircle className="w-4 h-4 text-green-200" />
-                    )}
-                    <MoveRightIcon className="w-5 h-5 text-white" />
-                  </div>
-                </button>
+  // //  ADMIN LAYOUT MOUNTING
+  // if (!isPreview && LearnAdd && Admin) {
+  //   return <AdminEditor />;
+  // } //Users Component
+  {
+    return (
+      <section
+        className={`bg-gradient-to-br from-black via-gray-900 to-black ${
+          isPreview ? "mt-0 " : "mt-23"
+        } min-h-screen  relative`}
+      >
+        {Admin && !isPreview && (
+          // 1) Absolute wrapper takes no space in the document flow
+          <div className="absolute inset-2 pointer-events-none">
+            {/* 
+      2) This inner div is the only one in the flow of scrolling; 
+         it sits at the top of the page and scrolls normally.
+    */}
+            <div className="sticky top-1/6 md:top-1/7 lg:top-[20%] flex justify-end pointer-events-auto z-10">
+              {/* 
+        3) Margin-right to pull it in from the edge, gap-2 to space buttons
+      */}
+              <div className="mr-10 flex gap-2">
+                <AdminButtons setShowDeleteConfirm={setShowDeleteConfirm} />
               </div>
             </div>
           </div>
-
-          {/* ─── Navigation Buttons ─────────────────────────────────────────── */}
-          {!isPreview && (
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
-              <div className="flex gap-4 w-full sm:w-auto">
-                <button
-                  onClick={navigateToPrevious}
-                  disabled={isFirstTask}
-                  className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                >
-                  <ChevronLeft className="w-5 h-5" /> Previous
-                </button>
-                <button
-                  onClick={navigateToNext}
-                  disabled={isLastTask}
-                  className="flex-1 sm:flex-none px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                >
-                  Next <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>{" "}
-              <div className="flex justify-end w-full sm:w-auto">
-                <SubmitButton
-                  isSubmitted={submitted}
-                  completedSteps={completedSteps}
-                  totalObjectives={currentTask.content.objectives.length}
-                  onSubmit={handleSubmit}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ─── Full‐Screen Content Modal ───────────────────────────────────── */}
-      <AnimatePresence>
-        {fullScreenSection === "content" && (
-          <FullScreenReader
-            section="content"
-            content={
-              <>
-                <div className="mb-8 rounded-xl overflow-hidden shadow-2xl max-w-[70%] mx-auto">
-                  <img
-                    src={currentChapter.content.image}
-                    alt={currentChapter.content.title}
-                    className="w-full rounded-xl h-64 sm:h-72 md:h-80 lg:h-96 object-cover"
-                  />
-                </div>
-                <div className="prose prose-invert max-w-[95%] mx-auto">
-                  <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-                    {currentTask.content.mainContent}
-                  </p>
-                </div>
-              </>
-            }
-            title="Chapter Content"
-            icon={<Lightbulb className="w-6 h-6 text-yellow-400" />}
-            onClose={handleCloseFullScreen}
-          />
         )}
-      </AnimatePresence>
+        {/*Header */}
+        <ContentHeader
+          currentChapter={currentChapter}
+          scrolled={scrolled}
+          taskProgress={taskProgress}
+        />
+        {/*Radar and Main content  */}
+        <div
+          className={`flex flex-col gap-8 px-4 py-8 max-w-7xl mx-auto ${
+            PreviewScreen ? "w-screen" : "lg:flex-row"
+          }`}
+        >
+          <ChapterProgress
+            overallProgress={overallProgress}
+            tasks={currentChapter.tasks}
+            currentTaskId={currentTask.id}
+            PreviewScreen={PreviewScreen}
+          />
 
-      {/* ─── Fullscreen Answer Page ─────────────────────────────────────────── */}
-      <FullscreenAnswerPage
-        isOpen={showFullscreenAnswerPage}
-        onClose={handleCloseFullscreenAnswers}
-        questions={currentTask?.content?.questions || []}
-        answers={answers}
-        taskId={currentTask?.id}
-        onAnswerSubmit={handleAnswerSubmit}
-        isSubmitted={submitted}
-        ip={ip}
-        chapterId={currentChapter?.id}
-        chapterPath={getChapterPath()}
-      />
-    </section>
-  );
+          <div
+            className={`w-full ${PreviewScreen ? "" : "lg:w-7/12"} order-2 ${
+              PreviewScreen ? "" : "lg:order-1"
+            }`}
+          >
+            <main className="flex justify-center">
+              <div className="bg-gray-800/30 rounded-xl w-full max-w-3xl p-6 backdrop-blur-sm border border-gray-700/50 overflow-hidden">
+                <div className="mb-6 font-mono text-green-400">
+                  <div className="flex items-center gap-3 mb-6">
+                    <Flag className="w-6 h-6 text-green-400" />
+                    <h2 className="text-lg sm:text-xl font-semibold">
+                      Task {currentTask.id.split("-")[1]}: {currentTask.title}
+                    </h2>
+                  </div>
+                  <div className="overflow-y-auto pr-2">
+                    <CollapsibleSection
+                      title={
+                        <div className="relative flex justify-center items-center w-full">
+                          <Target className="w-5 h-5 text-blue-400" />
+                          <span className="ml-2">Learning Objectives</span>
+                          {objectivesOpened && (
+                            <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
+                          )}
+                        </div>
+                      }
+                      isOpen={activeSection === "objectives"}
+                      onToggle={() => {
+                        const next =
+                          activeSection === "objectives" ? null : "objectives";
+                        setActiveSection(next);
+                        if (next === "objectives") setObjectivesOpened(true);
+                      }}
+                    >
+                      <div className="space-y-2">
+                        {currentTask.content.objectives.map(
+                          (objective, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2 p-2 bg-gray-700/30 rounded"
+                            >
+                              <DotSquare className="w-5 h-5 text-green-400" />
+                              <span className="text-gray-200">{objective}</span>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </CollapsibleSection>
+                    <div
+                      className="border border-gray-700/50 rounded-lg overflow-hidden mb-4 cursor-pointer"
+                      onClick={() => {
+                        setActiveSection(null);
+                        handleOpenFullScreen("content");
+                      }}
+                    >
+                      <div
+                        className="cyber-button w-full px-4 py-3 bg-transparent border border-[#01ffdb]/20
+                font-medium rounded-lg hover:bg-transparent transition-all font-mono relative overflow-hidden
+                text-xl duration-200 text-white flex items-center justify-between gap-3"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Lightbulb className="w-5 h-5 text-yellow-400" />
+                          <span className="text-white font-medium">
+                            Chapter Content
+                          </span>
+                          {contentOpened && (
+                            <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
+                          )}
+                        </div>
+                        <MoveRightIcon className="w-5 h-5 text-gray-400" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="border border-gray-700/50 rounded-lg overflow-hidden mb-4">
+                  <button
+                    onClick={() => {
+                      setActiveSection(null);
+                      handleOpenQuestionInterface();
+                    }}
+                    className="cyber-button w-full px-4 py-3 bg-[#01ffdb]/10 border border-[#01ffdb]/50
+            font-medium rounded-lg hover:bg-[#01ffdb]/20 transition-all font-mono relative overflow-hidden
+            text-xl duration-200 text-white flex items-center gap-3"
+                  >
+                    <Terminal className="w-5 h-5 text-white" />
+                    <span className="font-medium">Answer Questions</span>
+                    <div className="ml-auto flex items-center gap-2">
+                      <span className="text-sm text-gray-200">
+                        {
+                          Object.keys(answers).filter((key) =>
+                            key.startsWith(currentTask.id)
+                          ).length
+                        }
+                        /{currentTask.content.questions.length}
+                      </span>
+                      {submitted && (
+                        <CheckCircle className="w-4 h-4 text-green-200" />
+                      )}
+                      <MoveRightIcon className="w-5 h-5 text-white" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </main>
+            {!isPreview && (
+              <div
+                className={`mt-8 flex flex-col ${
+                  PreviewScreen ? "" : "sm:flex-row"
+                } gap-4 justify-between items-center`}
+              >
+                <div
+                  className={`flex gap-4 w-full ${
+                    PreviewScreen ? "" : "sm:w-auto"
+                  }`}
+                >
+                  <button
+                    onClick={navigateToPrevious}
+                    disabled={isFirstTask}
+                    className={`flex-1 ${
+                      PreviewScreen ? "" : "sm:flex-none"
+                    } px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600
+            transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md`}
+                  >
+                    <ChevronLeft className="w-5 h-5" /> Previous
+                  </button>
+                  <button
+                    onClick={navigateToNext}
+                    disabled={isLastTask}
+                    className={`flex-1 ${
+                      PreviewScreen ? "" : "sm:flex-none"
+                    } px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600
+            transition-colors duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md`}
+                  >
+                    Next <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+                {!Admin && (
+                  <div
+                    className={`flex justify-end w-full ${
+                      PreviewScreen ? "" : "sm:w-auto"
+                    }`}
+                  >
+                    <SubmitButton
+                      isSubmitted={submitted}
+                      completedSteps={completedSteps}
+                      totalObjectives={currentTask.content.objectives.length}
+                      onSubmit={handleSubmit}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+        {/*FullScreen components*/}
+        <AnimatePresence>
+          {fullScreenSection === "content" && (
+            <FullScreenReader
+              section="content"
+              content={
+                <>
+                  {/* <div className="mb-8 rounded-xl overflow-hidden  shadow-2xl max-w-[70%] mx-auto">
+                      <img
+                        src={currentChapter.content.image}
+                        alt={currentChapter.content.title}
+                        className="w-full rounded-xl h-64 sm:h-72 md:h-80 lg:h-96 object-cover"
+                      />
+                    </div> */}
+                  <div className="prose prose-invert max-w-[95%] mx-auto">
+                    <center>
+                      <h1 className="md:text-5xl lg:text-5xl xl:text-4xl font-extrabold mb-7">
+                        {currentChapter.content.title}
+                      </h1>
+                    </center>
+                    <main
+                      className="leading-relaxed whitespace-pre-wrap"
+                      dangerouslySetInnerHTML={{
+                        __html: currentTask.content.mainContent,
+                      }}
+                    />
+                    {/* <div>{currentTask.content.mainContent}</div> */}
+                  </div>
+                </>
+              }
+              title="Chapter Content"
+              icon={<Lightbulb className="w-6 h-6 text-yellow-400" />}
+              onClose={handleCloseFullScreen}
+              isPreview={isPreview}
+            />
+          )}
+        </AnimatePresence>
+        <QuestionInterface
+          isOpen={showQuestionInterface}
+          onClose={handleCloseQuestionInterface}
+          questions={currentTask?.content?.questions || []}
+          answers={answers}
+          onAnswerSubmit={handleAnswerSubmit}
+          isSubmitted={submitted}
+          ip={ip}
+          chapterId={currentChapter?.id}
+          chapterPath={getChapterPath()}
+          lessonId={selectedChapterId}
+          isPreview={isPreview}
+        />
+        {/*Delete pop up Modal Component*/}
+        <DeleteModal
+          showDeleteConfirm={showDeleteConfirm}
+          setShowDeleteConfirm={setShowDeleteConfirm}
+          isDeleting={isDeleting}
+          handleDelete={handleDelete}
+          modaltitle="Delete Classification"
+          message={
+            <div>
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-white">
+                {currentChapter?.chapter}
+              </span>
+              ? This action{" "}
+              <span className="font-semibold text-red-400">cannot</span> be
+              undone.
+            </div>
+          }
+        />{" "}
+      </section>
+    );
+  }
 };
 
 export default Content;

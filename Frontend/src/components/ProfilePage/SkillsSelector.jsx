@@ -15,17 +15,20 @@ const allSkills = [
   "HTML5",
   "Machine Learning",
   "MongoDB",
+  "React.js",
 ];
 
 const quickSkills = [
   "Algorithm",
-  "Angular",
+  "React.js",
   "Css",
   "Data Structure",
   "Javascript(Intermediate)",
   "Python(Advanced)",
-  "SQL",
+  "HTML5",
+  "MongoDB",
   "Python(Intermediate)",
+  
 ];
 
 const SkillsSelector = ({ modalRef }) => {
@@ -61,13 +64,12 @@ const SkillsSelector = ({ modalRef }) => {
   return (
     <div className=" text-white p-6 rounded-lg w-full max-w-xl mx-auto relative">
       <div className="text-lg font-semibold mb-4">My Skills</div>
-
       {/* Draft selected skills */}
       <div className="flex flex-wrap gap-2 mb-4">
         {draftSkills.map((skill) => (
           <span
             key={skill}
-            className="flex items-center bg-[#2e2e42] px-3 py-1 rounded-full text-sm"
+            className="flex items-center font-medium bg-cyan-500/50 text-black px-3 py-1 rounded-full text-sm"
           >
             {skill}
             <button
@@ -83,7 +85,7 @@ const SkillsSelector = ({ modalRef }) => {
       <input
         type="text"
         placeholder="Search for skills"
-        className="w-full h-12 p-2 rounded-md mb-2 bg-[#2e2e42] text-white placeholder-gray-400 border border-gray-600"
+        className="w-full h-12 p-2 rounded-md mb-2 bg-slate-800 focus:outline-none text-white placeholder-gray-400 border border-gray-600 hover:border-cyan-500/50"
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
@@ -93,7 +95,7 @@ const SkillsSelector = ({ modalRef }) => {
       />
 
       {showDropdown && search && (
-        <div className="absolute z-10 w-full max-w-xl bg-[#2e2e42] border border-gray-700 mt-1 rounded-md max-h-60 overflow-y-auto">
+        <div className="absolute z-10 w-full max-w-xl bg-slate-800 focus:outline-none text-white placeholder-gray-400 border border-gray-600 hover:border-cyan-500/50 max-h-60 overflow-y-auto">
           {filteredSkills.length > 0 ? (
             filteredSkills.map((skill) => (
               <div
@@ -118,7 +120,7 @@ const SkillsSelector = ({ modalRef }) => {
           <button
             key={skill}
             onClick={() => addSkill(skill)}
-            className="px-3 py-1 rounded-md border border-white hover:bg-white hover:text-black transition text-sm"
+            className="px-3 py-1 rounded-md border border-white hover:border-cyan-500/50 hover:bg-cyan-500/50 hover:text-black font-medium transition text-sm cursor-pointer"
           >
             {skill}
           </button>

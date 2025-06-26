@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { AnimatePresence } from "framer-motion";
 import SidebarDesktop from "./SidebarDesktop";
 import SidebarMobile from "./SidebarMobile";
 import SidebarButton from "./SidebarButton";
+import { AppContext } from "../../../context/AppContext";
 
 const Sidebar = ({
   isPreview = false,
@@ -12,6 +13,7 @@ const Sidebar = ({
   customButton,
   sidebarHeader,
   className = "",
+  ClassificationId,
   title = "Course Contents",
 }) => {
   const [isPinned, setIsPinned] = useState(false);
@@ -58,9 +60,10 @@ const Sidebar = ({
     }
   }, [isSidebarHovered, isButtonHovered, isPinned]);
 
+  const { LearnAdd, setLearnAdd } = useContext(AppContext);
   // Determine if sidebar should be open
   const isOpen = isPinned || hoverIntent;
-
+  const isAdmin = true;
   return (
     <>
       {/* Mobile Sidebar */}
@@ -72,6 +75,9 @@ const Sidebar = ({
         currentChapter={currentChapter}
         onChapterSelect={onChapterSelect}
         title={title}
+        clicked={LearnAdd}
+        setClicked={setLearnAdd}
+        ClassificationId={ClassificationId}
       />
 
       {/* Desktop Sidebar */}
@@ -86,6 +92,9 @@ const Sidebar = ({
         title={title}
         sidebarHeader={sidebarHeader}
         className={className}
+        clicked={LearnAdd}
+        setClicked={setLearnAdd}
+        ClassificationId={ClassificationId}
       />
 
       {/* Toggle Button */}
@@ -101,4 +110,4 @@ const Sidebar = ({
   );
 };
 
-export default Sidebar;
+export default React.memo(Sidebar);

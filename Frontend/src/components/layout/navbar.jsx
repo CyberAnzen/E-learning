@@ -17,8 +17,9 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppContext } from "../../context/AppContext";
+import Logo from "./Logo";
 
-export default function Navbar() {
+const Navbar = () => {
   const { user } = useAppContext();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
@@ -31,11 +32,10 @@ export default function Navbar() {
     location.pathname.startsWith(route)
   );
 
-  const menublacklist = ["/learn/"];
+  const menublacklist = ["/lesson/"];
   const ismenuBlacklisted = menublacklist.some((route) =>
     location.pathname.startsWith(route)
   );
-  const [showCyber, setShowCyber] = useState(true);
   const [bottomVisible, setBottomVisible] = useState(true);
   const touchStartY = useRef(0);
   const touchCurrentY = useRef(0);
@@ -88,18 +88,6 @@ export default function Navbar() {
       window.removeEventListener("scroll", onScroll);
     };
   }, []);
-  useEffect(() => {
-    // Set timeout based on which slide is visible:
-    // CyberAnzen visible for 12s, SRMIST for 3s
-    const timeout = setTimeout(
-      () => {
-        setShowCyber((prev) => !prev);
-      },
-      showCyber ? 9000 : 4000
-    );
-
-    return () => clearTimeout(timeout);
-  }, [showCyber]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -150,82 +138,7 @@ export default function Navbar() {
         }`}
       >
         <div className="container mx-auto flex justify-between items-center px-4 sm:px-6">
-          <motion.div
-            className="cube-container"
-            style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
-          >
-            <AnimatePresence mode="wait">
-              {showCyber ? (
-                <motion.div
-                  key="cyber"
-                  initial={{ rotateY: -90, opacity: 0 }}
-                  animate={{ rotateY: 0, opacity: 1 }}
-                  exit={{ rotateY: 90, opacity: 0 }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                >
-                  <Link to="/about">
-                    <motion.div
-                      className="flex items-center gap-3"
-                      whileHover={{ scale: 1.05 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 10,
-                      }}
-                    >
-                      <div className="relative w-10 flex items-center h-15">
-                        <center>
-                          <motion.img
-                            src="favicon.png"
-                            alt="CyberAnzen Logo"
-                            className="w-13 h-11 object-cover"
-                            style={{ filter: "drop-shadow(0 0 8px #01ffdb)" }}
-                            animate={{
-                              scale: [1, 1.05, 1],
-                              filter: [
-                                "drop-shadow(0 0 8px #01ffdb)",
-                                "drop-shadow(0 0 16px #01ffdb)",
-                                "drop-shadow(0 0 8px #01ffdb)",
-                              ],
-                            }}
-                            transition={{
-                              duration: 2.5,
-                              repeat: Infinity,
-                              repeatType: "reverse",
-                            }}
-                          />
-                        </center>
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#01ffdb]/10 to-[#00c3ff]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
-                      </div>
-
-                      <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#16e8da] via-[#01fff7] to-[#01ffdb] tracking-tight hover:from-[#00c3ff] hover:to-[#01ffdb] transition-all duration-300">
-                        CyberAnzen
-                      </h1>
-                    </motion.div>
-                  </Link>
-                </motion.div>
-              ) : (
-                <Link to="/about">
-                  <motion.div
-                    key="srmist"
-                    initial={{ rotateY: 90, opacity: 0 }}
-                    animate={{ rotateY: 0, opacity: 1 }}
-                    exit={{ rotateY: -90, opacity: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                  >
-                    <div className="relative w-30 h-15 overflow-hidden ">
-                      <img
-                        src="https://lirp.cdn-website.com/5db65efd/dms3rep/multi/opt/Mask-group--282-29-1920w.png"
-                        alt="SRMIST Trichy"
-                        className="w-full h-14 object-cover transform transition-all duration-300 group-hover:scale-105 group-hover:brightness-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#01ffdb]/5 to-[#00c3ff]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
-                  </motion.div>
-                </Link>
-              )}
-            </AnimatePresence>
-          </motion.div>
+          <Logo />
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-2">
@@ -438,7 +351,7 @@ export default function Navbar() {
           </div>
         </motion.div>
       )}
-      )
     </>
   );
-}
+};
+export default React.memo(Navbar);

@@ -1,4 +1,5 @@
-import { React, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -12,15 +13,22 @@ import {
   ChevronUp,
   Shield,
 } from "lucide-react";
+import Logo from "./Logo";
 
 const Footer = () => {
   const location = useLocation();
 
   const [showCyber, setShowCyber] = useState(true);
-  const menublacklist = ["/learn/"];
+  const menublacklist = ["/lesson/create"];
   const ismenuBlacklisted = menublacklist.some((route) =>
     location.pathname.startsWith(route)
   );
+  // const blacklistPatterns = ["lesson/create"];
+
+  // const ismenuBlacklisted = blacklistPatterns.some((pattern) =>
+  //   pattern.test(location.pathname)
+  // );
+
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -88,83 +96,7 @@ const Footer = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <div className="flex items-center gap-3 mb-4 sm:mb-6">
-              <motion.div
-                className="cube-container"
-                style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
-              >
-                <AnimatePresence mode="wait">
-                  {showCyber ? (
-                    <motion.div
-                      key="cyber"
-                      initial={{ rotateY: -90, opacity: 0 }}
-                      animate={{ rotateY: 0, opacity: 1 }}
-                      exit={{ rotateY: 90, opacity: 0 }}
-                      transition={{ duration: 0.6 }}
-                    >
-                      <Link to="/about">
-                        <motion.div
-                          className="flex mb-3.5 items-center gap-3"
-                          whileHover={{ scale: 1.05 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 400,
-                            damping: 10,
-                          }}
-                        >
-                          <div className="relative w-10 h-12">
-                            <motion.img
-                              src="favicon.png" // your CyberAnzen logo
-                              alt="CyberAnzen Logo"
-                              className="w-9 h-10 object-cover"
-                              style={{
-                                // Initial drop-shadow for the glow
-                                filter: "drop-shadow(0 0 8px #01ffdb)",
-                              }}
-                              animate={{
-                                // Subtle pulsing effect as before
-                                scale: [1, 1.05, 1],
-                                filter: [
-                                  "drop-shadow(0 0 8px #01ffdb)",
-                                  "drop-shadow(0 0 12px #01ffdb)",
-                                  "drop-shadow(0 0 8px #01ffdb)",
-                                ],
-                              }}
-                              transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                repeatType: "reverse",
-                              }}
-                            />
-                          </div>
-
-                          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#16e8da] via-[#01fff7] to-[#01ffdb] tracking-tight hover:from-[#00c3ff] hover:to-[#01ffdb] transition-all duration-300">
-                            CyberAnzen
-                          </h1>
-                        </motion.div>
-                      </Link>
-                    </motion.div>
-                  ) : (
-                    <Link to="/about">
-                      <motion.div
-                        key="srmist"
-                        initial={{ rotateY: 90, opacity: 0 }}
-                        animate={{ rotateY: 0, opacity: 1 }}
-                        exit={{ rotateY: -90, opacity: 0 }}
-                        transition={{ duration: 0.6 }}
-                      >
-                        <div className="relative mb-3.5  w-28 h-12">
-                          <img
-                            // https://lirp.cdn-website.com/5db65efd/dms3rep/multi/opt/srm-1920w.png
-                            src="https://lirp.cdn-website.com/5db65efd/dms3rep/multi/opt/Mask-group--282-29-1920w.png"
-                            alt="SRMIST Trichy"
-                            className="w-full h-14 object-cover"
-                          />
-                        </div>
-                      </motion.div>
-                    </Link>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+              <Logo />
             </div>
             <p className="text-gray-400 text-sm sm:text-base">
               Exploring the digital frontier, securing the future. A student-run
@@ -352,4 +284,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default React.memo(Footer);
