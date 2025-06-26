@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 const port = 4000;
 const bodyParser = require("body-parser");
 const userRoutes = require("./router/userRoutes");
-const event = require("./router/eventRoutes");
+// const event = require("./router/eventRoutes");
 const classification = require("./router/classificationRoutes");
 const lesson = require("./router/lessonRoutes");
 const validate = require("./router/ValidationRoutes");
@@ -44,9 +44,9 @@ app.use(express.static("public")); // Serve static files from the 'public' direc
 app.use(express.json()); // Parse JSON bodies
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use("/api/event", xssSanitizer(), event);
-app.use("/api/user", xssSanitizer(), userRoutes);
-app.use("/api/classification", xssSanitizer(), classification);
+// app.use("/api/event", xssSanitizer(), event);
+// app.use("/api/user", xssSanitizer(), userRoutes);
+app.use("/api/classification", classification);
 app.use("/api/lesson", lesson);
 app.use("/api/answer", validate);
 
