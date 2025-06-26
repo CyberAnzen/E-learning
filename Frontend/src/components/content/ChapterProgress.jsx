@@ -447,4 +447,4 @@ const RadarProgress = ({ overallProgress, tasks, currentTaskId }) => {
   );
 };
 
-export default RadarProgress;
+export default React.memo(RadarProgress);

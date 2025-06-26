@@ -1,0 +1,244 @@
+{
+  "1": {
+    "id": 1,
+    "chapter": "Introduction to Cybersecurity",
+    "icon": null,
+    "completed": true,
+    "content": {
+      "title": "Introduction to Cybersecurity",
+      "author": "Dr. Sarah Chen",
+      "duration": "45 minutes",
+      "image": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=2070"
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Understanding Cyber Threats",
+        "completed": false,
+        "content": {
+          "description": "Learn about the fundamental concepts of cybersecurity and common threats in today's digital landscape.",
+          "objectives": [
+            "Understand the basics of cybersecurity",
+            "Identify common cyber threats",
+            "Learn basic security terminology"
+          ],
+          "mainContent": "Before teaching you the technical hands-on aspects of ethical hacking, you'll need to understand more about what a penetration tester's job responsibilities are and what processes are followed in performing pentests.\n\nCybersecurity is relevant to all people in the modern world, including:\n- Strong password policies to protect emails\n- Business protection of devices and data\n- Personal information security\n- Network security\n\nAccording to Security Magazine, a cybersecurity industry magazine, there are over 2,200 cyber attacks every day - 1 attack every 39 seconds.",
+          "questions": [
+            {
+              "id": "q1",
+              "text": "What is the primary goal of a penetration test?",
+              "type": "text",
+              "hint": "Think about the ethical aspects and defensive nature of the activity"
+            },
+            {
+              "id": "q2",
+              "text": "How many cyber attacks occur daily according to Security Magazine?",
+              "type": "multiple-choice",
+              "options": [
+                "Over 1,000",
+                "Over 2,200",
+                "Over 5,000",
+                "Over 10,000"
+              ],
+              "correctAnswer": "Over 2,200",
+              "hint": "The number is mentioned in the content - over 2,200"
+            },
+            {
+              "id": "q3",
+              "text": "Which of the following are key areas where cybersecurity is relevant? (Select all that apply)",
+              "type": "multiple-select",
+              "options": [
+                "Strong password policies to protect emails",
+                "Business protection of devices and data",
+                "Personal information security",
+                "Network security",
+                "Social media marketing"
+              ],
+              "correctAnswers": [
+                "Strong password policies to protect emails",
+                "Business protection of devices and data",
+                "Personal information security",
+                "Network security"
+              ],
+              "hint": "Look for the areas mentioned in the cybersecurity relevance section"
+            }
+          ]
+        }
+      },
+      {
+        "id": "task-2",
+        "title": "Basic Security Tools",
+        "completed": false,
+        "content": {
+          "description": "Introduction to essential security tools and their usage.",
+          "objectives": [
+            "Learn about common security tools",
+            "Understand basic tool usage",
+            "Practice with sample scenarios"
+          ],
+          "mainContent": "Security professionals use various tools to protect systems and networks. Common categories include:\n\nNetwork Scanning Tools:\n- Nmap: Network discovery and security auditing\n- Masscan: High-speed port scanner\n- Zmap: Internet-wide network scanner\n\nVulnerability Assessment:\n- Nessus: Comprehensive vulnerability scanner\n- OpenVAS: Open-source vulnerability assessment\n- Qualys: Cloud-based security platform\n\nWeb Application Testing:\n- Burp Suite: Web application security testing\n- OWASP ZAP: Web application security scanner\n- Nikto: Web server scanner",
+          "questions": [
+            {
+              "id": "q4",
+              "text": "Which tool is primarily used for network discovery and security auditing?",
+              "type": "multiple-choice",
+              "options": ["Burp Suite", "Nmap", "Nessus", "OWASP ZAP"],
+              "correctAnswer": "Nmap",
+              "hint": "Look for tools mentioned in the Network Scanning Tools section"
+            },
+            {
+              "id": "q5",
+              "text": "Name three essential security tools mentioned in the lesson and their primary purposes.",
+              "type": "text",
+              "hint": "Choose from any of the tools mentioned in the scanning, vulnerability assessment, or web application testing sections"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "2": {
+    "id": 2,
+    "chapter": "Ethical Hacking Basics",
+    "icon": null,
+    "completed": false,
+    "content": {
+      "title": "Getting Started with Penetration Testing",
+      "author": "Mark Rodriguez",
+      "duration": "60 minutes",
+      "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=2070"
+    },
+    "tasks": [
+      {
+        "id": "task-3",
+        "title": "Penetration Testing Basics",
+        "completed": false,
+        "content": {
+          "description": "Explore the fundamentals of ethical hacking and penetration testing.",
+          "objectives": ["Understand penetration testing basics"],
+          "mainContent": "Penetration testing (or pentesting) is the practice of testing a computer system, network, or web application to find vulnerabilities that an attacker could exploit.\n\nTypes of Hackers:\n- White Hat Hackers: Ethical hackers who help organizations improve security\n- Black Hat Hackers: Malicious hackers who exploit vulnerabilities for personal gain\n- Gray Hat Hackers: Fall between white and black hat, may find vulnerabilities without permission but don't exploit them maliciously\n\nPenetration Testing Phases:\n1. Planning and Reconnaissance\n2. Scanning and Enumeration\n3. Gaining Access\n4. Maintaining Access\n5. Analysis and Reporting",
+          "questions": [
+            {
+              "id": "q6",
+              "text": "What is the difference between black hat and white hat hacking?",
+              "type": "text",
+              "hint": "Think about the intentions and ethics behind each type of hacking"
+            },
+            {
+              "id": "q7",
+              "text": "Which type of hacker helps organizations improve their security?",
+              "type": "multiple-choice",
+              "options": ["Black Hat Hackers", "White Hat Hackers", "Gray Hat Hackers", "Script Kiddies"],
+              "correctAnswer": "White Hat Hackers",
+              "hint": "Look for the type that works ethically to help organizations"
+            }
+          ]
+        }
+      },
+      {
+        "id": "task-4",
+        "title": "Reconnaissance Techniques",
+        "completed": true,
+        "content": {
+          "description": "Learn how to gather information about targets using passive and active reconnaissance.",
+          "objectives": [
+            "Differentiate passive vs. active recon",
+            "Use `whois`, `nslookup`, `nmap` basics"
+          ],
+          "mainContent": "Reconnaissance is the first phase of a penetration test.\n\nPassive Reconnaissance:\n- Gathering public data from websites, social media, DNS records\n- Tools: whois, Google dorking, social media analysis\n- No direct interaction with target systems\n\nActive Reconnaissance:\n- Direct interaction with target systems\n- Tools: nmap, ping, traceroute\n- May be detected by target systems\n\nCommon Tools:\n- whois: Domain registration information\n- nslookup: DNS lookup utility\n- nmap: Network mapping and port scanning",
+          "questions": [
+            {
+              "id": "q8",
+              "text": "Which of the following are passive reconnaissance techniques? (Select all that apply)",
+              "type": "multiple-select",
+              "options": ["Google dorking", "Port scanning with nmap", "Whois lookups", "Social media analysis", "Ping sweeps"],
+              "correctAnswers": ["Google dorking", "Whois lookups", "Social media analysis"],
+              "hint": "Passive techniques don't directly interact with target systems"
+            },
+            {
+              "id": "q9",
+              "text": "What nmap flag is commonly used to perform a TCP SYN scan?",
+              "type": "multiple-choice",
+              "options": ["-sS", "-sT", "-sU", "-sP"],
+              "correctAnswer": "-sS",
+              "hint": "Think about the SYN scan option in nmap"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "3": {
+    "id": 3,
+    "chapter": "Network Defense Fundamentals",
+    "icon": null,
+    "completed": false,
+    "content": {
+      "title": "Firewall and IDS/IPS Overview",
+      "author": "Alex Kim",
+      "duration": "50 minutes",
+      "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=2070"
+    },
+    "tasks": [
+      {
+        "id": "task-5",
+        "title": "Configuring a Basic Firewall",
+        "completed": false,
+        "content": {
+          "description": "Understand firewall rules and how to configure a basic iptables or UFW setup.",
+          "objectives": ["Interpret firewall rule syntax", "Set up a basic UFW policy"],
+          "mainContent": "Firewalls filter network traffic based on predefined rules. In Linux, iptables or ufw are commonly used. UFW (Uncomplicated Firewall) is a simpler frontend for iptables.\n\nCommon UFW Commands:\n- ufw enable: Enable the firewall\n- ufw allow 22: Allow SSH (port 22)\n- ufw allow 80: Allow HTTP (port 80)\n- ufw allow 443: Allow HTTPS (port 443)\n- ufw deny 23: Deny Telnet (port 23)\n- ufw status: Check firewall status\n\nFirewall Types:\n- Packet Filtering: Examines packets and allows/denies based on rules\n- Stateful Inspection: Tracks connection states\n- Application Layer: Inspects application-specific data",
+          "questions": [
+            {
+              "id": "q10",
+              "text": "What command enables UFW and allows SSH (port 22)?",
+              "type": "text",
+              "hint": "You need two commands: one to enable UFW and another to allow SSH"
+            },
+            {
+              "id": "q11",
+              "text": "Which type of firewall tracks connection states?",
+              "type": "multiple-choice",
+              "options": ["Packet Filtering", "Stateful Inspection", "Application Layer", "Network Address Translation"],
+              "correctAnswer": "Stateful Inspection",
+              "hint": "Look for the firewall type that monitors connection states"
+            }
+          ]
+        }
+      },
+      {
+        "id": "task-6",
+        "title": "Intro to IDS/IPS",
+        "completed": false,
+        "content": {
+          "description": "Learn what an Intrusion Detection System (IDS) and Intrusion Prevention System (IPS) do.",
+          "objectives": ["Define IDS vs. IPS", "Give an example of a popular IDS tool"],
+          "mainContent": "IDS (Intrusion Detection System) passively monitors traffic and alerts on suspicious activity. IPS (Intrusion Prevention System) actively blocks or mitigates threats in real-time.\n\nPopular IDS/IPS Tools:\n- Snort: Open-source network intrusion detection\n- Suricata: High-performance network IDS/IPS\n- OSSEC: Host-based intrusion detection\n- Fail2ban: Intrusion prevention for log files\n\nKey Differences:\n- IDS: Detection and alerting only\n- IPS: Detection, alerting, and active blocking\n- HIDS: Host-based monitoring\n- NIDS: Network-based monitoring",
+          "questions": [
+            {
+              "id": "q12",
+              "text": "What is the main difference between IDS and IPS?",
+              "type": "multiple-choice",
+              "options": [
+                "IDS is faster than IPS",
+                "IDS only detects and alerts, while IPS actively blocks threats",
+                "IPS is open-source, IDS is commercial",
+                "There is no difference"
+              ],
+              "correctAnswer": "IDS only detects and alerts, while IPS actively blocks threats",
+              "hint": "Think about passive monitoring vs. active blocking"
+            },
+            {
+              "id": "q13",
+              "text": "Which of the following are popular IDS/IPS tools? (Select all that apply)",
+              "type": "multiple-select",
+              "options": ["Snort", "Suricata", "OSSEC", "Nmap", "Fail2ban"],
+              "correctAnswers": ["Snort", "Suricata", "OSSEC", "Fail2ban"],
+              "hint": "Look for tools mentioned in the Popular IDS/IPS Tools section"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

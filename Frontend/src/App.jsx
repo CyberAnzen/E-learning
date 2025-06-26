@@ -20,8 +20,7 @@ import Signup from "./routes/signup";
 import PrivacyPolicy from "./routes/privacyPolicy";
 import Profile from "./routes/account";
 import Content from "./routes/content";
-import AdminEditor from "./routes/adminEditor";
-import {useAppContext} from "./context/AppContext"
+import { useAppContext } from "./context/AppContext";
 
 import {
   BrowserRouter as Router,
@@ -33,10 +32,12 @@ import {
 import NotFound from "./routes/notFound";
 import ProfileDashboard from "./components/ProfilePage/ProfileDashboard";
 import EditProfile from "./components/ProfilePage/EditProfile";
-import Account from "./routes/account"
+import Account from "./routes/account";
 import ContentController from "./routes/ContentController";
+import CertificateList from "./components/ProfilePage/CertificateList";
+import AdminEditor from "./components/Admin/Content/adminEditor";
 function App() {
-  const { user }= useAppContext();
+  const { user } = useAppContext();
   const [intro, setIntro] = useState(true);
   const location = useLocation(); // Get the current route
   // Define routes where the footer should NOT appear
@@ -67,9 +68,13 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/learn" element={<LearnPage />} />
+          <Route
+            path="/lesson/:ClassificationId/:LessonId"
+            element={<ContentController />}
+          />
+          <Route path="/lesson/create" element={<AdminEditor />} />
+
           <Route path="/contest" element={<ContestPage />} />
-          <Route path="/learn/:id" element={<ContentController />} />
-          <Route path="/admin/learn/:id" element={<AdminEditor />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/signup" element={<Signup />} />
@@ -77,8 +82,9 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/profile" element={user ? <Account /> : <LoginPage />}>
-          <Route index element={user ? <ProfileDashboard /> : null} />
+            <Route index element={user ? <ProfileDashboard /> : null} />
             <Route path="editprofile" element={<EditProfile />} />
+            <Route path="certificatelist" element={<CertificateList />} />
           </Route>
           <Route path="/*" element={<NotFound />} />
         </Routes>
