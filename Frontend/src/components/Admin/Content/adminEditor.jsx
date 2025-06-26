@@ -1,56 +1,9 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  createContext,
-  useContext,
-} from "react";
-import {
-  Maximize2,
-  Shield,
-  X,
-  Plus,
-  Trash2,
-  Save,
-  Eye,
-  Sigma,
-  Signal,
-  GraduationCap,
-  Cpu,
-  Terminal,
-  BookOpen,
-  Brain,
-  Lightbulb,
-  Network,
-  Code,
-  Book,
-  Globe,
-  Server,
-  Lock,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import React, { useState, useEffect, useRef, createContext } from "react";
+import { Maximize2, Shield, X, Plus, Trash2, Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Content from "../../../routes/content";
-import RichTextEditor from "./!RichTextEditor";
-import { useLocation } from "react-router-dom";
-
-// Icon options for lesson classification with enhanced dropdown styling
-const icons = [
-  { name: "Learning", icon: GraduationCap },
-  { name: "Tech", icon: Cpu },
-  { name: "Cybersecurity", icon: Shield },
-  { name: "Coding", icon: Terminal },
-  { name: "Knowledge", icon: BookOpen },
-  { name: "Brain", icon: Brain },
-  { name: "Ideas", icon: Lightbulb },
-  { name: "Networks", icon: Network },
-  { name: "Code", icon: Code },
-  { name: "Books", icon: Book },
-  { name: "Web", icon: Globe },
-  { name: "Server", icon: Server },
-  { name: "Security", icon: Lock },
-];
+import RichTextEditor from "./RichTextEditor";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Create a context for the focused section
 const FocusedSectionContext = createContext();
@@ -65,353 +18,37 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
  * Enhanced Icon Dropdown Component with beautiful animations
  * Styled similar to the AddCourse component dropdown
  */
-const IconDropdown = ({ selectedIcon, onIconSelect, onFocus }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleIconSelect = (icon) => {
-    onIconSelect(icon.name);
-    setIsOpen(false);
-  };
-
-  const selectedIconData =
-    icons.find((icon) => icon.name === selectedIcon) || icons[0];
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        type="button"
-        onClick={() => {
-          setIsOpen(!isOpen);
-          onFocus && onFocus();
-        }}
-        className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10 flex items-center justify-between hover:bg-cyan-300/20"
-      >
-        <div className="flex items-center gap-3">
-          <selectedIconData.icon className="w-5 h-5 text-cyan-400" />
-          <span>{selectedIconData.name}</span>
-        </div>
-        {isOpen ? (
-          <ChevronUp className="w-4 h-4 text-cyan-400" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-cyan-400" />
-        )}
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.15, ease: "easeInOut" }}
-            className="absolute top-full left-0 right-0 z-50 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl shadow-cyan-500/20 max-h-60 overflow-y-auto"
-          >
-            <div className="p-1 space-y-1">
-              {icons.map((icon, index) => (
-                <motion.button
-                  key={icon.name}
-                  type="button"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.03 }}
-                  onClick={() => handleIconSelect(icon)}
-                  className={`w-full flex items-center gap-2 text-cyan-300 hover:bg-gray-700 px-2 py-1 rounded transition-all ${
-                    selectedIcon === icon.name
-                      ? "bg-cyan-500/20 border border-cyan-500/50"
-                      : ""
-                  }`}
-                >
-                  <icon.icon className="w-4 h-4" />
-                  <span className="text-sm">{icon.name}</span>
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
+import { IconDropdown } from "./AdminEditor/IconDropdown";
 
 /**
  * Enhanced Classification Dropdown Component
  * Styled with the same beautiful animations as the icon dropdown
  */
-const ClassificationDropdown = ({
-  classifications,
-  selectedId,
-  onSelect,
-  onFocus,
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleSelect = (classification) => {
-    onSelect(classification._id);
-    setIsOpen(false);
-  };
-
-  const selectedClassification = classifications.find(
-    (c) => c._id === selectedId
-  );
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        type="button"
-        onClick={() => {
-          setIsOpen(!isOpen);
-          onFocus && onFocus();
-        }}
-        className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10 flex items-center justify-between hover:bg-cyan-300/20"
-      >
-        <span>
-          {selectedClassification
-            ? selectedClassification.title
-            : "Select a classification"}
-        </span>
-        {isOpen ? (
-          <ChevronUp className="w-4 h-4 text-cyan-400" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-cyan-400" />
-        )}
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.15, ease: "easeInOut" }}
-            className="absolute top-full left-0 right-0 z-50 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl shadow-cyan-500/20 max-h-60 overflow-y-auto"
-          >
-            <div className="p-1 space-y-1">
-              {classifications.map((classification, index) => (
-                <motion.button
-                  key={classification._id}
-                  type="button"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.03 }}
-                  onClick={() => handleSelect(classification)}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-all font-mono text-sm ${
-                    selectedId === classification._id
-                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50"
-                      : "text-gray-300 hover:bg-gray-700/50 hover:text-cyan-300"
-                  }`}
-                >
-                  {classification.title}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
+import { ClassificationDropdown } from "./AdminEditor/ClassificationDropdown";
 
 /**
  * Enhanced Question Type Dropdown Component
  * Styled with the same beautiful animations
  */
-const QuestionTypeDropdown = ({ selectedType, onSelect, onFocus }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  const questionTypes = [
-    { value: "text", label: "Text Answer" },
-    { value: "multiple-choice", label: "Multiple Choice" },
-    { value: "multiple-select", label: "Multiple Select" },
-  ];
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleSelect = (type) => {
-    onSelect(type.value);
-    setIsOpen(false);
-  };
-
-  const selectedTypeData =
-    questionTypes.find((type) => type.value === selectedType) ||
-    questionTypes[0];
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        type="button"
-        onClick={() => {
-          setIsOpen(!isOpen);
-          onFocus && onFocus();
-        }}
-        className="w-full bg-gray-700/50 rounded-lg p-2 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono flex items-center justify-between hover:bg-cyan-300/20"
-      >
-        <span>{selectedTypeData.label}</span>
-        {isOpen ? (
-          <ChevronUp className="w-4 h-4 text-cyan-400" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-cyan-400" />
-        )}
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.15, ease: "easeInOut" }}
-            className="absolute top-full left-0 right-0 z-50 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl shadow-cyan-500/20"
-          >
-            <div className="p-1 space-y-1">
-              {questionTypes.map((type, index) => (
-                <motion.button
-                  key={type.value}
-                  type="button"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.03 }}
-                  onClick={() => handleSelect(type)}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-all font-mono text-sm ${
-                    selectedType === type.value
-                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50"
-                      : "text-gray-300 hover:bg-gray-700/50 hover:text-cyan-300"
-                  }`}
-                >
-                  {type.label}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
+import { QuestionTypeDropdown } from "./AdminEditor/QuestionTypeDropdown";
 
 /**
  * Enhanced Correct Answer Dropdown Component for Multiple Choice Questions
  */
-const CorrectAnswerDropdown = ({
-  options,
-  selectedAnswer,
-  onSelect,
-  onFocus,
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
+import { CorrectAnswerDropdown } from "./AdminEditor/CorrectAnswerDropdown";
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
+import SaveModal from "../layout/SaveModal";
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleSelect = (option) => {
-    onSelect(option);
-    setIsOpen(false);
-  };
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        type="button"
-        onClick={() => {
-          setIsOpen(!isOpen);
-          onFocus && onFocus();
-        }}
-        className="w-full bg-gray-700/50 rounded-lg p-2 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono flex items-center justify-between hover:bg-cyan-300/20"
-      >
-        <span>{selectedAnswer || "Select correct answer"}</span>
-        {isOpen ? (
-          <ChevronUp className="w-4 h-4 text-cyan-400" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-cyan-400" />
-        )}
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.15, ease: "easeInOut" }}
-            className="absolute top-full left-0 right-0 z-50 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl shadow-cyan-500/20 max-h-40 overflow-y-auto"
-          >
-            <div className="p-1 space-y-1">
-              {options?.map((option, index) => (
-                <motion.button
-                  key={index}
-                  type="button"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.03 }}
-                  onClick={() => handleSelect(option)}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-all font-mono text-sm ${
-                    selectedAnswer === option
-                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50"
-                      : "text-gray-300 hover:bg-gray-700/50 hover:text-cyan-300"
-                  }`}
-                >
-                  {option}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
-//
 const AdminEditor = ({ isEditing = false, OldData }) => {
-  const initialData = isEditing && OldData ? OldData : Placeholder;
+  const [allImageUrls, setAllImageUrls] = useState([]);
+  const [currentImageUrls, setCurrentImageUrls] = useState([]);
   const location = useLocation();
+  const navigate = useNavigate();
   const initialClassificationId = location.state?.ClassificationId || null;
+  const initialData =
+    isEditing && OldData
+      ? OldData
+      : { ...Placeholder, classificationId: initialClassificationId };
   const [ClassificationId, setClassificationId] = useState(
     initialClassificationId
   );
@@ -422,22 +59,24 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [newObjective, setNewObjective] = useState("");
   const [focusedSection, setFocusedSection] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const retryTimeoutRef = useRef(null);
-
   const sidePreviewRef = useRef(null);
   const fullPreviewRef = useRef(null);
   const objectivesContainerRef = useRef(null);
   const questionsContainerRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  //--------------FETCHED DATA-----------------------------
+  // Fetched data
   const [ClassificationsData, setClassicationsData] = useState();
-  const [LessonNum, setLessonNum] = useState(1);
   const [minLessonNum, setMinLessonNum] = useState(1);
 
-  //-----------Fetching Functions to get the needed datas
+  // Fetch classifications data
   useEffect(() => {
-    const FetchClassifcations = async () => {
+    const FetchClassifications = async () => {
       try {
         setIsLoading(true);
         const response = await fetch(`${BACKEND_URL}/classification/`);
@@ -448,19 +87,25 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
         setClassicationsData(data);
       } catch (err) {
         console.error("Error fetching courses:", err);
-        // Schedule an auto-retry after 5 seconds
-        retryTimeoutRef.current = setTimeout(() => {
-          loadCourses();
-        }, 5000);
+        retryTimeoutRef.current = setTimeout(
+          () => FetchClassifications(),
+          5000
+        );
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    FetchClassifcations();
+    FetchClassifications();
   }, []);
-  console.log(ClassificationId);
+
+  // Synchronize formData.classificationId with ClassificationId
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, classificationId: ClassificationId }));
+  }, [ClassificationId]);
 
   useEffect(() => {
-    if (!ClassificationsData) return; // wait for data
+    if (!ClassificationsData) return;
 
     const selected = ClassificationsData.Classications.find(
       (c) => c._id === ClassificationId
@@ -468,61 +113,105 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
 
     if (selected) {
       const nextLessonNum = selected.lessonCount + 1;
-      setClassificationId(selected._id);
       setMinLessonNum(nextLessonNum);
       setFormData((prev) => ({
         ...prev,
         lessonNum: nextLessonNum,
+        classificationId: ClassificationId,
       }));
     }
   }, [ClassificationsData, ClassificationId]);
 
   useEffect(() => {
     if (editingChapter) {
-      setFormData(editingChapter);
+      setFormData({ ...editingChapter, classificationId: ClassificationId });
+      setAllImageUrls(editingChapter.allImages || []);
+      setCurrentImageUrls(editingChapter.addedImages || []);
     }
-  }, [editingChapter]);
+  }, [editingChapter, ClassificationId]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setSuccessMessage("");
+    setErrorMessage("");
+
     const updatedFormData = {
       ...formData,
-      _id: formData._id || `lesson_${Date.now()}`,
-      content: {
-        ...formData.content,
-        _id: formData.content._id || `content_${Date.now()}`,
-      },
+      allImages: allImageUrls,
+      addedImages: currentImageUrls,
+      classificationId: ClassificationId,
+      content: { ...formData.content },
       tasks: {
         ...formData.tasks,
-        _id: formData.tasks._id || `task_${Date.now()}`,
         content: {
           ...formData.tasks.content,
-          questions: formData.tasks.content.questions.map((q) => ({
-            ...q,
-            _id:
-              q._id ||
-              `q_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          })),
+          questions: formData.tasks.content.questions.map((q) => ({ ...q })),
         },
       },
     };
 
-    if (editingChapter) {
-      setChapters(
-        chapters.map((chap) =>
-          chap._id === editingChapter._id ? updatedFormData : chap
-        )
-      );
-    } else {
-      setChapters([...chapters, updatedFormData]);
+    // Remove _id fields for new lessons to prevent backend errors
+    if (!isEditing) {
+      delete updatedFormData._id;
+      delete updatedFormData.content._id;
+      delete updatedFormData.tasks._id;
+      updatedFormData.tasks.content.questions =
+        updatedFormData.tasks.content.questions.map((q) => {
+          const { _id, ...rest } = q;
+          return rest;
+        });
     }
 
-    setFormData(initialData);
-    setEditingChapter(null);
+    try {
+      const response = await fetch(`${BACKEND_URL}/lesson/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedFormData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create lesson");
+      }
+
+      const result = await response.json();
+      console.log("Lesson created successfully:", result);
+
+      if (editingChapter) {
+        setChapters(
+          chapters.map((chap) =>
+            chap._id === editingChapter._id ? result.lesson : chap
+          )
+        );
+      } else {
+        setChapters([...chapters, result.lesson]);
+      }
+
+      setFormData({ ...initialData, classificationId: ClassificationId });
+      setEditingChapter(null);
+      setAllImageUrls([]);
+      setCurrentImageUrls([]);
+      setShowDeleteConfirm(false);
+
+      setSuccessMessage("Lesson created successfully");
+      setTimeout(() => {
+        setSuccessMessage("");
+        navigate(
+          `/lesson/${result.lesson.classificationId}/${result.lesson._id}`
+        );
+      }, 3000);
+    } catch (err) {
+      console.error("Error submitting lesson:", err);
+      setErrorMessage(err.message);
+      setTimeout(() => setErrorMessage(""), 3000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDelete = (id) => {
     setChapters(chapters.filter((chap) => chap._id !== id));
+    setShowDeleteConfirm(false);
   };
 
   const addObjective = () => {
@@ -564,9 +253,7 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
       correctAnswers: [],
       hint: "",
       options: [],
-      _id: "",
     };
-
     setFormData({
       ...formData,
       tasks: {
@@ -581,19 +268,12 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
 
   const updateQuestion = (index, field, value) => {
     const updatedQuestions = [...formData.tasks.content.questions];
-    updatedQuestions[index] = {
-      ...updatedQuestions[index],
-      [field]: value,
-    };
-
+    updatedQuestions[index] = { ...updatedQuestions[index], [field]: value };
     setFormData({
       ...formData,
       tasks: {
         ...formData.tasks,
-        content: {
-          ...formData.tasks.content,
-          questions: updatedQuestions,
-        },
+        content: { ...formData.tasks.content, questions: updatedQuestions },
       },
     });
   };
@@ -615,19 +295,14 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
 
   const addOption = (questionIndex) => {
     const updatedQuestions = [...formData.tasks.content.questions];
-    if (!updatedQuestions[questionIndex].options) {
+    if (!updatedQuestions[questionIndex].options)
       updatedQuestions[questionIndex].options = [];
-    }
     updatedQuestions[questionIndex].options.push("");
-
     setFormData({
       ...formData,
       tasks: {
         ...formData.tasks,
-        content: {
-          ...formData.tasks.content,
-          questions: updatedQuestions,
-        },
+        content: { ...formData.tasks.content, questions: updatedQuestions },
       },
     });
   };
@@ -635,15 +310,11 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
   const updateOption = (questionIndex, optionIndex, value) => {
     const updatedQuestions = [...formData.tasks.content.questions];
     updatedQuestions[questionIndex].options[optionIndex] = value;
-
     setFormData({
       ...formData,
       tasks: {
         ...formData.tasks,
-        content: {
-          ...formData.tasks.content,
-          questions: updatedQuestions,
-        },
+        content: { ...formData.tasks.content, questions: updatedQuestions },
       },
     });
   };
@@ -653,36 +324,49 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
     updatedQuestions[questionIndex].options = updatedQuestions[
       questionIndex
     ].options.filter((_, i) => i !== optionIndex);
-
     setFormData({
       ...formData,
       tasks: {
         ...formData.tasks,
-        content: {
-          ...formData.tasks.content,
-          questions: updatedQuestions,
-        },
+        content: { ...formData.tasks.content, questions: updatedQuestions },
       },
     });
   };
+
   useEffect(() => {
     document.body.style.overflow = "auto";
   }, [focusedSection]);
+
+  const classificationName =
+    ClassificationsData?.Classications?.find((c) => c._id === ClassificationId)
+      ?.name || "Selected Classification";
+
   return (
     <FocusedSectionContext.Provider
       value={{ focusedSection, setFocusedSection }}
     >
       <div className="bg-gradient-to-br from-black via-gray-900 to-black mt-23 min-h-screen p-5">
-        <section className=" lg:mt-0 xl:-ml-20 lg:max-w-[45vw] xl:max-w-[100vw]">
-          <div className="max-w-7xl mx-auto ">
+        <section className="lg:mt-0 xl:-ml-20 lg:max-w-[45vw] xl:max-w-[100vw]">
+          <div className="max-w-7xl mx-auto">
             <div className="text-left mb-8">
               <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">
-                CYBER COURSE EDITOR
+                Add New Lessons
               </h1>
-              <p className="text-gray-400 font-mono ">
-                Design cutting-edge cybersecurity curriculum
+              <p className="text-gray-400 font-mono">
+                Select the appropriate Classification
               </p>
+              {successMessage && (
+                <div className="my-2  max-w-[30vw] p-4 rounded-lg shadow-lg bg-green-500/10 border border-green-500/20 text-green-700">
+                  {successMessage}
+                </div>
+              )}
+              {errorMessage && (
+                <div className="my-2 max-w-[30vw] p-4 rounded-lg shadow-lg bg-red-500/10 border border-red-500/20 text-red-700">
+                  {errorMessage}
+                </div>
+              )}
             </div>
+
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               <div className="bg-gray-900/50 rounded-xl p-6 backdrop-blur-sm border border-cyan-500/30 shadow-2xl shadow-cyan-500/10">
                 <div className="flex items-center gap-3 mb-6 border-b border-cyan-500/30 pb-4">
@@ -705,13 +389,9 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                           ClassificationsData?.Classications || []
                         }
                         selectedId={ClassificationId}
-                        onSelect={(selectedId) => {
-                          setClassificationId(selectedId);
-                          setFormData((prev) => ({
-                            ...prev,
-                            classificationId: selectedId,
-                          }));
-                        }}
+                        onSelect={(selectedId) =>
+                          setClassificationId(selectedId)
+                        }
                         onFocus={() => setFocusedSection("classificationId")}
                       />
                     </div>
@@ -769,7 +449,6 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                     <h3 className="text-lg font-semibold text-cyan-400 border-b border-cyan-500/30 pb-2 font-mono">
                       HEADER DETAILS
                     </h3>
-
                     <div>
                       <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
                         AUTHOR
@@ -817,7 +496,6 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                           onFocus={() => setFocusedSection("contentDuration")}
                           required
                         />
-
                         <select
                           className="w-1/2 bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
                           value={
@@ -843,28 +521,6 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                         </select>
                       </div>
                     </div>
-
-                    {/* <div>
-                      <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
-                        IMAGE URL
-                      </label>
-                      <input
-                        type="url"
-                        className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
-                        value={formData.content.image}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            content: {
-                              ...formData.content,
-                              image: e.target.value,
-                            },
-                          })
-                        }
-                        required
-                        onFocus={() => setFocusedSection("contentImage")}
-                      />
-                    </div> */}
                   </div>
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-cyan-400 border-b border-cyan-500/30 pb-2 font-mono">
@@ -888,30 +544,6 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                         onFocus={() => setFocusedSection("taskTitle")}
                       />
                     </div>
-                    {/* <div>
-                      <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
-                        DESCRIPTION
-                      </label>
-                      <textarea
-                        className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
-                        value={formData.tasks.content.description}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            tasks: {
-                              ...formData.tasks,
-                              content: {
-                                ...formData.tasks.content,
-                                description: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                        required
-                        rows="3"
-                        onFocus={() => setFocusedSection("taskDescription")}
-                      />
-                    </div> */}
                     <div>
                       <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
                         CONTENT TITLE
@@ -952,12 +584,14 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                             },
                           });
                         }}
+                        allImageUrls={allImageUrls}
+                        setAllImageUrls={setAllImageUrls}
+                        currentImageUrls={currentImageUrls}
+                        setCurrentImageUrls={setCurrentImageUrls}
                         onFocusedSection={() =>
                           setFocusedSection("mainContent")
                         }
                         leftFocusedSection={() => setFocusedSection(null)}
-
-                        // onFocus={() => setFocusedSection("mainContent")}
                       />
                     </div>
                     <div>
@@ -968,10 +602,9 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                         ref={objectivesContainerRef}
                         onFocus={() => setFocusedSection("objectives")}
                         onBlur={(e) => {
-                          console.log("onblur triggered");
                           const relatedTarget = e.relatedTarget;
                           if (
-                            relatedTarget === null ||
+                            !relatedTarget ||
                             !objectivesContainerRef.current.contains(
                               relatedTarget
                             )
@@ -1040,7 +673,7 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                     onBlur={(e) => {
                       const relatedTarget = e.relatedTarget;
                       if (
-                        relatedTarget === null ||
+                        !relatedTarget ||
                         !questionsContainerRef.current.contains(relatedTarget)
                       ) {
                         setFocusedSection(null);
@@ -1195,17 +828,11 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                                       onChange={(e) => {
                                         const currentAnswers =
                                           question.correctAnswers || [];
-                                        let newAnswers;
-                                        if (e.target.checked) {
-                                          newAnswers = [
-                                            ...currentAnswers,
-                                            option,
-                                          ];
-                                        } else {
-                                          newAnswers = currentAnswers.filter(
-                                            (ans) => ans !== option
-                                          );
-                                        }
+                                        let newAnswers = e.target.checked
+                                          ? [...currentAnswers, option]
+                                          : currentAnswers.filter(
+                                              (ans) => ans !== option
+                                            );
                                         updateQuestion(
                                           qIndex,
                                           "correctAnswers",
@@ -1260,21 +887,27 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                     className="p-2 bg-purple-500/20 border border-purple-500/50 rounded-lg hover:bg-purple-500/30 text-purple-400 transition-all shadow-lg shadow-purple-500/10"
                   >
                     <Maximize2 className="w-5 h-5" />
-                  </button>{" "}
+                  </button>
                   <h2 className="text-xl text-purple-300 font-semibold font-mono">
                     LIVE PREVIEW
                   </h2>
                 </div>
                 <section className="flex items-center gap-3">
                   <motion.button
-                    type="submit"
+                    type="button"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-6 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg text-purple-200 font-medium transition-all font-mono shadow-lg shadow-purple-500/10 hover:bg-purple-500/30 hover:shadow-purple-500/20"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    disabled={isSubmitting}
+                    className="px-6 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg text-purple-200 font-medium transition-all font-mono shadow-lg shadow-purple-500/10 hover:bg-purple-500/30 hover:shadow-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <span className="flex items-center gap-2">
                       <Save className="w-4 h-4" />
-                      {editingChapter ? "UPDATE CHAPTER" : "SAVE CHAPTER"}
+                      {isSubmitting
+                        ? "SAVING..."
+                        : editingChapter
+                        ? "UPDATE CHAPTER"
+                        : "SAVE CHAPTER"}
                     </span>
                   </motion.button>
                 </section>
@@ -1318,6 +951,27 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
               </div>
             </motion.div>
           )}
+
+          <SaveModal
+            showSaveConfirm={showDeleteConfirm}
+            setShowSaveConfirm={setShowDeleteConfirm}
+            isSaving={isSubmitting}
+            handleSave={handleSubmit}
+            modaltitle="Save Confirmation"
+            message={
+              <span>
+                Are you sure you want to save{" "}
+                <span className="text-emerald-500/80 font-bold">
+                  "{formData.content.title || "Untitled Lesson"}"
+                </span>{" "}
+                under the{" "}
+                <span className="font-bold text-emerald-500/80">
+                  "{classificationName}"
+                </span>{" "}
+                ?
+              </span>
+            }
+          />
         </section>
       </div>
     </FocusedSectionContext.Provider>

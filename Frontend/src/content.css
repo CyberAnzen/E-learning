@@ -388,3 +388,395 @@
     background: rgba(17, 24, 39, 0.5);
   }
 }
+
+/* rich-text-editor.css */
+
+/* Rich Text Editor Styles */
+
+/* Placeholder styling */
+/* Rich Text Editor Styles */
+
+/* Placeholder styling */
+[contenteditable]:empty:before {
+  content: attr(data-placeholder);
+  color: #6b7280;
+  pointer-events: none;
+  font-style: italic;
+}
+
+/* Basic content styling */
+[contenteditable] p {
+  margin: 0.75rem 0;
+  line-height: 1.6;
+  color: #d1d5db;
+  font-size: 1.125rem;
+}
+
+[contenteditable] div {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+  color: #d1d5db;
+  font-size: 1.125rem;
+}
+
+[contenteditable] strong {
+  font-weight: 700;
+}
+
+[contenteditable] em {
+  font-style: italic;
+}
+
+[contenteditable] u {
+  text-decoration: underline;
+}
+
+/* Text formatting classes */
+.rte-bold {
+  font-weight: 700;
+}
+
+.rte-italic {
+  font-style: italic;
+}
+
+.rte-underline {
+  text-decoration: underline;
+}
+
+/* Text alignment classes */
+.rte-align-left {
+  text-align: left;
+}
+
+.rte-align-center {
+  text-align: center;
+}
+
+.rte-align-right {
+  text-align: right;
+}
+
+/* Color classes */
+.rte-color-white { 
+  color: #ffffff; 
+}
+
+.rte-color-cyan { 
+  color: #22d3ee; 
+}
+
+.rte-color-blue { 
+  color: #3b82f6; 
+}
+
+.rte-color-emerald { 
+  color: #10b981; 
+}
+
+.rte-color-orange { 
+  color: #f97316; 
+}
+
+.rte-color-red { 
+  color: #ef4444; 
+}
+
+.rte-color-violet { 
+  color: #8b5cf6; 
+}
+
+.rte-color-amber { 
+  color: #f59e0b; 
+}
+
+/* Font size classes */
+.rte-size-xs { 
+  font-size: 0.75rem; 
+  line-height: 1.4;
+}
+
+.rte-size-sm { 
+  font-size: 0.875rem; 
+  line-height: 1.5;
+}
+
+.rte-size-base { 
+  font-size: 1rem; 
+  line-height: 1.6;
+}
+
+.rte-size-lg { 
+  font-size: 1.125rem; 
+  line-height: 1.6;
+}
+
+.rte-size-xl { 
+  font-size: 1.25rem; 
+  line-height: 1.7;
+}
+
+.rte-size-2xl { 
+  font-size: 1.5rem; 
+  line-height: 1.7;
+}
+
+/* Link styling */
+.rte-link {
+  color: #06b6d4;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.rte-link:hover {
+  color: #0891b2;
+}
+
+/* Text content wrapper */
+.rte-text {
+  min-height: 1.5rem;
+  margin: 0.5rem 0;
+  line-height: 1.6;
+  color: #d1d5db;
+  font-size: 1.125rem;
+}
+
+.rte-text:empty {
+  min-height: 1.5rem;
+}
+
+.rte-text br {
+  line-height: 1.6;
+}
+
+/* Image container and styling */
+.rte-image-container {
+  position: relative;
+  margin: 1.5rem 0;
+  display: block;
+  width: 100%;
+  clear: both;
+}
+
+.rte-image-container.selected {
+  outline: 2px solid #06b6d4;
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+.rte-image-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+
+.rte-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: block;
+  margin: 0 auto;
+}
+
+.rte-image:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.rte-image-delete {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(239, 68, 68, 0.95);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.rte-image-wrapper:hover .rte-image-delete,
+.rte-image-container.selected .rte-image-delete {
+  opacity: 1;
+}
+
+.rte-image-delete:hover {
+  background: rgba(239, 68, 68, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Video container and styling */
+.rte-video-container {
+  position: relative;
+  margin: 1.5rem 0;
+  display: block;
+  width: 100%;
+  clear: both;
+}
+
+.rte-video-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+
+.rte-video {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: block;
+  margin: 0 auto;
+}
+
+.rte-video-delete {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(239, 68, 68, 0.95);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.rte-video-wrapper:hover .rte-video-delete {
+  opacity: 1;
+}
+
+.rte-video-delete:hover {
+  background: rgba(239, 68, 68, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Bullet list styling */
+.rte-bullet-line {
+  display: flex;
+  align-items: flex-start;
+  margin: 0.5rem 0;
+  padding-left: 0.5rem;
+}
+
+.rte-bullet-marker {
+  color: #06b6d4;
+  font-weight: bold;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+  user-select: none;
+  font-size: 1.2em;
+  line-height: 1.4;
+}
+
+.rte-bullet-content {
+  flex: 1;
+  outline: none;
+  color: #d1d5db;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  min-height: 1.5rem;
+}
+
+/* Numbered list styling */
+.rte-numbered-line {
+  display: flex;
+  align-items: flex-start;
+  margin: 0.5rem 0;
+  padding-left: 0.5rem;
+}
+
+.rte-number-marker {
+  color: #06b6d4;
+  font-weight: bold;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+  user-select: none;
+  font-size: 1.1em;
+  line-height: 1.4;
+  min-width: 1.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .rte-image {
+    border-radius: 8px;
+  }
+  
+  .rte-video {
+    border-radius: 8px;
+  }
+  
+  .rte-image-delete,
+  .rte-video-delete {
+    width: 32px;
+    height: 32px;
+    top: 8px;
+    right: 8px;
+  }
+  
+  [contenteditable] p,
+  [contenteditable] div,
+  .rte-text {
+    font-size: 1rem;
+  }
+}
+
+/* Focus and selection improvements */
+[contenteditable]:focus {
+  outline: none;
+}
+
+/* Ensure proper spacing between elements */
+.rte-image-container + .rte-text,
+.rte-video-container + .rte-text {
+  margin-top: 1rem;
+}
+
+.rte-text + .rte-image-container,
+.rte-text + .rte-video-container {
+  margin-top: 1rem;
+}
+
+/* Handle empty text elements */
+.rte-text:empty:before {
+  content: '';
+  display: inline-block;
+  width: 0;
+  height: 1.5rem;
+}
+
+/* Improve list item spacing */
+.rte-bullet-line + .rte-bullet-line,
+.rte-numbered-line + .rte-numbered-line {
+  margin-top: 0.25rem;
+}
+
+/* Better handling of nested content */
+.rte-bullet-content p,
+.rte-bullet-content div {
+  margin: 0.25rem 0;
+  font-size: inherit;
+}

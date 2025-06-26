@@ -17,12 +17,13 @@ import {
   X,
   Loader,
 } from "lucide-react";
-
+// Define backend URL from environment variables
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL_W = import.meta.env.VITE_BACKEND_URL_W;
 const RichTextEditor = ({
   value = "",
   onChange,
   placeholder = "Start typing your content...",
-  uploadApiUrl = "/lesson/create/media",
   onFocusedSection,
   leftFocusedSection,
 }) => {
@@ -72,6 +73,7 @@ const RichTextEditor = ({
         try {
           selection.addRange(range);
         } catch (e) {
+          // If range is invalid, position cursor at the end
           const newRange = document.createRange();
           newRange.selectNodeContents(editorRef.current);
           newRange.collapse(false);
@@ -111,7 +113,7 @@ const RichTextEditor = ({
         node.nodeType === Node.ELEMENT_NODE &&
         (node.tagName === "DIV" ||
           node.tagName === "P" ||
-          node.classList?.contains("bullet-line"))
+          node.classList?.contains("rte-bullet-line"))
       ) {
         return node;
       }
@@ -123,39 +125,39 @@ const RichTextEditor = ({
   // Check if current line is a bullet
   const isCurrentLineBullet = () => {
     const line = getCurrentLine();
-    return line && line.classList?.contains("bullet-line");
+    return line && line.classList?.contains("rte-bullet-line");
   };
 
   // Check if current line is numbered
   const isCurrentLineNumbered = () => {
     const line = getCurrentLine();
-    return line && line.classList?.contains("numbered-line");
+    return line && line.classList?.contains("rte-numbered-line");
   };
 
   // Get next number for numbered list
   const getNextNumber = () => {
-    const lines = editorRef.current.querySelectorAll(".numbered-line");
+    const lines = editorRef.current.querySelectorAll(".rte-numbered-line");
     return lines.length + 1;
   };
 
-  // Create bullet line (with increased size)
+  // Create bullet line with CSS classes
   const createBulletLine = (text = "") => {
     const div = document.createElement("div");
-    div.className = "bullet-line flex items-start my-3 text-gray-300";
+    div.className = "rte-bullet-line";
     div.innerHTML = `
-      <span class="bullet-marker text-cyan-400 font-bold mr-3 mt-0.5 select-none text-2xl">•</span>
-      <span class="bullet-content flex-1 outline-none text-xl" contenteditable="true">${text}</span>
+      <span class="rte-bullet-marker">•</span>
+      <span class="rte-bullet-content" contenteditable="true">${text}</span>
     `;
     return div;
   };
 
-  // Create numbered line (with increased size)
+  // Create numbered line with CSS classes
   const createNumberedLine = (number, text = "") => {
     const div = document.createElement("div");
-    div.className = "numbered-line flex items-start my-3 text-gray-300";
+    div.className = "rte-numbered-line";
     div.innerHTML = `
-      <span class="number-marker text-cyan-400 font-bold mr-3 mt-0.5 select-none min-w-[24px] text-xl">${number}.</span>
-      <span class="bullet-content flex-1 outline-none text-xl" contenteditable="true">${text}</span>
+      <span class="rte-number-marker">${number}.</span>
+      <span class="rte-bullet-content" contenteditable="true">${text}</span>
     `;
     return div;
   };
@@ -169,6 +171,7 @@ const RichTextEditor = ({
     const selectedText = range.toString();
 
     if (selectedText) {
+      // Convert selected text to bullets
       const lines = selectedText.split("\n").filter((line) => line.trim());
       const bulletContainer = document.createElement("div");
 
@@ -180,7 +183,8 @@ const RichTextEditor = ({
       range.deleteContents();
       range.insertNode(bulletContainer);
 
-      const firstContent = bulletContainer.querySelector(".bullet-content");
+      // Focus on first bullet content
+      const firstContent = bulletContainer.querySelector(".rte-bullet-content");
       if (firstContent) {
         const newRange = document.createRange();
         newRange.selectNodeContents(firstContent);
@@ -189,10 +193,12 @@ const RichTextEditor = ({
         selection.addRange(newRange);
       }
     } else {
+      // Create new bullet at cursor
       const bulletLine = createBulletLine();
       range.insertNode(bulletLine);
 
-      const content = bulletLine.querySelector(".bullet-content");
+      // Focus on bullet content
+      const content = bulletLine.querySelector(".rte-bullet-content");
       if (content) {
         const newRange = document.createRange();
         newRange.selectNodeContents(content);
@@ -215,6 +221,7 @@ const RichTextEditor = ({
     const selectedText = range.toString();
 
     if (selectedText) {
+      // Convert selected text to numbered list
       const lines = selectedText.split("\n").filter((line) => line.trim());
       const numberContainer = document.createElement("div");
 
@@ -226,7 +233,8 @@ const RichTextEditor = ({
       range.deleteContents();
       range.insertNode(numberContainer);
 
-      const firstContent = numberContainer.querySelector(".bullet-content");
+      // Focus on first numbered content
+      const firstContent = numberContainer.querySelector(".rte-bullet-content");
       if (firstContent) {
         const newRange = document.createRange();
         newRange.selectNodeContents(firstContent);
@@ -235,11 +243,13 @@ const RichTextEditor = ({
         selection.addRange(newRange);
       }
     } else {
+      // Create new numbered item at cursor
       const nextNumber = getNextNumber();
       const numberedLine = createNumberedLine(nextNumber);
       range.insertNode(numberedLine);
 
-      const content = numberedLine.querySelector(".bullet-content");
+      // Focus on numbered content
+      const content = numberedLine.querySelector(".rte-bullet-content");
       if (content) {
         const newRange = document.createRange();
         newRange.selectNodeContents(content);
@@ -255,9 +265,10 @@ const RichTextEditor = ({
 
   // Renumber all numbered lists
   const renumberLists = () => {
-    const numberedLines = editorRef.current.querySelectorAll(".numbered-line");
+    const numberedLines =
+      editorRef.current.querySelectorAll(".rte-numbered-line");
     numberedLines.forEach((line, index) => {
-      const marker = line.querySelector(".number-marker");
+      const marker = line.querySelector(".rte-number-marker");
       if (marker) {
         marker.textContent = `${index + 1}.`;
       }
@@ -280,7 +291,7 @@ const RichTextEditor = ({
     }
 
     const p = document.createElement("span");
-    p.setAttribute("class", "italic");
+    p.setAttribute("class", "rte-italic");
     p.textContent = txt;
 
     range.deleteContents();
@@ -292,6 +303,7 @@ const RichTextEditor = ({
     newRange.collapse(true);
     sel.addRange(newRange);
 
+    // Update state
     const html = editorRef.current.innerHTML;
     onChange(html);
     saveToHistory(html);
@@ -304,17 +316,18 @@ const RichTextEditor = ({
 
       if (
         currentLine &&
-        (currentLine.classList.contains("bullet-line") ||
-          currentLine.classList.contains("numbered-line"))
+        (currentLine.classList.contains("rte-bullet-line") ||
+          currentLine.classList.contains("rte-numbered-line"))
       ) {
         e.preventDefault();
 
-        const content = currentLine.querySelector(".bullet-content");
+        const content = currentLine.querySelector(".rte-bullet-content");
         const isEmpty = !content || content.textContent.trim() === "";
 
         if (isEmpty) {
+          // Exit bullet/numbered mode on empty line
           const normalDiv = document.createElement("div");
-          normalDiv.className = "my-2 text-gray-300 text-lg";
+          normalDiv.className = "rte-text";
           normalDiv.innerHTML = "<br>";
           currentLine.parentNode.insertBefore(
             normalDiv,
@@ -322,6 +335,7 @@ const RichTextEditor = ({
           );
           currentLine.remove();
 
+          // Focus on new normal line
           const range = document.createRange();
           const selection = window.getSelection();
           range.selectNodeContents(normalDiv);
@@ -332,8 +346,9 @@ const RichTextEditor = ({
           setIsBulletMode(false);
           setIsNumberMode(false);
         } else {
+          // Create new bullet/numbered line
           let newLine;
-          if (currentLine.classList.contains("bullet-line")) {
+          if (currentLine.classList.contains("rte-bullet-line")) {
             newLine = createBulletLine();
           } else {
             const nextNumber = getNextNumber();
@@ -342,7 +357,8 @@ const RichTextEditor = ({
 
           currentLine.parentNode.insertBefore(newLine, currentLine.nextSibling);
 
-          const newContent = newLine.querySelector(".bullet-content");
+          // Focus on new line content
+          const newContent = newLine.querySelector(".rte-bullet-content");
           if (newContent) {
             const range = document.createRange();
             const selection = window.getSelection();
@@ -352,7 +368,8 @@ const RichTextEditor = ({
             selection.addRange(range);
           }
 
-          if (currentLine.classList.contains("numbered-line")) {
+          // Renumber if it's a numbered list
+          if (currentLine.classList.contains("rte-numbered-line")) {
             setTimeout(renumberLists, 0);
           }
         }
@@ -362,6 +379,7 @@ const RichTextEditor = ({
       }
     }
 
+    // Handle other keyboard shortcuts
     if (e.ctrlKey || e.metaKey) {
       switch (e.key) {
         case "z":
@@ -498,8 +516,72 @@ const RichTextEditor = ({
           range.insertNode(span);
           selection.removeAllRanges();
         }
-      } else {
-        document.execCommand(command, false, value);
+      } else if (command === "bold") {
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+          const range = selection.getRangeAt(0);
+          const selectedText = range.toString();
+          const span = document.createElement("span");
+          span.className = "rte-bold";
+          span.textContent = selectedText;
+          range.deleteContents();
+          range.insertNode(span);
+          selection.removeAllRanges();
+        }
+      } else if (command === "underline") {
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+          const range = selection.getRangeAt(0);
+          const selectedText = range.toString();
+          const span = document.createElement("span");
+          span.className = "rte-underline";
+          span.textContent = selectedText;
+          range.deleteContents();
+          range.insertNode(span);
+          selection.removeAllRanges();
+        }
+      } else if (command === "justifyLeft") {
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+          let node = selection.getRangeAt(0).startContainer;
+          while (node && node !== editorRef.current) {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              node.className =
+                (node.className || "").replace(/rte-align-\w+/g, "") +
+                " rte-align-left";
+              break;
+            }
+            node = node.parentNode;
+          }
+        }
+      } else if (command === "justifyCenter") {
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+          let node = selection.getRangeAt(0).startContainer;
+          while (node && node !== editorRef.current) {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              node.className =
+                (node.className || "").replace(/rte-align-\w+/g, "") +
+                " rte-align-center";
+              break;
+            }
+            node = node.parentNode;
+          }
+        }
+      } else if (command === "justifyRight") {
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+          let node = selection.getRangeAt(0).startContainer;
+          while (node && node !== editorRef.current) {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              node.className =
+                (node.className || "").replace(/rte-align-\w+/g, "") +
+                " rte-align-right";
+              break;
+            }
+            node = node.parentNode;
+          }
+        }
       }
 
       setTimeout(() => {
@@ -516,33 +598,33 @@ const RichTextEditor = ({
   // Get color class for text
   const getColorClass = (color) => {
     const colorMap = {
-      "#ffffff": "text-white",
-      "#22d3ee": "text-cyan-400",
-      "#3b82f6": "text-blue-500",
-      "#10b981": "text-emerald-500",
-      "#f97316": "text-orange-500",
-      "#ef4444": "text-red-500",
-      "#8b5cf6": "text-violet-500",
-      "#f59e0b": "text-amber-500",
+      "#ffffff": "rte-color-white",
+      "#22d3ee": "rte-color-cyan",
+      "#3b82f6": "rte-color-blue",
+      "#10b981": "rte-color-emerald",
+      "#f97316": "rte-color-orange",
+      "#ef4444": "rte-color-red",
+      "#8b5cf6": "rte-color-violet",
+      "#f59e0b": "rte-color-amber",
     };
-    return colorMap[color] || "text-gray-300";
+    return colorMap[color] || "rte-color-default";
   };
 
   // Get font size class
   const getFontSizeClass = (size) => {
     const sizeMap = {
-      1: "text-xs",
-      2: "text-sm",
-      3: "text-base",
-      4: "text-lg",
-      5: "text-xl",
-      6: "text-2xl",
+      1: "rte-size-xs",
+      2: "rte-size-sm",
+      3: "rte-size-base",
+      4: "rte-size-lg",
+      5: "rte-size-xl",
+      6: "rte-size-2xl",
     };
-    return sizeMap[size] || "text-base";
+    return sizeMap[size] || "rte-size-base";
   };
 
   // File upload function
-  const uploadFile = async (file, type) => {
+  const uploadFile = async (file, type, uploadApiUrl) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("type", type);
@@ -596,96 +678,88 @@ const RichTextEditor = ({
   // Create a text element after media insertion
   const createTextElement = () => {
     const textDiv = document.createElement("div");
-    textDiv.className =
-      "my-3 text-gray-300 text-lg min-h-[1.5rem] leading-relaxed";
+    textDiv.className = "rte-text";
     textDiv.innerHTML = "<br>";
     textDiv.contentEditable = true;
     return textDiv;
   };
 
-  // Handle image upload with class names
+  // Handle image upload with CSS classes
+  // === wherever you handle the drop / file-pick ===
+
   const handleImageUpload = async (file) => {
     if (!file || !file.type.startsWith("image/")) return;
 
+    // 1️⃣ Save & restore cursor helpers
     const cursorPos = saveCursorPosition();
-    const imagePath = await uploadFile(file, "image");
-    const imageId = `img_${Date.now()}`;
 
+    // 2️⃣ Upload to your backend
+    const imagePath = await uploadFile(file, "image" );
+    console.log("handleImageUpload → imagePath:", imagePath);
+
+    // 3️⃣ Build the DOM nodes
     const imageContainer = document.createElement("div");
-    imageContainer.className = "w-full flex justify-center my-6";
-    imageContainer.setAttribute("data-image-id", imageId);
-
+    imageContainer.className = "rte-image-container";
     imageContainer.innerHTML = `
-      <div class="media-container">
-        <img 
-          src="${imagePath}" 
-          alt="Uploaded image" 
-          class="media-element image"
-          onclick="window.previewImage && window.previewImage('${imagePath}')"
-        />
-      </div>
-    `;
+    <div class="rte-image-wrapper">
+      <img
+        src="${imagePath}"
+        alt="Uploaded image"
+        class="rte-image"
+        onclick="window.previewImage && window.previewImage('${imagePath}')"
+      />
+    </div>
+  `;
 
     const textElement = createTextElement();
+
+    // 4️⃣ Insert at saved cursor or append
+    const insertAt = (parent) => {
+      parent.appendChild(imageContainer);
+      parent.appendChild(textElement);
+      const range = document.createRange();
+      range.selectNodeContents(textElement);
+      range.collapse(true);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    };
 
     if (cursorPos && editorRef.current.contains(cursorPos.startContainer)) {
       try {
         restoreCursorPosition(cursorPos);
-        const selection = window.getSelection();
-        const range = selection.getRangeAt(0);
-
+        const sel = window.getSelection();
+        const range = sel.getRangeAt(0);
         range.insertNode(textElement);
         range.insertNode(imageContainer);
-
-        const textRange = document.createRange();
-        textRange.selectNodeContents(textElement);
-        textRange.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(textRange);
-      } catch (e) {
-        editorRef.current.appendChild(imageContainer);
-        editorRef.current.appendChild(textElement);
-
-        const textRange = document.createRange();
-        textRange.selectNodeContents(textElement);
-        textRange.collapse(true);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(textRange);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } catch {
+        insertAt(editorRef.current);
       }
     } else {
-      editorRef.current.appendChild(imageContainer);
-      editorRef.current.appendChild(textElement);
-
-      const textRange = document.createRange();
-      textRange.selectNodeContents(textElement);
-      textRange.collapse(true);
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(textRange);
+      insertAt(editorRef.current);
     }
 
+    // 5️⃣ Notify outer state and history
     handleContentChange();
     saveToHistory(editorRef.current.innerHTML);
   };
 
-  // Handle video upload with class names
   const handleVideoUpload = async (file) => {
     if (!file || !file.type.startsWith("video/")) return;
 
     const cursorPos = saveCursorPosition();
     const videoPath = await uploadFile(file, "video");
-    const videoId = `video_${Date.now()}`;
 
+    // Create video container with CSS classes
     const videoContainer = document.createElement("div");
-    videoContainer.className = "w-full flex justify-center my-6";
-    videoContainer.setAttribute("data-video-id", videoId);
-
+    videoContainer.className = "rte-video-container";
     videoContainer.innerHTML = `
-      <div class="media-container">
+      <div class="rte-video-wrapper">
         <video 
           controls 
-          class="media-element video"
+          class="rte-video"
           preload="metadata"
         >
           <source src="${videoPath}" type="${file.type}">
@@ -694,6 +768,7 @@ const RichTextEditor = ({
       </div>
     `;
 
+    // Create text element for continuation
     const textElement = createTextElement();
 
     if (cursorPos && editorRef.current.contains(cursorPos.startContainer)) {
@@ -705,15 +780,18 @@ const RichTextEditor = ({
         range.insertNode(textElement);
         range.insertNode(videoContainer);
 
+        // Position cursor in the text element
         const textRange = document.createRange();
         textRange.selectNodeContents(textElement);
         textRange.collapse(true);
         selection.removeAllRanges();
         selection.addRange(textRange);
       } catch (e) {
+        // Fallback: append to editor
         editorRef.current.appendChild(videoContainer);
         editorRef.current.appendChild(textElement);
 
+        // Focus on text element
         const textRange = document.createRange();
         textRange.selectNodeContents(textElement);
         textRange.collapse(true);
@@ -722,9 +800,11 @@ const RichTextEditor = ({
         selection.addRange(textRange);
       }
     } else {
+      // Append to editor
       editorRef.current.appendChild(videoContainer);
       editorRef.current.appendChild(textElement);
 
+      // Focus on text element
       const textRange = document.createRange();
       textRange.selectNodeContents(textElement);
       textRange.collapse(true);
@@ -749,12 +829,12 @@ const RichTextEditor = ({
     };
   }, []);
 
-  // Insert link
+  // Insert link with CSS classes
   const insertLink = () => {
     if (linkUrl && linkText) {
       executeCommand(
         "insertHTML",
-        `<a href="${linkUrl}" class="text-cyan-400 hover:text-cyan-300 underline transition-colors font-medium" target="_blank">${linkText}</a>`
+        `<a href="${linkUrl}" class="rte-link" target="_blank">${linkText}</a>`
       );
       setLinkUrl("");
       setLinkText("");
@@ -789,7 +869,7 @@ const RichTextEditor = ({
 
   const toolbarButtons = [
     { icon: Bold, command: "bold", title: "Bold (Ctrl+B)" },
-    // { icon: Italic, command: "executeItalic", title: "Italic (Ctrl+I)" },
+    { icon: Italic, command: "executeItalic", title: "Italic (Ctrl+I)" },
     { icon: Underline, command: "underline", title: "Underline (Ctrl+U)" },
     { icon: List, command: "insertUnorderedList", title: "Bullet List" },
     { icon: ListOrdered, command: "insertOrderedList", title: "Numbered List" },
@@ -805,6 +885,7 @@ const RichTextEditor = ({
         onBlur={leftFocusedSection}
         className="bg-gray-900/50 border border-cyan-500/30 rounded-xl overflow-hidden backdrop-blur-sm h-[500px] flex flex-col shadow-2xl"
       >
+        {/* Upload Progress Bar */}
         {isUploading && (
           <div className="bg-gray-800/90 p-3 border-b border-cyan-500/20">
             <div className="flex items-center gap-3">
@@ -825,7 +906,9 @@ const RichTextEditor = ({
           </div>
         )}
 
+        {/* Fixed Toolbar */}
         <div className="bg-gray-800/80 p-3 border-b border-cyan-500/20 flex flex-wrap gap-2 z-10">
+          {/* Undo/Redo */}
           <button
             type="button"
             onClick={handleUndo}
@@ -848,6 +931,7 @@ const RichTextEditor = ({
 
           <div className="w-px bg-gray-600/50 mx-2" />
 
+          {/* Formatting Buttons */}
           {toolbarButtons.map(({ icon: Icon, command, title }) => (
             <button
               key={command}
@@ -862,6 +946,7 @@ const RichTextEditor = ({
 
           <div className="w-px bg-gray-600/50 mx-2" />
 
+          {/* Media Buttons */}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -893,6 +978,7 @@ const RichTextEditor = ({
 
           <div className="w-px bg-gray-600/50 mx-2" />
 
+          {/* Font Size */}
           <select
             onChange={(e) => executeCommand("fontSize", e.target.value)}
             className="px-3 py-1 bg-gray-700/50 border border-gray-600/50 rounded-lg text-gray-300 text-sm hover:border-cyan-400/50 focus:border-cyan-400 focus:outline-none transition-all duration-200"
@@ -907,6 +993,7 @@ const RichTextEditor = ({
           </select>
         </div>
 
+        {/* Scrollable Content Area */}
         <div
           ref={contentRef}
           className="flex-1 overflow-y-auto p-6 relative"
@@ -932,6 +1019,7 @@ const RichTextEditor = ({
           />
         </div>
 
+        {/* Hidden File Inputs */}
         <input
           ref={fileInputRef}
           type="file"
@@ -952,6 +1040,7 @@ const RichTextEditor = ({
           className="hidden"
         />
 
+        {/* Drag Drop Overlay */}
         {dragOver && (
           <div className="absolute inset-0 bg-cyan-500/20 border-2 border-dashed border-cyan-400 rounded-xl flex items-center justify-center z-20">
             <div className="text-center text-cyan-400">
@@ -962,6 +1051,7 @@ const RichTextEditor = ({
         )}
       </div>
 
+      {/* Link Modal */}
       {showLinkModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md border border-cyan-500/30 shadow-2xl">
@@ -1000,6 +1090,7 @@ const RichTextEditor = ({
         </div>
       )}
 
+      {/* Image Preview Modal */}
       {showImagePreview && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
           <div className="relative max-w-4xl max-h-[90vh]">
@@ -1047,59 +1138,8 @@ const RichTextEditor = ({
           font-style: italic;
         }
 
-        [contenteditable] .italic {
-          font-style: italic;
-        }
-
         [contenteditable] u {
           text-decoration: underline;
-        }
-
-        .bullet-line {
-          display: flex;
-          align-items: flex-start;
-          margin: 1rem 0;
-          color: #d1d5db;
-        }
-
-        .numbered-line {
-          display: flex;
-          align-items: flex-start;
-          margin: 1rem 0;
-          color: #d1d5db;
-        }
-
-        .bullet-marker {
-          color: #22d3ee;
-          font-weight: bold;
-          margin-right: 0.75rem;
-          margin-top: 0.125rem;
-          font-size: 1.5rem;
-          user-select: none;
-          flex-shrink: 0;
-        }
-
-        .number-marker {
-          color: #22d3ee;
-          font-weight: bold;
-          margin-right: 0.75rem;
-          margin-top: 0.125rem;
-          font-size: 1.25rem;
-          user-select: none;
-          flex-shrink: 0;
-        }
-
-        .bullet-content {
-          flex: 1;
-          outline: none;
-          min-height: 1.5rem;
-          font-size: 1.25rem;
-          line-height: 1.75rem;
-        }
-
-        .bullet-content:empty:before {
-          content: " ";
-          white-space: pre;
         }
       `}</style>
     </div>
