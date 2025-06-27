@@ -26,8 +26,13 @@ const LessonModel = new mongoose.Schema(
       required: true,
       ref: "Classification",
     },
-    lessonNum: { type: Number, required: true },
-    lesson: { type: String, required: true, unique: true },
+    lessonNum: {
+      type: Number,
+      required: true,
+      min: 1,
+      index: true,
+    },
+    lesson: { type: String, required: true },
     images_URL: [{ type: String }],
     icon: {
       type: String,
@@ -44,14 +49,29 @@ const LessonModel = new mongoose.Schema(
 
 //-----------Static Function to validate the Lesson Number
 
-LessonModel.statics.LessonNumberValidation = function (
+LessonModel.statics.LessonNumberValidation = async function (
   classificationId,
   lessonNum
 ) {
-  return this.exists({
-    classificationId: new mongoose.Types.ObjectId(classificationId),
-    lessonNum: lessonNum,
-  }).then((doc) => !!doc);
+  try {
+    if (!mongoose.Types.ObjectId.isValid(classificationId)) {
+      throw new Error("Invalid classificationId format");
+    }
+
+    if (typeof lessonNum !== "number" || lessonNum <= 0) {
+      throw new Error("lessonNum must be a positive number");
+    }
+
+    const exists = await this.exists({
+      classificationId: classificationId,
+      lessonNum: lessonNum,
+    });
+
+    return Boolean(exists);
+  } catch (err) {
+    console.error("LessonNumberValidation error:", err.message);
+    return false;
+  }
 };
 
 // //-----------Static Function to get the Next Lesson Number

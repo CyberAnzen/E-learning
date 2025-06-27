@@ -1,4 +1,4 @@
-const { DetailedUser } = require("../../model/UserModel"); // Use DetailedUser for detailed registration
+const { DetailedUser } = require("../../../model/UserModel"); // Use DetailedUser for detailed registration
 
 exports.checkusername = async (req, res) => {
     try {

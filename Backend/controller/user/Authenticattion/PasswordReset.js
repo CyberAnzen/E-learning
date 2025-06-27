@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
-const { DetailedUser } = require("../../model/UserModel"); // Use DetailedUser for detailed registration
-const OTP = require("../../model/OTPModel");
+const { DetailedUser } = require("../../../model/UserModel"); // Use DetailedUser for detailed registration
+const OTP = require("../../../model/OTPModel");
 
 exports.PasswordReset = async (req, res) => {
   try {

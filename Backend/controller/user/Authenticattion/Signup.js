@@ -1,6 +1,5 @@
-const bcrypt = require('bcryptjs')
-const { DetailedUser } = require("../../model/UserModel"); // Use DetailedUser for detailed registration
-
+const bcrypt = require("bcryptjs");
+const { DetailedUser } = require("../../../model/UserModel"); // Use DetailedUser for detailed registration
 
 exports.signup = async (req, res) => {
   const formattedDateTime = new Date().toLocaleString();
@@ -34,7 +33,18 @@ exports.signup = async (req, res) => {
     const hashed = await hashPassword(req.body.password);
 
     // Destructure fields from request body
-    const { username, fullName, dept, email, officialEmail, phoneNo, regNumber, section, year, gender } = req.body;
+    const {
+      username,
+      fullName,
+      dept,
+      email,
+      officialEmail,
+      phoneNo,
+      regNumber,
+      section,
+      year,
+      gender,
+    } = req.body;
 
     // Build the user information object
     const info = {
@@ -65,7 +75,9 @@ exports.signup = async (req, res) => {
     if (!user) {
       return res.status(404).send("User not created");
     }
-    res.status(200).json({message: "User created successfully", user: user.user_name});
+    res
+      .status(200)
+      .json({ message: "User created successfully", user: user.user_name });
   } catch (error) {
     console.error("Error in signup", error);
     res.status(500).send("Error in signup");

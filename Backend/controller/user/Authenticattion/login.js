@@ -1,8 +1,8 @@
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcryptjs')
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 // Ensure your JWT_SECRET is stored securely (e.g., in environment variables)
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
-const { DetailedUser } = require("../../model/UserModel"); // Use DetailedUser for detailed registration
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+const { DetailedUser } = require("../../../model/UserModel"); // Use DetailedUser for detailed registration
 
 exports.login = async (req, res, next) => {
   const { identifier, password, rememberMe } = req.body;
@@ -10,10 +10,10 @@ exports.login = async (req, res, next) => {
     const user = await DetailedUser.findOne({
       $or: [
         { username: identifier },
-        { 'userDetails.regNumber': identifier },
-        { 'userDetails.email': identifier },
-        { 'userDetails.officialEmail': identifier }
-      ]
+        { "userDetails.regNumber": identifier },
+        { "userDetails.email": identifier },
+        { "userDetails.officialEmail": identifier },
+      ],
     });
 
     if (!user) {
@@ -28,10 +28,10 @@ exports.login = async (req, res, next) => {
     const payload = { id: user._id, username: user.username };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 
-    res.cookie('token', token, {
+    res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production' ? true : false,
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production" ? true : false,
+      sameSite: "strict",
       maxAge: rememberMe ? 20 * 24 * 60 * 60 * 1000 : 3600000, // 20 days or 1 hour
     });
 
