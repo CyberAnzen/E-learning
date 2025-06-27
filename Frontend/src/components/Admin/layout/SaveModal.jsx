@@ -86,7 +86,7 @@ const SaveModal = ({
                 whileTap={!isSaving ? { scale: 0.98 } : {}}
                 onClick={handleSave}
                 disabled={isSaving}
-                className="cyber-button max-h-[7vh] min-h-[7vh] flex-1 px-4 py-2 bg-emerald-500/80 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20"
+                className="cyber-button max-h-[7vh] min-h-[7vh] flex-1 px-4 py-2 bg-teal-700 hover:bg-teal-500/40 text-white rounded-lg transition-colors duration-200 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20"
               >
                 {isSaving ? (
                   <>

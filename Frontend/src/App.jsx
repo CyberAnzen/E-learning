@@ -64,7 +64,7 @@ function App() {
     <>
       <div className="bg-gray-900">
         <Navbar />
-
+        <div className="mt-23"></div>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/learn" element={<LearnPage />} />

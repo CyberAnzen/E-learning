@@ -5,6 +5,7 @@ import {
   Clock,
   User,
   ChevronRight,
+  BookOpen,
   ChevronLeft,
   Flag,
   Target,
@@ -383,8 +384,14 @@ const Content = ({
   // Loading state
   if (!currentChapter || !currentTask) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-400">
-        Loading chapter…
+      <div className="text-center py-12">
+        <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-gray-400 mb-2">
+          No courses available
+        </h3>
+        <p className="text-gray-500">
+          Check back later for new learning opportunities.
+        </p>
       </div>
     );
   }
@@ -405,9 +412,7 @@ const Content = ({
   {
     return (
       <section
-        className={`bg-gradient-to-br from-black via-gray-900 to-black ${
-          isPreview ? "mt-0 " : "mt-23"
-        } min-h-screen  relative`}
+        className={`bg-gradient-to-br from-black via-gray-900 to-black min-h-screen  relative`}
       >
         {Admin && !isPreview && (
           // 1) Absolute wrapper takes no space in the document flow
