@@ -421,7 +421,7 @@ const Content = ({
       2) This inner div is the only one in the flow of scrolling; 
          it sits at the top of the page and scrolls normally.
     */}
-            <div className="sticky top-1/6 md:top-1/7 lg:top-[20%] flex justify-end pointer-events-auto z-10">
+            <div className="sticky top-1/10 md:top-1/10 lg:top-[15%] flex justify-end pointer-events-auto z-10">
               {/* 
         3) Margin-right to pull it in from the edge, gap-2 to space buttons
       */}
