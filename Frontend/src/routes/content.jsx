@@ -624,7 +624,8 @@ const Content = ({
                       </h1>
                     </center>
                     <main
-                      className="leading-relaxed whitespace-pre-wrap"
+                      className="leading-relaxed whitespace-pre-wrap select-none pointer-events-none"
+                      contentEditable={false}
                       dangerouslySetInnerHTML={{
                         __html: currentTask.content.mainContent,
                       }}
