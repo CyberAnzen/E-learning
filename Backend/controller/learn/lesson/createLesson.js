@@ -24,17 +24,6 @@ exports.createLesson = async (req, res) => {
       return res.status(404).json({ message: "Invalid classificationId" });
     }
 
-    // 2) lessonNum unique?
-    const duplicate = await LessonModel.LessonNumberValidation(
-      classificationId,
-      lessonNum
-    );
-    if (duplicate) {
-      return res.status(400).json({
-        message: "Lesson number already exists in this classification.",
-      });
-    }
-
     // 3) normalize your addedImages → images_URL
     const images_URL = normalizeImagePaths(req.body.addedImages || []);
 

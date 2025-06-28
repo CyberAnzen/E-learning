@@ -2,12 +2,12 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 // Ensure your JWT_SECRET is stored securely (e.g., in environment variables)
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
-const { DetailedUser } = require("../../../model/UserModel"); // Use DetailedUser for detailed registration
+const { User } = require("../../../model/UserModel"); // Use User for detailed registration
 
 exports.login = async (req, res, next) => {
   const { identifier, password, rememberMe } = req.body;
   try {
-    const user = await DetailedUser.findOne({
+    const user = await User.findOne({
       $or: [
         { username: identifier },
         { "userDetails.regNumber": identifier },

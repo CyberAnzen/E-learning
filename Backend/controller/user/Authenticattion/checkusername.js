@@ -1,4 +1,4 @@
-const { DetailedUser } = require("../../../model/UserModel"); // Use DetailedUser for detailed registration
+const { User } = require("../../../model/UserModel"); // Use User for detailed registration
 
 exports.checkusername = async (req, res) => {
     try {
@@ -10,7 +10,7 @@ exports.checkusername = async (req, res) => {
       }
   
       // 2. Perform a case-insensitive exact match against user_details.user_name
-      const user = await DetailedUser.findOne({
+      const user = await User.findOne({
         user_name: {
           $regex: `^${username}$`,
           $options: "i", // case-insensitive

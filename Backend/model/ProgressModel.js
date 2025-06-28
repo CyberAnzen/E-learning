@@ -1,16 +1,19 @@
 const mongoose = require("mongoose");
-
-const ProgressSchema = new mongoose.Schema(
+const ProgressSchema = require("../schema/ProgressSchema");
+const ProgressModel = new mongoose.Schema(
   {
     userId: {
       type: mongoose.SchemaTypes.ObjectId,
-      required: true,
       ref: "Users",
+      required: true,
+      index: true, // fast queries by user
     },
-    
+    learn: { ProgressSchema },
   },
   {
     timestamps: true,
   }
 );
-module.exports = mongoose.model("Progress", ProgressSchema);
+ProgressModel.index({ userId: 1, lessonId: 1 }, { unique: true });
+
+module.exports = mongoose.model("Progress", ProgressModel);

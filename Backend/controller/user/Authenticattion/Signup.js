@@ -1,5 +1,5 @@
 const bcrypt = require("bcryptjs");
-const { DetailedUser } = require("../../../model/UserModel"); // Use DetailedUser for detailed registration
+const { User } = require("../../../model/UserModel"); // Use User for detailed registration
 
 exports.signup = async (req, res) => {
   const formattedDateTime = new Date().toLocaleString();
@@ -71,7 +71,7 @@ exports.signup = async (req, res) => {
     }
 
     // Create the new user document using the detailed user model
-    const user = await DetailedUser.create(info);
+    const user = await User.create(info);
     if (!user) {
       return res.status(404).send("User not created");
     }

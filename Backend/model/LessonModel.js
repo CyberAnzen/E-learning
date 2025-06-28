@@ -49,30 +49,30 @@ const LessonModel = new mongoose.Schema(
 
 //-----------Static Function to validate the Lesson Number
 
-LessonModel.statics.LessonNumberValidation = async function (
-  classificationId,
-  lessonNum
-) {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(classificationId)) {
-      throw new Error("Invalid classificationId format");
-    }
+// LessonModel.statics.LessonNumberValidation = async function (
+//   classificationId,
+//   lessonNum
+// ) {
+//   try {
+//     if (!mongoose.Types.ObjectId.isValid(classificationId)) {
+//       throw new Error("Invalid classificationId format");
+//     }
 
-    if (typeof lessonNum !== "number" || lessonNum <= 0) {
-      throw new Error("lessonNum must be a positive number");
-    }
+//     if (typeof lessonNum !== "number" || lessonNum <= 0) {
+//       throw new Error("lessonNum must be a positive number");
+//     }
 
-    const exists = await this.exists({
-      classificationId: classificationId,
-      lessonNum: lessonNum,
-    });
+//     const exists = await this.exists({
+//       classificationId: classificationId,
+//       lessonNum: lessonNum,
+//     });
 
-    return Boolean(exists);
-  } catch (err) {
-    console.error("LessonNumberValidation error:", err.message);
-    return false;
-  }
-};
+//     return Boolean(exists);
+//   } catch (err) {
+//     console.error("LessonNumberValidation error:", err.message);
+//     return false;
+//   }
+// };
 
 // //-----------Static Function to get the Next Lesson Number
 
@@ -87,6 +87,9 @@ LessonModel.statics.LessonNumberValidation = async function (
 //   return lastLesson ? lastLesson.lessonNum + 1 : 1;
 // };
 
+
+// unique lesson number per classification
+LessonModel.index({ classificationId: 1, lessonNum: 1 }, { unique: true });
 const Lesson = mongoose.model("Lessons", LessonModel);
 
 module.exports = Lesson;
