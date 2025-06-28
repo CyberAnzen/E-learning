@@ -84,4 +84,4 @@ ProgressSchema.statics.countCompletedPerClassification = function (userId) {
   ]);
 };
 
-module.exports = mongoose.model("Progress", ProgressSchema);
+module.exports = mongoose.model("Learn_Progress", ProgressSchema);
