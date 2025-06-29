@@ -7,6 +7,7 @@ exports.bannerEvent = async (req, res) => {
 
 
         const cacheData = cacheManager.getCache('eventCache');
+       // console.log(cacheData);
        if (!cacheData || !Array.isArray(cacheData.data)) {
              return res.status(404).json({
                 success: false,
