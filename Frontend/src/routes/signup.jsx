@@ -2,9 +2,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import { User, Lock, Mail, Phone } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import debounce from "lodash.debounce";
-import ParticleBackground from "../components/ParticleBackground";
+import { debounce } from "lodash";
+import ParticleBackground from "../components/Login/ParticleBackground";
+import UserIcon from "../components/Login/UserIcon";
 import "../index.css";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function Signup() {
   const navigate = useNavigate();
 
@@ -34,11 +37,39 @@ export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    // Smooth scroll to top
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+
+    // Prevent scrolling on body but allow it on the form container
+    document.body.style.overflow = "hidden";
+    document.body.style.height = "100vh";
+    document.body.style.position = "fixed";
+    document.body.style.width = "100%";
+    document.documentElement.style.overflow = "hidden";
+
+    // Optional: Prevent touchmove to block scrolling more robustly
+    const preventTouchMove = (e) => e.preventDefault();
+    document.addEventListener("touchmove", preventTouchMove, {
+      passive: false,
+    });
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.height = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+      document.documentElement.style.overflow = "";
+      document.removeEventListener("touchmove", preventTouchMove);
+    };
+  }, []);
+
   const debouncedCheckUsername = useCallback(
     debounce(async (username) => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/user/check-username?username=${username}`
+          `${BACKEND_URL}/user/check-username?username=${username}`
         );
         setUsernameStatus({
           type: response.data.available ? "success" : "error",
@@ -88,7 +119,7 @@ export default function Signup() {
         year: parseInt(data.year, 10) || 0,
       };
       const response = await axios.post(
-        "http://localhost:4000/user/signup",
+        `${BACKEND_URL}/user/signup`,
         numericData
       );
       setTimeout(() => {
@@ -333,573 +364,828 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen mt-13 mb-2 login-container flex items-center justify-center px-4 py-12 sm:py-16 relative bg-gradient-to-br from-black via-gray-900 to-black">
-      <div className="w-full max-w-[1400px] px-4">
-        <div className=" login-container  bg-gradient-to-br from-gray-900  via-65% via-black to-gray-900 backdrop-blur-xl rounded-2xl border-2 border-[#01ffdb]/20  my-8 sm:p-8 md:p-10 shadow-2xl motion-safe:animate-glow">
-          <div className="flex items-center justify-center mb-2 md:mb-10">
-            <h1
-              className="text-2xl  sm:text-4xl md:text-5xl font-bold text-white motion-safe:animate-glitch"
-              data-text="Sign up"
+    <div className="flex items-center justify-center px-4 sm:px-6 relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black min-h-[80vh] max-h-[100vh] pt-10 pb-0 lg:pb-0">
+      <ParticleBackground />
+      {/* Cyberpunk grid overlay */}
+      <div className="absolute inset-0 opacity-10">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+            linear-gradient(rgba(1, 255, 219, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(1, 255, 219, 0.1) 1px, transparent 1px)
+          `,
+            backgroundSize: "50px 50px",
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 w-full max-w-7xl pb-10">
+        {/* Main Container */}
+        <div className="relative -mt-4">
+          {/* Angled border container */}
+          <div
+            className="relative bg-teal-700/20 opacity-85  backdrop-blur-xl border-2 border-[#01ffdb]/50 p-1"
+            style={{
+              clipPath:
+                "polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px))",
+            }}
+          >
+            {/* Inner content area */}
+            <div
+              className="bg-gray-900/50 max-h-[80vh] overflow-y-auto"
+              style={{
+                clipPath:
+                  "polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 28px 100%, 0 calc(100% - 28px))",
+              }}
             >
-              Sign up
-            </h1>
+              {/* SIGN UP Header */}
+              <div className="absolute top-4 left-4">
+                <div
+                  className="bg-[#01ffdb] text-black px-4 py-1 font-mono font-bold text-lg tracking-wider"
+                  style={{
+                    clipPath:
+                      "polygon(0 0, calc(100% - 10px) 0, 100% 100%, 0 100%)",
+                  }}
+                >
+                  SIGN UP
+                </div>
+              </div>
+
+              {/* Left side - User Profile Scanner */}
+
+              <div className="fixed top-30 left-10 z-50 flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
+                <div className="relative">
+                  {/* Scanning frame */}
+                  <div className="w-48 h-48 border-2 border-[#01ffdb]/70 relative bg-black/30 backdrop-blur-sm">
+                    {/* Corner brackets */}
+                    <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#01ffdb]" />
+                    <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#01ffdb]" />
+                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#01ffdb]" />
+                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#01ffdb]" />
+
+                    {/* User Icon */}
+                    <div className="fixed inset-4 flex items-center justify-center">
+                      <UserIcon size={140} />
+                    </div>
+
+                    {/* Status indicators */}
+                    {/* <div className="absolute -bottom-8 left-0 right-0 text-center">
+        <div className="text-[#01ffdb] font-mono text-xs animate-pulse">
+          PROFILE SCAN ACTIVE
+        </div>
+      </div> */}
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-16 mt-12 p-8 md:p-12">
+                {/* Left side - User Profile Scanner */}
+                <div className="flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
+                  <div className="w-48"></div>
+                </div>
+
+                {/* Right side - Form */}
+                <div className="flex-1 w-full">
+                  <form
+                    onSubmit={handleSubmit}
+                    className="space-y-6 sm:space-y-8"
+                  >
+                    {error && (
+                      <div
+                        className="bg-red-500/10 border border-red-500/50 p-3"
+                        style={{
+                          clipPath:
+                            "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+                        }}
+                      >
+                        <p className="text-center text-sm text-red-400 font-mono">
+                          {error}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Personal Information Section */}
+                    <div className="space-y-4 sm:space-y-6">
+                      <h3 className="text-[#01ffdb] font-mono text-base sm:text-lg font-bold border-b border-[#01ffdb]/30 pb-2">
+                        PERSONAL INFORMATION
+                      </h3>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        {/* Username */}
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <div
+                              className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                              }}
+                            >
+                              <div className="flex items-center justify-between p-3">
+                                <input
+                                  type="text"
+                                  name="username"
+                                  value={formData.username}
+                                  onChange={handleInputChange}
+                                  onBlur={() => handleBlur("username")}
+                                  placeholder="USERNAME"
+                                  required
+                                  data-error={
+                                    validationErrors.username ? "true" : "false"
+                                  }
+                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          {validationErrors.username && (
+                            <p className="text-red-400 text-xs font-mono">
+                              {validationErrors.username}
+                            </p>
+                          )}
+                          {usernameStatus && (
+                            <p
+                              className={`text-xs font-mono ${
+                                usernameStatus.type === "error"
+                                  ? "text-red-400"
+                                  : usernameStatus.type === "warning"
+                                  ? "text-yellow-400"
+                                  : "text-green-400"
+                              }`}
+                            >
+                              {usernameStatus.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Full Name */}
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <div
+                              className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                              }}
+                            >
+                              <div className="flex items-center justify-between p-3">
+                                <input
+                                  type="text"
+                                  name="fullName"
+                                  value={formData.fullName}
+                                  onChange={handleInputChange}
+                                  onBlur={() => handleBlur("fullName")}
+                                  placeholder="FULL NAME"
+                                  required
+                                  data-error={
+                                    validationErrors.fullName ? "true" : "false"
+                                  }
+                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          {validationErrors.fullName && (
+                            <p className="text-red-400 text-xs font-mono">
+                              {validationErrors.fullName}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Email */}
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <div
+                              className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                              }}
+                            >
+                              <div className="flex items-center justify-between p-3">
+                                <input
+                                  type="email"
+                                  name="email"
+                                  value={formData.email}
+                                  onChange={handleInputChange}
+                                  onBlur={() => handleBlur("email")}
+                                  placeholder="EMAIL ADDRESS"
+                                  required
+                                  data-error={
+                                    validationErrors.email ? "true" : "false"
+                                  }
+                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          {validationErrors.email && (
+                            <p className="text-red-400 text-xs font-mono">
+                              {validationErrors.email}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Mobile Number */}
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <div
+                              className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                              }}
+                            >
+                              <div className="flex items-center justify-between p-3">
+                                <input
+                                  type="number"
+                                  name="mobile"
+                                  value={formData.mobile}
+                                  onChange={handleInputChange}
+                                  onBlur={() => handleBlur("mobile")}
+                                  placeholder="MOBILE NUMBER"
+                                  required
+                                  data-error={
+                                    validationErrors.mobile ? "true" : "false"
+                                  }
+                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none appearance-none [-moz-appearance:textfield]"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          {validationErrors.mobile && (
+                            <p className="text-red-400 text-xs font-mono">
+                              {validationErrors.mobile}
+                            </p>
+                          )}
+                          {phoneStatus && (
+                            <p
+                              className={`text-xs font-mono ${
+                                phoneStatus.type === "error"
+                                  ? "text-red-400"
+                                  : phoneStatus.type === "warning"
+                                  ? "text-yellow-400"
+                                  : "text-green-400"
+                              }`}
+                            >
+                              {phoneStatus.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Academic Information Section */}
+                    <div className="space-y-4 sm:space-y-6">
+                      <h3 className="text-[#01ffdb] font-mono text-base sm:text-lg font-bold border-b border-[#01ffdb]/30 pb-2">
+                        ACADEMIC INFORMATION
+                      </h3>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                        {/* Registration Number */}
+                        <div className="lg:col-span-2 space-y-2">
+                          <div className="relative">
+                            <div
+                              className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                              }}
+                            >
+                              <div className="flex items-center justify-between p-3">
+                                <input
+                                  type="text"
+                                  name="regNumber"
+                                  value={formData.regNumber}
+                                  onChange={handleInputChange}
+                                  onBlur={() => handleBlur("regNumber")}
+                                  placeholder="REGISTRATION NUMBER"
+                                  required
+                                  data-error={
+                                    validationErrors.regNumber
+                                      ? "true"
+                                      : "false"
+                                  }
+                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          {validationErrors.regNumber && (
+                            <p className="text-red-400 text-xs font-mono">
+                              {validationErrors.regNumber}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Official Email */}
+                        <div className="lg:col-span-2 space-y-2">
+                          <div className="relative">
+                            <div
+                              className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                              }}
+                            >
+                              <div className="flex items-center justify-between p-3">
+                                <input
+                                  type="email"
+                                  name="officialEmail"
+                                  value={formData.officialEmail}
+                                  onChange={handleInputChange}
+                                  onBlur={() => handleBlur("officialEmail")}
+                                  placeholder="OFFICIAL EMAIL"
+                                  required
+                                  data-error={
+                                    validationErrors.officialEmail
+                                      ? "true"
+                                      : "false"
+                                  }
+                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          {validationErrors.officialEmail && (
+                            <p className="text-red-400 text-xs font-mono">
+                              {validationErrors.officialEmail}
+                            </p>
+                          )}
+                          {officialEmailStatus && (
+                            <p
+                              className={`text-xs font-mono ${
+                                officialEmailStatus.type === "error"
+                                  ? "text-red-400"
+                                  : officialEmailStatus.type === "warning"
+                                  ? "text-yellow-400"
+                                  : "text-green-400"
+                              }`}
+                            >
+                              {officialEmailStatus.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Department */}
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <div
+                              className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                              }}
+                            >
+                              <div className="flex items-center justify-between p-3">
+                                <select
+                                  name="dept"
+                                  value={formData.dept}
+                                  onChange={handleInputChange}
+                                  onBlur={() => handleBlur("dept")}
+                                  required
+                                  data-error={
+                                    validationErrors.dept ? "true" : "false"
+                                  }
+                                  className="bg-transparent text-[#01ffdb] font-mono text-lg outline-none flex-1 appearance-none"
+                                >
+                                  <option
+                                    value=""
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    DEPARTMENT
+                                  </option>
+                                  <option
+                                    value="CSE"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    CSE
+                                  </option>
+                                  <option
+                                    value="ECE"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    ECE
+                                  </option>
+                                  <option
+                                    value="EEE"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    EEE
+                                  </option>
+                                  <option
+                                    value="MECH"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    MECH
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          {validationErrors.dept && (
+                            <p className="text-red-400 text-xs font-mono">
+                              {validationErrors.dept}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Section */}
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <div
+                              className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                              }}
+                            >
+                              <div className="flex items-center justify-between p-3">
+                                <select
+                                  name="section"
+                                  value={formData.section}
+                                  onChange={handleInputChange}
+                                  onBlur={() => handleBlur("section")}
+                                  required
+                                  data-error={
+                                    validationErrors.section ? "true" : "false"
+                                  }
+                                  className="bg-transparent text-[#01ffdb] font-mono text-lg outline-none flex-1 appearance-none"
+                                >
+                                  <option
+                                    value=""
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    SECTION
+                                  </option>
+                                  <option
+                                    value="a"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    A
+                                  </option>
+                                  <option
+                                    value="b"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    B
+                                  </option>
+                                  <option
+                                    value="c"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    C
+                                  </option>
+                                  <option
+                                    value="d"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    D
+                                  </option>
+                                  <option
+                                    value="e"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    E
+                                  </option>
+                                  <option
+                                    value="f"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    F
+                                  </option>
+                                  <option
+                                    value="g"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    G
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          {validationErrors.section && (
+                            <p className="text-red-400 text-xs font-mono">
+                              {validationErrors.section}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Year */}
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <div
+                              className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                              }}
+                            >
+                              <div className="flex items-center justify-between p-3">
+                                <select
+                                  name="year"
+                                  value={formData.year}
+                                  onChange={handleInputChange}
+                                  onBlur={() => handleBlur("year")}
+                                  required
+                                  data-error={
+                                    validationErrors.year ? "true" : "false"
+                                  }
+                                  className="bg-transparent text-[#01ffdb] font-mono text-lg outline-none flex-1 appearance-none"
+                                >
+                                  <option
+                                    value=""
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    YEAR
+                                  </option>
+                                  <option
+                                    value="1"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    1ST YEAR
+                                  </option>
+                                  <option
+                                    value="2"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    2ND YEAR
+                                  </option>
+                                  <option
+                                    value="3"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    3RD YEAR
+                                  </option>
+                                  <option
+                                    value="4"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    4TH YEAR
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          {validationErrors.year && (
+                            <p className="text-red-400 text-xs font-mono">
+                              {validationErrors.year}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Gender */}
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <div
+                              className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                              }}
+                            >
+                              <div className="flex items-center justify-between p-3">
+                                <select
+                                  name="gender"
+                                  value={formData.gender}
+                                  onChange={handleInputChange}
+                                  onBlur={() => handleBlur("gender")}
+                                  required
+                                  data-error={
+                                    validationErrors.gender ? "true" : "false"
+                                  }
+                                  className="bg-transparent text-[#01ffdb] font-mono text-lg outline-none flex-1 appearance-none"
+                                >
+                                  <option
+                                    value=""
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    GENDER
+                                  </option>
+                                  <option
+                                    value="male"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    MALE
+                                  </option>
+                                  <option
+                                    value="female"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    FEMALE
+                                  </option>
+                                  <option
+                                    value="other"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    OTHER
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          {validationErrors.gender && (
+                            <p className="text-red-400 text-xs font-mono">
+                              {validationErrors.gender}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Security Section */}
+                    <div className="space-y-4 sm:space-y-6">
+                      <h3 className="text-[#01ffdb] font-mono text-base sm:text-lg font-bold border-b border-[#01ffdb]/30 pb-2">
+                        SECURITY
+                      </h3>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        {/* Password */}
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <div
+                              className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                              }}
+                            >
+                              <div className="flex items-center justify-between p-3">
+                                <input
+                                  type="password"
+                                  name="password"
+                                  value={formData.password}
+                                  onChange={handleInputChange}
+                                  onBlur={() => handleBlur("password")}
+                                  placeholder="••••••••••••••••"
+                                  required
+                                  data-error={
+                                    validationErrors.password ? "true" : "false"
+                                  }
+                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          {validationErrors.password && (
+                            <p className="text-red-400 text-xs font-mono">
+                              {validationErrors.password}
+                            </p>
+                          )}
+                          {passwordStatus && (
+                            <p
+                              className={`text-xs font-mono ${
+                                passwordStatus.type === "error"
+                                  ? "text-red-400"
+                                  : passwordStatus.type === "warning"
+                                  ? "text-yellow-400"
+                                  : "text-green-400"
+                              }`}
+                            >
+                              {passwordStatus.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Confirm Password */}
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <div
+                              className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                              style={{
+                                clipPath:
+                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                              }}
+                            >
+                              <div className="flex items-center justify-between p-3">
+                                <input
+                                  type="password"
+                                  name="confirmPassword"
+                                  value={formData.confirmPassword}
+                                  onChange={handleInputChange}
+                                  onBlur={() => handleBlur("confirmPassword")}
+                                  placeholder="••••••••••••••••"
+                                  required
+                                  data-error={
+                                    validationErrors.confirmPassword
+                                      ? "true"
+                                      : "false"
+                                  }
+                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          {validationErrors.confirmPassword && (
+                            <p className="text-red-400 text-xs font-mono">
+                              {validationErrors.confirmPassword}
+                            </p>
+                          )}
+                          {confirmPasswordStatus && (
+                            <p
+                              className={`text-xs font-mono ${
+                                confirmPasswordStatus.type === "error"
+                                  ? "text-red-400"
+                                  : confirmPasswordStatus.type === "warning"
+                                  ? "text-yellow-400"
+                                  : "text-green-400"
+                              }`}
+                            >
+                              {confirmPasswordStatus.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Terms and Submit */}
+                    <div className="space-y-6">
+                      {/* Terms */}
+                      <div className="flex items-center space-x-3">
+                        <input
+                          type="checkbox"
+                          name="terms"
+                          id="terms"
+                          checked={formData.terms}
+                          onChange={handleInputChange}
+                          onBlur={() => handleBlur("terms")}
+                          className="w-4 h-4 bg-transparent border-2 border-[#01ffdb]/50 rounded-none 
+                                   checked:bg-[#01ffdb] checked:border-[#01ffdb] 
+                                   focus:ring-[#01ffdb]/50 focus:ring-2"
+                        />
+                        <label
+                          htmlFor="terms"
+                          className="text-[#01ffdb]/70 font-mono"
+                        >
+                          ACCEPT TERMS AND CONDITIONS
+                        </label>
+                        {validationErrors.terms && (
+                          <p className="text-red-400 text-xs font-mono ml-2">
+                            {validationErrors.terms}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Submit Button */}
+                      <button
+                        type="submit"
+                        disabled={!isFormComplete() || isLoading}
+                        className="cyber-button w-full py-3 px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
+                                 text-[#01ffdb] font-mono text-lg font-bold
+                                 hover:bg-[#01ffdb]/20 hover:border-[#01ffdb]
+                                 transition-all duration-300 relative overflow-hidden
+                                 disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                          clipPath:
+                            "polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px))",
+                        }}
+                      >
+                        <div className="relative z-10">
+                          {isLoading ? "PROCESSING..." : "CREATE ACCOUNT"}
+                        </div>
+
+                        {/* Animated background effect */}
+                        <div
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-[#01ffdb]/10 to-transparent 
+                                      transform -skew-x-12 -translate-x-full animate-pulse"
+                        />
+                      </button>
+
+                      {/* Login link */}
+                      <div className="text-center text-[#01ffdb]/70 font-mono">
+                        ALREADY REGISTERED?{" "}
+                        <Link to="/login">
+                          <span className="text-[#01ffdb] hover:text-[#01ffdb]/80 transition-colors font-bold">
+                            LOGIN HERE
+                          </span>
+                        </Link>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <form
-            className="grid grid-cols-1 p-4 sm:p-7 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8"
-            onSubmit={handleSubmit}
-          >
-            {error && (
-              <div className="col-span-full bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-                <p className="text-center text-sm text-red-400 font-mono">
-                  {error}
-                </p>
-              </div>
-            )}
-
-            {/* Username */}
-            <div className="space-y-2 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-2">
-              <label className="text-sm font-medium text-teal-400 block font-mono tracking-wider">
-                USERNAME
-              </label>
-              <div className="relative group">
-                <div className="absolute left-0 pl-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none transition-all duration-300 group-hover:text-teal-300">
-                  <User className="h-5 w-5 text-teal-400/40" />
-                </div>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  onBlur={() => handleBlur("username")}
-                  placeholder="Choose username"
-                  required
-                  data-error={validationErrors.username ? "true" : "false"}
-                  className="
-                    block w-full
-                    bg-gray-400/5 border border-[#01ffdb]/20 rounded-lg
-                    text-white font-mono placeholder:text-white/20
-                    text-sm sm:text-base
-                    pl-12 pr-4 py-3
-                    focus:outline-none focus:ring-2 focus:ring-[#01ffdb]/50 focus:border-transparent
-                    transition-all duration-300
-                    hover:bg-black/60 hover:border-[#01ffdb]/30
-                  "
-                />
-              </div>
-              {validationErrors.username && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.username}
-                </p>
-              )}
-              {usernameStatus && (
-                <p
-                  className={`text-xs mt-1 ${
-                    usernameStatus.type === "error"
-                      ? "text-red-400"
-                      : usernameStatus.type === "warning"
-                      ? "text-yellow-400"
-                      : "text-green-400"
-                  }`}
-                >
-                  {usernameStatus.message}
-                </p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div className="space-y-2 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-2">
-              <label className="text-sm font-medium text-teal-400 block font-mono tracking-wider">
-                EMAIL
-              </label>
-              <div className="relative group">
-                <div className="absolute left-0 pl-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none transition-all duration-300 group-hover:text-teal-300">
-                  <Mail className="h-5 w-5 text-teal-400/40" />
-                </div>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  onBlur={() => handleBlur("email")}
-                  placeholder="Enter email address"
-                  required
-                  data-error={validationErrors.email ? "true" : "false"}
-                  className="
-                    block w-full
-                     bg-gray-400/5 border border-[#01ffdb]/20 rounded-lg
-                    text-white font-mono placeholder:text-white/20
-                    text-sm sm:text-base
-                    pl-12 pr-4 py-3
-                    focus:outline-none focus:ring-2 focus:ring-[#01ffdb]/50 focus:border-transparent
-                    transition-all duration-300
-                    hover:bg-black/60 hover:border-[#01ffdb]/30
-                  "
-                />
-              </div>
-              {validationErrors.email && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.email}
-                </p>
-              )}
-            </div>
-
-            {/* Full Name */}
-            <div className="space-y-2 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-2">
-              <label className="text-sm font-medium text-teal-400 block font-mono tracking-wider">
-                FULL NAME
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleInputChange}
-                onBlur={() => handleBlur("fullName")}
-                placeholder="Enter your full name"
-                required
-                data-error={validationErrors.fullName ? "true" : "false"}
-                className="
-                   bg-gray-400/5 border border-teal-400/30 text-white rounded-lg
-                  w-full py-3 px-4
-                  focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-transparent
-                  font-mono placeholder:text-white/20 text-sm sm:text-base
-                  transition-all duration-300
-                  hover:bg-black/60 hover:border-[#01ffdb]/30
-                "
-              />
-              {validationErrors.fullName && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.fullName}
-                </p>
-              )}
-            </div>
-
-            {/* Registration Number */}
-            <div className="space-y-2 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-2">
-              <label className="text-sm font-medium text-teal-400 block font-mono tracking-wider">
-                REGISTRATION NUMBER
-              </label>
-              <input
-                type="text"
-                name="regNumber"
-                value={formData.regNumber}
-                onChange={handleInputChange}
-                onBlur={() => handleBlur("regNumber")}
-                placeholder="Enter registration number"
-                required
-                data-error={validationErrors.regNumber ? "true" : "false"}
-                className="
-                   bg-gray-400/5 border border-teal-400/30 text-white rounded-lg
-                  w-full py-3 px-4
-                  focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-transparent
-                  font-mono placeholder:text-white/20 text-sm sm:text-base
-                  transition-all duration-300
-                  hover:bg-black/60 hover:border-[#01ffdb]/30
-                "
-              />
-              {validationErrors.regNumber && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.regNumber}
-                </p>
-              )}
-            </div>
-
-            {/* Department */}
-            <div className="space-y-2 relative z-10 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-1">
-              <label className="text-sm font-medium text-teal-400 block font-mono tracking-wider">
-                DEPARTMENT
-              </label>
-              <select
-                name="dept"
-                value={formData.dept}
-                onChange={handleInputChange}
-                onBlur={() => handleBlur("dept")}
-                required
-                data-error={validationErrors.dept ? "true" : "false"}
-                className="
-                   bg-gray-400/5 border border-teal-400/30 text-white rounded-lg
-                  w-full py-3 px-4
-                  focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-transparent
-                  font-mono text-sm sm:text-base appearance-none
-                  transition-all duration-300
-                  hover:bg-black/60 hover:border-[#01ffdb]/30
-                "
-              >
-                <option value="">Select Department</option>
-                <option value="CSE">Computer Science</option>
-                <option value="ECE">Electronics</option>
-                <option value="EEE">Electrical</option>
-                <option value="MECH">Mechanical</option>
-              </select>
-              {validationErrors.dept && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.dept}
-                </p>
-              )}
-            </div>
-
-            {/* Section */}
-            <div className="space-y-2 relative z-10 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-1">
-              <label className="text-sm font-medium text-teal-400 block font-mono tracking-wider">
-                SECTION
-              </label>
-              <select
-                name="section"
-                value={formData.section}
-                onChange={handleInputChange}
-                onBlur={() => handleBlur("section")}
-                required
-                data-error={validationErrors.section ? "true" : "false"}
-                className="
-                   bg-gray-400/5 border border-teal-400/30 text-white rounded-lg
-                  w-full py-3 px-4
-                  focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-transparent
-                  font-mono text-sm sm:text-base appearance-none
-                  transition-all duration-300
-                  hover:bg-black/60 hover:border-[#01ffdb]/30
-                "
-              >
-                <option value="">Select section</option>
-                <option value="a">A</option>
-                <option value="b">B</option>
-                <option value="c">C</option>
-                <option value="d">D</option>
-                <option value="e">E</option>
-                <option value="f">F</option>
-                <option value="g">G</option>
-              </select>
-              {validationErrors.section && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.section}
-                </p>
-              )}
-            </div>
-
-            {/* Year */}
-            <div className="space-y-2 relative z-10 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-1">
-              <label className="text-sm font-medium text-teal-400 block font-mono tracking-wider">
-                YEAR
-              </label>
-              <select
-                name="year"
-                value={formData.year}
-                onChange={handleInputChange}
-                onBlur={() => handleBlur("year")}
-                required
-                data-error={validationErrors.year ? "true" : "false"}
-                className="
-                   bg-gray-400/5 border border-teal-400/30 text-white rounded-lg
-                  w-full py-3 px-4
-                  focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-transparent
-                  font-mono text-sm sm:text-base appearance-none
-                  transition-all duration-300
-                  hover:bg-black/60 hover:border-[#01ffdb]/30
-                "
-              >
-                <option value="">Select Year</option>
-                <option value="1">First Year</option>
-                <option value="2">Second Year</option>
-                <option value="3">Third Year</option>
-                <option value="4">Fourth Year</option>
-              </select>
-              {validationErrors.year && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.year}
-                </p>
-              )}
-            </div>
-
-            {/* Gender */}
-            <div className="space-y-2 relative z-10 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-1">
-              <label className="text-sm font-medium text-teal-400 block font-mono tracking-wider">
-                GENDER
-              </label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleInputChange}
-                onBlur={() => handleBlur("gender")}
-                required
-                data-error={validationErrors.gender ? "true" : "false"}
-                className="
-                   bg-gray-400/5 border border-teal-400/30 text-white rounded-lg
-                  w-full py-3 px-4
-                  focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-transparent
-                  font-mono text-sm sm:text-base appearance-none
-                  transition-all duration-300
-                  hover:bg-black/60 hover:border-[#01ffdb]/30
-                "
-              >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-              {validationErrors.gender && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.gender}
-                </p>
-              )}
-            </div>
-
-            {/* Mobile Number */}
-            <div className="space-y-2 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-2">
-              <label className="text-sm font-medium text-teal-400 block font-mono tracking-wider">
-                MOBILE NUMBER
-              </label>
-              <div className="relative group">
-                <div className="absolute left-0 pl-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none transition-all duration-300 group-hover:text-teal-300">
-                  <Phone className="h-5 w-5 text-teal-400/40" />
-                </div>
-                <input
-                  type="number"
-                  name="mobile"
-                  value={formData.mobile}
-                  onChange={handleInputChange}
-                  onBlur={() => handleBlur("mobile")}
-                  placeholder="Enter mobile number"
-                  required
-                  data-error={validationErrors.mobile ? "true" : "false"}
-                  className="
-                    block w-full
-                     bg-gray-400/5 border border-[#01ffdb]/20 rounded-lg
-                    text-white font-mono placeholder:text-white/20
-                    text-sm sm:text-base
-                    pl-12 pr-4 py-3
-                    focus:outline-none focus:ring-2 focus:ring-[#01ffdb]/50 focus:border-transparent
-                    [&::-webkit-inner-spin-button]:appearance-none
-                    [&::-webkit-outer-spin-button]:appearance-none
-                    appearance-none
-                    [-moz-appearance:textfield]
-                    transition-all duration-300
-                    hover:bg-black/60 hover:border-[#01ffdb]/30
-                  "
-                />
-              </div>
-              {validationErrors.mobile && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.mobile}
-                </p>
-              )}
-              {phoneStatus && (
-                <p
-                  className={`text-xs mt-1 ${
-                    phoneStatus.type === "error"
-                      ? "text-red-400"
-                      : phoneStatus.type === "warning"
-                      ? "text-yellow-400"
-                      : "text-green-400"
-                  }`}
-                >
-                  {phoneStatus.message}
-                </p>
-              )}
-            </div>
-
-            {/* Official Email */}
-            <div className="space-y-2 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-2">
-              <label className="text-sm font-medium text-teal-400 block font-mono tracking-wider">
-                OFFICIAL EMAIL
-              </label>
-              <div className="relative group">
-                <div className="absolute left-0 pl-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none transition-all duration-300 group-hover:text-teal-300">
-                  <Mail className="h-5 w-5 text-teal-400/40" />
-                </div>
-                <input
-                  type="email"
-                  name="officialEmail"
-                  value={formData.officialEmail}
-                  onChange={handleInputChange}
-                  onBlur={() => handleBlur("officialEmail")}
-                  placeholder="Enter official email"
-                  required
-                  data-error={validationErrors.officialEmail ? "true" : "false"}
-                  className="
-                    block w-full
-                     bg-gray-400/5 border border-[#01ffdb]/20 rounded-lg
-                    text-white font-mono placeholder:text-white/20
-                    text-sm sm:text-base
-                    pl-12 pr-4 py-3
-                    focus:outline-none focus:ring-2 focus:ring-[#01ffdb]/50 focus:border-transparent
-                    transition-all duration-300
-                    hover:bg-black/60 hover:border-[#01ffdb]/30
-                  "
-                />
-              </div>
-              {validationErrors.officialEmail && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.officialEmail}
-                </p>
-              )}
-              {officialEmailStatus && (
-                <p
-                  className={`text-xs mt-1 ${
-                    officialEmailStatus.type === "error"
-                      ? "text-red-400"
-                      : officialEmailStatus.type === "warning"
-                      ? "text-yellow-400"
-                      : "text-green-400"
-                  }`}
-                >
-                  {officialEmailStatus.message}
-                </p>
-              )}
-            </div>
-
-            {/* Password */}
-            <div className="space-y-2 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-2">
-              <label className="text-sm font-medium text-teal-400 block font-mono tracking-wider">
-                PASSWORD
-              </label>
-              <div className="relative group">
-                <div className="absolute left-0 pl-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none transition-all duration-300 group-hover:text-teal-300">
-                  <Lock className="h-5 w-5 text-teal-400/40" />
-                </div>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  onBlur={() => handleBlur("password")}
-                  placeholder="Create password"
-                  required
-                  data-error={validationErrors.password ? "true" : "false"}
-                  className="
-                    block w-full
-                     bg-gray-400/5 border border-[#01ffdb]/20 rounded-lg
-                    text-white font-mono placeholder:text-white/20
-                    text-sm sm:text-base
-                    pl-12 pr-4 py-3
-                    focus:outline-none focus:ring-2 focus:ring-[#01ffdb]/50 focus:border-transparent
-                    transition-all duration-300
-                    hover:bg-black/60 hover:border-[#01ffdb]/30
-                  "
-                />
-              </div>
-              {validationErrors.password && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.password}
-                </p>
-              )}
-              {passwordStatus && (
-                <p
-                  className={`text-xs mt-1 ${
-                    passwordStatus.type === "error"
-                      ? "text-red-400"
-                      : passwordStatus.type === "warning"
-                      ? "text-yellow-400"
-                      : "text-green-400"
-                  }`}
-                >
-                  {passwordStatus.message}
-                </p>
-              )}
-            </div>
-
-            {/* Confirm Password */}
-            <div className="space-y-2 transform transition-all duration-300 hover:scale-[1.02] lg:col-span-2">
-              <label className="text-sm font-medium text-teal-400 block font-mono tracking-wider">
-                CONFIRM PASSWORD
-              </label>
-              <div className="relative group">
-                <div className="absolute left-0 pl-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none transition-all duration-300 group-hover:text-teal-300">
-                  <Lock className="h-5 w-5 text-teal-400/40" />
-                </div>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  onBlur={() => handleBlur("confirmPassword")}
-                  placeholder="Confirm password"
-                  required
-                  data-error={
-                    validationErrors.confirmPassword ? "true" : "false"
-                  }
-                  className="
-                    block w-full
-                     bg-gray-400/5 border border-[#01ffdb]/20 rounded-lg
-                    text-white font-mono placeholder:text-white/20
-                    text-sm sm:text-base
-                    pl-12 pr-4 py-3
-                    focus:outline-none focus:ring-2 focus:ring-[#01ffdb]/50 focus:border-transparent
-                    transition-all duration-300
-                    hover:bg-black/60 hover:border-[#01ffdb]/30
-                  "
-                />
-              </div>
-              {validationErrors.confirmPassword && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.confirmPassword}
-                </p>
-              )}
-              {confirmPasswordStatus && (
-                <p
-                  className={`text-xs mt-1 ${
-                    confirmPasswordStatus.type === "error"
-                      ? "text-red-400"
-                      : confirmPasswordStatus.type === "warning"
-                      ? "text-yellow-400"
-                      : "text-green-400"
-                  }`}
-                >
-                  {confirmPasswordStatus.message}
-                </p>
-              )}
-            </div>
-
-            {/* Terms */}
-            <div className="col-span-full flex items-center transform transition-all duration-300 hover:scale-[1.02]">
-              <input
-                type="checkbox"
-                name="terms"
-                id="terms"
-                checked={formData.terms}
-                onChange={handleInputChange}
-                onBlur={() => handleBlur("terms")}
-                className="h-4 w-4  bg-gray-400/5 border-teal-400/30 rounded focus:ring-teal-400/50 focus:ring-offset-gray-800"
-              />
-              <label
-                htmlFor="terms"
-                className="ml-2 block text-sm text-teal-400/70 font-mono"
-              >
-                I accept the{" "}
-                <Link to="/terms" className="text-teal-400 hover:text-cyan-400">
-                  Terms and Conditions
-                </Link>
-              </label>
-              {validationErrors.terms && (
-                <p className="text-red-400 text-xs mt-1">
-                  {validationErrors.terms}
-                </p>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <div className="col-span-full">
-              <button
-                type="submit"
-                disabled={!isFormComplete() || isLoading}
-                className="cyber-button w-full py-2.5 px-4 bg-[#01ffdb]/10 border border-[#01ffdb]/50
-                  text-[#01ffdb] font-medium rounded-lg hover:bg-[#01ffdb]/20 
-                  transition-all duration-300 font-mono relative overflow-hidden text-xl
-                  disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? "PROCESSING..." : "CREATE ACCOUNT"}
-              </button>
-            </div>
-
-            <div className="col-span-full text-center text-sm text-white/50 font-mono">
-              ALREADY REGISTERED?{" "}
-              <Link to="/login">
-                <span className="text-teal-400 hover:text-cyan-400 transition-colors">
-                  LOGIN HERE
-                </span>
-              </Link>
-            </div>
-          </form>
+          {/* Glowing effect around the container */}
+          <div className="absolute inset-0 bg-[#01ffdb]/5 blur-xl -z-10" />
         </div>
       </div>
+
+      {/* Additional cyberpunk elements */}
+      {/* <div className="absolute top-10 right-10 text-[#01ffdb]/30 font-mono text-xs">
+        <div>SYS_STATUS: ONLINE</div>
+        <div>REG_MODE: ACTIVE</div>
+        <div>CONN_STATE: SECURE</div>
+      </div>
+
+      <div className="absolute bottom-10 left-10 text-[#01ffdb]/30 font-mono text-xs">
+        <div>PROTOCOL: HTTPS/2.0</div>
+        <div>ENCRYPTION: AES-256</div>
+        <div>NODE: REGISTRATION</div>
+      </div> */}
     </div>
   );
 }
+
+export { Signup };
