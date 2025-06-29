@@ -3,8 +3,11 @@
 // {//   data: { ... },
 //   lastUpdated: Date.now()
 // }
+const customError = require("../../utilies/customError");
+
 class dataCache {
-  constructor(fetchFunction) {
+  constructor(name,fetchFunction) {
+    this.name = name;
     this.data = null;
     this.lastUpdated = null;
     this.fetchFunction = fetchFunction;
@@ -13,15 +16,26 @@ class dataCache {
   async refresh() {
     try {
       const newData = await this.fetchFunction();
-      this.update(newData);
+      if (!newData.success|| !newData.data) {
+        throw new customError("Invalid data fetched", 500,{}, newData.error || "No data returned from fetch function");
+      }
+      this.update(newData.data);
 
-      console.log(`Cache refreshed at ${new Date().toISOString()}`);
+      console.log(`[CacheManager => dataCache] ${this.name} Cache refreshed at ${new Date().toISOString()}`);
       return {
       success: true,
-      data: newData
+      data: newData.data,
     };
     } catch (err) {
-      console.error("Cache refresh error:", err);
+      console.error("Cache refresh error:",  err.error || err.message || "Unknown error");
+      if (err instanceof customError) {
+        return {
+          success: false,
+          statusCode: err.statusCode || 500,
+          message: err.message || "Failed to refresh cache",
+          error: err.error || "Unknown error"
+        };
+      }
       return {
         success: false,
         statusCode: 500,

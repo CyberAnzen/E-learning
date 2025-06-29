@@ -24,7 +24,7 @@ class cacheManager {
         };
       }
 
-      const cache = new CacheClass(fetchFunction);
+      const cache = new CacheClass(name,fetchFunction);
       this.caches.set(name, cache);
 
       // Initial refresh
