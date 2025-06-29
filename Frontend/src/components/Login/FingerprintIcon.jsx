@@ -38,4 +38,4 @@ const FingerprintIcon = ({ className = "", size = 160 }) => {
   );
 };
 
-export default FingerprintIcon;
+export default React.memo(FingerprintIcon);

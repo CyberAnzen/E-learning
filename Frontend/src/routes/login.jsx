@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import ParticleBackground from "../components/Login/ParticleBackground";
 import FingerprintIcon from "../components/Login/FingerprintIcon";
 import { useAppContext } from "../context/AppContext";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function LoginPage() {
   const { navigate } = useAppContext();
@@ -47,7 +48,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:4000/user/login", {
+      const res = await fetch(`${BACKEND_URL}/user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

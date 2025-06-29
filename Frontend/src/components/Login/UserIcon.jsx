@@ -38,4 +38,4 @@ const UserIcon = ({ className = "", size = 140 }) => {
   );
 };
 
-export default UserIcon;
+export default React.memo(UserIcon);
