@@ -7,7 +7,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function ForgotPassword() {
   const navigate = useNavigate();
-  const [step, setStep] = useState("password");
+  const [step, setStep] = useState("email");
   const [email, setEmail] = useState("");
   const [otpValues, setOtpValues] = useState(Array(6).fill(""));
   const otpRefs = useRef([]);

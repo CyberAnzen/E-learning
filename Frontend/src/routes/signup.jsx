@@ -819,43 +819,43 @@ export default function Signup() {
                                     SECTION
                                   </option>
                                   <option
-                                    value="a"
+                                    value="A"
                                     className="bg-gray-900 text-[#01ffdb]"
                                   >
                                     A
                                   </option>
                                   <option
-                                    value="b"
+                                    value="B"
                                     className="bg-gray-900 text-[#01ffdb]"
                                   >
                                     B
                                   </option>
                                   <option
-                                    value="c"
+                                    value="C"
                                     className="bg-gray-900 text-[#01ffdb]"
                                   >
                                     C
                                   </option>
                                   <option
-                                    value="d"
+                                    value="D"
                                     className="bg-gray-900 text-[#01ffdb]"
                                   >
                                     D
                                   </option>
                                   <option
-                                    value="e"
+                                    value="E"
                                     className="bg-gray-900 text-[#01ffdb]"
                                   >
                                     E
                                   </option>
                                   <option
-                                    value="f"
+                                    value="F"
                                     className="bg-gray-900 text-[#01ffdb]"
                                   >
                                     F
                                   </option>
                                   <option
-                                    value="g"
+                                    value="G"
                                     className="bg-gray-900 text-[#01ffdb]"
                                   >
                                     G
@@ -963,19 +963,19 @@ export default function Signup() {
                                     GENDER
                                   </option>
                                   <option
-                                    value="male"
+                                    value="Male"
                                     className="bg-gray-900 text-[#01ffdb]"
                                   >
                                     MALE
                                   </option>
                                   <option
-                                    value="female"
+                                    value="Female"
                                     className="bg-gray-900 text-[#01ffdb]"
                                   >
                                     FEMALE
                                   </option>
                                   <option
-                                    value="other"
+                                    value="Other"
                                     className="bg-gray-900 text-[#01ffdb]"
                                   >
                                     OTHER
