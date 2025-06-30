@@ -2,8 +2,6 @@ const bcrypt = require("bcryptjs");
 const { User } = require("../../../model/UserModel"); // Use User for detailed registration
 
 exports.signup = async (req, res) => {
-  const formattedDateTime = new Date().toLocaleString();
-
   // Helper function to recursively find missing fields
   function findMissingFields(obj) {
     const missingFields = [];
@@ -39,7 +37,7 @@ exports.signup = async (req, res) => {
       dept,
       email,
       officialEmail,
-      phoneNo,
+      mobile,
       regNumber,
       section,
       year,
@@ -54,13 +52,12 @@ exports.signup = async (req, res) => {
         name: fullName,
         dept: dept,
         section: section,
-        phoneNo: phoneNo,
+        phoneNo: mobile,
         email: email,
         regNumber: regNumber,
         gender: gender,
         officialEmail: officialEmail,
         year: year,
-        regDate: formattedDateTime,
       },
     };
 
@@ -79,7 +76,6 @@ exports.signup = async (req, res) => {
       .status(200)
       .json({ message: "User created successfully", user: user.user_name });
   } catch (error) {
-    console.error("Error in signup", error);
-    res.status(500).send("Error in signup");
+    res.status(500).json({ errors: error });
   }
 };

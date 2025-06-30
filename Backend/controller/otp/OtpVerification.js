@@ -1,4 +1,4 @@
-const { DetailedUser } = require("../../model/UserModel"); // Use DetailedUser for detailed registration
+const { User } = require("../../model/UserModel"); // Use User for detailed registration
 const OTP = require("../../model/OTPModel")
 
 exports.OtpVerification = async (req, res) => {
@@ -22,8 +22,8 @@ exports.OtpVerification = async (req, res) => {
       return res.status(400).send("OTP not found");
     } else {
       if (otp == otps.otp) {
-        // Find the user from DetailedUser using the reg_no and matching either email or official_email from user_details
-        const user = await DetailedUser.findOne({
+        // Find the user from User using the reg_no and matching either email or official_email from user_details
+        const user = await User.findOne({
           "userDetails.reg_no": otps.reg_no,
           $or: [
             { "userDetails.email": otps.email },
