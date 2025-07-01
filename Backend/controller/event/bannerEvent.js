@@ -30,6 +30,8 @@ exports.bannerEvent = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("Error fetching banner event",error);
+        
         res.status(500).json({
             success: false,
             message: 'Error fetching banner event',

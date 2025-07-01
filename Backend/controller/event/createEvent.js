@@ -2,6 +2,8 @@ const { Event } = require('../../model/EventModel');
 const path = require('path');
 const fs = require('fs');
 const { convertToWebP } = require('../../utilies/webpCovertor');
+const dataCache=require('../../cache/structure/dataCache')
+const fetchLatestEvents=require('../../cache/fetchers/fetchLatestEvent')
 
 const cacheManager = require('../../cache/cacheManager');
 
@@ -37,17 +39,38 @@ exports.createEvent = async (req, res) => {
                 };
     
                 const newEvent = await Event.create(event);
-                console.log('Event created:', newEvent);
+                console.log('Event created');
     
-                const cacheStatus = await cacheManager.refreshCache('eventCache');
+                let cacheStatus = await cacheManager.refreshCache('eventCache');
+                //console.log("cacheststus",cacheStatus);
+                
                 if (cacheStatus.success) {
                     console.log('Cache refreshed successfully and event created:');
-                    res.status(201).json({
+                    res.status(200).json({
                         success: true,
                         message: 'Event created successfully and cache refreshed',
                         data: newEvent
                     });
-                } else {
+                } else if(!cacheStatus.success && cacheStatus.statusCode===404){
+                    cacheStatus=await cacheManager.registerCache('eventCache',dataCache,fetchLatestEvents)
+                     if (cacheStatus.success) {
+                        console.log('new eventCache create successfully and event created:');
+                        res.status(201).json({
+                            success: true,
+                            message: 'Event created successfully and cache refreshed', 
+                            data: newEvent
+                        });
+                    }
+                    else{
+                         console.error('Cache refresh failed:', cacheStatus.message);
+                    res.status(cacheStatus.statusCode).json({
+                        success: false,
+                        message: 'Event created, but cache refresh failed',
+                        error: cacheStatus.error
+                    });
+                    }
+                }
+                else {
                     console.error('Cache refresh failed:', cacheStatus.message);
                     res.status(cacheStatus.statusCode).json({
                         success: false,
