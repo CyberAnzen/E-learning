@@ -5,6 +5,7 @@ import CourseCard from "../components/Learn/CourseCard";
 import CourseCardSkeleton from "../components/Learn/CourseSkeleton";
 import AddCourse from "../components/Admin/Learn/AddClassification";
 import ModifyClassification from "../components/Admin/Learn/ModifyClassification";
+import Logout from "./logout";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const LessonNum = "6857f03a773f44b68582060b";

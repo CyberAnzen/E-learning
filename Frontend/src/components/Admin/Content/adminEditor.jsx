@@ -3,7 +3,7 @@ import { Maximize2, Shield, X, Plus, Trash2, Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Content from "../../../routes/content";
 import RichTextEditor from "./RichTextEditor";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 // Create a context for the focused section
 const FocusedSectionContext = createContext();
@@ -39,23 +39,70 @@ import { CorrectAnswerDropdown } from "./AdminEditor/CorrectAnswerDropdown";
 
 import SaveModal from "../layout/SaveModal";
 
-const AdminEditor = ({ isEditing = false, OldData }) => {
+const AdminEditor = ({ update = false }) => {
+  const { lessonId } = useParams();
   const [allImageUrls, setAllImageUrls] = useState([]);
   const [currentImageUrls, setCurrentImageUrls] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
   const initialClassificationId = location.state?.ClassificationId || null;
+
+  // Added state for storing fetched lesson data
+  const [oldLessonData, setOldLessonData] = useState(null);
+
+  useEffect(() => {
+    // Check if conditions are valid
+    if (!update || initialClassificationId == null || !lessonId) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Define async fetch function
+    const fetchLesson = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(
+          `${BACKEND_URL}/lesson/${initialClassificationId}/${lessonId}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch lesson");
+        }
+
+        const { data } = await response.json();
+        // Store fetched data in state
+        setOldLessonData(data);
+      } catch (err) {
+        console.error("Error fetching lesson:", err);
+        // Set up retry with timeout
+        retryTimeoutRef.current = setTimeout(fetchLesson, 5000);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Call the fetch function
+    fetchLesson();
+
+    // Cleanup on unmount
+    return () => {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
+    };
+  }, [update, initialClassificationId, lessonId]);
+
+  // Initialize form data properly
   const initialData =
-    isEditing && OldData
-      ? OldData
+    update && oldLessonData
+      ? oldLessonData
       : { ...Placeholder, classificationId: initialClassificationId };
+
   const [ClassificationId, setClassificationId] = useState(
     initialClassificationId
   );
   const [selectedChapterId, setSelectedChapterId] = useState(1);
-  const [chapters, setChapters] = useState([]);
-  const [editingChapter, setEditingChapter] = useState(null);
-  const [formData, setFormData] = useState(initialData);
+  const [formData, setFormData] = useState(!update ? initialData : null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [newObjective, setNewObjective] = useState("");
   const [focusedSection, setFocusedSection] = useState(null);
@@ -70,9 +117,18 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
   const questionsContainerRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetched data
-  const [ClassificationsData, setClassicationsData] = useState();
+  // Fetched data - now holds the array of classifications directly
+  const [ClassificationsData, setClassicationsData] = useState([]);
   const [minLessonNum, setMinLessonNum] = useState(1);
+
+  // Update form data when oldLessonData changes
+  useEffect(() => {
+    if (update && oldLessonData) {
+      setFormData(oldLessonData);
+      setAllImageUrls(oldLessonData.allImages || []);
+      setCurrentImageUrls(oldLessonData.addedImages || []);
+    }
+  }, [update, oldLessonData]);
 
   // Fetch classifications data
   useEffect(() => {
@@ -81,12 +137,12 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
         setIsLoading(true);
         const response = await fetch(`${BACKEND_URL}/classification/`);
         if (!response.ok) {
-          throw new Error("Failed to fetch courses");
+          throw new Error("Failed to fetch classifications");
         }
         const { data } = await response.json();
-        setClassicationsData(data);
+        setClassicationsData(data.classification);
       } catch (err) {
-        console.error("Error fetching courses:", err);
+        console.error("Error fetching classifications:", err);
         retryTimeoutRef.current = setTimeout(
           () => FetchClassifications(),
           5000
@@ -105,9 +161,10 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
   }, [ClassificationId]);
 
   useEffect(() => {
-    if (!ClassificationsData) return;
+    if (!ClassificationsData || ClassificationsData.length === 0) return;
 
-    const selected = ClassificationsData.Classications.find(
+    // FIX: Access the array directly instead of looking for a property
+    const selected = ClassificationsData?.find(
       (c) => c._id === ClassificationId
     );
 
@@ -121,14 +178,6 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
       }));
     }
   }, [ClassificationsData, ClassificationId]);
-
-  useEffect(() => {
-    if (editingChapter) {
-      setFormData({ ...editingChapter, classificationId: ClassificationId });
-      setAllImageUrls(editingChapter.allImages || []);
-      setCurrentImageUrls(editingChapter.addedImages || []);
-    }
-  }, [editingChapter, ClassificationId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -151,8 +200,15 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
       },
     };
 
-    // Remove _id fields for new lessons to prevent backend errors
-    if (!isEditing) {
+    // Conditionally handle create vs update
+    let url, method;
+    if (update && oldLessonData) {
+      url = `${BACKEND_URL}/lesson/update`;
+      method = "PUT";
+    } else {
+      url = `${BACKEND_URL}/lesson/create`;
+      method = "POST";
+      // Remove _id fields for new lessons
       delete updatedFormData._id;
       delete updatedFormData.content._id;
       delete updatedFormData.tasks._id;
@@ -164,36 +220,25 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
     }
 
     try {
-      const response = await fetch(`${BACKEND_URL}/lesson/create`, {
-        method: "POST",
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedFormData),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create lesson");
+        throw new Error(`Failed to ${update ? "update" : "create"} lesson`);
       }
 
       const result = await response.json();
-      console.log("Lesson created successfully:", result);
+      console.log(
+        `Lesson ${update ? "updated" : "created"} successfully:`,
+        result
+      );
 
-      if (editingChapter) {
-        setChapters(
-          chapters.map((chap) =>
-            chap._id === editingChapter._id ? result.lesson : chap
-          )
-        );
-      } else {
-        setChapters([...chapters, result.lesson]);
-      }
-
-      setFormData({ ...initialData, classificationId: ClassificationId });
-      setEditingChapter(null);
-      setAllImageUrls([]);
-      setCurrentImageUrls([]);
-      setShowDeleteConfirm(false);
-
-      setSuccessMessage("Lesson created successfully");
+      setSuccessMessage(
+        `Lesson ${update ? "updated" : "created"} successfully`
+      );
       setTimeout(() => {
         setSuccessMessage("");
         navigate(
@@ -201,17 +246,12 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
         );
       }, 3000);
     } catch (err) {
-      console.error("Error submitting lesson:", err);
+      console.error(`Error ${update ? "updating" : "creating"} lesson:`, err);
       setErrorMessage(err.message);
       setTimeout(() => setErrorMessage(""), 3000);
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleDelete = (id) => {
-    setChapters(chapters.filter((chap) => chap._id !== id));
-    setShowDeleteConfirm(false);
   };
 
   const addObjective = () => {
@@ -309,7 +349,23 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
 
   const updateOption = (questionIndex, optionIndex, value) => {
     const updatedQuestions = [...formData.tasks.content.questions];
-    updatedQuestions[questionIndex].options[optionIndex] = value;
+    const question = updatedQuestions[questionIndex];
+    const oldOption = question.options[optionIndex];
+    question.options[optionIndex] = value;
+
+    // Update correctAnswers or correctAnswer when an option is edited
+    if (question.type === "multiple-select") {
+      if (question.correctAnswers?.includes(oldOption)) {
+        question.correctAnswers = question.correctAnswers.map((ans) =>
+          ans === oldOption ? value : ans
+        );
+      }
+    } else if (question.type === "multiple-choice") {
+      if (question.correctAnswer === oldOption) {
+        question.correctAnswer = value;
+      }
+    }
+
     setFormData({
       ...formData,
       tasks: {
@@ -337,9 +393,11 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
     document.body.style.overflow = "auto";
   }, [focusedSection]);
 
+  // FIX: Access the array directly instead of looking for a property
   const classificationName =
-    ClassificationsData?.Classications?.find((c) => c._id === ClassificationId)
-      ?.name || "Selected Classification";
+    ClassificationsData?.find((c) => c._id === ClassificationId)?.name ||
+    "Selected Classification";
+  if (isLoading) return <div>Loading......</div>;
 
   return (
     <FocusedSectionContext.Provider
@@ -384,10 +442,9 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                       <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
                         CLASSIFICATION
                       </label>
+                      {/* FIX: Pass the array directly */}
                       <ClassificationDropdown
-                        classifications={
-                          ClassificationsData?.Classications || []
-                        }
+                        classifications={ClassificationsData || []}
                         selectedId={ClassificationId}
                         onSelect={(selectedId) =>
                           setClassificationId(selectedId)
@@ -456,7 +513,7 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                       <input
                         type="text"
                         className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
-                        value={formData.content.author}
+                        value={formData?.content?.author}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
@@ -479,7 +536,9 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                           type="number"
                           min={1}
                           className="w-1/2 bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
-                          value={formData.content.duration.split("-")[0] || ""}
+                          value={
+                            formData?.content?.duration?.split("-")[0] || " "
+                          }
                           onChange={(e) =>
                             setFormData({
                               ...formData,
@@ -499,7 +558,8 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                         <select
                           className="w-1/2 bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
                           value={
-                            formData.content.duration.split("-")[1] || "minutes"
+                            formData?.content?.duration?.split("-")[1] ||
+                            "minutes"
                           }
                           onChange={(e) =>
                             setFormData({
@@ -533,11 +593,14 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                       <input
                         type="text"
                         className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
-                        value={formData.tasks.title}
+                        value={formData?.tasks?.title}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            tasks: { ...formData.tasks, title: e.target.value },
+                            tasks: {
+                              ...formData.tasks,
+                              title: e.target.value,
+                            },
                           })
                         }
                         required
@@ -551,7 +614,7 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                       <input
                         type="text"
                         className="w-full bg-gray-800/50 rounded-lg p-3 text-white border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono shadow-lg shadow-cyan-500/10"
-                        value={formData.content.title}
+                        value={formData?.content?.title}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
@@ -570,29 +633,31 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                       <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
                         MAIN CONTENT
                       </label>
-                      <RichTextEditor
-                        value={formData.tasks.content.mainContent}
-                        onChange={(html) => {
-                          setFormData({
-                            ...formData,
-                            tasks: {
-                              ...formData.tasks,
-                              content: {
-                                ...formData.tasks.content,
-                                mainContent: html,
+                      {formData?.tasks?.content?.mainContent && (
+                        <RichTextEditor
+                          value={formData?.tasks?.content?.mainContent}
+                          onChange={(html) => {
+                            setFormData({
+                              ...formData,
+                              tasks: {
+                                ...formData.tasks,
+                                content: {
+                                  ...formData.tasks.content,
+                                  mainContent: html,
+                                },
                               },
-                            },
-                          });
-                        }}
-                        allImageUrls={allImageUrls}
-                        setAllImageUrls={setAllImageUrls}
-                        currentImageUrls={currentImageUrls}
-                        setCurrentImageUrls={setCurrentImageUrls}
-                        onFocusedSection={() =>
-                          setFocusedSection("mainContent")
-                        }
-                        leftFocusedSection={() => setFocusedSection(null)}
-                      />
+                            });
+                          }}
+                          allImageUrls={allImageUrls}
+                          setAllImageUrls={setAllImageUrls}
+                          currentImageUrls={currentImageUrls}
+                          setCurrentImageUrls={setCurrentImageUrls}
+                          onFocusedSection={() =>
+                            setFocusedSection("mainContent")
+                          }
+                          leftFocusedSection={() => setFocusedSection(null)}
+                        />
+                      )}
                     </div>
                     <div>
                       <label className="block text-cyan-300 mb-2 font-mono text-sm tracking-wider">
@@ -614,7 +679,7 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                         }}
                         className="space-y-2"
                       >
-                        {formData.tasks.content.objectives.map(
+                        {formData?.tasks?.content?.objectives?.map(
                           (objective, index) => (
                             <div key={index} className="flex gap-2">
                               <input
@@ -686,7 +751,7 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                         QUESTIONS
                       </h3>
                     </div>
-                    {formData.tasks.content.questions.map(
+                    {formData?.tasks?.content?.questions?.map(
                       (question, qIndex) => (
                         <div
                           key={qIndex}
@@ -905,9 +970,9 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
                       <Save className="w-4 h-4" />
                       {isSubmitting
                         ? "SAVING..."
-                        : editingChapter
-                        ? "UPDATE CHAPTER"
-                        : "SAVE CHAPTER"}
+                        : update
+                        ? "UPDATE LESSON"
+                        : "SAVE LESSON"}
                     </span>
                   </motion.button>
                 </section>
@@ -962,13 +1027,16 @@ const AdminEditor = ({ isEditing = false, OldData }) => {
               <span>
                 Are you sure you want to save{" "}
                 <span className="text-emerald-500/80 font-bold">
-                  "{formData.content.title || "Untitled Lesson"}"
+                  "{formData?.content?.title || "Untitled Lesson"}"
                 </span>{" "}
                 under the{" "}
                 <span className="font-bold text-emerald-500/80">
                   "{classificationName}"
                 </span>{" "}
                 ?
+                {update
+                  ? " This will update the existing lesson."
+                  : " This will create a new lesson."}
               </span>
             }
           />

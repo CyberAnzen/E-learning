@@ -24,7 +24,6 @@ import SubmitButton from "../components/content/SubmitButton";
 import ContentHeader from "../components/content/ContentHeader";
 import ChapterProgress from "../components/content/ChapterProgress";
 import "../content.css";
-import AdminEditor from "../components/Admin/Content/adminEditor";
 import { AppContext, AppContextProvider } from "../context/AppContext";
 import AdminButtons from "../components/Admin/Content/AdminButtons";
 import DeleteModal from "../components/Admin/layout/DeleteModal";
@@ -426,7 +425,11 @@ const Content = ({
         3) Margin-right to pull it in from the edge, gap-2 to space buttons
       */}
               <div className="mr-10 flex gap-2">
-                <AdminButtons setShowDeleteConfirm={setShowDeleteConfirm} />
+                <AdminButtons
+                  setShowDeleteConfirm={setShowDeleteConfirm}
+                  lessonId={selectedChapterId}
+                  classificationId={ClassificationId}
+                />
               </div>
             </div>
           </div>
