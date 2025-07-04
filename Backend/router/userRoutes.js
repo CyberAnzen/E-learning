@@ -12,7 +12,8 @@ const OtpManager = require("../controller/manager/OtpManager");
 const signupLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 5,
-  message: "Too many signup attempts from this IP, please try again after 1 hour",
+  message:
+    "Too many signup attempts from this IP, please try again after 1 hour",
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -21,7 +22,8 @@ const signupLimiter = rateLimit({
 const loginLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 10,
-  message: "Too many login attempts from this IP, please try again after 1 hour",
+  message:
+    "Too many login attempts from this IP, please try again after 1 hour",
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -39,7 +41,8 @@ const checkUsernameLimiter = rateLimit({
 const emailLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 10,
-  message: "Too many email requests from this IP, please try again after 1 hour",
+  message:
+    "Too many email requests from this IP, please try again after 1 hour",
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -74,6 +77,7 @@ const passwordResetLimiter = rateLimit({
 // Routes with applied rate limiters
 router.post("/signup", signupLimiter, userManager.signup);
 router.post("/login", loginLimiter, userManager.login);
+router.post("/logout", userManager.logout);
 router.get("/check-username", checkUsernameLimiter, userManager.checkusername);
 //router.post("/send-email", emailLimiter, SMTP);
 router.post("/forgot-password", otpGeneratorLimiter, OtpManager.OtpGenerator);
