@@ -10,7 +10,7 @@ import {
   Flag,
   Target,
   Lightbulb,
-  DotSquare,BookOpen,
+  DotSquare,
   Terminal,
   MoveRightIcon,
   CheckCircle,
