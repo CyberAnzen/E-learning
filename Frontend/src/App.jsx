@@ -64,7 +64,7 @@ function App() {
     <>
       <div className="bg-gray-900">
         <Navbar />
-
+        <div className="mt-23"></div>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/learn" element={<LearnPage />} />
@@ -73,7 +73,10 @@ function App() {
             element={<ContentController />}
           />
           <Route path="/lesson/create" element={<AdminEditor />} />
-
+          <Route
+            path="/lesson/update/:lessonId"
+            element={<AdminEditor update />}
+          />
           <Route path="/contest" element={<ContestPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />

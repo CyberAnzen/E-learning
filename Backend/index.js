@@ -44,12 +44,15 @@ app.use(express.static("public")); // Serve static files from the 'public' direc
 app.use(express.json()); // Parse JSON bodies
 app.use(cookieParser());
 app.use(bodyParser.json());
+app.use("/api/event", xssSanitizer(), event);
+app.use("/api/user", userRoutes);
+app.use("/api/classification", xssSanitizer(), classification);
 // app.use("/api/event", xssSanitizer(), event);
 // app.use("/api/user", xssSanitizer(), userRoutes);
-app.use("/api/classification", classification);
 app.use("/api/lesson", lesson);
 app.use("/api/answer", validate);
 
 app.use("/api/image", require("./router/imageRoutes"));
 
 app.listen(port);
+

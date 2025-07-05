@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/layout/sidebar/Sidebar";
 import Content from "./content";
 import { useParams, useNavigate } from "react-router-dom";
-import { Shield, Terminal, Lock, Brain, Code } from "lucide-react"; // Import icons for chapters
+import { Shield, Terminal, Lock, Brain, Code, BookOpen } from "lucide-react"; // Import icons for chapters
 import "../content.css";
 
 // Backend URL from environment variables (e.g., Vite's import.meta.env)
@@ -88,8 +88,14 @@ const ContentController = () => {
             Loading...
           </div>
         ) : error ? (
-          <div className="flex items-center justify-center h-full text-red-500">
-            {error}
+          <div className="text-center h-screen flex flex-col justify-center">
+            <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-400 mb-2">
+              No courses available
+            </h3>
+            <p className="text-gray-500">
+              Check back later for new learning opportunities.
+            </p>
           </div>
         ) : currentChapter ? (
           <Content

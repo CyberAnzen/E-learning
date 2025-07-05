@@ -5,6 +5,7 @@ import {
   Clock,
   User,
   ChevronRight,
+  BookOpen,
   ChevronLeft,
   Flag,
   Target,
@@ -23,7 +24,6 @@ import SubmitButton from "../components/content/SubmitButton";
 import ContentHeader from "../components/content/ContentHeader";
 import ChapterProgress from "../components/content/ChapterProgress";
 import "../content.css";
-import AdminEditor from "../components/Admin/Content/adminEditor";
 import { AppContext, AppContextProvider } from "../context/AppContext";
 import AdminButtons from "../components/Admin/Content/AdminButtons";
 import DeleteModal from "../components/Admin/layout/DeleteModal";
@@ -411,9 +411,7 @@ const Content = ({
   {
     return (
       <section
-        className={`bg-gradient-to-br from-black via-gray-900 to-black ${
-          isPreview ? "mt-0 " : "mt-23"
-        } min-h-screen  relative`}
+        className={`bg-gradient-to-br from-black via-gray-900 to-black min-h-screen  relative`}
       >
         {Admin && !isPreview && (
           // 1) Absolute wrapper takes no space in the document flow
@@ -422,12 +420,16 @@ const Content = ({
       2) This inner div is the only one in the flow of scrolling; 
          it sits at the top of the page and scrolls normally.
     */}
-            <div className="sticky top-1/6 md:top-1/7 lg:top-[20%] flex justify-end pointer-events-auto z-10">
+            <div className="sticky top-1/10 md:top-1/10 lg:top-[15%] flex justify-end pointer-events-auto z-10">
               {/* 
         3) Margin-right to pull it in from the edge, gap-2 to space buttons
       */}
               <div className="mr-10 flex gap-2">
-                <AdminButtons setShowDeleteConfirm={setShowDeleteConfirm} />
+                <AdminButtons
+                  setShowDeleteConfirm={setShowDeleteConfirm}
+                  lessonId={selectedChapterId}
+                  classificationId={ClassificationId}
+                />
               </div>
             </div>
           </div>
@@ -625,7 +627,8 @@ const Content = ({
                       </h1>
                     </center>
                     <main
-                      className="leading-relaxed whitespace-pre-wrap"
+                      className="leading-relaxed whitespace-pre-wrap select-none pointer-events-none"
+                      contentEditable={false}
                       dangerouslySetInnerHTML={{
                         __html: currentTask.content.mainContent,
                       }}

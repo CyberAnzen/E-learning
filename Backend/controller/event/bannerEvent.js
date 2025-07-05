@@ -7,6 +7,7 @@ exports.bannerEvent = async (req, res) => {
 
 
         const cacheData = cacheManager.getCache('eventCache');
+       // console.log(cacheData);
        if (!cacheData || !Array.isArray(cacheData.data)) {
              return res.status(404).json({
                 success: false,
@@ -29,6 +30,8 @@ exports.bannerEvent = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("Error fetching banner event",error);
+        
         res.status(500).json({
             success: false,
             message: 'Error fetching banner event',

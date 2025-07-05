@@ -163,13 +163,14 @@ exports.answerSubmission = async (req, res) => {
       totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
     const timeSpent = Date.now() - startTime;
 
-    return res.status(200).json({
+    res.status(200).json({
       score,
       totalQuestions,
       percentage,
       results,
       timeSpent,
     });
+    
   } catch (error) {
     console.error("submitAssessment error:", error);
     return res.status(500).json({

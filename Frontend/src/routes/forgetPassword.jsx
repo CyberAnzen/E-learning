@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Mail, KeyRound, Check } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import ParticleBackground from "../components/Login/ParticleBackground";
+import KeyIcon from "../components/Login/KeyIcon";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function ForgotPassword() {
   const navigate = useNavigate();
@@ -61,14 +64,11 @@ function ForgotPassword() {
     e.preventDefault();
     try {
       const payload = getIdentifierPayload();
-      const response = await fetch(
-        "http://localhost:4000/user/forgot-password",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`${BACKEND_URL}/user/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       if (response.ok) {
         setStep("otp");
       } else {
@@ -85,7 +85,7 @@ function ForgotPassword() {
     if (!/^\d{6}$/.test(otpCombined)) return;
     try {
       const identifier = getIdentifierPayload();
-      const response = await fetch("http://localhost:4000/user/verify-otp", {
+      const response = await fetch(`${BACKEND_URL}/user/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...identifier, otp: otpCombined }),
@@ -101,13 +101,6 @@ function ForgotPassword() {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
 
-    // Optionally, validate the new password before submission.
-    // const passwordError = validatePassword(newPassword);
-    // if (passwordError) {
-    //   console.error("Password validation error:", passwordError);
-    //   return;
-    // }
-
     if (newPassword !== confirmPassword) {
       console.error("Password and confirm password do not match.");
       return;
@@ -117,14 +110,11 @@ function ForgotPassword() {
       const identifier = getIdentifierPayload();
       const otpString = otpValues.join("");
 
-      const response = await fetch(
-        "http://localhost:4000/user/reset-password",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...identifier, otp: otpString, newPassword }),
-        }
-      );
+      const response = await fetch(`${BACKEND_URL}/user/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...identifier, otp: otpString, newPassword }),
+      });
 
       if (response.ok) {
         console.log("Password reset successfully. Redirecting to login...");
@@ -187,21 +177,24 @@ function ForgotPassword() {
       otpRefs.current[index - 1].focus();
     }
   };
+
   useEffect(() => {
     // Smooth scroll to top
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-  
+
     // Prevent scrolling
     document.body.style.overflow = "hidden";
     document.body.style.height = "100vh";
     document.body.style.position = "fixed";
     document.body.style.width = "100%";
     document.documentElement.style.overflow = "hidden";
-  
+
     // Optional: Prevent touchmove to block scrolling more robustly
     const preventTouchMove = (e) => e.preventDefault();
-    document.addEventListener("touchmove", preventTouchMove, { passive: false });
-  
+    document.addEventListener("touchmove", preventTouchMove, {
+      passive: false,
+    });
+
     // Cleanup on unmount
     return () => {
       document.body.style.overflow = "";
@@ -212,6 +205,7 @@ function ForgotPassword() {
       document.removeEventListener("touchmove", preventTouchMove);
     };
   }, [step]);
+
   // useEffect to auto-submit when all OTP fields are filled
   useEffect(() => {
     if (step === "otp" && otpValues.every((digit) => digit !== "")) {
@@ -232,7 +226,13 @@ function ForgotPassword() {
             onPaste={handleOtpPaste}
             onKeyDown={(e) => handleOtpKeyDown(e, index)}
             ref={(el) => (otpRefs.current[index] = el)}
-            className="w-[10vw] h-[13vw]  sm:w-14 md:h-16 text-center text-2xl bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01ffdb]"
+            className="w-[10vw] h-[13vw] sm:w-14 sm:h-16 text-center text-2xl bg-[#01ffdb]/10 border border-[#01ffdb]/30 backdrop-blur-sm text-[#01ffdb] font-mono
+                     focus:outline-none focus:ring-2 focus:ring-[#01ffdb]/50 focus:border-[#01ffdb]
+                     hover:border-[#01ffdb]/50 transition-all duration-300"
+            style={{
+              clipPath:
+                "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
+            }}
             maxLength={1}
           />
         ))}
@@ -240,166 +240,307 @@ function ForgotPassword() {
     );
   };
 
+  const getStepTitle = () => {
+    switch (step) {
+      case "email":
+        return "RESET PASSWORD";
+      case "otp":
+        return "VERIFY CODE";
+      case "password":
+        return "NEW PASSWORD";
+      default:
+        return "RESET PASSWORD";
+    }
+  };
+
+  const getStepDescription = () => {
+    switch (step) {
+      case "email":
+        return "Enter your email address or registration number and we'll send you instructions to reset your password.";
+      case "otp":
+        return "Enter the 6-digit verification code sent to your email.";
+      case "password":
+        return "Create your new password.";
+      default:
+        return "";
+    }
+  };
+
   return (
-    <div className="flex items-center -mt-13 justify-center px-4 sm:px-6 relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black h-[100vh] pt-10 pb-0 lg:pb-0 ">
-      <div className="w-full max-w-md relative z-10">
-        <div className="login-container  bg-black/30 backdrop-blur-xl rounded-2xl border border-[#01ffdb]/20 shadow-2xl">
-          <h1 className="text-[1.4rem] md:text-2xl lg:text-3xl font-bold text-white mb-1 sm:mb-5 text-center">
-            Reset Password
-          </h1>
+    <div className="flex items-center -mt-13 justify-center px-4 sm:px-6 relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black h-[100vh] pt-10 pb-0 lg:pb-0">
+      <ParticleBackground />
 
-          {step === "email" && (
-            <>
-              <div className="mb-6 text-center">
-                <p className="text-white/70 text-sm">
-                  Enter your email address or registration number and we'll send
-                  you instructions to reset your password.
-                </p>
-              </div>
-              <form onSubmit={handleEmailSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm sm:text-md lg:text-md  xl:text-lg font-medium pb-3 text-[#01ffdb] block font-mono">
-                    EMAIL OR REGISTRATION NUMBER{" "}
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-white/40" />
-                    </div>
-                    <input
-                      type="text"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="bg-white/5  text-sm border border-white/10 text-white rounded-lg block w-full pl-10 p-2.5 
-                        focus:outline-none focus:ring-2 focus:ring-[#01ffdb]/50 focus:border-transparent"
-                      placeholder="Enter your email or reg number"
-                    />
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  className="cyber-button w-full py-2.5 px-4 bg-[#01ffdb]/10 border border-[#01ffdb]/50
-                  text-[#01ffdb] font-medium rounded-lg hover:bg-[#01ffdb]/20 
-                  transition-all duration-300 font-mono relative overflow-hidden text-xl
-                  disabled:opacity-50 disabled:cursor-not-allowed"
+      {/* Cyberpunk grid overlay */}
+      <div className="absolute inset-0 opacity-10">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+            linear-gradient(rgba(1, 255, 219, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(1, 255, 219, 0.1) 1px, transparent 1px)
+          `,
+            backgroundSize: "50px 50px",
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 w-full max-w-4xl">
+        {/* Main Container */}
+        <div className="relative">
+          {/* Angled border container */}
+          <div
+            className="relative  bg-teal-700/20 opacity-85 backdrop-blur-xl border-2 border-[#01ffdb]/50 p-1"
+            style={{
+              clipPath:
+                "polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px))",
+            }}
+          >
+            {/* Inner content area */}
+            <div
+              className="bg-gray-900/50 p-8 md:p-12"
+              style={{
+                clipPath:
+                  "polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 28px 100%, 0 calc(100% - 28px))",
+              }}
+            >
+              {/* Header */}
+              <div className="absolute top-4 left-4">
+                <div
+                  className="bg-[#01ffdb] text-black px-4 py-1 font-mono font-bold text-lg tracking-wider"
+                  style={{
+                    clipPath:
+                      "polygon(0 0, calc(100% - 10px) 0, 100% 100%, 0 100%)",
+                  }}
                 >
-                  SEND RESET INSTRUCTIONS
-                </button>
-              </form>
-            </>
-          )}
-
-          {step === "otp" && (
-            <>
-              <div className="mb-6  text-center">
-                <p className="text-white/70">
-                  Enter the 6-digit verification code sent to your email.
-                </p>
+                  {getStepTitle()}
+                </div>
               </div>
-              <form onSubmit={handleOtpSubmit} className="space-y-6">
-                {renderOtpInputs()}
-              </form>
-            </>
-          )}
 
-          {step === "password" && (
-            <>
-              <div className="mb-6 text-center">
-                <p className="text-white/70 text-sm sm:text-lg">
-                  Create your new password.
-                </p>
-              </div>
-              <form onSubmit={handlePasswordSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/70 block">
-                    New Password
-                  </label>
+              <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16 mt-12">
+                {/* Left side - Key Scanner */}
+                <div className="flex-shrink-0">
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <KeyRound className="h-5 w-5 text-white/40" />
+                    {/* Scanning frame */}
+                    <div className="w-48 h-48 border-2 border-[#01ffdb]/70 relative bg-black/30 backdrop-blur-sm">
+                      {/* Corner brackets */}
+                      <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#01ffdb]" />
+                      <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#01ffdb]" />
+                      <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#01ffdb]" />
+                      <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#01ffdb]" />
+
+                      {/* Key Icon */}
+                      <div className="absolute inset-4 flex items-center justify-center">
+                        <KeyIcon size={140} />
+                      </div>
+
+                      {/* Status indicators */}
+                      <div className="absolute -bottom-8 left-0 right-0 text-center">
+                        <div className="text-[#01ffdb] font-mono text-xs animate-pulse">
+                          SECURITY SCAN ACTIVE
+                        </div>
+                      </div>
                     </div>
-                    <input
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      required
-                      minLength={8}
-                      className="bg-white/5 h-10 border text-xs sm:text-md md:text-md border-white/10 text-white rounded-lg block w-full pl-10 p-2.5 
-                        focus:outline-none focus:ring-2 focus:ring-[#01ffdb]/50 focus:border-transparent"
-                      placeholder="Enter new password"
-                    />
-                  </div>
-                  <div className="mt-2">
-                    <div className="flex space-x-1">
-                      {Array.from({ length: maxStrength }).map((_, idx) => (
-                        <div
-                          key={idx}
-                          className={`h-2 flex-1 rounded ${
-                            idx < strength ? getStrengthColor() : "bg-gray-700"
-                          }`}
-                        ></div>
-                      ))}
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Strength:{" "}
-                      {strength <= 2
-                        ? "Weak"
-                        : strength <= 4
-                        ? "Moderate"
-                        : "Strong"}
-                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/70 block">
-                    Confirm New Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Check className="h-5 w-5 text-white/40" />
-                    </div>
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      minLength={8}
-                      className="bg-white/5 h-10 border text-xs sm:text-md md:text-md border-white/10 text-white rounded-lg block w-full pl-10 p-2.5 
-                        focus:outline-none focus:ring-2 focus:ring-[#01ffdb]/50 focus:border-transparent"
-                      placeholder="Confirm new password"
-                    />
-                  </div>
-                  {confirmPassword && newPassword !== confirmPassword && (
-                    <p className="text-xs text-red-400">
-                      Passwords do not match
+                {/* Right side - Form */}
+                <div className="flex-1 max-w-md w-full">
+                  <div className="mb-6 text-center">
+                    <p className="text-[#01ffdb]/70 font-mono text-sm">
+                      {getStepDescription()}
                     </p>
+                  </div>
+
+                  {step === "email" && (
+                    <form onSubmit={handleEmailSubmit} className="space-y-6">
+                      <div className="space-y-2">
+                        <label className="text-[#01ffdb]/80 font-mono text-sm font-medium">
+                          EMAIL OR REGISTRATION NUMBER
+                        </label>
+                        <div className="relative">
+                          <div
+                            className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                            style={{
+                              clipPath:
+                                "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                            }}
+                          >
+                            <div className="flex items-center p-3">
+                              <Mail className="h-5 w-5 text-[#01ffdb]/60 mr-3" />
+                              <input
+                                type="text"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                placeholder="Enter your email or reg number"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        type="submit"
+                        className="cyber-button w-full py-3 px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
+                                 text-[#01ffdb] font-mono text-lg font-bold
+                                 hover:bg-[#01ffdb]/20 hover:border-[#01ffdb]
+                                 transition-all duration-300 relative overflow-hidden"
+                        style={{
+                          clipPath:
+                            "polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px))",
+                        }}
+                      >
+                        <div className="relative z-10">
+                          SEND RESET INSTRUCTIONS
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#01ffdb]/10 to-transparent transform -skew-x-12 -translate-x-full animate-pulse" />
+                      </button>
+                    </form>
                   )}
+
+                  {step === "otp" && (
+                    <form onSubmit={handleOtpSubmit} className="space-y-6">
+                      {renderOtpInputs()}
+                    </form>
+                  )}
+
+                  {step === "password" && (
+                    <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                      <div className="space-y-2">
+                        <label className="text-[#01ffdb]/80 font-mono text-sm font-medium">
+                          NEW PASSWORD
+                        </label>
+                        <div className="relative">
+                          <div
+                            className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                            style={{
+                              clipPath:
+                                "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                            }}
+                          >
+                            <div className="flex items-center p-3">
+                              <KeyRound className="h-5 w-5 text-[#01ffdb]/60 mr-3" />
+                              <input
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                required
+                                minLength={8}
+                                className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                placeholder="Enter new password"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-2">
+                          <div className="flex space-x-1">
+                            {Array.from({ length: maxStrength }).map(
+                              (_, idx) => (
+                                <div
+                                  key={idx}
+                                  className={`h-2 flex-1 rounded ${
+                                    idx < strength
+                                      ? getStrengthColor()
+                                      : "bg-gray-700"
+                                  }`}
+                                ></div>
+                              )
+                            )}
+                          </div>
+                          <p className="text-xs text-[#01ffdb]/60 font-mono mt-1">
+                            Strength:{" "}
+                            {strength <= 2
+                              ? "Weak"
+                              : strength <= 4
+                              ? "Moderate"
+                              : "Strong"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[#01ffdb]/80 font-mono text-sm font-medium">
+                          CONFIRM NEW PASSWORD
+                        </label>
+                        <div className="relative">
+                          <div
+                            className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                            style={{
+                              clipPath:
+                                "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                            }}
+                          >
+                            <div className="flex items-center p-3">
+                              <Check className="h-5 w-5 text-[#01ffdb]/60 mr-3" />
+                              <input
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) =>
+                                  setConfirmPassword(e.target.value)
+                                }
+                                required
+                                minLength={8}
+                                className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                placeholder="Confirm new password"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        {confirmPassword && newPassword !== confirmPassword && (
+                          <p className="text-xs text-red-400 font-mono">
+                            Passwords do not match
+                          </p>
+                        )}
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="cyber-button w-full py-3 px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
+                                 text-[#01ffdb] font-mono text-lg font-bold
+                                 hover:bg-[#01ffdb]/20 hover:border-[#01ffdb]
+                                 transition-all duration-300 relative overflow-hidden"
+                        style={{
+                          clipPath:
+                            "polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px))",
+                        }}
+                      >
+                        <div className="relative z-10">RESET PASSWORD</div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#01ffdb]/10 to-transparent transform -skew-x-12 -translate-x-full animate-pulse" />
+                      </button>
+                    </form>
+                  )}
+
+                  {/* Back to login link */}
+                  <div className="mt-6 text-center text-[#01ffdb]/70 font-mono text-sm">
+                    Remember your password?{" "}
+                    <Link to="/login">
+                      <span className="text-[#01ffdb] hover:text-[#01ffdb]/80 transition-colors font-bold">
+                        BACK TO LOGIN
+                      </span>
+                    </Link>
+                  </div>
                 </div>
-
-                <button
-                  type="submit"
-                  className="cyber-button w-full py-2.5 px-4 bg-[#01ffdb]/10 border border-[#01ffdb]/50
-                  text-[#01ffdb] font-medium rounded-lg hover:bg-[#01ffdb]/20 
-                  transition-all duration-300 font-mono relative overflow-hidden
-                  disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  RESET PASSWORD{" "}
-                </button>
-              </form>
-            </>
-          )}
-
-          <div className="mt-6 text-center text-sm  text-white/50">
-            Remember your password?{" "}
-            <Link to={"/login"}>
-              <span className="text-[#01ffdb] pt-3.5 pl-1.5  hover:text-[#00c3ff] transition-colors">
-                Back to login
-              </span>
-            </Link>
+              </div>
+            </div>
           </div>
+
+          {/* Glowing effect around the container */}
+          <div className="absolute inset-0 bg-[#01ffdb]/5 blur-xl -z-10" />
         </div>
       </div>
+
+      {/* Additional cyberpunk elements */}
+      {/* <div className="absolute top-10 right-10 text-[#01ffdb]/30 font-mono text-xs">
+        <div>SYS_STATUS: ONLINE</div>
+        <div>SEC_LEVEL: HIGH</div>
+        <div>CONN_STATE: SECURE</div>
+      </div>
+
+      <div className="absolute bottom-10 left-10 text-[#01ffdb]/30 font-mono text-xs">
+        <div>PROTOCOL: HTTPS/2.0</div>
+        <div>ENCRYPTION: AES-256</div>
+        <div>NODE: SECURITY</div>
+      </div> */}
     </div>
   );
 }

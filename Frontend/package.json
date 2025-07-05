@@ -20,6 +20,7 @@
     "components": "^0.1.0",
     "framer-motion": "^12.4.7",
     "gsap": "^3.12.7",
+    "js-cookie": "^3.0.5",
     "lib": "^5.1.0",
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",

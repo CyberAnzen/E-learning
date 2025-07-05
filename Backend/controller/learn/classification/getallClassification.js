@@ -1,35 +1,33 @@
-const ClassificationModel = require("../../../model/ClassificationModel");
-const Lesson = require("../../../model/LessonModel");
+//const ClassificationModel = require("../../../model/ClassificationModel");
+//const Lesson = require("../../../model/LessonModel");
+const cacheManager=require('../../../cache/cacheManager')
+const customError=require('../../../utilies/customError')
 
 exports.getallClassification = async (req, res) => {
   try {
-    // 1. Fetch all classifications as plain objects
-    const classifications = await ClassificationModel.find().lean();
+    const cacheData=cacheManager.getCache('classificationCache')
+    if(!cacheData || !Array.isArray(cacheData.data)){
+      throw new customError("No classification found",404)
+    }
 
-    // 2. Process each classification: add lesson count & next lessonNum
-    const Classications = await Promise.all(
-      classifications.map(async (cls) => {
-        const lessonCount = await ClassificationModel.countLessons(cls._id);
-        // const nextLessonNum = await Lesson.getNextLessonNumber(cls._id);
+    const classification=cacheData.data
+    if(classification.length===0){
+      return res.status(404).json({
+                success: false,
+                message: 'No classificaton found'
+            });
+    }
 
-        delete cls.__v;
-        delete cls.createdAt;
-        delete cls.updatedAt;
-
-        return {
-          ...cls,
-          lessonCount,
-          // nextLessonNum,
-        };
-      })
-    );
-
-    // 3. Return everything
-    res.status(200).json({ data: { overallProgress: 50, Classications } });
+     
+    res.status(200).json({
+      success: true,
+       data: { overallProgress: 50, classification } });
   } catch (error) {
     console.error("Failed to fetch classifications with counts:", error);
     res
       .status(500)
-      .json({ error: "Error fetching classifications and lesson counts" });
+      .json({ 
+        success: false,
+        error: "Error fetching classifications and lesson counts" });
   }
 };

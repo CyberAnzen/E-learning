@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
-const { DetailedUser } = require("../../model/UserModel"); // Use DetailedUser for detailed registration
-const OTP = require("../../model/OTPModel");
+const { User } = require("../../../model/UserModel"); // Use User for detailed registration
+const OTP = require("../../../model/OTPModel");
 
 exports.PasswordReset = async (req, res) => {
   try {
@@ -33,10 +33,10 @@ exports.PasswordReset = async (req, res) => {
       if (otp == otps.otp) {
         // Hash the new password
         const hashed = await hashPassword(newPassword);
-        // Update the user in DetailedUser by matching the reg_no and checking for a matching email or official_email in user_details
-        const user = await DetailedUser.findOneAndUpdate(
+        // Update the user in User by matching the reg_no and checking for a matching email or official_email in user_details
+        const user = await User.findOneAndUpdate(
           {
-            "userDetails.regNumber": otps.reNumber,
+            "userDetails.regNumber": otps.regNumber,
             $or: [
               { "userDetails.email": otps.email },
               { "userDetails.officialEmail": otps.email },

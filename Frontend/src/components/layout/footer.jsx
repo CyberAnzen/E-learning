@@ -20,14 +20,14 @@ const Footer = () => {
 
   const [showCyber, setShowCyber] = useState(true);
   const menublacklist = ["/lesson/create"];
-  const ismenuBlacklisted = menublacklist.some((route) =>
-    location.pathname.startsWith(route)
-  );
-  // const blacklistPatterns = ["lesson/create"];
+  const blacklistPatterns = [
+    /^\/lesson\/create$/,
+    /^\/lesson\/update\/[a-f\d]{24}$/, // matches ObjectId format
+  ];
 
-  // const ismenuBlacklisted = blacklistPatterns.some((pattern) =>
-  //   pattern.test(location.pathname)
-  // );
+  const ismenuBlacklisted = blacklistPatterns.some((pattern) =>
+    pattern.test(location.pathname)
+  );
 
   const scrollToTop = () => {
     window.scrollTo({

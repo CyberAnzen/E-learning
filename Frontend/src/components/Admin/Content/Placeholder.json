@@ -1,5 +1,4 @@
 {
-  "_id": "",
   "classificationId": "",
   "lessonNum": 1,
   "lesson": "Introduction to Course",
@@ -8,14 +7,12 @@
     "title": "Sample Lesson",
     "author": "Course Admin",
     "duration": "30-minutes",
-    "image": "https://images.pexels.com/photos/3861958/pexels-photo-3861958.jpeg",
     "_id": ""
   },
   "tasks": {
     "title": "Getting Started",
     "completed": false,
     "content": {
-      "description": "Learn about the fundamental concepts and get started with the course.",
       "objectives": [
         "Understand the basics",
         "Complete initial setup",

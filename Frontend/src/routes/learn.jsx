@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BookOpen, BarChart } from "lucide-react";
-import { useNavigate,  } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import CourseCard from "../components/Learn/CourseCard";
 import CourseCardSkeleton from "../components/Learn/CourseSkeleton";
 import AddCourse from "../components/Admin/Learn/AddClassification";
 import ModifyClassification from "../components/Admin/Learn/ModifyClassification";
+import Logout from "./logout";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const LessonNum = "6857f03a773f44b68582060b";
@@ -28,7 +29,7 @@ const LearnPage = () => {
         throw new Error("Failed to fetch courses");
       }
       const { data } = await response.json();
-      const transformedCourses = (data.Classications || []).map((course) => ({
+      const transformedCourses = (data.classification || []).map((course) => ({
         id: course._id,
         title: course.title,
         description: course.description,

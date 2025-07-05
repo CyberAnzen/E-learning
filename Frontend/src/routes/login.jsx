@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { User, Lock, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
-import ParticleBackground from "../components/ParticleBackground";
-import {useAppContext} from '../context/AppContext'
+import ParticleBackground from "../components/Login/ParticleBackground";
+import FingerprintIcon from "../components/Login/FingerprintIcon";
+import { useAppContext } from "../context/AppContext";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function LoginPage() {
-  const {navigate}=useAppContext();
+  const { navigate } = useAppContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -46,7 +48,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:4000/user/login", {
+      const res = await fetch(`${BACKEND_URL}/user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -69,121 +71,222 @@ export default function LoginPage() {
 
   return (
     <div className="flex items-center -mt-13 justify-center px-4 sm:px-6 relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black h-[100vh] pt-10 pb-0 lg:pb-0 ">
-      <div className="w-full max-w-md flex flex-col relative z-10">
-        <div className="login-container bg-black/30 backdrop-blur-xl p-8 rounded-2xl border border-[#01ffdb]/20 shadow-2xl">
-          <div className="flex items-center justify-center mb-8">
-            <h1 className="text-[1.2rem] md:text-2xl lg:text-3xl font-bold text-white mb-1 sm:mb-4 text-center">
-              Login to Continue
-            </h1>
+      <ParticleBackground />
+      {/* Cyberpunk grid overlay */}
+      <div className="absolute inset-0 opacity-10">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+            linear-gradient(rgba(1, 255, 219, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(1, 255, 219, 0.1) 1px, transparent 1px)
+          `,
+            backgroundSize: "50px 50px",
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 w-full max-w-4xl">
+        {/* Main Container */}
+        <div className="relative">
+          {/* Angled border container */}
+          <div
+            className="relative bg-teal-700/20 opacity-85 backdrop-blur-xl border-2 border-[#01ffdb]/50 p-1"
+            style={{
+              clipPath:
+                "polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px))",
+            }}
+          >
+            {/* Inner content area */}
+            <div
+              className="bg-gray-900/50 p-8 md:p-12"
+              style={{
+                clipPath:
+                  "polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 28px 100%, 0 calc(100% - 28px))",
+              }}
+            >
+              {/* LOG IN Header */}
+              <div className="absolute top-4 left-4">
+                <div
+                  className="bg-[#01ffdb] text-black px-4 py-1 font-mono font-bold text-lg tracking-wider"
+                  style={{
+                    clipPath:
+                      "polygon(0 0, calc(100% - 10px) 0, 100% 100%, 0 100%)",
+                  }}
+                >
+                  LOG IN
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16 mt-12">
+                {/* Left side - Fingerprint Scanner */}
+                <div className="flex-shrink-0">
+                  <div className="relative">
+                    {/* Scanning frame */}
+                    <div className="w-48 h-48 border-2 border-[#01ffdb]/70 relative bg-black/30 backdrop-blur-sm">
+                      {/* Corner brackets */}
+                      <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#01ffdb]" />
+                      <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#01ffdb]" />
+                      <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#01ffdb]" />
+                      <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#01ffdb]" />
+
+                      {/* Fingerprint Icon */}
+                      <div className="absolute inset-4 flex items-center justify-center">
+                        <FingerprintIcon size={140} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right side - Form */}
+                <div className="flex-1 max-w-md w-full">
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {error && (
+                      <div
+                        className="bg-red-500/10 border border-red-500/50 p-3"
+                        style={{
+                          clipPath:
+                            "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+                        }}
+                      >
+                        <p className="text-center text-sm text-red-400 font-mono">
+                          {error}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Username Field */}
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <div
+                          className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                          style={{
+                            clipPath:
+                              "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                          }}
+                        >
+                          <div className="flex items-center justify-between p-3">
+                            <input
+                              type="text"
+                              value={username}
+                              onChange={(e) => setUsername(e.target.value)}
+                              placeholder="USERNAME"
+                              required
+                              className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Password Field */}
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <div
+                          className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
+                          style={{
+                            clipPath:
+                              "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                          }}
+                        >
+                          <div className="flex items-center justify-between p-3">
+                            <input
+                              type="password"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              placeholder="••••••••••••••••"
+                              required
+                              className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Options */}
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center">
+                        <input
+                          id="remember-me"
+                          type="checkbox"
+                          checked={rememberMe}
+                          onChange={(e) => setRememberMe(e.target.checked)}
+                          className="w-4 h-4 bg-transparent border-2 border-[#01ffdb]/50 rounded-none 
+                                   checked:bg-[#01ffdb] checked:border-[#01ffdb] 
+                                   focus:ring-[#01ffdb]/50 focus:ring-2"
+                        />
+                        <label
+                          htmlFor="remember-me"
+                          className="ml-2 text-[#01ffdb]/70 font-mono"
+                        >
+                          PERSIST SESSION
+                        </label>
+                      </div>
+
+                      <Link to="/forget-password">
+                        <div className="text-[#01ffdb] hover:text-[#01ffdb]/80 transition-colors font-mono">
+                          RESET PASSKEY
+                        </div>
+                      </Link>
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="cyber-button w-full py-3 px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
+                               text-[#01ffdb] font-mono text-lg font-bold
+                               hover:bg-[#01ffdb]/20 hover:border-[#01ffdb]
+                               transition-all duration-300 relative overflow-hidden
+                               disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{
+                        clipPath:
+                          "polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px))",
+                      }}
+                    >
+                      <div className="relative z-10">
+                        {isLoading ? "AUTHENTICATING..." : "INITIALIZE SESSION"}
+                      </div>
+
+                      {/* Animated background effect */}
+                      <div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-[#01ffdb]/10 to-transparent 
+                                    transform -skew-x-12 -translate-x-full animate-pulse"
+                      />
+                    </button>
+
+                    {/* Sign up link */}
+                    <div className="text-center text-[#01ffdb]/70 font-mono">
+                      NEW USER?{" "}
+                      <Link to="/signup">
+                        <span className="text-[#01ffdb] hover:text-[#01ffdb]/80 transition-colors font-bold">
+                          CREATE ACCOUNT
+                        </span>
+                      </Link>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-                <p className="text-center text-sm text-red-400 font-mono">
-                  {error}
-                </p>
-              </div>
-            )}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium font-mono text-[#01ffdb]">
-                IDENTIFIER
-              </label>
-              <div className="relative w-full">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <User className="h-5 w-5 text-[#01ffdb]/40" />
-                </div>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter username or email"
-                  required
-                  className="
-                  block w-full
-                  bg-black/50 border border-[#01ffdb]/20 rounded-lg
-                  text-white font-mono placeholder:text-white/20
-                  text-sm sm:text-base
-                  pl-12 pr-4 py-2
-                  focus:outline-none focus:ring-2 focus:ring-[#01ffdb]/50 focus:border-transparent
-                "
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-[#01ffdb] block font-mono">
-                PASSKEY
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-[#01ffdb]/40" />
-                </div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="
-                  block w-full
-                  bg-black/50 border border-[#01ffdb]/20 rounded-lg
-                  text-white font-mono placeholder:text-white/20
-                  text-sm sm:text-base
-                  pl-12 pr-4 py-2
-                  focus:outline-none focus:ring-2 focus:ring-[#01ffdb]/50 focus:border-transparent
-                "
-                  placeholder="Enter passkey"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 bg-black/50 border-[#01ffdb]/20 rounded 
-                           focus:ring-[#01ffdb]/50 focus:ring-offset-gray-800"
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-sm text-[#01ffdb]/70 font-mono"
-                >
-                  PERSIST SESSION
-                </label>
-              </div>
-
-              <Link to="/forget-password">
-                <div className="text-sm text-[#01ffdb] hover:text-[#00c3ff] transition-colors font-mono">
-                  RESET PASSKEY
-                </div>
-              </Link>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="cyber-button w-full py-2.5 px-4 bg-[#01ffdb]/10 border border-[#01ffdb]/50
-                  text-[#01ffdb] font-medium rounded-lg hover:bg-[#01ffdb]/20 
-                  transition-all duration-300 font-mono relative overflow-hidden text-xl
-                  disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? "AUTHENTICATING..." : "INITIALIZE SESSION"}
-            </button>
-
-            <div className="text-center text-sm text-white/50 font-mono">
-              NEW USER?{" "}
-              <Link to="/signup">
-                <span className="text-[#01ffdb] hover:text-[#00c3ff] transition-colors">
-                  CREATE ACCOUNT
-                </span>
-              </Link>
-            </div>
-          </form>
+          {/* Glowing effect around the container */}
+          <div className="absolute inset-0 bg-[#01ffdb]/5 blur-xl -z-10" />
         </div>
       </div>
+
+      {/* Additional cyberpunk elements
+      <div className="absolute top-15 right-10 text-[#01ffdb]/30 font-mono text-xs">
+        <div>SYS_STATUS: ONLINE</div>
+        <div>AUTH_LEVEL: PENDING</div>
+        <div>CONN_STATE: SECURE</div>
+      </div>
+
+      <div className="absolute bottom-15 left-10 text-[#01ffdb]/30 font-mono text-xs">
+        <div>PROTOCOL: HTTPS/2.0</div>
+        <div>ENCRYPTION: AES-256</div>
+        <div>NODE: PRIMARY</div>
+      </div> */}
     </div>
   );
 }
