@@ -1161,7 +1161,7 @@ const RichTextEditor = ({
 
           <div className="w-px bg-gray-600/50 mx-2" />
 
-          <button
+          {/* <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
@@ -1179,7 +1179,7 @@ const RichTextEditor = ({
             title="Upload Video"
           >
             <Video className="w-4 h-4 text-gray-300 group-hover:text-cyan-400" />
-          </button>
+          </button> */}
 
           <button
             type="button"

@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 const port = 4000;
 const bodyParser = require("body-parser");
 const userRoutes = require("./router/userRoutes");
-const event = require("./router/eventRoutes");
+// const event = require("./router/eventRoutes");
 const classification = require("./router/classificationRoutes");
 const lesson = require("./router/lessonRoutes");
 const validate = require("./router/ValidationRoutes");
@@ -22,7 +22,7 @@ initializeCaches();
 
 // Middleware to handle CORS
 const whitelist = [
-  "http://localhost:5173", // react app url
+  "https://cyberanzen.netlify.app", // react app url
   // Add other allowed origins here, e.g. 'https://example.com'
 ];
 
@@ -47,9 +47,12 @@ app.use(bodyParser.json());
 app.use("/api/event", xssSanitizer(), event);
 app.use("/api/user", userRoutes);
 app.use("/api/classification", xssSanitizer(), classification);
+// app.use("/api/event", xssSanitizer(), event);
+// app.use("/api/user", xssSanitizer(), userRoutes);
 app.use("/api/lesson", lesson);
 app.use("/api/answer", validate);
 
 app.use("/api/image", require("./router/imageRoutes"));
 
 app.listen(port);
+

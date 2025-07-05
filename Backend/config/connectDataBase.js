@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
+require("dotenv").config();
 const connectDataBase = () => {
-  mongoose.connect("mongodb://127.0.0.1:27017/CyberAnzen").then(() => {
+  mongoose.connect(process.env.MONGO_DB).then(() => {
     console.log("MongoDB connected");
   });
 };
