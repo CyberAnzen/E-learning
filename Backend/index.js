@@ -44,7 +44,7 @@ app.use(express.static("public")); // Serve static files from the 'public' direc
 app.use(express.json()); // Parse JSON bodies
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use("/api/event", xssSanitizer(), event);
+// app.use("/api/event", xssSanitizer(), event);
 app.use("/api/user", userRoutes);
 app.use("/api/classification", xssSanitizer(), classification);
 // app.use("/api/event", xssSanitizer(), event);
