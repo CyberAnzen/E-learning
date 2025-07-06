@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+
 const {
   createClassification,
 } = require("../controller/learn/classification/createClassification");
@@ -16,7 +17,10 @@ const {
   updateClassification,
 } = require("../controller/learn/classification/updateClassification");
 const { getSummary } = require("../controller/learn/classification/getSummary");
-router.get("/", getallClassification);
+
+const { Auth } = require("../middleware/Auth");
+
+router.get("/", Auth, getallClassification);
 router.get("/:id", getClassification);
 router.get("/sidebar/:id", getSummary);
 router.post("/create", createClassification);

@@ -1,6 +1,6 @@
 exports.logout = (req, res) => {
   // Clear the token cookie
-  res.cookie("session_token", "", {
+  res.cookie("access_token", "", {
     expires: new Date(0),
     path: "/",
     httpOnly: true,
@@ -9,7 +9,7 @@ exports.logout = (req, res) => {
   });
 
   // Clear the rememberMe cookie
-  res.cookie("user_token", "", {
+  res.cookie("refresh_token", "", {
     expires: new Date(0),
     path: "/",
     httpOnly: true,
