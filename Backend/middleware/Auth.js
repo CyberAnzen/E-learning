@@ -54,7 +54,9 @@ exports.Auth = async (req, res, next) => {
       token: refreshToken,
       userId: decodedRefresh.id,
     });
-
+    if (!stored) {
+      return res.status(403).json({ message: "Session not found" });
+    }
     // If no access token or expired, check refresh token
     if (!refreshToken || !fp || !accessToken) {
       ClearCookies(res);
@@ -62,9 +64,7 @@ exports.Auth = async (req, res, next) => {
 
       return res.status(401).json({ message: "Not authorized" });
     }
-    if (!stored) {
-      return res.status(403).json({ message: "Session not found" });
-    }
+
     if (stored.fp !== fp || stored.ua !== ua) {
       if (stored) await stored.deleteOne();
       ClearCookies(res);
