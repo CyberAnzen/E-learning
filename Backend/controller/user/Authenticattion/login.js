@@ -59,6 +59,7 @@ exports.login = async (req, res, next) => {
       userId: user._id,
       ip: ipAddress,
       ua: userAgent,
+      rememberMe,
       fp,
       expiresAt: new Date(
         Date.now() + (rememberMe ? 20 : 1) * 24 * 3600 * 1000
@@ -71,13 +72,12 @@ exports.login = async (req, res, next) => {
       maxAge: rememberMe ? 20 * 24 * 60 * 60 * 1000 : 3600000,
     });
 
- res.cookie("access_token", access_token, {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "none",
-  maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // 10 years
-});
-
+    res.cookie("access_token", access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // 10 years
+    });
 
     return res.status(200).json({ message: "Login successful" });
   } catch (error) {

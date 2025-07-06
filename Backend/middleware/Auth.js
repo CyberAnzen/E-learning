@@ -1,16 +1,16 @@
 const jwt = require("jsonwebtoken");
 const RefreshToken = require("../model/RefreshTokenModel");
-
+const INACTIVITY_WINDOW = 30 * 60 * 1000; // e.g. 30 minutes
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_SECRET;
 const ClearCookies = async (res) => {
   // Clear the token cookie
-  res.cookie("session_token", "", {
+  res.cookie("access_token", "", {
     expires: new Date(0),
     path: "/",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production" ? true : false,
-    sameSite: "strict",
+    sameSite: "none",
   });
 
   // Clear the rememberMe cookie
@@ -19,7 +19,7 @@ const ClearCookies = async (res) => {
     path: "/",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production" ? true : false,
-    sameSite: "strict",
+    sameSite: "none",
   });
 };
 exports.Auth = async (req, res, next) => {
@@ -46,12 +46,6 @@ exports.Auth = async (req, res, next) => {
     }
   }
 
-  // If no access token or expired, check refresh token
-  if (!refreshToken || !fp || !accessToken) {
-    ClearCookies(res);
-    return res.status(401).json({ message: "Not authorized" });
-  }
-
   //CASE:Refreshing the Access Token
 
   try {
@@ -60,13 +54,40 @@ exports.Auth = async (req, res, next) => {
       token: refreshToken,
       userId: decodedRefresh.id,
     });
+
+    // If no access token or expired, check refresh token
+    if (!refreshToken || !fp || !accessToken) {
+      ClearCookies(res);
+      if (stored) await stored.deleteOne();
+
+      return res.status(401).json({ message: "Not authorized" });
+    }
     if (!stored) {
       return res.status(403).json({ message: "Session not found" });
     }
-    if (!stored || stored.fp !== fp || stored.ua !== ua) {
+    if (stored.fp !== fp || stored.ua !== ua) {
       if (stored) await stored.deleteOne();
       ClearCookies(res);
       return res.status(403).json({ message: "Session invalidated" });
+    }
+    if (stored.expiresAt < Date.now()) {
+      await stored.deleteOne();
+      ClearCookies(res);
+      return res.status(403).json({ message: "Refresh token expired" });
+    }
+
+    if (!stored.rememberMe) {
+      stored.lastUsed = Date.now();
+      stored.expiresAt = Date.now() + INACTIVITY_WINDOW;
+      await stored.save();
+    }
+    if (stored.rememberMe) {
+      const remainingTime = stored.expiresAt - Date.now();
+      if (remainingTime < 7 * 24 * 60 * 60 * 1000) {
+        // Less than 7 days left → extend by 20 days
+        stored.expiresAt = Date.now() + 20 * 24 * 60 * 60 * 1000;
+        await stored.save();
+      }
     }
 
     // Generate a new access token

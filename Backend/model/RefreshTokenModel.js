@@ -7,7 +7,13 @@ const schema = new mongoose.Schema({
   ua: { type: String, required: true },
   fp: { type: String, required: true }, // fingerprint hash
   createdAt: { type: Date, default: Date.now },
+  lastUsed: { type: Date, default: Date.now },
   expiresAt: { type: Date, required: true },
+  rememberMe: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
 });
 
 // Auto-delete documents after expiration
