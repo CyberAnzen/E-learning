@@ -9,7 +9,7 @@ const ClearCookies = async (res) => {
     path: "/",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production" ? true : false,
-    sameSite: "none",
+    sameSite: "Lax",
   });
 
   // Clear the rememberMe cookie
@@ -18,17 +18,21 @@ const ClearCookies = async (res) => {
     path: "/",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production" ? true : false,
-    sameSite: "none",
+    sameSite: "Lax",
   });
 };
 exports.Auth = async (req, res, next) => {
   const accessToken = req.cookies?.access_token;
   const refreshToken = req.cookies?.refresh_token;
-  const fp = req.headers["x-client-fp"]; // Send fingerprint from frontend
-  const ua = req.headers["user-agent"];
+  const fp = req.headers["x-client-fp"] || req.headers["X-Client-Fp"];
+  const ua = req.headers["user-agent"] || req.headers["User-Agent"];
   const ip =
     req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
-
+  // console.log(ip, ua, fp, accessToken, refreshToken, req.cookies);
+  if (!refreshToken) {
+    ClearCookies(res);
+    return res.status(401).json({ message: "Refresh token missing" });
+  }
   //CASE:Auth Middleware for authorisation
   try {
     if (accessToken) {
@@ -44,10 +48,7 @@ exports.Auth = async (req, res, next) => {
       return res.status(403).json({ message: "Invalid access token" });
     }
   }
-  if (!refreshToken) {
-    ClearCookies(res);
-    return res.status(401).json({ message: "Refresh token missing" });
-  }
+
   //CASE:Refreshing the Access Token
 
   try {
@@ -92,7 +93,7 @@ exports.Auth = async (req, res, next) => {
       res.cookie("refresh_token", refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "none",
+        sameSite: "Lax",
         maxAge: 3600000,
       });
       stored.token = refresh_token;
@@ -116,7 +117,7 @@ exports.Auth = async (req, res, next) => {
         res.cookie("refresh_token", refresh_token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production" ? true : false,
-          sameSite: "none",
+          sameSite: "Lax",
           maxAge: 20 * 24 * 60 * 60 * 1000,
         });
         stored.ip = ip;
@@ -144,7 +145,7 @@ exports.Auth = async (req, res, next) => {
     res.cookie("access_token", access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: "Lax",
       maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // 10 years
     });
 
