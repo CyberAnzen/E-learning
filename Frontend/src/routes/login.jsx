@@ -4,15 +4,27 @@ import { Link } from "react-router-dom";
 import ParticleBackground from "../components/Login/ParticleBackground";
 import FingerprintIcon from "../components/Login/FingerprintIcon";
 import { useAppContext } from "../context/AppContext";
+import FingerPrintJS from "../../utils/Fingerprint";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function LoginPage() {
   const { navigate } = useAppContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [fp, setFp] = useState("");
+
+  useEffect(() => {
+    const getFingerprint = async () => {
+      const id = await FingerPrintJS();
+      setFp(id);
+      console.log("Fingerprint:", id);
+    };
+
+    getFingerprint();
+  }, []);
 
   useEffect(() => {
     // Smooth scroll to top
@@ -52,7 +64,12 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ identifier: username, password, rememberMe }),
+        body: JSON.stringify({
+          identifier: username,
+          password,
+          rememberMe,
+          fp,
+        }),
       });
 
       const data = await res.json();
