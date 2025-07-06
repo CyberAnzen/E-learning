@@ -7,10 +7,8 @@ const RadialProgess = ({
     missiondata: 50,
   },
 }) => {
-  console.log(progessdata);
-
   return (
-    <div className="bg-cyan-800/50 text-black border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10  p-4 md:px-12 lg:px-10 flex flex-col md:flex-row justify-between items-center w-full">
+    <div className="bg-cyan-800/50 text-black border-[#38bdf8]/20 rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10  p-4 md:px-12 lg:px-10 flex flex-col md:flex-row justify-between items-center w-full">
       <div className="mb-4 md:mb-0">
         <h3 className="text-lg font-bold">{progessdata.missiondetails}</h3>
         <p className="text-sm text-gray-300">

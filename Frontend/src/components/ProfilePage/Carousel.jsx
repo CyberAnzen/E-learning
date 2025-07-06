@@ -25,10 +25,10 @@ const Carousel = ({
           >
             {cloneElement(children, { [dataKey]: item })}
             <div className="absolute left-3 right-3 max-ms:left-right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
-              <a href={prevSlide} className="btn btn-circle opacity-30">
+              <a href={prevSlide} className="btn btn-circle opacity-30  hidden sm:flex">
                 ❮
               </a>
-              <a href={nextSlide} className="btn btn-circle opacity-30">
+              <a href={nextSlide} className="btn btn-circle opacity-30  hidden sm:flex">
                 ❯
               </a>
             </div>
