@@ -77,7 +77,7 @@ exports.Auth = async (req, res, next) => {
         role: decodedRefresh.role,
       },
       ACCESS_SECRET,
-      { expiresIn: "20s" }
+      { expiresIn: "15m" }
     );
 
     // Set new access token cookie

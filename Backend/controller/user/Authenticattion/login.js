@@ -47,7 +47,7 @@ exports.login = async (req, res, next) => {
     };
 
     const access_token = jwt.sign(payload, ACCESS_SECRET, {
-      expiresIn: "20s",
+      expiresIn: "15m",
     });
     const refresh_token = jwt.sign(payload, REFRESH_SECRET, {
       expiresIn: rememberMe ? "20d" : "1h",
