@@ -1,20 +1,19 @@
+const port = 4000;
+require("dotenv").config();
 const express = require("express");
 const app = express();
-require("dotenv").config();
 const cors = require("cors");
+const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
-const port = 4000;
 const bodyParser = require("body-parser");
 const userRoutes = require("./router/userRoutes");
 const event = require("./router/eventRoutes");
-const classification = require("./router/classificationRoutes");
 const lesson = require("./router/lessonRoutes");
 const validate = require("./router/ValidationRoutes");
-
 const ConnectDataBase = require("./config/connectDataBase");
 const initializeCaches = require("./cache/initCache");
-const helmet = require("helmet");
 const xssSanitizer = require("./middleware/xssSanitizer");
+const classification = require("./router/classificationRoutes");
 
 ConnectDataBase();
 initializeCaches();
@@ -37,12 +36,12 @@ const corsOptions = {
   credentials: true, // This allows credentials (cookies, authorization headers, etc.)
 };
 
+app.use(cookieParser());
 // app.use(helmet()); // Use Helmet for security headers
 app.use(cors(corsOptions));
 
 app.use(express.static("public")); // Serve static files from the 'public' directory
 app.use(express.json()); // Parse JSON bodies
-app.use(cookieParser());
 app.use(bodyParser.json());
 app.use("/api/event", xssSanitizer(), event);
 app.use("/api/user", userRoutes);

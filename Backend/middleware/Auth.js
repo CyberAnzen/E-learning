@@ -45,7 +45,10 @@ exports.Auth = async (req, res, next) => {
       return res.status(403).json({ message: "Invalid access token" });
     }
   }
-
+  if (!refreshToken) {
+    ClearCookies(res);
+    return res.status(401).json({ message: "Refresh token missing" });
+  }
   //CASE:Refreshing the Access Token
 
   try {
@@ -54,6 +57,7 @@ exports.Auth = async (req, res, next) => {
       token: refreshToken,
       userId: decodedRefresh.id,
     });
+
     if (!stored) {
       return res.status(403).json({ message: "Session not found" });
     }
@@ -76,22 +80,58 @@ exports.Auth = async (req, res, next) => {
       return res.status(403).json({ message: "Refresh token expired" });
     }
 
-    if (!stored.rememberMe) {
+    if (!stored.rememberMe && stored.expiresAt - Date.now() < 5 * 60 * 1000) {
+      const refresh_token = jwt.sign(
+        {
+          id: decodedRefresh.id,
+          username: decodedRefresh.username,
+          role: decodedRefresh.role,
+        },
+        REFRESH_SECRET,
+        { expiresIn: "1h" }
+      );
+      res.cookie("refresh_token", refresh_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
+        maxAge: 3600000,
+      });
+      stored.token = refresh_token;
       stored.lastUsed = Date.now();
-      stored.expiresAt = Date.now() + INACTIVITY_WINDOW;
+      stored.expiresAt = Date.now() + 3600000;
       await stored.save();
     }
     if (stored.rememberMe) {
       const remainingTime = stored.expiresAt - Date.now();
       if (remainingTime < 7 * 24 * 60 * 60 * 1000) {
         // Less than 7 days left → extend by 20 days
+        const refresh_token = jwt.sign(
+          {
+            id: decodedRefresh.id,
+            username: decodedRefresh.username,
+            role: decodedRefresh.role,
+          },
+          REFRESH_SECRET,
+          { expiresIn: "20d" }
+        );
+        res.cookie("refresh_token", refresh_token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production" ? true : false,
+          sameSite: "none",
+          maxAge: 20 * 24 * 60 * 60 * 1000,
+        });
+        stored.ip = ip;
+        stored.ua = ua;
+        stored.fp = fp;
+        stored.token = refresh_token;
+        stored.lastUsed = Date.now();
         stored.expiresAt = Date.now() + 20 * 24 * 60 * 60 * 1000;
         await stored.save();
       }
     }
 
     // Generate a new access token
-    const newAccessToken = jwt.sign(
+    const access_token = jwt.sign(
       {
         id: decodedRefresh.id,
         username: decodedRefresh.username,
@@ -102,7 +142,7 @@ exports.Auth = async (req, res, next) => {
     );
 
     // Set new access token cookie
-    res.cookie("access_token", newAccessToken, {
+    res.cookie("access_token", access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "none",
