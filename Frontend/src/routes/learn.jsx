@@ -5,8 +5,7 @@ import CourseCard from "../components/Learn/CourseCard";
 import CourseCardSkeleton from "../components/Learn/CourseSkeleton";
 import AddCourse from "../components/Admin/Learn/AddClassification";
 import ModifyClassification from "../components/Admin/Learn/ModifyClassification";
-import Logout from "./logout";
-
+import { useAppContext } from "../context/AppContext";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const LessonNum = "6857f03a773f44b68582060b";
 /**
@@ -14,6 +13,7 @@ const LessonNum = "6857f03a773f44b68582060b";
  * Displays courses with loading skeletons and progress tracking
  */
 const LearnPage = () => {
+  const { fp } = useAppContext();
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +24,12 @@ const LearnPage = () => {
   const loadCourses = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${BACKEND_URL}/classification/`);
+      const response = await fetch(`${BACKEND_URL}/classification/`, {
+        headers: {
+          "x-client-fp": fp,
+        },
+        credentials: "include", 
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch courses");
       }

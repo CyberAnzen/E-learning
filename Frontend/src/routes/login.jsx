@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import ParticleBackground from "../components/Login/ParticleBackground";
 import FingerprintIcon from "../components/Login/FingerprintIcon";
 import { useAppContext } from "../context/AppContext";
-import FingerPrintJS from "../../utils/Fingerprint";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function LoginPage() {
@@ -14,17 +13,7 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [fp, setFp] = useState("");
-
-  useEffect(() => {
-    const getFingerprint = async () => {
-      const id = await FingerPrintJS();
-      setFp(id);
-      console.log("Fingerprint:", id);
-    };
-
-    getFingerprint();
-  }, []);
+  const { fp } = useAppContext();
 
   useEffect(() => {
     // Smooth scroll to top
