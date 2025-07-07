@@ -80,7 +80,7 @@ exports.Auth = async (req, res, next) => {
       return res.status(403).json({ message: "Refresh token expired" });
     }
 
-    if (!stored.rememberMe && stored.expiresAt - Date.now() < 5 * 60 * 1000) {
+    if (!stored.rememberMe && stored.expiresAt - Date.now() < 30 * 60 * 1000) {
       const refresh_token = jwt.sign(
         {
           id: decodedRefresh.id,
@@ -96,6 +96,7 @@ exports.Auth = async (req, res, next) => {
         sameSite: "Lax",
         maxAge: 3600000,
       });
+      stored.ip = ip;
       stored.token = refresh_token;
       stored.lastUsed = Date.now();
       stored.expiresAt = Date.now() + 3600000;
@@ -121,8 +122,6 @@ exports.Auth = async (req, res, next) => {
           maxAge: 20 * 24 * 60 * 60 * 1000,
         });
         stored.ip = ip;
-        stored.ua = ua;
-        stored.fp = fp;
         stored.token = refresh_token;
         stored.lastUsed = Date.now();
         stored.expiresAt = Date.now() + 20 * 24 * 60 * 60 * 1000;
