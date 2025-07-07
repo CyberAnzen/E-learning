@@ -14,11 +14,13 @@ const ConnectDataBase = require("./config/connectDataBase");
 const initializeCaches = require("./cache/initCache");
 const xssSanitizer = require("./middleware/xssSanitizer");
 const classification = require("./router/classificationRoutes");
+const csrfProtection = require("./middleware/CSRFprotection");
 
+//Database and Cache initialization
 ConnectDataBase();
 initializeCaches();
-// app.use(cors());
 
+//Security Middlewares
 // Middleware to handle CORS
 const whitelist = [
   "http://localhost:5173", // react app url
@@ -35,14 +37,23 @@ const corsOptions = {
   },
   credentials: true, // This allows credentials (cookies, authorization headers, etc.)
 };
-
-app.use(cookieParser());
-// app.use(helmet()); // Use Helmet for security headers
 app.use(cors(corsOptions));
 
-app.use(express.static("public")); // Serve static files from the 'public' directory
+// app.use(cors());
+// app.use(helmet()); // Use Helmet for security headers
+
+// parser middlewares
+app.use(cookieParser());
 app.use(express.json()); // Parse JSON bodies
 app.use(bodyParser.json());
+
+app.use(express.static("public")); // Serve static files from the 'public' directory
+
+// Routes starts here
+app.get("/api/csrf-token", csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
 app.use("/api/event", xssSanitizer(), event);
 app.use("/api/user", userRoutes);
 app.use("/api/classification", xssSanitizer(), classification);

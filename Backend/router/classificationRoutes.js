@@ -20,7 +20,7 @@ const { getSummary } = require("../controller/learn/classification/getSummary");
 
 const { Auth } = require("../middleware/Auth");
 
-router.get("/", Auth, getallClassification);
+router.post("/", Auth, getallClassification);
 router.get("/:id", getClassification);
 router.get("/sidebar/:id", getSummary);
 router.post("/create", createClassification);

@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const RefreshToken = require("../model/RefreshTokenModel");
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_SECRET;
+const csrfProtection = require("../middleware/CSRFprotection");
 const ClearCookies = async (res) => {
   // Clear the token cookie
   res.cookie("access_token", "", {
@@ -22,6 +23,18 @@ const ClearCookies = async (res) => {
   });
 };
 exports.Auth = async (req, res, next) => {
+  // Apply CSRF protection
+  try {
+    await new Promise((resolve, reject) => {
+      csrfProtection(req, res, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid or missing CSRF token" });
+  }
+
   const accessToken = req.cookies?.access_token;
   const refreshToken = req.cookies?.refresh_token;
   const fp = req.headers["x-client-fp"] || req.headers["X-Client-Fp"];

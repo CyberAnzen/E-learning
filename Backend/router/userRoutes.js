@@ -83,5 +83,4 @@ router.get("/check-username", checkUsernameLimiter, userManager.checkusername);
 router.post("/forgot-password", otpGeneratorLimiter, OtpManager.OtpGenerator);
 router.post("/verify-otp", otpVerifyLimiter, OtpManager.OtpVerification);
 router.post("/reset-password", passwordResetLimiter, userManager.PasswordReset);
-router.post("/refresh", userManager.refresh);
 module.exports = router;
