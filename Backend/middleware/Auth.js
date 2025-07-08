@@ -3,6 +3,7 @@ const RefreshToken = require("../model/RefreshTokenModel");
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_SECRET;
 const csrfProtection = require("../middleware/CSRFprotection");
+const TIMESTAMP_WINDOW = 5 * 60 * 1000; // 5 minutes in ms
 const ClearCookies = async (res) => {
   // Clear the token cookie
   res.cookie("access_token", "", {
@@ -21,8 +22,27 @@ const ClearCookies = async (res) => {
     secure: process.env.NODE_ENV === "production" ? true : false,
     sameSite: "Lax",
   });
+  // Clear the CSRF token
+  res.cookie("_csrf", "", {
+    expires: new Date(0),
+    path: "/",
+    httpOnly: false, // CSRF tokens are usually accessible by JS
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Lax",
+  });
 };
 exports.Auth = async (req, res, next) => {
+  //Timestamp Checking to prevent Replay attack
+
+  const now = Date.now();
+  const timestamp = req.headers["timestamp"];
+  if (!timestamp || timestamp > now) {
+    return res.status(404).json({ error: "Invalid Request" });
+  }
+  if (now - timestamp > TIMESTAMP_WINDOW) {
+    return res.status(400).json({ error: "Request expired" });
+  }
+
   // Apply CSRF protection
   try {
     await new Promise((resolve, reject) => {
@@ -75,7 +95,7 @@ exports.Auth = async (req, res, next) => {
       return res.status(403).json({ message: "Session not found" });
     }
     // If no access token or expired, check refresh token
-    if (!refreshToken || !fp || !accessToken) {
+    if (!fp || !accessToken) {
       ClearCookies(res);
       if (stored) await stored.deleteOne();
 

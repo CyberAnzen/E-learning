@@ -4,6 +4,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const helmet = require("helmet");
+const { Auth } = require("./middleware/Auth");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const userRoutes = require("./router/userRoutes");
@@ -49,10 +50,13 @@ app.use(bodyParser.json());
 
 app.use(express.static("public")); // Serve static files from the 'public' directory
 
-// Routes starts here
-app.get("/api/csrf-token", csrfProtection, (req, res) => {
+//CSRF route
+
+app.get("/api/csrf-token", Auth, csrfProtection, (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
 });
+
+// Routes starts here
 
 app.use("/api/event", xssSanitizer(), event);
 app.use("/api/user", userRoutes);
