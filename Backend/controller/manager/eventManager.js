@@ -3,13 +3,13 @@ require('events').EventEmitter.defaultMaxListeners = 20; // Increase the default
 
 const {createEvent} = require('../event/createEvent');
 const {getEvents} = require('../event/getEvents');
-const { updateEvent } = require('../event/UpdateEvent');
+const { updateEvent } = require('../event/updateEvent');
 const {deleteEvent} = require('../event/deleteEvent');
 const {getEventById} = require('../event/getEventById');
 const {bannerEvent} = require('../event/bannerEvent');
 const {updateEventImage} = require('../event/updateEventImage');
 
-
+ 
 
 
 const eventManager = {
