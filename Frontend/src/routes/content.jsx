@@ -39,7 +39,6 @@ const Content = ({
   focusedSection,
 }) => {
   const { id } = useParams(); // Get chapter ID from URL
-
   //------AppContext Variable------------------------
   const { Admin } = useContext(AppContext);
   const { LearnAdd, setLearnAdd } = useContext(AppContext);
