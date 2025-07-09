@@ -3,8 +3,7 @@ const ClassificationModel = require("../../../model/ClassificationModel");
 const { normalizeImagePaths } = require("./Normalizer/normalizeImagePaths");
 const {
   normalizeMediaUrls,
-  denormalizeMediaUrls,
-} = require("./Normalizer/HTMLNormalizer");
+} = require("./Normalizer/HTMLNormalizer.js");
 const { deletePublicFiles } = require("./helper/deletePublicFiles ");
 
 exports.createLesson = async (req, res) => {

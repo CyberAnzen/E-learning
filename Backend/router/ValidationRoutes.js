@@ -6,6 +6,9 @@ const {
 const {
   answerSubmission,
 } = require("../controller/learn/question/answerSubmission");
-router.post("/submit", answerSubmission);
-router.post("/validate", answerValidation);
+const { Auth } = require("../middleware/Auth");
+
+router.post("/validate", Auth(), answerValidation);
+router.post("/submit", Auth(), answerSubmission);
+
 module.exports = router;

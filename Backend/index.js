@@ -21,24 +21,25 @@ const FRONTEND_URL = process.env.FRONTEND_URL;
 ConnectDataBase();
 initializeCaches();
 
-//Security Middlewares
-// Middleware to handle CORS
-const whitelist = [
-  `${FRONTEND_URL}`, // react app url
-  // Add other allowed origins here, e.g. 'https://example.com'
-];
+// //Security Middlewares
+// // Middleware to handle CORS
+// const whitelist = [
+//   FRONTEND_URL, // react app url
+//   // Add other allowed origins here, e.g. 'https://example.com'
+// ];
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (whitelist.includes(origin) || !origin) {
-      callback(null, true); // Allow
-    } else {
-      callback(new Error("Not allowed by CORS")); // Block
-    }
-  },
-  credentials: true, // This allows credentials (cookies, authorization headers, etc.)
-};
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: (origin, callback) => {
+//     if (whitelist.includes(origin) || !origin) {
+//       callback(null, true); // Allow
+//     } else {
+//       callback(new Error("Not allowed by CORS")); // Block
+//     }
+//   },
+//   credentials: true, // This allows credentials (cookies, authorization headers, etc.)
+// };
+// app.use(cors(corsOptions));
+app.use(cors({ origin: true, credentials: true }));
 
 // app.use(cors());
 // app.use(helmet()); // Use Helmet for security headers
@@ -52,7 +53,7 @@ app.use(express.static("public")); // Serve static files from the 'public' direc
 
 //CSRF route
 
-app.get("/api/csrf-token", Auth, csrfProtection, (req, res) => {
+app.get("/api/csrf-token", Auth(), csrfProtection, (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
 });
 

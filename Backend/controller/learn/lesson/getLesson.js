@@ -1,5 +1,5 @@
 const LessonModel = require("../../../model/LessonModel");
-
+const {denormalizeMediaUrls} = require("./Normalizer/HTMLNormalizer")
 exports.getLesson = async (req, res) => {
   const { ClassificationId, LessonId } = req.params;
 

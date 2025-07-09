@@ -1,6 +1,7 @@
 const LessonModel = require("../../../model/LessonModel");
-
+const Learn_Progress = require("../../../model/LearnProgressModel");
 // Enhanced normalization function
+
 const normalize = (str) => {
   if (str === null || str === undefined) return "";
   if (typeof str !== "string") str = String(str);
@@ -26,7 +27,7 @@ const validateAnswer = (question, userAnswer) => {
       // Normalize both correct answer and user input
       const normalizedCorrect = normalize(correctAnswer);
       const normalizedUser = normalize(userAnswer);
-      console.log(normalizedCorrect);
+      // console.log(normalizedCorrect);
 
       // Check for empty correct answer after normalization
       if (!normalizedCorrect) {
@@ -78,7 +79,7 @@ const validateAnswer = (question, userAnswer) => {
 // Submission controller
 exports.answerSubmission = async (req, res) => {
   const { lessonId, answers, startTime } = req.body;
-
+  const user = req.user;
   // Validate request body
   if (!lessonId || typeof lessonId !== "string") {
     return res.status(400).json({ message: "Valid lessonId is required" });
@@ -96,7 +97,7 @@ exports.answerSubmission = async (req, res) => {
     if (!lesson) {
       return res.status(404).json({ message: "Lesson not found" });
     }
-
+    const classificationId = lesson.classificationId;
     // Collect all questions directly from lesson.tasks.content.questions
     const allQuestions = [];
     if (
@@ -157,12 +158,16 @@ exports.answerSubmission = async (req, res) => {
         };
       }
     });
-
     const totalQuestions = allQuestions.length;
     const percentage =
       totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
     const timeSpent = Date.now() - startTime;
-
+    await Learn_Progress.updateCompletedLessons(
+      user.id,
+      classificationId,
+      lessonId,
+      score
+    );
     res.status(200).json({
       score,
       totalQuestions,
@@ -170,7 +175,6 @@ exports.answerSubmission = async (req, res) => {
       results,
       timeSpent,
     });
-    
   } catch (error) {
     console.error("submitAssessment error:", error);
     return res.status(500).json({
