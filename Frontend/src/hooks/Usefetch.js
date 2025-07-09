@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
-import getCsrfToken from "../utils/getCsrfToken";
+import getCsrfToken from "./utils/useGetCsrfToken";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const Usefetch = (

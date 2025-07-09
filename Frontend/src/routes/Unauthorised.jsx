@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import { LogIn, Home } from "lucide-react";
-
+import { AppContext } from "../../context/AppContext";
 const Unauthorized = () => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(6);
-
+  const { setloggedIn, setCSRF } = useContext(AppContext);
+  setloggedIn(false);
+  setCSRF(null);
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown((prev) => {
