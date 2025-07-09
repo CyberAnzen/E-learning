@@ -22,6 +22,7 @@ import Profile from "./routes/account";
 import Content from "./routes/content";
 import Unauthorized from "./routes/Unauthorised";
 import { useAppContext } from "./context/AppContext";
+import useGetCsrfToken from "./hooks/utils/useGetCsrfToken";
 
 import {
   BrowserRouter as Router,
@@ -38,7 +39,8 @@ import ContentController from "./routes/ContentController";
 import CertificateList from "./components/ProfilePage/CertificateList";
 import AdminEditor from "./components/Admin/Content/adminEditor";
 function App() {
-  const { user } = useAppContext();
+  const { user, loggedIn } = useAppContext();
+  const getCsrfToken = useGetCsrfToken();
   const [intro, setIntro] = useState(true);
   const location = useLocation(); // Get the current route
   // Define routes where the footer should NOT appear
@@ -60,6 +62,15 @@ function App() {
       document.body.style.overflow = "";
     };
   }, []);
+  // Fetch CSRF token only when loggedIn becomes true
+  useEffect(() => {
+    const fetchCsrfIfLoggedIn = async () => {
+      if (loggedIn) {
+        await getCsrfToken();
+      }
+    };
+    fetchCsrfIfLoggedIn();
+  }, [loggedIn]);
 
   return (
     <>
@@ -90,7 +101,7 @@ function App() {
             <Route path="editprofile" element={<EditProfile />} />
             <Route path="certificatelist" element={<CertificateList />} />
           </Route>
-          <Route path="/unauthorised" element={<Unauthorized />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/*" element={<NotFound />} />
         </Routes>
 

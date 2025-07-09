@@ -6,9 +6,10 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const useGetCsrfToken = () => {
   const navigate = useNavigate();
-  const { fp, setCSRF } = useContext(AppContext);
+  const { fp, setCSRF, loggedIn } = useContext(AppContext);
 
   const getCsrfToken = async () => {
+    if (!loggedIn) return false;
     try {
       const res = await fetch(`${BACKEND_URL}/auth/csrf-token`, {
         method: "GET",
