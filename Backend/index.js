@@ -53,9 +53,14 @@ app.use(express.static("public")); // Serve static files from the 'public' direc
 
 //CSRF route
 
-app.get("/api/csrf-token", Auth(), csrfProtection, (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
+app.get(
+  "/api/auth/csrf-token",
+  Auth({ _CSRF: false }),
+  csrfProtection,
+  (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+  }
+);
 
 // Routes starts here
 

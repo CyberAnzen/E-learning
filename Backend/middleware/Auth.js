@@ -34,7 +34,7 @@ const ClearCookies = async (res) => {
 exports.Auth = (options = {}) => {
   return async (req, res, next) => {
     //Timestamp Checking to prevent Replay attack
-
+    const CSRF = options?._CSRF || true;
     const now = Date.now();
     const timestamp = req.headers["timestamp"];
     if (!timestamp || timestamp > now) {
@@ -45,15 +45,19 @@ exports.Auth = (options = {}) => {
     }
 
     // Apply CSRF protection
-    try {
-      await new Promise((resolve, reject) => {
-        csrfProtection(req, res, (err) => {
-          if (err) return reject(err);
-          resolve();
+    if (CSRF) {
+      try {
+        await new Promise((resolve, reject) => {
+          csrfProtection(req, res, (err) => {
+            if (err) return reject(err);
+            resolve();
+          });
         });
-      });
-    } catch (err) {
-      return res.status(403).json({ message: "Invalid or missing CSRF token" });
+      } catch (err) {
+        return res
+          .status(402)
+          .json({ message: "Invalid or missing CSRF token" });
+      }
     }
 
     const accessToken = req.cookies?.access_token;
@@ -83,7 +87,7 @@ exports.Auth = (options = {}) => {
       // Only continue if token is expired (otherwise it's a bad token)
       if (err.name !== "TokenExpiredError") {
         ClearCookies(res);
-        return res.status(403).json({ message: "Invalid access token" });
+        return res.status(401).json({ message: "Invalid access token" });
       }
     }
 
@@ -110,12 +114,12 @@ exports.Auth = (options = {}) => {
       if (stored.fp !== fp || stored.ua !== ua) {
         if (stored) await stored.deleteOne();
         ClearCookies(res);
-        return res.status(403).json({ message: "Session invalidated" });
+        return res.status(401).json({ message: "Session invalidated" });
       }
       if (stored.expiresAt < Date.now()) {
         await stored.deleteOne();
         ClearCookies(res);
-        return res.status(403).json({ message: "Refresh token expired" });
+        return res.status(401).json({ message: "Refresh token expired" });
       }
 
       if (
@@ -198,7 +202,7 @@ exports.Auth = (options = {}) => {
     } catch (err) {
       // console.error("Refresh verification failed:", err);
       ClearCookies(res);
-      return res.status(403).json({ message: "Invalid session" });
+      return res.status(401).json({ message: "Invalid session" });
     }
   };
 };
