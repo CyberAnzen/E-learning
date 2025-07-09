@@ -1,64 +1,99 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
+import { AppContext } from "../context/AppContext";
+import getCsrfToken from "../utils/getCsrfToken";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-const Usefetch = (url, method = "get", data = null, headers = {}) => {
+const Usefetch = (
+  endpoint,
+  method = "get",
+  data = null,
+  customHeaders = {}
+) => {
   const [Data, setData] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [fetchCount, setFetchCount] = useState(0);
+  const { fp, csrf } = useContext(AppContext);
+  const url = `${BACKEND_URL}/${endpoint}`;
 
-  let reFetch = null; // Declare the function outside first
+  const getHeaders = () => ({
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    "x-client-fp": fp,
+    "csrf-token": csrf,
+    timestamp: Date.now(),
+    ...customHeaders,
+  });
+
+  let reFetch = null;
 
   if (method.toLowerCase() === "get") {
     useEffect(() => {
+      const controller = new AbortController();
+      let timeout;
+
       const fetchData = async () => {
         try {
           const res = await axios({
             method: "get",
             url,
-            headers,
+            headers: getHeaders(),
+            credentials: "include", // Send and receive cookies
+            signal: controller.signal,
           });
           setData(res.data);
-          setLoading(false);
           setError("");
-          console.log(res.data);
         } catch (error) {
-          setError(error.message);
+          if (axios.isCancel(error)) {
+            console.log("Request canceled");
+          } else {
+            setError(error.message);
+          }
         } finally {
+          setLoading(false);
           setFetchCount((prev) => prev + 1);
+
+          if (loading) {
+            timeout = setTimeout(fetchData, 3000);
+          }
         }
       };
 
-      const interval = setInterval(() => {
-        if (loading) {
-          fetchData();
-          setFetchCount((prev) => prev + 1);
-        } else {
-          clearInterval(interval);
-        }
-      }, fetchCount === 0 ? 0 : 3000);
+      fetchData();
 
-      return () => clearInterval(interval);
-    }, [url, loading, fetchCount]);
+      return () => {
+        controller.abort(); // cancel pending Axios request
+        clearTimeout(timeout); // clear polling timeout
+      };
+    }, [url, loading, fetchCount, fp, csrf]);
   } else {
-    // 👇 Define the function to be called manually
     reFetch = async () => {
+      const controller = new AbortController();
       try {
         const res = await axios({
           method: method.toLowerCase(),
           url,
           data,
-          headers,
+          headers: getHeaders(),
+          credentials: "include", // Send and receive cookies
+          signal: controller.signal,
         });
         setData(res.data);
         setError("");
-        console.log(res.data);
       } catch (error) {
-        setError(error.message);
+        if (axios.isCancel(error)) {
+          console.log("Request canceled");
+        } else {
+          setError(error.message);
+        }
       } finally {
         setLoading(false);
         setFetchCount((prev) => prev + 1);
       }
+
+      // Return abort function to optionally cancel it externally
+      return () => controller.abort();
     };
   }
 
@@ -66,7 +101,7 @@ const Usefetch = (url, method = "get", data = null, headers = {}) => {
     Data,
     error,
     loading,
-    reFetch, // Only works for POST/PUT/DELETE
+    reFetch,
   };
 };
 

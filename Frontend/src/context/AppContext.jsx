@@ -1,9 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import FingerPrintJS from "../../utils/Fingerprint";
-axios.defaults.withCredentials = true;
-axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
 export const AppContext = createContext();
 export const AppContextProvider = ({ children }) => {
@@ -17,6 +14,7 @@ export const AppContextProvider = ({ children }) => {
   //Classification globalState
   const [classificationId, setClassificationId] = useState();
   const [fp, setFp] = useState(null); // State to store fingerprint
+  const [csrf, setCSRF] = useState(null);
 
   useEffect(() => {
     const getFingerprint = async () => {
@@ -32,7 +30,6 @@ export const AppContextProvider = ({ children }) => {
   }, []);
 
   const value = {
-    axios,
     navigate,
     user,
     savedSkills,
@@ -45,6 +42,7 @@ export const AppContextProvider = ({ children }) => {
     classificationId,
     setClassificationId,
     fp,
+    csrf,
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

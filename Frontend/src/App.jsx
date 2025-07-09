@@ -20,6 +20,7 @@ import Signup from "./routes/signup";
 import PrivacyPolicy from "./routes/privacyPolicy";
 import Profile from "./routes/account";
 import Content from "./routes/content";
+import Unauthorized from "./routes/Unauthorised";
 import { useAppContext } from "./context/AppContext";
 
 import {
@@ -89,6 +90,7 @@ function App() {
             <Route path="editprofile" element={<EditProfile />} />
             <Route path="certificatelist" element={<CertificateList />} />
           </Route>
+          <Route path="/unauthorised" element={<Unauthorized />} />
           <Route path="/*" element={<NotFound />} />
         </Routes>
 
