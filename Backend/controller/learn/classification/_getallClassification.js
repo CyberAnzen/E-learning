@@ -4,9 +4,7 @@ const Learn_Progress = require("../../../model/LearnProgressModel");
 const cacheManager = require("../../../cache/cacheManager");
 const customError = require("../../../utilies/customError");
 
-exports.getallClassification = async (req, res) => {
-  const user = req.user;
-
+exports._getallClassification = async (req, res) => {
   try {
     const cacheData = cacheManager.getCache("classificationCache");
 
@@ -23,27 +21,14 @@ exports.getallClassification = async (req, res) => {
       });
     }
 
-    const completed = await Learn_Progress.countCompletedPerClassification(
-      user._id
-    );
-
-    // Map of classificationId → completed count
-    const completedMap = new Map();
-    completed.forEach((item) => {
-      completedMap.set(item.classificationId.toString(), item.totalCompleted);
-    });
-
-    // Remove timestamps and merge completed count
     const finalClassification = classification.map((item) => {
       const obj = { ...item };
-      if (user.role == "User") {
-        delete obj.createdAt;
-        delete obj.updatedAt;
-      }
+
+      delete obj.createdAt;
+      delete obj.updatedAt;
 
       return {
         ...obj,
-        totalCompleted: completedMap.get(item._id.toString()) || 0,
       };
     });
 

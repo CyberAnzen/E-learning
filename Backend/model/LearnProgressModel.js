@@ -54,7 +54,7 @@ ProgressSchema.statics.getCompletedLessons = function (
 
 // STATIC: count completed lessons per classification (with lookup)
 ProgressSchema.statics.countCompletedPerClassification = function (userId) {
-  return this.model("Classifications").aggregate([
+  return this.model("Classification").aggregate([
     {
       $lookup: {
         from: this.collection.name, // dynamically use the Progress model's collection name
@@ -82,6 +82,37 @@ ProgressSchema.statics.countCompletedPerClassification = function (userId) {
       },
     },
   ]);
+};
+
+// STATIC: add completed lessons for a user in a classification
+ProgressSchema.statics.updateCompletedLessons = async function (
+  userId,
+  classificationId,
+  lessonId,
+  score
+) {
+  const exist = await this.findOne({
+    userId,
+    classificationId,
+    lessonId,
+  });
+
+  if (exist) {
+    if (exist.highestScore === null || exist.highestScore < score) {
+      exist.highestScore = score;
+      await exist.save();
+      return { updated: true, created: false, doc: exist };
+    }
+    return { updated: false, created: false, doc: exist };
+  } else {
+    const progress = await this.create({
+      userId,
+      classificationId,
+      lessonId,
+      highestScore: score,
+    });
+    return { updated: false, created: true, doc: progress };
+  }
 };
 
 module.exports = mongoose.model("Learn_Progress", ProgressSchema);

@@ -15,8 +15,6 @@ const fetchClassification = async () => {
         // const nextLessonNum = await Lesson.getNextLessonNumber(cls._id);
 
         delete cls.__v;
-        delete cls.createdAt;
-        delete cls.updatedAt;
         // console.log(lessonCount);
 
         return {

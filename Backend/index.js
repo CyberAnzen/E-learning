@@ -16,7 +16,7 @@ const initializeCaches = require("./cache/initCache");
 const xssSanitizer = require("./middleware/xssSanitizer");
 const classification = require("./router/classificationRoutes");
 const csrfProtection = require("./middleware/CSRFprotection");
-
+const FRONTEND_URL = process.env.FRONTEND_URL;
 //Database and Cache initialization
 ConnectDataBase();
 initializeCaches();
@@ -24,7 +24,7 @@ initializeCaches();
 //Security Middlewares
 // Middleware to handle CORS
 const whitelist = [
-  "http://localhost:5173", // react app url
+  `${FRONTEND_URL}`, // react app url
   // Add other allowed origins here, e.g. 'https://example.com'
 ];
 
