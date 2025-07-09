@@ -38,10 +38,10 @@ exports.Auth = (options = {}) => {
     const now = Date.now();
     const timestamp = req.headers["timestamp"];
     if (!timestamp || timestamp > now) {
-      return res.status(404).json({ error: "Invalid Request" });
+      return res.status(411).json({ error: "Invalid Request" });
     }
     if (now - timestamp > TIMESTAMP_WINDOW) {
-      return res.status(400).json({ error: "Request expired" });
+      return res.status(411).json({ error: "Request expired" });
     }
 
     // Apply CSRF protection
@@ -79,7 +79,7 @@ exports.Auth = (options = {}) => {
         req.user = decoded;
         //  Use the passed-in options
         if (options?.requireAdmin && req.user.role !== "Admin") {
-          return res.status(403).json({ message: "Admin access required" });
+          return res.status(401).json({ message: "Admin access required" });
         }
         return next();
       }
@@ -101,13 +101,13 @@ exports.Auth = (options = {}) => {
       });
 
       if (!stored) {
-        return res.status(403).json({ message: "Session not found" });
+        ClearCookies(res);
+        return res.status(401).json({ message: "Session not found" });
       }
       // If no access token or expired, check refresh token
       if (!fp || !accessToken) {
         ClearCookies(res);
         if (stored) await stored.deleteOne();
-
         return res.status(401).json({ message: "Not authorized" });
       }
 
@@ -196,7 +196,7 @@ exports.Auth = (options = {}) => {
       req.user = decodedRefresh;
       //  Use the passed-in options
       if (options?.requireAdmin && req.user.role !== "Admin") {
-        return res.status(403).json({ message: "Admin access required" });
+        return res.status(401).json({ message: "Admin access required" });
       }
       next();
     } catch (err) {
