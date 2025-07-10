@@ -99,7 +99,7 @@ const ProfileDashboard = () => {
       </div>
 
       {/* Second Row: Personal Info, Resume, EEO */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Personal Info */}
         <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4 relative">
           <Link
@@ -163,14 +163,14 @@ const ProfileDashboard = () => {
         </div>
 
         {/* EEO Settings */}
-        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
+        {/* <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
           <h3 className="font-bold mb-2">EEO Settings</h3>
           <p className="text-sm text-gray-300">No data added</p>
-        </div>
+        </div> */}
       </div>
 
       {/* Badges, Certifications */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         {/* Badges */}
         <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4 relative">
           <h3 className="font-bold mb-1">Links</h3>
@@ -210,24 +210,24 @@ const ProfileDashboard = () => {
               )}
           </div>
         </div>
+      </div>
 
-        {/* Certifications */}
-        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
-          <h3 className="font-bold mb-1">My Certifications</h3>
-          <p className="text-sm text-gray-300">
-            You have not earned any certificates yet.{" "}
-            <Link to="/learn" className="text-blue-400 cursor-pointer">
-              Get Certified
-            </Link>
-          </p>
-          <Avatargroup certifications={MyCertifications} />
-        </div>
+      {/* Certifications */}
+      <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
+        <h3 className="font-bold mb-1">My Certifications</h3>
+        <p className="text-sm text-gray-300">
+          You have not earned any certificates yet.{" "}
+          <Link to="/profile/certificatelist" className="text-blue-400 cursor-pointer">
+            Get Certified
+          </Link>
+        </p>
+        <Avatargroup certifications={MyCertifications} />
       </div>
 
       {/* Work & Education */}
       <div className="">
         {/* Work Experience */}
-        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
+        {/* <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
           <div className="flex justify-between items-center">
             <h3 className="font-bold">Work Experience</h3>
             <button className="text-blue-400 text-sm">
@@ -238,7 +238,7 @@ const ProfileDashboard = () => {
             Add your work experience. Don’t forget to add those internships as
             well.
           </p>
-        </div>
+        </div> */}
       </div>
       <div>
         {/* Education */}
