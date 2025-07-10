@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BookOpen, BarChart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CourseCard from "../components/Learn/CourseCard";
@@ -6,8 +6,10 @@ import CourseCardSkeleton from "../components/Learn/CourseSkeleton";
 import AddCourse from "../components/Admin/Learn/AddClassification";
 import ModifyClassification from "../components/Admin/Learn/ModifyClassification";
 import { useAppContext } from "../context/AppContext";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+import Usefetch from "../hooks/Usefetch";
+
 const LessonNum = "6857f03a773f44b68582060b";
+
 /**
  * Learning Center page component
  * Displays courses with loading skeletons and progress tracking
@@ -16,47 +18,13 @@ const LearnPage = () => {
   const { fp } = useAppContext();
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [overallProgress, setOverallProgress] = useState(0);
   const retryTimeoutRef = useRef(null);
   const isadmin = true;
-  const loadCourses = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`${BACKEND_URL}/classification/`, {
-        headers: {
-          "x-client-fp": fp,
-        },
-        credentials: "include", 
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch courses");
-      }
-      const { data } = await response.json();
-      const transformedCourses = (data.classification || []).map((course) => ({
-        id: course._id,
-        title: course.title,
-        description: course.description,
-        icon: course.icon,
-        category: course.category,
-        progress: course.progress || 0,
-        completedLessons: course.completedLessons || 0,
-        totalLessons: course.lessonCount || 0,
-      }));
-      setCourses(transformedCourses);
-      setOverallProgress(data.overallProgress || 0);
-      setError(null); // Clear error on success
-      clearTimeout(retryTimeoutRef.current); // Clear any scheduled retry
-      setIsLoading(false); // Stop loading only on success
-    } catch (err) {
-      console.error("Error fetching courses:", err);
-      // Schedule an auto-retry after 5 seconds
-      retryTimeoutRef.current = setTimeout(() => {
-        loadCourses();
-      }, 5000);
-    }
-  }; // Scroll to top and disable page scrolling on mount
+
+  const { Data, error, loading } = Usefetch("classification/");
+
+  // Scroll to top and disable page scrolling on mount
   useEffect(() => {
     window.scrollTo(0, 0);
     document.body.style.overflow = "hidden";
@@ -65,23 +33,27 @@ const LearnPage = () => {
     };
   }, []);
 
-  // Fetch courses on component mount and cleanup on unmount
+  // Transform API data when it arrives
   useEffect(() => {
-    loadCourses();
-    return () => {
-      clearTimeout(retryTimeoutRef.current); // Cleanup to prevent memory leaks
-    };
-  }, []);
+    if (!loading && Data?.data?.classification) {
+      const transformedCourses = Data.data.classification.map((course) => ({
+        id: course._id,
+        title: course.title,
+        description: course.description,
+        icon: course.icon,
+        category: course.category,
+        progress: course.progress || 0,
+        completedLessons: course.totalCompleted || 0,
+        totalLessons: course.lessonCount || 0,
+      }));
+      setCourses(transformedCourses);
+      setOverallProgress(Data.data.overallProgress || 0);
+    }
+  }, [Data, loading]);
 
   // Handle course navigation
   const handleCourseClick = (courseId) => {
     navigate(`/lesson/${courseId}/${LessonNum}`);
-  };
-
-  // Handle manual retry (optional, kept for user control)
-  const handleRetry = () => {
-    clearTimeout(retryTimeoutRef.current); // Cancel any scheduled retry
-    loadCourses(); // Trigger immediate retry
   };
 
   return (
@@ -104,7 +76,7 @@ const LearnPage = () => {
               <BarChart className="w-6 h-6 text-gray-400" />
               <div className="text-right">
                 <p className="text-sm text-gray-400">Overall Progress</p>
-                {isLoading ? (
+                {loading ? (
                   <div className="w-12 h-6 bg-gray-600 rounded animate-pulse"></div>
                 ) : (
                   <p className="text-xl font-semibold text-white">
@@ -114,8 +86,9 @@ const LearnPage = () => {
               </div>
             </div>
           </div>
+
           {/* Retry feedback
-          {error && isLoading && (
+          {error && loading && (
             <div className="mb-8 p-4 bg-yellow-900/50 border border-yellow-500/50 rounded-lg">
               <p className="text-yellow-300">{error}</p>
               <button
@@ -126,10 +99,11 @@ const LearnPage = () => {
               </button>
             </div>
           )} */}
+
           {/* Course grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {!isadmin ? (
-              isLoading ? (
+              loading ? (
                 Array.from({ length: 9 }).map((_, index) => (
                   <CourseCardSkeleton key={index} />
                 ))
@@ -142,27 +116,27 @@ const LearnPage = () => {
                   />
                 ))
               ) : null
-            ) : isLoading ? (
+            ) : loading ? (
               Array.from({ length: 9 }).map((_, index) => (
                 <CourseCardSkeleton key={index} />
               ))
             ) : (
               <>
-                {" "}
-                <AddCourse handleRetry={handleRetry} />
+                <AddCourse handleRetry={() => {}} />
                 {courses.map((course) => (
                   <ModifyClassification
                     key={course.id}
                     course={course}
-                    handleRetry={handleRetry}
+                    handleRetry={() => {}}
                     onCourseClick={handleCourseClick}
                   />
                 ))}
               </>
             )}
           </div>
+
           {/* Empty state */}
-          {!isLoading && courses.length === 0 && !isadmin && (
+          {!loading && courses.length === 0 && !isadmin && (
             <div className="text-center py-12">
               <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-400 mb-2">
