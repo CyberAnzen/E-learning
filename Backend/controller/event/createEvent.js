@@ -4,15 +4,21 @@ const fs = require('fs');
 const { convertToWebP } = require('../../utilies/webpCovertor');
 const dataCache=require('../../cache/structure/dataCache')
 const fetchLatestEvents=require('../../cache/fetchers/fetchLatestEvent')
-
 const cacheManager = require('../../cache/cacheManager');
+
+/* function normalizeImagePaths(images) {
+  return images.map((url) => {
+    const match = url.match(/(\/events\/.+)$/);
+    return match ? match[1] : url;
+  });
+} */
 
 exports.createEvent = async (req, res) => {
     try {
             const {eventName, time, date, description, venue , eventOrganizerName, eventOrganizerEmail} = req.body;
             const image=req.file.filename;
-            const filePath = "uploads/events/temp/" ; // Assuming the temp folder is where the file is uploaded
-            const outputPath ="uploads/events/images"
+            const filePath = "temp/events/" ; // Assuming the temp folder is where the file is uploaded
+            const outputPath ="public/events/images"
             const conversionResult = await convertToWebP(image ,filePath,outputPath);
             if (!conversionResult.success) {
                 console.error('Image conversion failed:', conversionResult.message);
@@ -27,7 +33,7 @@ exports.createEvent = async (req, res) => {
                 const event = {
                     eventName,
                     eventImage: image.replace(/\.[^/.]+$/, ".webp"),
-                    imagePath: path.join(outputPath, image.replace(/\.[^/.]+$/, ".webp")),
+                    imagePath: "/events/images/"+ image.replace(/\.[^/.]+$/, ".webp"),
                     eventDetails: {
                         description,
                         date,
@@ -48,8 +54,7 @@ exports.createEvent = async (req, res) => {
                     console.log('Cache refreshed successfully and event created:');
                     res.status(200).json({
                         success: true,
-                        message: 'Event created successfully and cache refreshed',
-                        data: newEvent
+                        message: 'Event created successfully and cache refreshed'
                     });
                 } else if(!cacheStatus.success && cacheStatus.statusCode===404){
                     cacheStatus=await cacheManager.registerCache('eventCache',dataCache,fetchLatestEvents)
@@ -57,8 +62,7 @@ exports.createEvent = async (req, res) => {
                         console.log('new eventCache create successfully and event created:');
                         res.status(201).json({
                             success: true,
-                            message: 'Event created successfully and cache refreshed', 
-                            data: newEvent
+                            message: 'Event created successfully and cache refreshed'
                         });
                     }
                     else{

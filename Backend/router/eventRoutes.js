@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const fileUploader = require('../utilies/FileUploder');
-const upload = fileUploader('uploads/events/temp');
+const upload = fileUploader('temp/events/');
 const eventManager = require('../controller/manager/eventManager');
 
 //banner event route

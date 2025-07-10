@@ -1,4 +1,3 @@
-
 const cacheManager = require('../../cache/cacheManager');
 //const { Event } = require('../model/EventModel');
 exports.bannerEvent = async (req, res) => {
