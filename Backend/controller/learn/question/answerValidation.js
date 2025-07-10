@@ -1,8 +1,8 @@
 const LessonModel = require("../../../model/LessonModel");
-
+const Learn_Progress = require("../../../model/LearnProgressModel");
 exports.answerValidation = async (req, res) => {
   const { input, questionId, lessonId } = req.body;
-
+  const user = req.user;
   if (input === undefined || input === null) {
     return res.status(400).json({ message: "Input is required" });
   }
@@ -12,11 +12,25 @@ exports.answerValidation = async (req, res) => {
       .status(400)
       .json({ message: "questionId and lessonId are required" });
   }
-try {
+  try {
+    // **correct** lookup: use the schema field names
+    const existingProgress = await Learn_Progress.findOne({
+      userId: user.id,
+      lessonId,
+    });
+
+    if (!existingProgress) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({
+        message: "Server error while checking progress",
+        error: error.message,
+      });
+  }
   
-} catch (error) {
-  
-}
   try {
     const lesson = await LessonModel.findOne(
       { _id: lessonId, "tasks.content.questions._id": questionId },

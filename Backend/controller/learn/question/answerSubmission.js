@@ -168,9 +168,7 @@ exports.answerSubmission = async (req, res) => {
       lessonId,
       score
     );
-    if(progress){
-      //error
-    }
+
     res.status(200).json({
       score,
       totalQuestions,
