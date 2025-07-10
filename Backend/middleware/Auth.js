@@ -34,7 +34,6 @@ const ClearCookies = async (res) => {
 exports.Auth = (options = {}) => {
   return async (req, res, next) => {
     //Timestamp Checking to prevent Replay attack
-    const CSRF = options?._CSRF || true;
     const now = Date.now();
     const timestamp = req.headers["timestamp"];
     if (!timestamp || timestamp > now) {
@@ -45,6 +44,7 @@ exports.Auth = (options = {}) => {
     }
 
     // Apply CSRF protection
+    const CSRF = options?._CSRF || true;
     if (CSRF) {
       try {
         await new Promise((resolve, reject) => {
