@@ -7,7 +7,7 @@ import { useAppContext } from "../context/AppContext";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function LoginPage() {
-  const { navigate } = useAppContext();
+  const { navigate, setloggedIn } = useAppContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
@@ -51,7 +51,7 @@ export default function LoginPage() {
     try {
       const res = await fetch(`${BACKEND_URL}/user/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", timestamp: Date.now() },
         credentials: "include",
         body: JSON.stringify({
           identifier: username,
@@ -63,6 +63,7 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (res.ok) {
+        setloggedIn(true);
         navigate("/");
       } else {
         setError(data.message || "Access Denied: Authentication Failed");

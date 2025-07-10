@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useCallback } from "react";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import useGetCsrfToken from "./utils/useGetCsrfToken";
 import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const MAX_RETRIES = 5;
 
 const Usefetch = (
   endpoint,
@@ -13,12 +14,12 @@ const Usefetch = (
   customHeaders = {}
 ) => {
   const getCsrfToken = useGetCsrfToken();
-  const [Data, setData] = useState([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [fetchCount, setFetchCount] = useState(0);
   const { fp, csrf } = useContext(AppContext);
   const navigate = useNavigate();
+  const [Data, setData] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
   const url = `${BACKEND_URL}/${endpoint}`;
 
   const getHeaders = () => ({
@@ -30,115 +31,71 @@ const Usefetch = (
     ...customHeaders,
   });
 
-  let reFetch = null;
+  const fetchData = useCallback(
+    async (retryState = { csrf: false, timestamp: false, attempts: 0 }) => {
+      setLoading(true);
+      setError("");
 
-  if (method.toLowerCase() === "get") {
-    useEffect(() => {
-      let isMounted = true;
-      const controller = new AbortController();
-      let timeout;
-
-      const fetchData = async (retry = { csrf: false, timestamp: false }) => {
-        try {
-          const res = await axios({
-            method: "get",
-            url,
-            headers: getHeaders(),
-            withCredentials: true,
-            signal: controller.signal,
-          });
-          if (isMounted) {
-            setData(res);
-            setError("");
-          }
-        } catch (err) {
-          if (axios.isCancel(err)) {
-            console.log("Request canceled");
-          } else {
-            const status = err.response?.status;
-
-            if (status === 402 && !retry.csrf) {
-              const csrfOk = await getCsrfToken();
-              if (csrfOk) return fetchData({ ...retry, csrf: true });
-            }
-
-            if (status === 411 && !retry.timestamp) {
-              return fetchData({ ...retry, timestamp: true });
-            }
-
-            if (status === 401) {
-              navigate("/unauthorized");
-              return;
-            }
-
-            if (isMounted) setError(err.message);
-          }
-        } finally {
-          if (isMounted) {
-            setLoading(false);
-            setFetchCount((prev) => prev + 1);
-          }
-          timeout = setTimeout(() => {
-            if (isMounted) fetchData();
-          }, 3000);
-        }
-      };
-
-      fetchData();
-
-      return () => {
-        isMounted = false;
-        controller.abort();
-        clearTimeout(timeout);
-      };
-    }, [url, fp, csrf, getCsrfToken]);
-  } else {
-    reFetch = async (retry = { csrf: false, timestamp: false }) => {
-      const controller = new AbortController();
       try {
         const res = await axios({
-          method: method.toLowerCase(),
+          method,
           url,
           data,
           headers: getHeaders(),
           withCredentials: true,
-          signal: controller.signal,
+          timeout: 5000,
         });
-        setData(res);
-        setError("");
+        setData(res.data || res);
+        setRetryCount(0); // reset on success
       } catch (err) {
         const status = err.response?.status;
-
-        if (status === 402 && !retry.csrf) {
-          const csrfOk = await getCsrfToken();
-          if (csrfOk) return reFetch({ ...retry, csrf: true });
-        }
-
-        if (status === 411 && !retry.timestamp) {
-          return reFetch({ ...retry, timestamp: true });
-        }
+        const code = err.code;
 
         if (status === 401) {
           navigate("/unauthorized");
           return;
         }
 
-        setError(err.message);
+        if (status === 402 && !retryState.csrf) {
+          const refreshed = await getCsrfToken();
+          if (refreshed) return fetchData({ ...retryState, csrf: true });
+        }
+
+        if (status === 411 && !retryState.timestamp) {
+          return fetchData({ ...retryState, timestamp: true });
+        }
+
+        const isNetworkError =
+          !status &&
+          (code === "ECONNABORTED" || err.message === "Network Error");
+
+        if (
+          method.toLowerCase() === "get" &&
+          isNetworkError &&
+          retryState.attempts < MAX_RETRIES
+        ) {
+          const nextAttempt = retryState.attempts + 1;
+          const delay = Math.min(32000, 2000 * 2 ** (nextAttempt - 1)); // cap at 32s
+          setRetryCount(nextAttempt);
+          setTimeout(() => {
+            fetchData({ ...retryState, attempts: nextAttempt });
+          }, delay);
+          return;
+        }
+
+        setError(err.message || "Error");
       } finally {
         setLoading(false);
-        setFetchCount((prev) => prev + 1);
       }
+    },
+    [url, method, data, fp, csrf, navigate]
+  );
 
-      return () => controller.abort();
-    };
-  }
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  return {
-    Data,
-    error,
-    loading,
-    reFetch,
-  };
+  return { Data, error, loading, retry: fetchData, retryCount };
 };
 
 export default Usefetch;

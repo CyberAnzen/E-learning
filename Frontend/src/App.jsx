@@ -23,7 +23,7 @@ import Content from "./routes/content";
 import Unauthorized from "./routes/Unauthorised";
 import { useAppContext } from "./context/AppContext";
 import useGetCsrfToken from "./hooks/utils/useGetCsrfToken";
-
+import Testing from "./routes/testing";
 import {
   BrowserRouter as Router,
   Routes,
@@ -39,7 +39,7 @@ import ContentController from "./routes/ContentController";
 import CertificateList from "./components/ProfilePage/CertificateList";
 import AdminEditor from "./components/Admin/Content/adminEditor";
 function App() {
-  const { user, loggedIn } = useAppContext();
+  const { user } = useAppContext();
   const getCsrfToken = useGetCsrfToken();
   const [intro, setIntro] = useState(true);
   const location = useLocation(); // Get the current route
@@ -62,15 +62,6 @@ function App() {
       document.body.style.overflow = "";
     };
   }, []);
-  // Fetch CSRF token only when loggedIn becomes true
-  useEffect(() => {
-    const fetchCsrfIfLoggedIn = async () => {
-      if (loggedIn) {
-        await getCsrfToken();
-      }
-    };
-    fetchCsrfIfLoggedIn();
-  }, [loggedIn]);
 
   return (
     <>
@@ -102,6 +93,7 @@ function App() {
             <Route path="certificatelist" element={<CertificateList />} />
           </Route>
           <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/test" element={<Testing />} />
           <Route path="/*" element={<NotFound />} />
         </Routes>
 

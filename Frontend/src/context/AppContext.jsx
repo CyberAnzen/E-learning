@@ -59,7 +59,15 @@ export const AppContextProvider = ({ children }) => {
     init();
   }, []);
 
- 
+  // // Fetch CSRF token only when loggedIn becomes true
+  // useEffect(() => {
+  //   const fetchCsrfIfLoggedIn = async () => {
+  //     if (loggedIn) {
+  //       await getCsrfToken();
+  //     }
+  //   };
+  //   fetchCsrfIfLoggedIn();
+  // }, [loggedIn]);
 
   const value = {
     navigate,

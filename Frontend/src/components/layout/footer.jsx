@@ -21,7 +21,7 @@ const Footer = () => {
   const [showCyber, setShowCyber] = useState(true);
   const menublacklist = ["/lesson/create"];
   const blacklistPatterns = [
-    /^\/unauthorised$/, // no trailing slash
+    /^\/unauthorized$/, // no trailing slash
     /^\/lesson\/create$/,
     /^\/lesson\/update\/[a-f\d]{24}$/, // matches ObjectId format
   ];
