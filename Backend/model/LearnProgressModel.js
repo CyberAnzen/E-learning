@@ -115,4 +115,29 @@ ProgressSchema.statics.updateCompletedLessons = async function (
   }
 };
 
+// STATIC: update completed lessons for a user in a classification
+// In LearnProgressModel.js
+ProgressSchema.statics.updateCompletedLessons = async function (
+  userId,
+  classificationId,
+  lessonId,
+  score
+) {
+  const exist = await this.findOne({ userId, classificationId, lessonId });
+
+  if (!exist) {
+    // “hard” error: no existing progress to update
+    throw new Error("No progress record found for this user and lesson");
+  }
+
+  if (exist.highestScore === null || exist.highestScore < score) {
+    exist.highestScore = score;
+    await exist.save();
+    return { updated: true, doc: exist };
+  }
+
+  // found but no update needed
+  return { updated: false, doc: exist };
+};
+
 module.exports = mongoose.model("Learn_Progress", ProgressSchema);

@@ -12,7 +12,11 @@ exports.answerValidation = async (req, res) => {
       .status(400)
       .json({ message: "questionId and lessonId are required" });
   }
-
+try {
+  
+} catch (error) {
+  
+}
   try {
     const lesson = await LessonModel.findOne(
       { _id: lessonId, "tasks.content.questions._id": questionId },

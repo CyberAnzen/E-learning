@@ -162,12 +162,15 @@ exports.answerSubmission = async (req, res) => {
     const percentage =
       totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
     const timeSpent = Date.now() - startTime;
-    await Learn_Progress.updateCompletedLessons(
+    const progress = await Learn_Progress.updateCompletedLessons(
       user.id,
       classificationId,
       lessonId,
       score
     );
+    if(progress){
+      //error
+    }
     res.status(200).json({
       score,
       totalQuestions,
