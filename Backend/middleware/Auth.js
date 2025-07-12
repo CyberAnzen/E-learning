@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
-const RefreshToken = require("../model/RefreshTokenModel");
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_SECRET;
+const TIMESTAMP_WINDOW = process.env.TIMESTAMP_WINDOW;
+const RefreshToken = require("../model/RefreshTokenModel");
 const csrfProtection = require("../middleware/CSRFprotection");
-const TIMESTAMP_WINDOW = 5 * 60 * 1000; // 5 minutes in ms
 const ClearCookies = async (res) => {
   // Clear the token cookie
   res.cookie("access_token", "", {
