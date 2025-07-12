@@ -83,11 +83,11 @@ const ProfileDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-98% via-gray-900 to-black text-white p-6 space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-black via-98% via-gray-900 to-black text-white p-6 space-y-6 md:space-y-8">
       {/* Top Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Profile Card */}
-        <div className="bg-transparent cyber text-[#01ffdb] border-[#01ffdb]/20 backdrop-blur-xl rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4 flex flex-col items-center text-center relative">
+        <div className="bg-transparent cyber text-[#01ffdb] border-[#01ffdb]/20 rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4 flex flex-col items-center text-center relative">
           <Link
             to="/profile/editprofile"
             className="absolute top-3 right-4 text-[#01ffdb] hover:text-cyan-700 cursor-pointer"
@@ -195,7 +195,7 @@ const ProfileDashboard = () => {
       </div>
 
       {/* Badges, Certifications */}
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-15">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6 md:mt-15">
         {/* Badges */}
         <div className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4 relative">
           <h3 className="font-bold mb-1">Links</h3>
@@ -238,7 +238,7 @@ const ProfileDashboard = () => {
       </div>
 
       {/* Certifications */}
-      <div className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 backdrop-blur-xl rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4 mb-15">
+      <div className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 backdrop-blur-xl rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4 md:mb-15">
         <h3 className="font-bold mb-1">My Certifications</h3>
         <p className="text-sm text-gray-300">
           You have not earned any certificates yet.{" "}
