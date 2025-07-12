@@ -4,15 +4,7 @@ const ACCESS_SECRET = process.env.ACCESS_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_SECRET;
 const RefreshToken = require("../../../model/RefreshTokenModel");
 const { User } = require("../../../model/UserModel");
-TIMESTAMP_WINDOWexports.login = async (req, res, next) => {
-  const now = Date.now();
-  const timestamp = req.headers["timestamp"];
-  if (!timestamp || timestamp > now) {
-    return res.status(411).json({ error: "Invalid Request" });
-  }
-  if (now - timestamp > TIMESTAMP_WINDOW) {
-    return res.status(411).json({ error: "Request expired" });
-  }
+exports.login = async (req, res, next) => {
   const { identifier, password, rememberMe, fp } = req.body;
   const userAgent = req.headers["user-agent"];
   const ipAddress =
