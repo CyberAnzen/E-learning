@@ -137,7 +137,7 @@ ProgressSchema.statics.updateCompletedLessons = async function (
   }
 
   // found but no update needed
-  return { updated: false, doc: exist };
+  return { updated: false, doc: exist, };
 };
 
 module.exports = mongoose.model("Learn_Progress", ProgressSchema);
