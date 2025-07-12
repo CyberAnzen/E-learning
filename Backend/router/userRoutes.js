@@ -4,7 +4,7 @@ const rateLimit = require("express-rate-limit");
 const { Auth } = require("../middleware/Auth");
 // Importing the user controllers
 const userManager = require("../controller/manager/userManager");
-
+const { TimeStamp } = require("../middleware/TimeStamp");
 // Importing the OTP controllers
 const OtpManager = require("../controller/manager/OtpManager");
 
@@ -75,12 +75,32 @@ const passwordResetLimiter = rateLimit({
 });
 
 // Routes with applied rate limiters
-router.post("/signup", signupLimiter, userManager.signup);
-router.post("/login", loginLimiter, userManager.login);
-router.post("/logout", userManager.logout);
-router.get("/check-username", checkUsernameLimiter, userManager.checkusername);
+router.post("/signup", TimeStamp(2), signupLimiter, userManager.signup);
+router.post("/login", TimeStamp(2), loginLimiter, userManager.login);
+router.post("/logout", TimeStamp, userManager.logout);
+router.get(
+  "/check-username",
+  TimeStamp(2),
+  checkUsernameLimiter,
+  userManager.checkusername
+);
 //router.post("/send-email", emailLimiter, SMTP);
-router.post("/forgot-password", otpGeneratorLimiter, OtpManager.OtpGenerator);
-router.post("/verify-otp", otpVerifyLimiter, OtpManager.OtpVerification);
-router.post("/reset-password", passwordResetLimiter, userManager.PasswordReset);
+router.post(
+  "/forgot-password",
+  TimeStamp(2),
+  otpGeneratorLimiter,
+  OtpManager.OtpGenerator
+);
+router.post(
+  "/verify-otp",
+  TimeStamp(2),
+  otpVerifyLimiter,
+  OtpManager.OtpVerification
+);
+router.post(
+  "/reset-password",
+  TimeStamp(2),
+  passwordResetLimiter,
+  userManager.PasswordReset
+);
 module.exports = router;
