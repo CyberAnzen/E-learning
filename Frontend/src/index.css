@@ -251,6 +251,46 @@ body {
   transform: rotate(45deg);
 }
 
+.cyber {
+  background: linear-gradient(
+    135deg,
+    transparent,
+    rgba(1, 255, 219, 0.08),
+    rgba(1, 255, 219, 0.15),
+    transparent
+  );
+  background-size: 300% 300%;
+  transition: background-position 0.3s ease;
+}
+
+.cyber:hover {
+  animation: cyberGlow 6s ease infinite;
+}
+
+@keyframes cyberGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.cyber-cart{
+     background: linear-gradient(
+    135deg,
+    transparent,
+    rgba(1, 255, 219, 0.08),
+    rgba(1, 255, 219, 0.15),
+    transparent
+  );
+  background-size: 300% 300%;
+  transition: background-position 0.3s ease;
+}
+
 .cyber-button:hover::before {
   top: -50%;
   left: -50%;

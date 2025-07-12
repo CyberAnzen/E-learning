@@ -5,6 +5,7 @@ import SkillsSelector from "./SkillsSelector";
 import { Link } from "react-router-dom";
 import {
   Contact,
+  Copy,
   FileUser,
   Github,
   Linkedin,
@@ -33,6 +34,14 @@ const ProfileDashboard = () => {
     if (file) {
       setMyResume(URL.createObjectURL(file));
     }
+  };
+
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText("748589549");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500); // hide after 1.5s
   };
 
   const dummyskills = ["Css", "Javascript(Intermediate)"];
@@ -74,20 +83,36 @@ const ProfileDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-65% via-gray-900 to-black text-white p-6 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-black via-98% via-gray-900 to-black text-white p-6 space-y-8">
       {/* Top Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Profile Card */}
-        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4 flex flex-col items-center text-center relative">
+        <div className="bg-transparent cyber text-[#01ffdb] border-[#01ffdb]/20 backdrop-blur-xl rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4 flex flex-col items-center text-center relative">
           <Link
             to="/profile/editprofile"
-            className="absolute top-3 right-4 text-blue-400 hover:text-cyan-700 cursor-pointer"
+            className="absolute top-3 right-4 text-[#01ffdb] hover:text-cyan-700 cursor-pointer"
           >
             <SquarePen size={18} />
           </Link>
           <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center text-3xl font-bold">
             <img src={image} alt="" className="rounded-full" />
           </div>
+          {/* Phone Number with Copy */}
+          <div className="relative flex items-center gap-2 mt-1">
+            <p className="text-xs">748589549</p>
+            <button
+              onClick={handleCopy}
+              className="text-[#01ffdb] hover:text-white transition"
+              title="Copy number"
+            >
+              <Copy size={14} />
+            </button>
+            {copied && (
+              <span className="absolute -top-4 left-90 -translate-x-60 text-xs text-black font-medium bg-[#01ffdb] px-2 py-0.5 rounded shadow">
+                Copied!
+              </span>
+            )}
+          </div>{" "}
           <h2 className="mt-2 text-xl font-semibold">shadcn 🇮🇳</h2>
           <p className="text-sm text-gray-400">m@example.com</p>
         </div>
@@ -101,10 +126,10 @@ const ProfileDashboard = () => {
       {/* Second Row: Personal Info, Resume, EEO */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Personal Info */}
-        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4 relative">
+        <div className=" bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 backdrop-blur-xl rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922]  p-4 relative">
           <Link
             to="/profile/editprofile"
-            className="absolute top-3 right-4 text-blue-400 hover:text-cyan-700 cursor-pointer"
+            className="absolute top-3 right-4 text-[#01ffdb] hover:text-cyan-700 cursor-pointer"
           >
             <SquarePen size={18} />
           </Link>
@@ -117,7 +142,7 @@ const ProfileDashboard = () => {
         </div>
 
         {/* Resume */}
-        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
+        <div className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 backdrop-blur-xl rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4">
           <h3 className="font-bold mb-2 ">My Resume</h3>
           {/* Dynamic label */}
           {!myResume ? (
@@ -129,7 +154,7 @@ const ProfileDashboard = () => {
           {/* Show Add Button Only If No Resume */}
           {!myResume && (
             <button
-              className="bg-cyan-800 hover:bg-cyan-600 px-3 py-1 text-sm rounded cursor-pointer"
+              className="bg-cyan-800/90 hover:bg-cyan-900 px-3 py-1 text-sm rounded cursor-pointer"
               onClick={handleImageClick}
             >
               + Add Resume
@@ -170,21 +195,21 @@ const ProfileDashboard = () => {
       </div>
 
       {/* Badges, Certifications */}
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-15">
         {/* Badges */}
-        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4 relative">
+        <div className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4 relative">
           <h3 className="font-bold mb-1">Links</h3>
           <p className="text-sm text-gray-300">
             Add all the relevant links that help in knowing you as a cyberAnzen{" "}
           </p>
           <button
-            className="btn btn-ghost text-blue-400 absolute top-4 right-1 cursor-pointer bg-transparent shadow-none border-none font-normal"
+            className="btn btn-ghost text-[#01ffdb] absolute top-4 right-1 cursor-pointer bg-transparent shadow-none border-none font-normal"
             onClick={() => document.getElementById("link_modal").showModal()}
           >
             {savedLinks ? (
               <SquarePen size={20} className="hover:text-cyan-700" />
             ) : (
-              "+ Add Skills"
+              "+ Add Links"
             )}
           </button>
           <Modal id="link_modal">
@@ -213,15 +238,17 @@ const ProfileDashboard = () => {
       </div>
 
       {/* Certifications */}
-      <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
+      <div className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 backdrop-blur-xl rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4 mb-15">
         <h3 className="font-bold mb-1">My Certifications</h3>
         <p className="text-sm text-gray-300">
           You have not earned any certificates yet.{" "}
-          <Link to="/profile/certificatelist" className="text-blue-400 cursor-pointer">
+          <Link
+            to="/profile/certificatelist"
+            className="text-blue-400 cursor-pointer"
+          >
             Get Certified
           </Link>
         </p>
-        <Avatargroup certifications={MyCertifications} />
       </div>
 
       {/* Work & Education */}
@@ -242,12 +269,12 @@ const ProfileDashboard = () => {
       </div>
       <div>
         {/* Education */}
-        <div className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 p-4">
+        <div className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4">
           <div className="flex justify-between items-center">
             <h3 className="font-bold">My Skills</h3>
             {/* You can open the modal using document.getElementById('ID').showModal() method */}
             <button
-              className="btn btn-ghost text-blue-400 cursor-pointer bg-transparent shadow-none border-none font-normal"
+              className="btn btn-ghost text-[#01ffdb] cursor-pointer bg-transparent shadow-none border-none font-normal"
               onClick={() =>
                 document.getElementById("skills_modal").showModal()
               }
