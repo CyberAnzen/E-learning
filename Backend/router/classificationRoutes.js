@@ -22,21 +22,49 @@ const {
 const { getSummary } = require("../controller/learn/classification/getSummary");
 
 const { Auth } = require("../middleware/Auth");
+const xssSanitizer = require("../middleware/xssSanitizer");
 
-router.get("/guest", _getallClassification);
+router.get("/guest",
+  xssSanitizer(),
+  _getallClassification
+);
 //Protected Routes
 
-router.get("/", Auth(), getallClassification);
-router.get("/:id", Auth(), getClassification);
-router.get("/sidebar/:id", Auth(), getSummary);
+router.get("/",
+  Auth(),
+  xssSanitizer(),
+  getallClassification
+);
+
+router.get("/:id",
+   Auth(),
+   xssSanitizer(),
+    getClassification
+  );
+
+router.get("/sidebar/:id",
+  Auth(),
+  xssSanitizer(),
+  getSummary
+);
 //Strictly Admin Protected Routes
 
-router.post("/create", Auth({ requireAdmin: true }), createClassification);
+router.post("/create",
+   Auth({ requireAdmin: true }),
+   xssSanitizer(),
+   createClassification
+  );
+
 router.delete(
   "/delete/:id",
   Auth({ requireAdmin: true }),
+  xssSanitizer(),
   deleteClassification
 );
-router.patch("/update/:id", Auth({ requireAdmin: true }), updateClassification);
+router.patch("/update/:id", 
+  Auth({ requireAdmin: true }), 
+  xssSanitizer(),
+  updateClassification
+);
 
 module.exports = router;

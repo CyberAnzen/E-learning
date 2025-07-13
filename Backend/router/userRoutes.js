@@ -7,6 +7,8 @@ const userManager = require("../controller/manager/userManager");
 const { TimeStamp } = require("../middleware/TimeStamp");
 // Importing the OTP controllers
 const OtpManager = require("../controller/manager/OtpManager");
+const xssSanitizer = require("../middleware/xssSanitizer");
+
 
 // Rate limiter for signup: Limit to 5 attempts per hour
 const signupLimiter = rateLimit({
@@ -75,13 +77,29 @@ const passwordResetLimiter = rateLimit({
 });
 
 // Routes with applied rate limiters
-router.post("/signup", TimeStamp(2), signupLimiter, userManager.signup);
-router.post("/login", TimeStamp(2), loginLimiter, userManager.login);
-router.post("/logout", TimeStamp, userManager.logout);
+router.post("/signup", 
+  TimeStamp(2), 
+  signupLimiter, 
+  xssSanitizer(),
+  userManager.signup
+);
+
+router.post("/login", 
+  TimeStamp(2), 
+  loginLimiter, 
+  xssSanitizer(),
+  userManager.login
+);
+
+router.post("/logout", 
+  TimeStamp, 
+  xssSanitizer(),
+  userManager.logout);
 router.get(
   "/check-username",
   TimeStamp(2),
   checkUsernameLimiter,
+  xssSanitizer(),
   userManager.checkusername
 );
 //router.post("/send-email", emailLimiter, SMTP);
@@ -89,18 +107,21 @@ router.post(
   "/forgot-password",
   TimeStamp(2),
   otpGeneratorLimiter,
+  xssSanitizer(),
   OtpManager.OtpGenerator
 );
 router.post(
   "/verify-otp",
   TimeStamp(2),
   otpVerifyLimiter,
+  xssSanitizer(),
   OtpManager.OtpVerification
 );
 router.post(
   "/reset-password",
   TimeStamp(2),
   passwordResetLimiter,
+  xssSanitizer(),
   userManager.PasswordReset
 );
 module.exports = router;
