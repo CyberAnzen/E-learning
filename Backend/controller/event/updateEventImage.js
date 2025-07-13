@@ -47,7 +47,8 @@ exports.updateEventImage = async (req, res) => {
             const imagePath = "/events/images/"+image;
              const updatedEvent = await Event.findByIdAndUpdate(id, {
                 eventImage: image,
-                imagePath: imagePath
+                imagePath: imagePath,
+                updatedBy: req.user.username
             }, { new: true });
             
             try {

@@ -13,7 +13,7 @@ const ClearCookies = async (res) => {
     secure: process.env.NODE_ENV === "production" ? true : false,
     sameSite: "Lax",
   });
-
+ 
   // Clear the rememberMe cookie
   res.cookie("refresh_token", "", {
     expires: new Date(0),
@@ -37,9 +37,12 @@ exports.Auth = (options = {}) => {
     const now = Date.now();
     const timestamp = req.headers["timestamp"];
     if (!timestamp || timestamp > now) {
+      console.log("Current time:", now, "Timestamp:", timestamp);
       return res.status(411).json({ error: "Invalid Request" });
     }
     if (now - timestamp > TIMESTAMP_WINDOW) {
+      //console.log("Request expired:", now - timestamp, "ms");
+      console.log("Current time:", now, "Timestamp:", timestamp);
       return res.status(411).json({ error: "Request expired" });
     }
 

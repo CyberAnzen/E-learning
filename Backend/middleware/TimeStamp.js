@@ -10,8 +10,10 @@ exports.TimeStamp = (minutes) => {
     if (!timestamp || timestamp > now) {
       return res.status(411).json({ error: "Invalid Request" });
     }
-
+    
     if (now - timestamp > windowMs) {
+      console.log("Request expired:", now - timestamp, "ms");
+      console.log("Current time:", now, "Timestamp:", timestamp);
       return res.status(411).json({ error: "Request expired" });
     }
 

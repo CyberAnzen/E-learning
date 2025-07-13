@@ -34,6 +34,8 @@ router.delete(
   Auth({ requireAdmin: true }),
   eventManager.deleteEvent
 );
-router.get("/:id", Auth({ requireAdmin: true }), eventManager.getEventById);
+router.get("/:id",
+  Auth({ requireAdmin: true }),
+ eventManager.getEventById);
 
 module.exports = router;

@@ -14,6 +14,7 @@ const validate = require("./router/ValidationRoutes");
 const ConnectDataBase = require("./config/connectDataBase");
 const initializeCaches = require("./cache/initCache");
 const xssSanitizer = require("./middleware/xssSanitizer");
+//const sanitizeHtml = require('sanitize-html');
 const classification = require("./router/classificationRoutes");
 const csrfProtection = require("./middleware/CSRFprotection");
 const FRONTEND_URL = process.env.FRONTEND_URL;
