@@ -98,7 +98,7 @@ const safeHtmlConfig = {
 
 router.get("/:ClassificationId/:LessonId", 
   Auth(),
-  xssSanitizer(),
+  // xssSanitizer(),
   getLesson
 );
 
