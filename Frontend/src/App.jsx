@@ -6,8 +6,6 @@ import Home from "./routes/home";
 import Footer from "./components/layout/footer";
 import Intro from "./components/intro";
 import { AnimatePresence, motion } from "framer-motion";
-import { i } from "framer-motion/client";
-import { BrowserRouter } from "react-router-dom";
 // Import page components
 import HomePage from "./routes/home";
 import LearnPage from "./routes/learn";

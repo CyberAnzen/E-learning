@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
-
+import Usefetch from "../hooks/Usefetch";
 import {
-  Clock,
-  User,
   ChevronRight,
   BookOpen,
   ChevronLeft,
@@ -19,7 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import CollapsibleSection from "../components/content/colapsable";
 import FullScreenReader from "../components/content/FullscreenReader";
 import QuestionInterface from "../components/content/AnswerPage/QuestionInterface";
-import TerminalDesign from "../components/content/Terminal";
+// import TerminalDesign from "../components/content/Terminal";
 import SubmitButton from "../components/content/SubmitButton";
 import ContentHeader from "../components/content/ContentHeader";
 import ChapterProgress from "../components/content/ChapterProgress";
@@ -28,7 +26,7 @@ import { AppContext, AppContextProvider } from "../context/AppContext";
 import AdminButtons from "../components/Admin/Content/AdminButtons";
 import DeleteModal from "../components/Admin/layout/DeleteModal";
 // Define backend URL from environment variables
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+// const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const Content = ({
   selectedChapterId,
@@ -106,35 +104,41 @@ const Content = ({
   };
 
   // Handle delete confirmation
+  const {
+    Data: deleteResult,
+    error: deleteError,
+    loading: deleting,
+    retry: deleteFetch,
+  } = Usefetch(
+    `lesson/delete/${selectedChapterId}`,
+    "delete",
+    { data: null },
+    {},
+    false // <<< manual mode
+  );
   const handleDelete = async () => {
     setIsDeleting(true);
 
     try {
-      const response = await fetch(
-        `${BACKEND_URL}/lesson/delete/${selectedChapterId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.message || "Failed to delete lesson");
+      // 1) Await the hook’s fetchData and grab its response
+      const result = await deleteFetch();
+      //    (Make sure your Usefetch.fetchData returns res.data!)
+      // 2) Check success directly on the returned payload
+      if (!deleteResult?.success) {
+        throw new Error(result?.message || "Failed to delete lesson");
       }
 
-      // Close modal and trigger refresh
+      // 3) On success: close the modal and refetch
       setShowDeleteConfirm(false);
+    } catch (err) {
+      console.error("Delete API Error:", err.message || err);
+      // You can surface err.message to the user here
+    } finally {
       setIsDeleting(false);
-      handleRetry();
-    } catch (error) {
-      console.error("Delete API Error:", error.message);
-      setIsDeleting(false);
-      // You might want to show an error message to the user
+      setShowDeleteConfirm(false);
     }
   };
+
   // ─── EFFECT: Fetch lesson data when selectedChapterId changes ───────────
   // Create reusable UI reset function
   const resetUIState = () => {
@@ -170,6 +174,10 @@ const Content = ({
   }, [focusedSection]);
 
   // ─── EFFECT: Fetch lesson data when dependencies change ───────────
+  const { Data: LessonData } = Usefetch(
+    `lesson/${ClassificationId}/${selectedChapterId}`
+  );
+
   useEffect(() => {
     if (selectedChapterId == null && !isPreview) return;
 
@@ -191,15 +199,15 @@ const Content = ({
           }
         } else if (selectedChapterId && ClassificationId) {
           // LIVE MODE: Fetch data from backend
-          const response = await fetch(
-            `${BACKEND_URL}/lesson/${ClassificationId}/${selectedChapterId}`
-          );
+          // const response = await fetch(
+          //   `${BACKEND_URL}/lesson/${ClassificationId}/${selectedChapterId}`
+          // );
 
-          if (!response.ok) {
-            throw new Error("Failed to fetch lesson data");
-          }
+          // if (!response.ok) {
+          //   throw new Error("Failed to fetch lesson data");
+          // }
 
-          const { data } = await response.json();
+          const data = LessonData?.data;
           if (isMounted) {
             // Update global classification ID if needed
             if (classificationId !== selectedChapterId) {
@@ -233,9 +241,10 @@ const Content = ({
     isPreview,
     PreviewData,
     ClassificationId,
+    LessonData,
     setClassificationId,
   ]);
-  // console.log(currentChapter.classsificationID);
+  // console.log(currentTask?.content?.questions);
 
   // ─── EFFECT: Recalculate taskProgress when currentChapter changes ─────────
   useEffect(() => {
