@@ -316,7 +316,7 @@ const Navbar = () => {
       {/* Bottom Navbar for Mobile */}
       {!isBlacklisted && (
         <motion.div
-          className="fixed bottom-0 w-full md:hidden z-30 bg-gradient-to-r from-black/90 via-[#1a2234]/90 to-black/90 border-t border-[#01ffdb]/10 backdrop-blur-xl"
+          className="fixed bottom-0 w-full md:hidden z-30 bg-gradient-to-b from-black/90 via-[#1a2234]/90 via-1% to-black/90  backdrop-blur-xl"
           initial={{ y: 0 }}
           animate={{ y: bottomVisible ? 0 : "100%" }}
           transition={{ type: "spring", stiffness: 200, damping: 30 }}
