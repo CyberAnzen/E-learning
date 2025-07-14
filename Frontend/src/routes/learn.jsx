@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BookOpen, BarChart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CourseCard from "../components/Learn/CourseCard";
@@ -19,7 +19,6 @@ const LearnPage = () => {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [overallProgress, setOverallProgress] = useState(0);
-  const retryTimeoutRef = useRef(null);
   const isadmin = true;
 
   const { Data, error, loading } = Usefetch("classification/");
