@@ -44,7 +44,7 @@ function App() {
   const [intro, setIntro] = useState(true);
   const location = useLocation(); // Get the current route
   // Define routes where the footer should NOT appear
-  const noFooterRoutes = ["/login", "/signup", "/forget-password"];
+  const noFooterRoutes = ["/login", "/signup", "/forget-password","/profile"];
 
   // Check if the current route is NOT in the noFooterRoutes list
   const showFooter = !noFooterRoutes.includes(location.pathname);

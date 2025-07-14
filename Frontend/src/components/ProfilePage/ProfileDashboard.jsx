@@ -83,9 +83,9 @@ const ProfileDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-98% via-gray-900 to-black text-white p-6 space-y-6 md:space-y-8">
+    <div className="h-full bg-gradient-to-br from-black via-98% via-gray-900 to-black text-white p-6 space-y-6 overflow-y-auto">
       {/* Top Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card */}
         <div className="bg-transparent cyber text-[#01ffdb] border-[#01ffdb]/20 rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4 flex flex-col items-center text-center relative">
           <Link
@@ -102,13 +102,13 @@ const ProfileDashboard = () => {
             <p className="text-xs">748589549</p>
             <button
               onClick={handleCopy}
-              className="text-[#01ffdb] hover:text-white transition"
+              className="text-[#01ffdb] cursor-pointer hover:text-[#01ffdb]/50 transition"
               title="Copy number"
             >
               <Copy size={14} />
             </button>
             {copied && (
-              <span className="absolute -top-4 left-90 -translate-x-60 text-xs text-black font-medium bg-[#01ffdb] px-2 py-0.5 rounded shadow">
+              <span className="absolute -top-4 left-90 -translate-x-60 text-xs text-black font-medium bg-[#01ffdb] px-2 py-0.5 rounded shadow ">
                 Copied!
               </span>
             )}
@@ -142,7 +142,7 @@ const ProfileDashboard = () => {
         </div>
 
         {/* Resume */}
-        <div className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 backdrop-blur-xl rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4">
+        <div className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4">
           <h3 className="font-bold mb-2 ">My Resume</h3>
           {/* Dynamic label */}
           {!myResume ? (
@@ -195,7 +195,7 @@ const ProfileDashboard = () => {
       </div>
 
       {/* Badges, Certifications */}
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-6 md:mt-15">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         {/* Badges */}
         <div className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4 relative">
           <h3 className="font-bold mb-1">Links</h3>
@@ -238,7 +238,7 @@ const ProfileDashboard = () => {
       </div>
 
       {/* Certifications */}
-      <div className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 backdrop-blur-xl rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4 md:mb-15">
+      <div className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922] p-4 ">
         <h3 className="font-bold mb-1">My Certifications</h3>
         <p className="text-sm text-gray-300">
           You have not earned any certificates yet.{" "}
