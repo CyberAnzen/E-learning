@@ -115,7 +115,24 @@ const Navbar = () => {
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+    } else {
+      document.body.style.overflow = "auto";
+      document.body.style.touchAction = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+      document.body.style.touchAction = "auto";
+    };
+  }, [mobileMenuOpen]);
   const navItems = [
     { name: "Home", icon: Home, path: "/" },
     { name: "Learn", icon: BookOpen, path: "/learn" },
@@ -131,7 +148,7 @@ const Navbar = () => {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 120, damping: 20 }}
-        className={`fixed w-full top-0 z-50 transition-all duration-500 bg-gradient-to-r from-black/90 via-[#1a2234]/90 to-black/90 backdrop-blur-lg border-b ${
+        className={`fixed w-full top-0 z-50 transition-all duration-500 bg-gradient-to-t from-black/90 via-[#1a2234]/90 via-1% to-black/90 backdrop-blur-lg border-b ${
           scrolled
             ? "border-[#01ffdb]/20 shadow-[0_8px_32px_rgba(1,255,219,0.15)] py-2"
             : "border-transparent shadow-none py-4"

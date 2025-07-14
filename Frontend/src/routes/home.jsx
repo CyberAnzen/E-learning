@@ -104,16 +104,16 @@ export default function HomePage() {
       {/* Hero Section - Landing Page */}
       <section
         ref={heroSectionRef}
-        className="relative min-h-screen overflow-hidden"
+        className="relative  min-h-screen overflow-hidden"
       >
-        <div className="absolute inset-0 z-0">
+        <div className="absolute blur inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80"
             alt="Cybersecurity Background"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(0.3)" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/70 to-gray-900" />
+          <div className="absolute inset-0 bg-gray-900/50" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-gray-900/20 to-black/30 transition-all duration-500 ease-in-out" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-gray-900/20 to-black/30 transition-all duration-500 ease-in-out" />
