@@ -44,8 +44,8 @@ import { QuestionTypeDropdown } from "./AdminEditor/QuestionTypeDropdown";
  * Enhanced Correct Answer Dropdown Component for Multiple Choice Questions
  */
 import { CorrectAnswerDropdown } from "./AdminEditor/CorrectAnswerDropdown";
-
 import SaveModal from "../layout/SaveModal";
+import Usefetch from "../../../hooks/Usefetch";
 
 const AdminEditor = ({ update = false }) => {
   const { lessonId } = useParams();
@@ -57,7 +57,6 @@ const AdminEditor = ({ update = false }) => {
 
   // Added state for storing fetched lesson data
   const [oldLessonData, setOldLessonData] = useState(null);
-  const [isLoading, setIsLoading] = useState(update); // Only show loading in update mode
   const [ClassificationId, setClassificationId] = useState(
     initialClassificationId
   );
@@ -80,6 +79,12 @@ const AdminEditor = ({ update = false }) => {
   const [ClassificationsData, setClassificationsData] = useState([]);
   const [minLessonNum, setMinLessonNum] = useState(1);
 
+  // State for managing save/update operations
+  const [saveData, setSaveData] = useState(null);
+  const [saveEndpoint, setSaveEndpoint] = useState(null);
+  const [saveMethod, setSaveMethod] = useState("post");
+  const [triggerSave, setTriggerSave] = useState(false);
+
   // Initialize form data for new lessons
   useEffect(() => {
     if (!update) {
@@ -88,80 +93,118 @@ const AdminEditor = ({ update = false }) => {
         classificationId: initialClassificationId,
       };
       setFormData(initialData);
-      setIsLoading(false);
     }
   }, [update, initialClassificationId]);
 
-  // Fetch lesson data for updates
+  // Fetch lesson data for updates - only when update is true and we have required params
+  const shouldFetchLesson = update && initialClassificationId && lessonId;
+  const lessonEndpoint = shouldFetchLesson
+    ? `lesson/${initialClassificationId}/${lessonId}`
+    : null;
+
+  const {
+    Data: Lessonfetch,
+    error: LessonError,
+    loading: LessonLoading,
+    retry: retryLessonFetch,
+    retryCount: lessonRetryCount,
+  } = Usefetch(lessonEndpoint, "get", null, {}, shouldFetchLesson);
+
+  // Handle lesson data when it's fetched
   useEffect(() => {
-    // Only fetch if we're in update mode and have the required parameters
-    if (!update || !initialClassificationId || !lessonId) {
-      return;
+    if (Lessonfetch?.data && update) {
+      const data = Lessonfetch.data;
+      setOldLessonData(data);
+      setFormData(data);
+      setAllImageUrls(data.allImages || []);
+      setCurrentImageUrls(data.addedImages || []);
+      setClassificationId(data.classificationId);
     }
+  }, [Lessonfetch, update]);
 
-    // Define async fetch function
-    const fetchLesson = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(
-          `${BACKEND_URL}/lesson/${initialClassificationId}/${lessonId}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch lesson");
-        }
-
-        const { data } = await response.json();
-        // Store fetched data in state
-        setOldLessonData(data);
-
-        // Immediately set form data with fetched data
-        setFormData(data);
-        setAllImageUrls(data.allImages || []);
-        setCurrentImageUrls(data.addedImages || []);
-        setClassificationId(data.classificationId);
-      } catch (err) {
-        // console.error("Error fetching lesson:", err);
-        setErrorMessage("Failed to load lesson data. Retrying...");
-        // Set up retry with timeout
-        retryTimeoutRef.current = setTimeout(fetchLesson, 5000);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Call the fetch function
-    fetchLesson();
-
-    // Cleanup on unmount
-    return () => {
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current);
-      }
-    };
-  }, [update, initialClassificationId, lessonId]);
+  // Handle lesson fetch errors
+  useEffect(() => {
+    if (LessonError && update) {
+      setErrorMessage(
+        `Failed to load lesson data. ${LessonError}${
+          lessonRetryCount > 0 ? ` (Retry ${lessonRetryCount})` : ""
+        }`
+      );
+    }
+  }, [LessonError, update, lessonRetryCount]);
 
   // Fetch classifications data
-  useEffect(() => {
-    const FetchClassifications = async () => {
-      try {
-        const response = await fetch(`${BACKEND_URL}/classification/`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch classifications");
-        }
-        const { data } = await response.json();
-        setClassificationsData(data.classification);
-      } catch (err) {
-        // console.error("Error fetching classifications:", err);
-        retryTimeoutRef.current = setTimeout(
-          () => FetchClassifications(),
-          5000
-        );
-      }
-    };
+  const {
+    Data: Classifications,
+    error: ClassificationsError,
+    loading: ClassificationsLoading,
+    retry: retryClassificationsFetch,
+    retryCount: classificationsRetryCount,
+  } = Usefetch("classification/", "get", null, {}, true);
 
-    FetchClassifications();
-  }, []);
+  // Handle classifications data when it's fetched
+  useEffect(() => {
+    if (Classifications?.data) {
+      setClassificationsData(Classifications.data.classification);
+    }
+  }, [Classifications]);
+
+  // Handle classifications fetch errors
+  useEffect(() => {
+    if (ClassificationsError) {
+      console.error("Classifications loading error:", ClassificationsError);
+      setErrorMessage(
+        `Failed to load classifications. ${ClassificationsError}${
+          classificationsRetryCount > 0
+            ? ` (Retry ${classificationsRetryCount})`
+            : ""
+        }`
+      );
+    }
+  }, [ClassificationsError, classificationsRetryCount]);
+
+  // Save/Update lesson using Usefetch hook
+  const {
+    Data: SaveResponse,
+    error: SaveError,
+    loading: SaveLoading,
+    retry: retrySave,
+    retryCount: saveRetryCount,
+  } = Usefetch(saveEndpoint, saveMethod, saveData, {}, triggerSave);
+
+  // Handle save response
+  useEffect(() => {
+    if (SaveResponse && saveData) {
+      setSuccessMessage(
+        `Lesson ${update ? "updated" : "created"} successfully`
+      );
+      setTimeout(() => {
+        setSuccessMessage("");
+        navigate(
+          `/lesson/${SaveResponse.lesson.classificationId}/${SaveResponse.lesson._id}`
+        );
+      }, 3000);
+
+      // Reset save states
+      setSaveData(null);
+      setSaveEndpoint(null);
+      setTriggerSave(false);
+      setIsSubmitting(false);
+    }
+  }, [SaveResponse, saveData, update, navigate]);
+
+  // Handle save errors
+  useEffect(() => {
+    if (SaveError && saveData) {
+      setErrorMessage(
+        `Failed to ${update ? "update" : "create"} lesson. ${SaveError}${
+          saveRetryCount > 0 ? ` (Retry ${saveRetryCount})` : ""
+        }`
+      );
+      setTimeout(() => setErrorMessage(""), 5000);
+      setIsSubmitting(false);
+    }
+  }, [SaveError, saveData, update, saveRetryCount]);
 
   // Update formData when ClassificationId changes (for new lessons)
   useEffect(() => {
@@ -225,13 +268,13 @@ const AdminEditor = ({ update = false }) => {
     };
 
     // Conditionally handle create vs update
-    let url, method;
+    let endpoint, method;
     if (update && oldLessonData) {
-      url = `${BACKEND_URL}/lesson/update`;
-      method = "PATCH";
+      endpoint = "lesson/update";
+      method = "patch";
     } else {
-      url = `${BACKEND_URL}/lesson/create`;
-      method = "POST";
+      endpoint = "lesson/create";
+      method = "post";
       // Remove _id fields for new lessons
       delete updatedFormData._id;
       delete updatedFormData.content._id;
@@ -243,39 +286,18 @@ const AdminEditor = ({ update = false }) => {
         });
     }
 
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedFormData),
-      });
+    // Reset previous save state first
+    setTriggerSave(false);
+    setSaveData(null);
+    setSaveEndpoint(null);
 
-      if (!response.ok) {
-        throw new Error(`Failed to ${update ? "update" : "create"} lesson`);
-      }
-
-      const result = await response.json();
-      // console.log(
-      //   `Lesson ${update ? "updated" : "created"} successfully:`,
-      //   result
-      // );
-
-      setSuccessMessage(
-        `Lesson ${update ? "updated" : "created"} successfully`
-      );
-      setTimeout(() => {
-        setSuccessMessage("");
-        navigate(
-          `/lesson/${result.lesson.classificationId}/${result.lesson._id}`
-        );
-      }, 3000);
-    } catch (err) {
-      // console.error(`Error ${update ? "updating" : "creating"} lesson:`, err);
-      setErrorMessage(err.message);
-      setTimeout(() => setErrorMessage(""), 3000);
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Small delay to ensure state is reset, then trigger save
+    setTimeout(() => {
+      setSaveEndpoint(endpoint);
+      setSaveMethod(method);
+      setSaveData(updatedFormData);
+      setTriggerSave(true);
+    }, 10);
   };
 
   const addObjective = () => {
@@ -410,7 +432,7 @@ const AdminEditor = ({ update = false }) => {
   };
 
   // Show loading state when data is being fetched
-  if (isLoading) {
+  if (LessonLoading || ClassificationsLoading) {
     return (
       <div className="bg-gradient-to-br from-black via-gray-900 to-black mt-23 min-h-screen p-5 flex items-center justify-center">
         <div className="text-center">
@@ -419,6 +441,12 @@ const AdminEditor = ({ update = false }) => {
           <p className="text-gray-400">
             {update ? "Fetching lesson data..." : "Initializing editor..."}
           </p>
+          {(lessonRetryCount > 0 || classificationsRetryCount > 0) && (
+            <p className="text-yellow-400 mt-2">
+              Retrying... (
+              {Math.max(lessonRetryCount, classificationsRetryCount)})
+            </p>
+          )}
         </div>
       </div>
     );
@@ -431,6 +459,22 @@ const AdminEditor = ({ update = false }) => {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-400 mb-2">Error</h2>
           <p className="text-gray-400">Failed to load form data</p>
+          {(LessonError || ClassificationsError) && (
+            <div className="mt-4 space-y-2">
+              <button
+                onClick={retryLessonFetch}
+                className="px-4 py-2 bg-blue-500/20 border border-blue-500/50 rounded-lg hover:bg-blue-500/30 text-blue-400 transition-all mr-2"
+              >
+                Retry Lesson
+              </button>
+              <button
+                onClick={retryClassificationsFetch}
+                className="px-4 py-2 bg-green-500/20 border border-green-500/50 rounded-lg hover:bg-green-500/30 text-green-400 transition-all"
+              >
+                Retry Classifications
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -458,6 +502,14 @@ const AdminEditor = ({ update = false }) => {
               {errorMessage && (
                 <div className="my-2 max-w-[30vw] p-4 rounded-lg shadow-lg bg-red-500/10 border border-red-500/20 text-red-700">
                   {errorMessage}
+                  {SaveError && saveRetryCount > 0 && (
+                    <button
+                      onClick={retrySave}
+                      className="ml-2 px-2 py-1 bg-red-500/20 border border-red-500/50 rounded text-xs hover:bg-red-500/30 transition-all"
+                    >
+                      Retry
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -1017,12 +1069,12 @@ const AdminEditor = ({ update = false }) => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowDeleteConfirm(true)}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || SaveLoading}
                     className="px-6 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg text-purple-200 font-medium transition-all font-mono shadow-lg shadow-purple-500/10 hover:bg-purple-500/30 hover:shadow-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <span className="flex items-center gap-2">
                       <Save className="w-4 h-4" />
-                      {isSubmitting
+                      {isSubmitting || SaveLoading
                         ? "SAVING..."
                         : update
                         ? "UPDATE LESSON"
@@ -1074,7 +1126,7 @@ const AdminEditor = ({ update = false }) => {
           <SaveModal
             showSaveConfirm={showDeleteConfirm}
             setShowSaveConfirm={setShowDeleteConfirm}
-            isSaving={isSubmitting}
+            isSaving={isSubmitting || SaveLoading}
             handleSave={handleSubmit}
             modaltitle={`${update ? "Update" : "Save"} Confirmation`}
             message={
