@@ -49,6 +49,7 @@ const LearnPage = () => {
       setOverallProgress(Data.data.overallProgress || 0);
     }
   }, [Data, loading]);
+  console.log(courses);
 
   // Handle course navigation
   const handleCourseClick = (courseId) => {

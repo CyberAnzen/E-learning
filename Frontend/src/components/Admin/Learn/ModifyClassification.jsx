@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DeleteModal from "../layout/DeleteModal";
+import Usefetch from "../../../hooks/Usefetch";
 
 // Icon mapping for course icons
 const iconMap = {
@@ -87,6 +88,14 @@ const MdodifyClassification = ({ course, onCourseClick, handleRetry }) => {
   const [editSuccess, setEditSuccess] = useState(false);
 
   // Handle form input changes for edit
+  const { Data: DeleteResult, retry: DeleteRetry } = Usefetch(
+    `classification/delete/${course.id}`,
+    "delete",
+    { data: null },
+    {},
+    false
+  );
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -123,19 +132,20 @@ const MdodifyClassification = ({ course, onCourseClick, handleRetry }) => {
     setIsDeleting(true);
 
     try {
-      const response = await fetch(
-        `${BACKEND_URL}/classification/delete/${course.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      DeleteRetry();
+      // const response = await fetch(
+      //   `${BACKEND_URL}/classification/delete/${course.id}`,
+      //   {
+      //     method: "DELETE",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //   }
+      // );
 
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.message || "Failed to delete classification");
+      if (!DeleteResult) {
+        // const result = await response.json();
+        throw new Error("Failed to delete classification");
       }
 
       // Close modal and trigger refresh
@@ -150,6 +160,19 @@ const MdodifyClassification = ({ course, onCourseClick, handleRetry }) => {
   };
 
   // Handle edit submission
+  const UpdatePayload = {
+    title: formData.title.trim(),
+    description: formData.description.trim(),
+    icon: selectedIcon.name,
+    category: formData.category || selectedIcon.name,
+  };
+  const { Data: UpdateResult, retry: UpdateRetry } = Usefetch(
+    `classification/update/${course.id}`,
+    "patch",
+    JSON.stringify(UpdatePayload),
+    {},
+    false
+  );
   const handleEditSubmit = async (e) => {
     e.preventDefault();
 
@@ -162,30 +185,11 @@ const MdodifyClassification = ({ course, onCourseClick, handleRetry }) => {
     setIsEditing(true);
     setErrorMessage("");
 
-    const payload = {
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      icon: selectedIcon.name,
-      category: formData.category || selectedIcon.name,
-    };
-
     try {
-      const response = await fetch(
-        `${BACKEND_URL}/classification/update/${course.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to update classification");
-      }
+      UpdateRetry();
+      // if (!response.ok) {
+      //   throw new Error(result.message || "Failed to update classification");
+      // }
 
       // Show success state
       setEditSuccess(true);

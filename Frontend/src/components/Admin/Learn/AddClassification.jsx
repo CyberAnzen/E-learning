@@ -16,7 +16,7 @@ import {
   Lock,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import Usefetch from "../../../hooks/Usefetch";
 const icons = [
   { name: "Learning", icon: GraduationCap },
   { name: "Tech", icon: Cpu },
@@ -84,7 +84,25 @@ const AddCourse = ({ handleRetry }) => {
     setValidationErrors(errors);
     return !errors.title && !errors.description;
   };
-
+  // Post request of the form submission
+  const payload = {
+    title: formData.title.trim(),
+    description: formData.description.trim(),
+    category: formData.category || selectedIcon.name,
+    icon: selectedIcon.name,
+  };
+  const {
+    Data: result,
+    error,
+    loading,
+    retry,
+  } = Usefetch(
+    "classification/create",
+    "post",
+    JSON.stringify(payload),
+    {},
+    false
+  );
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -94,32 +112,23 @@ const AddCourse = ({ handleRetry }) => {
       return;
     }
 
-    setIsSubmitting(true);
-    setErrorMessage("");
-
-    const payload = {
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      category: formData.category || selectedIcon.name,
-      icon: selectedIcon.name,
-    };
+    // setIsSubmitting(true);
+    // setErrorMessage("");
 
     try {
-      const response = await fetch(`${BACKEND_URL}/classification/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      // const response = await fetch(`${BACKEND_URL}/classification/create`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
+      retry();
 
-      const result = await response.json();
+      // if (!response.ok) {
+      //   throw new Error(result.message || "Failed to create classification");
+      // }
 
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to create classification");
-      }
-
-      // console.log(" API response:", result);
+      console.log(" API response:", result);
 
       // Show success state
       setSubmitSuccess(true);
