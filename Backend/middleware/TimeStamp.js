@@ -1,4 +1,5 @@
 const defaultWindow = parseInt(process.env.TIMESTAMP_WINDOW) || 5 * 60 * 1000; // fallback to 5 minutes
+const mode=process.env.NODE_ENV || "PRO";
 
 exports.TimeStamp = (minutes) => {
   const windowMs = minutes ? minutes * 60 * 1000 : defaultWindow;
@@ -8,6 +9,9 @@ exports.TimeStamp = (minutes) => {
     const timestamp = parseInt(req.headers["timestamp"]);
 
     if (!timestamp || timestamp > now) {
+      if (mode === "DEV") {
+        console.log("Invalid timestamp:", timestamp, "Current time:", now);
+      }
       return res.status(411).json({ error: "Invalid Request" });
     }
     

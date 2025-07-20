@@ -7,10 +7,15 @@ const helmet = require("helmet");
 const { Auth } = require("./middleware/Auth");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+
+//routes
 const userRoutes = require("./router/userRoutes");
 const event = require("./router/eventRoutes");
 const lesson = require("./router/lessonRoutes");
 const validate = require("./router/ValidationRoutes");
+const profile = require("./router/profileRoutes");
+
+
 const ConnectDataBase = require("./config/connectDataBase");
 const initializeCaches = require("./cache/initCache");
 const classification = require("./router/classificationRoutes");
@@ -68,6 +73,8 @@ app.use("/api/user", userRoutes);
 app.use("/api/classification", classification);
 app.use("/api/lesson", lesson);
 app.use("/api/answer", validate);
+
+app.use("/api/profile", profile);
 
 app.use("/api/image", require("./router/imageRoutes"));
 

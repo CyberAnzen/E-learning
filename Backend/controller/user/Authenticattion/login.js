@@ -24,9 +24,9 @@ exports.login = async (req, res, next) => {
     const user = await User.findOne({
       $or: [
         { username: identifier },
-        { "userDetails.regNumber": identifier },
-        { "userDetails.email": identifier },
-        { "userDetails.officialEmail": identifier },
+        { "regNumber": identifier },
+        { "email": identifier },
+        { "officialEmail": identifier },
       ],
     });
 
