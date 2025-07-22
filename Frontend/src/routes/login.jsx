@@ -19,30 +19,31 @@ export default function LoginPage() {
     // Smooth scroll to top
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 
-    // Prevent scrolling
-    document.body.style.overflow = "hidden";
-    document.body.style.height = "100vh";
-    document.body.style.position = "fixed";
-    document.body.style.width = "100%";
-    document.documentElement.style.overflow = "hidden";
+    const isDesktop = window.innerWidth >= 768;
 
-    // Optional: Prevent touchmove to block scrolling more robustly
-    const preventTouchMove = (e) => e.preventDefault();
-    document.addEventListener("touchmove", preventTouchMove, {
-      passive: false,
-    });
+    if (isDesktop) {
+      // Lock scroll only on desktop
+      document.body.style.overflow = "hidden";
+      document.body.style.height = "100vh";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+      document.documentElement.style.overflow = "hidden";
 
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = "";
-      document.body.style.height = "";
-      document.body.style.position = "";
-      document.body.style.width = "";
-      document.documentElement.style.overflow = "";
-      document.removeEventListener("touchmove", preventTouchMove);
-    };
+      const preventTouchMove = (e) => e.preventDefault();
+      document.addEventListener("touchmove", preventTouchMove, {
+        passive: false,
+      });
+
+      return () => {
+        document.body.style.overflow = "";
+        document.body.style.height = "";
+        document.body.style.position = "";
+        document.body.style.width = "";
+        document.documentElement.style.overflow = "";
+        document.removeEventListener("touchmove", preventTouchMove);
+      };
+    }
   }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -77,7 +78,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center -mt-13 justify-center px-4 sm:px-6 relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black h-[100vh] pt-10 pb-0 lg:pb-0 ">
+    <div className="flex items-center mt-[-3.25rem] justify-center px-4 sm:px-6 relative bg-gradient-to-br from-black via-gray-900 to-black min-h-screen overflow-y-auto pt-10 pb-0 lg:pb-0">
       <ParticleBackground />
       {/* Cyberpunk grid overlay */}
       <div className="absolute inset-0 opacity-10">
@@ -93,7 +94,7 @@ export default function LoginPage() {
         />
       </div>
 
-      <div className="relative z-10 w-full max-w-4xl">
+      <div className="relative z-10 w-full max-w-4xl sm:w-fit sm:max-h-[90vh] sm:overflow-y-auto">
         {/* Main Container */}
         <div className="relative">
           {/* Angled border container */}
@@ -106,7 +107,7 @@ export default function LoginPage() {
           >
             {/* Inner content area */}
             <div
-              className="bg-gray-900/50 p-8 md:p-12"
+              className="bg-gray-900/50 p-8 sm:p-8 md:p-12"
               style={{
                 clipPath:
                   "polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 28px 100%, 0 calc(100% - 28px))",
@@ -125,12 +126,12 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16 mt-12">
+              <div className="flex flex-col sm:flex-col md:flex-row items-center gap-8 md:gap-16 mt-12">
                 {/* Left side - Fingerprint Scanner */}
                 <div className="flex-shrink-0">
                   <div className="relative">
                     {/* Scanning frame */}
-                    <div className="w-48 h-48 border-2 border-[#01ffdb]/70 relative bg-black/30 backdrop-blur-sm">
+                    <div className="w-36 h-36 sm:w-48 sm:h-48 border-2 border-[#01ffdb]/70 relative bg-black/30 backdrop-blur-sm">
                       {/* Corner brackets */}
                       <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#01ffdb]" />
                       <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#01ffdb]" />
@@ -146,7 +147,7 @@ export default function LoginPage() {
                 </div>
 
                 {/* Right side - Form */}
-                <div className="flex-1 max-w-md w-full">
+                <div className="w-full sm:max-w-md">
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {error && (
                       <div
@@ -241,10 +242,10 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="cyber-button w-full py-3 px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
+                      className="cyber-button w-full py-3 px-6 sm:px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
                                text-[#01ffdb] font-mono text-lg font-bold
                                hover:bg-[#01ffdb]/20 hover:border-[#01ffdb]
-                               transition-all duration-300 relative overflow-hidden
+                               transition-all duration-300 relative
                                disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{
                         clipPath:

@@ -9,7 +9,7 @@ export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const [loggedIn, setloggedIn] = useState(false);
-  const [user, setUser] = useState(true); // default should be null, not true
+  const [user, setUser] = useState(null); // default should be null, not true
   const [savedSkills, setSavedSkills] = useState([]);
   const [savedLinks, setSavedLinks] = useState(null);
   const [LearnAdd, setLearnAdd] = useState(false);
