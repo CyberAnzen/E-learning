@@ -71,7 +71,12 @@ export default function Signup() {
     debounce(async (username) => {
       try {
         const response = await axios.get(
-          `${BACKEND_URL}/user/check-username?username=${username}`
+          `${BACKEND_URL}/user/check-username?username=${username}`,
+          {
+            headers: {
+              timestamp: Date.now(),
+            },
+          }
         );
         setUsernameStatus({
           type: response.data.available ? "success" : "error",
@@ -122,7 +127,12 @@ export default function Signup() {
       };
       const response = await axios.post(
         `${BACKEND_URL}/user/signup`,
-        numericData
+        numericData,
+        {
+          headers: {
+            timestamp: Date.now(),
+          },
+        }
       );
       setTimeout(() => {
         alert("Form submitted successfully!");

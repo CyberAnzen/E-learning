@@ -15,13 +15,12 @@ const LessonNum = "6857f03a773f44b68582060b";
  * Displays courses with loading skeletons and progress tracking
  */
 const LearnPage = () => {
-  const { fp } = useAppContext();
+  const { Admin, loggedIn } = useAppContext();
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [overallProgress, setOverallProgress] = useState(0);
-  const isadmin = true;
-
-  const { Data, error, loading } = Usefetch("classification/");
+  const endpoint = loggedIn ? "classification/" : "classification/guest";
+  const { Data, error, loading } = Usefetch(endpoint);
 
   // Scroll to top and disable page scrolling on mount
   useEffect(() => {
@@ -102,7 +101,7 @@ const LearnPage = () => {
 
           {/* Course grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {!isadmin ? (
+            {!Admin ? (
               loading ? (
                 Array.from({ length: 9 }).map((_, index) => (
                   <CourseCardSkeleton key={index} />
@@ -136,7 +135,7 @@ const LearnPage = () => {
           </div>
 
           {/* Empty state */}
-          {!loading && courses.length === 0 && !isadmin && (
+          {!loading && courses.length === 0 && !Admin && (
             <div className="text-center py-12">
               <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-400 mb-2">

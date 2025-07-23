@@ -94,7 +94,7 @@ export default function LoginPage() {
         />
       </div>
 
-      <div className="relative z-10 w-full max-w-4xl sm:w-fit sm:max-h-[90vh] sm:overflow-y-auto">
+      <div className="relative z-10 min-w-[85vw] sm:min-w-[70vw]  md:min-w-[60vw]   sm:overflow-y-auto">
         {/* Main Container */}
         <div className="relative">
           {/* Angled border container */}
