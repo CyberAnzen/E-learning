@@ -2,7 +2,7 @@ const {User} = require('../../../model/UserModel'); // Adjust the path as necess
 
 const getProfile = async (req, res) => {
   try {
-    const userId = req.body.id; // Assuming user ID is stored in req.user
+    const userId = req.user.id; // Assuming user ID is stored in req.user
     if (!userId) {
       console.error('[getProfile] [error] User ID is required');
         return res.status(400).json({
@@ -10,11 +10,17 @@ const getProfile = async (req, res) => {
             message: 'User ID is required' });
     }
     const userProfile = await User.findById(userId).select('-password -__v -createdAt -updatedAt -userRole'); // Exclude sensitive fields
-
     if (!userProfile) {
-        console.error(`[getProfile] [error] User with ID ${userId} not found`);
-        return res.status(404).json({ message: 'User not found' });
+      console.error(`[getProfile] [error] User with ID ${userId} not found`);
+      return res.status(404).json({ message: 'User not found' });
     }
+    const existingLinksMap = {};
+    (userProfile.profile.socialLinks || []).forEach(link => {
+        existingLinksMap[link.name] = link.link;
+    });
+
+    delete userProfile._doc.profile.socialLinks; // Remove the socialLinks field from the userProfile object
+    userProfile._doc.profile.socialLinks=existingLinksMap
 
     
 
