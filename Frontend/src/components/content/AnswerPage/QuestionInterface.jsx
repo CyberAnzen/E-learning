@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useContext } from "react";
 import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, X } from "lucide-react";
-
 import { validateAnswer, submitAssessment } from "../utils/api";
 import QuestionHeader from "./QuestionHeader";
 import ProgressBar from "./ProgressBar";
@@ -13,7 +12,7 @@ import ValidationFeedback from "./ValidationFeedback";
 import NavigationControls from "./NavigationControls";
 import LoadingScreen from "./LoadingScreen";
 import ResultsScreen from "./ResultsScreen";
-
+import { AppContext } from "../../../context/AppContext";
 const QuestionInterface = ({
   isOpen = false,
   onClose = () => {},
@@ -31,7 +30,7 @@ const QuestionInterface = ({
   const [startTime] = useState(Date.now());
   const [localAnswer, setLocalAnswer] = useState("");
   const [localSelectedOptions, setLocalSelectedOptions] = useState([]);
-
+  const { fp, csrf } = useContext(AppContext);
   const currentQuestion = questions[currentQuestionIndex];
   const currentAnswerState = answers[currentQuestion?.id];
   // Handle escape key and prevent body scroll
@@ -121,7 +120,12 @@ const QuestionInterface = ({
     }));
 
     try {
-      const validation = await validateAnswer(lessonId, questionId, answer);
+      const validation = await validateAnswer(
+        lessonId,
+        questionId,
+        answer,
+        csrf,fp
+      );
 
       setAnswers((prev) => ({
         ...prev,
@@ -191,7 +195,9 @@ const QuestionInterface = ({
       const result = await submitAssessment(
         lessonId,
         submissionAnswers,
-        startTime
+        startTime,
+        csrf,
+        fp
       );
       setAssessmentResult(result);
     } catch (error) {
