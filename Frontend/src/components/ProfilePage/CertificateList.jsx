@@ -39,7 +39,7 @@ const CertificateList = () => {
             <div className="flex items-center gap-4">
               <div className="p-2">
                 <div
-                  className="radial-progress text-cyan-400 text-sm"
+                  className="radial-progress text-[#01ffdb] text-sm"
                   style={{
                     "--value": course.grade,
                     "--size": "4rem",
@@ -57,7 +57,7 @@ const CertificateList = () => {
               </div>
             </div>
 
-            <button className="btn bg-cyan-800 hover:bg-cyan-600 text-white px-4 py-2 rounded-md text-sm font-semibold transition">
+            <button className="btn bg-[#01ffdb]/50 hover:bg-cyan-600 text-white px-4 py-2 rounded-md text-sm font-semibold transition">
               Get your certificate
             </button>
           </div>

@@ -137,9 +137,9 @@ const ProfileDashboard = () => {
           </Link>
           <h3 className="font-bold mb-2">Personal Information</h3>
           <ul className="text-sm text-gray-300 space-y-1">
-            <li>📧 mexample@gmail.com</li>
-            <li>📱 Add your mobile number</li>
-            <li>📍 Add your location</li>
+            <li>mexample@gmail.com</li>
+            <li>Add your mobile number</li>
+            <li>Add your location</li>
           </ul>
         </div>
 

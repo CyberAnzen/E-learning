@@ -104,15 +104,15 @@ const LinkForm = () => {
 
   return (
     <div className="p-6 rounded-lg text-white space-y-4">
-      <h2 className="text-xl font-semibold">Links</h2>
+      <h2 className="text-xl font-semibold text-[#01ffdb]">Links</h2>
 
       {/* LinkedIn */}
       <div>
         <label className="label text-sm font-medium text-white">
-          <span className="flex items-center gap-2">
+          <span className="flex items-center text-[#01ffdb] gap-2">
             <img
-              src="https://cdn-icons-png.flaticon.com/512/174/174857.png"
-              className="w-5 h-5"
+              src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmM2VjZWMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1saW5rZWRpbi1pY29uIGx1Y2lkZS1saW5rZWRpbiI+PHBhdGggZD0iTTE2IDhhNiA2IDAgMCAxIDYgNnY3aC00di03YTIgMiAwIDAgMC0yLTIgMiAyIDAgMCAwLTIgMnY3aC00di03YTYgNiAwIDAgMSA2LTZ6Ii8+PHJlY3Qgd2lkdGg9IjQiIGhlaWdodD0iMTIiIHg9IjIiIHk9IjkiLz48Y2lyY2xlIGN4PSI0IiBjeT0iNCIgcj0iMiIvPjwvc3ZnPg=="
+              className="w-5 h-5 "
               alt="LinkedIn"
             />
             LinkedIn
@@ -136,9 +136,9 @@ const LinkForm = () => {
       {/* GitHub */}
       <div>
         <label className="label text-sm font-medium text-white">
-          <span className="flex items-center gap-2">
+          <span className="flex items-center text-[#01ffdb] gap-2">
             <img
-              src="https://cdn-icons-png.flaticon.com/512/25/25231.png"
+              src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmM2VjZWMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1naXRodWItaWNvbiBsdWNpZGUtZ2l0aHViIj48cGF0aCBkPSJNMTUgMjJ2LTRhNC44IDQuOCAwIDAgMC0xLTMuNWMzIDAgNi0yIDYtNS41LjA4LTEuMjUtLjI3LTIuNDgtMS0zLjUuMjgtMS4xNS4yOC0yLjM1IDAtMy41IDAgMC0xIDAtMyAxLjUtMi42NC0uNS01LjM2LS41LTggMEM2IDIgNSAyIDUgMmMtLjMgMS4xNS0uMyAyLjM1IDAgMy41QTUuNDAzIDUuNDAzIDAgMCAwIDQgOWMwIDMuNSAzIDUuNSA2IDUuNS0uMzkuNDktLjY4IDEuMDUtLjg1IDEuNjUtLjE3LjYtLjIyIDEuMjMtLjE1IDEuODV2NCIvPjxwYXRoIGQ9Ik05IDE4Yy00LjUxIDItNS0yLTctMiIvPjwvc3ZnPg=="
               className="w-5 h-5"
               alt="GitHub"
             />
@@ -163,9 +163,9 @@ const LinkForm = () => {
       {/* Portfolio */}
       <div>
         <label className="label text-sm font-medium text-white">
-          <span className="flex items-center gap-2">
+          <span className="flex items-center text-[#01ffdb] gap-2">
             <img
-              src="https://cdn-icons-png.flaticon.com/512/565/565547.png"
+              src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmM2VjZWMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jb250YWN0LWljb24gbHVjaWRlLWNvbnRhY3QiPjxwYXRoIGQ9Ik0xNiAydjIiLz48cGF0aCBkPSJNNyAyMnYtMmEyIDIgMCAwIDEgMi0yaDZhMiAyIDAgMCAxIDIgMnYyIi8+PHBhdGggZD0iTTggMnYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMSIgcj0iMyIvPjxyZWN0IHg9IjMiIHk9IjQiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgcng9IjIiLz48L3N2Zz4="
               className="w-5 h-5"
               alt="Portfolio"
             />
