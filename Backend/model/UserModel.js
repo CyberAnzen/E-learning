@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const currentYear = new Date().getFullYear() % 100;
+const getRandomAvatar =require('../controller/user/profile/avator/getRandomAvator')
 
 // Detailed user schema
 const UserModel = new mongoose.Schema(
@@ -100,13 +101,38 @@ const UserModel = new mongoose.Schema(
         },
         message: "All skills must be non-empty strings",
       },
-    }
+    },
+    avator: {
+      type: String,
+
+      validate: {
+        validator: function (v) {
+          return typeof v === "string" && v.startsWith("/avator/");
+        },
+        message: "Avatar path must start with '/avator/'",
+      },
+    },
   },
   },
   {
     timestamps: true,
   }
 );
+
+
+UserModel.pre("save", function (next) {
+  if (!this.profile.avator || this.profile.avator === "") {
+    const result = getRandomAvatar(this.userDetails.gender);
+
+    if (!result.success || !result.avator || !result.avator.path) {
+      return next(new Error("Failed to get random avatar"));
+    }
+
+    this.profile.avator = `${result.avator.path}${result.avator.name}`;
+  }
+  next();
+});
+
 
 const User = mongoose.model("Users", UserModel);
 

@@ -4,6 +4,7 @@ const customError = require('../utilies/customError');
 // Import fetch functions
 const fetchClassification = require('./fetchers/fetchClassification');
 const fetchLatestEvents = require('./fetchers/fetchLatestEvent');
+const fetchDefaultAvator = require('./fetchers/fetchDefaultAvator');
 
 
 async function initializeCaches() {
@@ -11,8 +12,13 @@ async function initializeCaches() {
     const caches ={}
     const eventCache = await cacheManager.registerCache('eventCache', dataCache, fetchLatestEvents)
     caches.eventCache = eventCache;
+
     const classificationCache = await cacheManager.registerCache('classificationCache', dataCache, fetchClassification);
     caches.classificationCache = classificationCache;
+
+    const defaultAvatorCache = await cacheManager.registerCache('defaultAvatorCache', dataCache, fetchDefaultAvator);
+    caches.defaultAvatorCache = defaultAvatorCache;
+
     const cached = await listName(caches);
     if (!cached.success) {
      // console.log(cached);
