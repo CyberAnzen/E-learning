@@ -1,0 +1,157 @@
+[
+  {
+    "name": "Ape-1.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Ape-3.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Ape-4.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Ape-6.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Bear-1.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Bunny-1.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Bunny-2.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Bunny-3.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Bunny-4.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Bunny-5.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Cat-2.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Cat-1.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Chipmunk.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Coyote-1.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Coyote-3.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Dog-1.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Dog-3.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Dog-4.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Fox-2.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Lion-1.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Lion-2.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Mouse-1.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Mouse-2.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Raccoon-1.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Panda-2.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Tiger-1.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Tiger-2.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Squirrel-1.webp",
+    "gender": "female",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Rat-1.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Rat-2.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  },
+  {
+    "name": "Squid.webp",
+    "gender": "male",
+    "path": "/avator/default/"
+  }
+]
