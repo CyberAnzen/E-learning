@@ -22,6 +22,8 @@ const ProfileDashboard = () => {
     "https://i.pinimg.com/736x/af/70/bb/af70bb880077591b711b83ee7717c91b.jpg"
   );
   const { savedSkills, savedLinks } = useAppContext();
+  console.log(savedLinks);
+  
   const [myResume, setMyResume] = useState(null);
   const fileInputRef = useRef();
 
