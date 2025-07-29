@@ -16,6 +16,7 @@ const updateUserDetails= require("../controller/user/profile/updateUserDetails")
 //const createAvator = require("../controller/user/profile/avator/createAvator");
 const checkRegNo=require("../controller/user/profile/checkRegNo")
 const updateAvator = require("../controller/user/profile/avator/updateAvator");
+const getAllDefaultAvator = require("../controller/user/profile/avator/getAllDefaultAvator");
 
 
 
@@ -29,6 +30,7 @@ router.post("/update",Auth() ,xssSanitizer(),updateUserDetails);
 ); */
 router.get("/checkRegNo",Auth(),xssSanitizer(), checkRegNo);
 router.post("/avator/update",Auth(),xssSanitizer(), updateAvator);
+router.get("/avator/default" ,Auth(), xssSanitizer(), getAllDefaultAvator);
 
 
 
