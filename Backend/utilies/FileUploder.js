@@ -14,29 +14,45 @@ function formatDate(date) {
   }
 //const currentDate = new Date(); 
 
-function fileUploader(filePath){
-    
+/**
+ * @param {Object} [options={}] - Configuration object
+ * @param {string} [options.filePath="uploads"] - Destination path for the uploaded file
+ * @param {Array<string>} [options.allowedTypes=[]] - Allowed MIME types (empty = all allowed)
+ * @param {number} [options.maxSize] - Maximum allowed file size in bytes
+ * @returns {multer.Instance} - Multer middleware
+ */
+function fileUploader(filePath,{ allowedTypes = [], maxSize } = {}) {
     const storage = multer.diskStorage({
-        
         destination: function (req, file, cb) {
-    
             const uploadPath = path.join(process.cwd(), filePath);
-    
-            // Create the directory if it doesn't exist
             fs.mkdirSync(uploadPath, { recursive: true });
-    
             cb(null, uploadPath);
         },
         filename: function (req, file, cb) {
             const formattedDate = formatDate(new Date());
-            const randomNumber = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+            const randomNumber = Math.floor(Math.random() * 900000) + 100000;
             cb(null, formattedDate + randomNumber + file.originalname);
-            console.log("file add")
         }
     });
-    return multer({storage})
+
+    const fileFilter = (req, file, cb) => {
+        if (allowedTypes.length === 0 || allowedTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error(`Invalid file type: ${file.mimetype}`), false);
+        }
+    };
+
+    return multer({
+        storage,
+        fileFilter,
+        limits: maxSize ? { fileSize: maxSize } : undefined
+    });
 }
- 
+
 //const upload = multer({ storage: storage });
 
-module.exports=fileUploader
+
+
+
+module.exports = fileUploader;
