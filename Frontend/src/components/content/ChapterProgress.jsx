@@ -5,7 +5,7 @@ const RadarProgress = ({ overallProgress, tasks, currentTaskId }) => {
   // Calculate positions for tasks around the circle
   const getTaskPosition = (index, total) => {
     const angle = (index / total) * 2 * Math.PI - Math.PI / 2; // Start from top
-    const radius = 85; // Radius for task positioning
+    const radius = 0; // Radius for task positioning
     const x = 50 + radius * Math.cos(angle);
     const y = 50 + radius * Math.sin(angle);
     return { x, y, angle };
