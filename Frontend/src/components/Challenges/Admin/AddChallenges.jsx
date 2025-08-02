@@ -15,12 +15,14 @@ const AddCourse = () => {
         className="
           group
           relative
-          bg-green-900/20
+          flex flex-col
+          min-h-[200px] sm:min-h-[250px] md:min-h-[300px]
+          bg-green-900/10
           backdrop-blur-xl
           p-6
           rounded-xl
           border border-green-700/50
-          hover:border-green-400/70
+          hover:border-green-400/40
           transition-all duration-300 ease-out
           hover:shadow-lg hover:shadow-green-500/20
         "
@@ -53,10 +55,10 @@ const AddCourse = () => {
               <span className="text-lg font-semibold text-white">NA%</span>
             </div>
           </div>
-          <h2 className="text-xl font-semibold text-white mb-2">
+          <h2 className="text-xl font-semibold text-white mb-2 truncate">
             Add Challenge Title
           </h2>
-          <p className="text-green-300/80 mb-4">
+          <p className="text-green-300/80 mb-4 line-clamp-3">
             Add The Description of the new Challenge
           </p>
 

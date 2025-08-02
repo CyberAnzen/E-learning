@@ -3,12 +3,22 @@ import { Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import ChallengeSkeleton from "../components/Challenges/ChallengeSkeleton";
 import AddChallenges from "../components/Challenges/Admin/AddChallenges";
+import MdodifyChallenges from "../components/Challenges/Admin/ModifyChallenges";
 export default function ContestPage() {
   const loading = false;
   const isAdmin = true;
-  useEffect(() => {
-    // any setup if needed
-  }, []);
+
+  const fakeCourse = {
+    id: "1",
+    title: "Introduction to Cybersecurity",
+    description:
+      "Learn the basics of protecting systems and networks from cyber threats.",
+    icon: "Cybersecurity",
+    progress: 60,
+    completedLessons: 3,
+    totalLessons: 5,
+    category: "Security",
+  };
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -27,7 +37,9 @@ export default function ContestPage() {
     { rank: 3, name: "Chris Wong", score: 950 },
     { rank: 4, name: "Sam Patel", score: 800 },
   ];
-
+  const handleChallengeClick = (id) => {
+    console.log(`Clicked on course with id: ${id}`);
+  };
   return (
     <section className="min-h-screen text-white">
       <motion.div
@@ -71,9 +83,13 @@ export default function ContestPage() {
                 <ChallengeSkeleton key={index} />
               ))
             ) : isAdmin ? (
-              <section>
+              <>
                 <AddChallenges />
-              </section>
+                <MdodifyChallenges
+                  course={fakeCourse}
+                  onCourseClick={handleChallengeClick}
+                />
+              </>
             ) : (
               <h2>something</h2>
             )}
