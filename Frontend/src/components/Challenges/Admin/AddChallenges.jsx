@@ -15,25 +15,25 @@ const AddCourse = () => {
         className="
           group
           relative
-          bg-blue-400/10
+          bg-green-900/20
           backdrop-blur-xl
           p-6
           rounded-xl
-          border border-gray-700
-          hover:border-teal-500/50
+          border border-green-700/50
+          hover:border-green-400/70
           transition-all duration-300 ease-out
-          hover:shadow-lg hover:shadow-cyan-500/10
+          hover:shadow-lg hover:shadow-green-500/20
         "
       >
         <section
           className="
             absolute
             inset-0
-            bg-black/60
+            bg-green-950/60
             opacity-60
             backdrop-blur-2xl
             border-0.5
-            border-gray-400/40
+            border-green-700/40
             rounded-xl
             z-0
           "
@@ -45,30 +45,24 @@ const AddCourse = () => {
           }`}
         >
           <div className="flex items-start justify-between mb-4">
-            <div className="p-3 bg-gray-700/50 rounded-lg">
-              <Code className="w-6 h-6 text-cyan-400" />
+            <div className="p-3 bg-green-800/50 rounded-lg">
+              <Code className="w-6 h-6 text-green-400" />
             </div>
             <div className="flex flex-col items-end">
-              <span className="text-sm text-gray-400">Difficulty</span>
+              <span className="text-sm text-green-300/80">Difficulty</span>
               <span className="text-lg font-semibold text-white">NA%</span>
             </div>
           </div>
           <h2 className="text-xl font-semibold text-white mb-2">
             Add Challenge Title
           </h2>
-          <p className="text-gray-400 ">
+          <p className="text-green-300/80 mb-4">
             Add The Description of the new Challenge
           </p>
 
           <div className="mt-auto">
-            {/* <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
-              <div
-                className="bg-cyan-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `16%` }}
-              />
-            </div> */}
             <div className="flex justify-end text-sm">
-              <span className="text-cyan-400">Security</span>
+              <span className="text-green-400">Security</span>
             </div>
           </div>
         </div>
@@ -86,7 +80,7 @@ const AddCourse = () => {
             rounded-xl
             z-20
             cursor-pointer
-            ${hover ? "bg-blue-400/10" : "bg-transparent"}
+            ${hover ? "bg-green-600/20" : "bg-transparent"}
           `}
         >
           <motion.span
@@ -94,7 +88,7 @@ const AddCourse = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
             className={`
-              ${!hover ? "bg-gray-400" : "bg-gray-400/60"}
+              ${!hover ? "bg-green-600/50" : "bg-green-600/70"}
               px-4 py-4
               backdrop-blur-md
               text-white
