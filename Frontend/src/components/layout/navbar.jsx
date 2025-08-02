@@ -440,7 +440,7 @@ const Navbar = () => {
   const navItems = [
     { name: "Home", icon: Home, path: "/" },
     { name: "Learn", icon: BookOpen, path: "/learn" },
-    { name: "Challenges", icon: Trophy, path: "/contest" },
+    { name: "Challenges", icon: Trophy, path: "/challenge" },
     user
       ? { name: "Profile", icon: UserCircle, path: "/profile" }
       : { name: "Login", icon: User, path: "/login" },

@@ -2,9 +2,13 @@
 @plugin "daisyui";
 body {
     -webkit-overflow-scrolling: touch;
+            background-color: rgba(23, 34, 45, 0.979);
+
   }
 html{
     scroll-behavior: smooth;
+        background-color: rgba(23, 34, 45, 0.979);
+
 }
 
 
