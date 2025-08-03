@@ -25,23 +25,32 @@ const Usefetch = (
   // Construct URL only if endpoint is provided
   const url = endpoint ? `${BACKEND_URL}/${endpoint}` : null;
 
-  // Ref to store the pending timeout ID
+  // Refs for retry logic
   const retryTimeoutRef = useRef(null);
-  // Ref to toggle between 3s and 7s delays
   const nextIsThreeRef = useRef(true);
 
-  const getHeaders = () => ({
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "x-client-fp": fp,
-    "csrf-token": csrf,
-    timestamp: Date.now(),
-    ...customHeaders,
-  });
+  // Build headers, conditionally include Content-Type
+  const getHeaders = (payload) => {
+    const baseHeaders = {
+      Accept: "application/json",
+      "x-client-fp": fp,
+      "csrf-token": csrf,
+      timestamp: Date.now(),
+      ...customHeaders,
+    };
+    // Only set JSON content-type for non-FormData payloads
+    if (!(payload instanceof FormData)) {
+      baseHeaders["Content-Type"] = "application/json";
+    }
+    return baseHeaders;
+  };
 
   const fetchData = useCallback(
-    async (retryState = { csrf: false, timestamp: false, attempts: 0 }) => {
-      // If no URL (i.e., endpoint is null), do nothing and set loading to false
+    async (
+      retryState = { csrf: false, timestamp: false, attempts: 0 },
+      options = {} // options may contain override data
+    ) => {
+      // If no URL, exit early
       if (!url) {
         setLoading(false);
         return;
@@ -50,19 +59,21 @@ const Usefetch = (
       setLoading(true);
       setError("");
 
-      let isRetryScheduled = false;
+      // Determine payload: override or original
+      const payload = options.data !== undefined ? options.data : data;
 
+      let isRetryScheduled = false;
       try {
         const res = await axios({
           method,
           url,
-          data,
-          headers: getHeaders(),
+          data: payload,
+          headers: getHeaders(payload),
           withCredentials: true,
           timeout: 5000,
         });
 
-        // Success! Clear any pending retry
+        // Success: clear pending retry
         if (retryTimeoutRef.current) {
           clearTimeout(retryTimeoutRef.current);
           retryTimeoutRef.current = null;
@@ -81,18 +92,19 @@ const Usefetch = (
 
         if (status === 402 && !retryState.csrf) {
           const refreshed = await getCsrfToken();
-          if (refreshed) return fetchData({ ...retryState, csrf: true });
+          if (refreshed)
+            return fetchData({ ...retryState, csrf: true }, options);
         }
 
         if (status === 411 && !retryState.timestamp) {
-          return fetchData({ ...retryState, timestamp: true });
+          return fetchData({ ...retryState, timestamp: true }, options);
         }
 
         const isNetworkError =
           !status &&
           (code === "ECONNABORTED" || err.message === "Network Error");
 
-        // Infinite retry on network error, alternating 3s / 7s
+        // Retry GET requests on network errors with alternating delays
         if (method.toLowerCase() === "get" && isNetworkError) {
           const delay = nextIsThreeRef.current ? 3000 : 7000;
           nextIsThreeRef.current = !nextIsThreeRef.current;
@@ -101,7 +113,7 @@ const Usefetch = (
           isRetryScheduled = true;
 
           retryTimeoutRef.current = setTimeout(() => {
-            fetchData(retryState);
+            fetchData(retryState, options);
           }, delay);
 
           return;
@@ -118,11 +130,9 @@ const Usefetch = (
   );
 
   useEffect(() => {
-    // Only fetch on mount/update if auto is true and endpoint provided
     if (auto && endpoint) {
       fetchData();
     } else {
-      // if manual mode or no endpoint, initialize states
       setLoading(false);
       if (!endpoint) {
         setData(null);
@@ -130,7 +140,6 @@ const Usefetch = (
       }
     }
 
-    // Cleanup on unmount
     return () => {
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current);

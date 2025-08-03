@@ -37,13 +37,14 @@ import ContentController from "./routes/ContentController";
 import CertificateList from "./components/ProfilePage/CertificateList";
 import AdminEditor from "./components/Admin/Content/adminEditor";
 import Profilenew from "./components/ProfilePage/Profile";
+import AddChallenges from "./routes/CTF/AddChallenges";
 function App() {
   const { user } = useAppContext();
   const getCsrfToken = useGetCsrfToken();
   const [intro, setIntro] = useState(true);
   const location = useLocation(); // Get the current route
   // Define routes where the footer should NOT appear
-  const noFooterRoutes = ["/login", "/signup", "/forget-password","/profile"];
+  const noFooterRoutes = ["/login", "/signup", "/forget-password", "/profile"];
 
   // Check if the current route is NOT in the noFooterRoutes list
   const showFooter = !noFooterRoutes.includes(location.pathname);
@@ -80,6 +81,8 @@ function App() {
             element={<AdminEditor update />}
           />
           <Route path="/challenge" element={<ContestPage />} />
+          <Route path="/challenge/add" element={<AddChallenges />} />
+
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/signup" element={<Signup />} />
@@ -88,7 +91,7 @@ function App() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/profile" element={user ? <Account /> : <LoginPage />}>
             <Route index element={user ? <ProfileDashboard /> : null} />
-            <Route path="profile2" element={<Profilenew/>}/>
+            <Route path="profile2" element={<Profilenew />} />
             <Route path="editprofile" element={<EditProfile />} />
             <Route path="certificatelist" element={<CertificateList />} />
           </Route>

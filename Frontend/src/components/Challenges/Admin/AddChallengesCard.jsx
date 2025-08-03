@@ -7,7 +7,7 @@ const AddCourse = () => {
   const [hover, setHover] = useState(false);
 
   return (
-    <Link to="/add-classification">
+    <Link to="/challenge/add">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}

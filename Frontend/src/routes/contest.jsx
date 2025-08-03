@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import ChallengeSkeleton from "../components/Challenges/ChallengeSkeleton";
-import AddChallenges from "../components/Challenges/Admin/AddChallenges";
-import MdodifyChallenges from "../components/Challenges/Admin/ModifyChallenges";
+import AddChallengesCard from "../components/Challenges/Admin/AddChallengesCard";
+import MdodifyChallengesCard from "../components/Challenges/Admin/ModifyChallengesCard";
 export default function ContestPage() {
   const loading = false;
   const isAdmin = true;
@@ -84,8 +84,8 @@ export default function ContestPage() {
               ))
             ) : isAdmin ? (
               <>
-                <AddChallenges />
-                <MdodifyChallenges
+                <AddChallengesCard />
+                <MdodifyChallengesCard
                   course={fakeCourse}
                   onCourseClick={handleChallengeClick}
                 />
@@ -96,6 +96,7 @@ export default function ContestPage() {
           </section>
         </motion.main>
       </motion.div>
+      
     </section>
   );
 }
