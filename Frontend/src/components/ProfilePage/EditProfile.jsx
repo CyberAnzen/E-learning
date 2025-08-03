@@ -160,7 +160,7 @@ export default function EditProfile() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-98% via-gray-900 to-black  flex items-center justify-center relative ">
-      <div className="w-full max-w-[1400px] px-4 mt-3 mb-2">
+      <div className="w-full max-w-[1400px] px-4 mt-3 mb-2 pt-26">
         <div className=" pt-14 bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922]">
           <div className="flex max-md:flex-col items-center justify-center gap-20 mb-2 md:mb-10 ">
             <h1

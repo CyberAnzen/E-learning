@@ -85,7 +85,7 @@ const ProfileDashboard = () => {
   };
 
   return (
-    <div className="h-full bg-gradient-to-br from-black via-98% via-gray-900 to-black text-white p-6 space-y-6 overflow-y-auto">
+    <div className="h-full bg-gradient-to-br from-black via-98% via-gray-900 to-black text-white p-6 space-y-6 overflow-y-auto pt-28">
       {/* Top Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card */}

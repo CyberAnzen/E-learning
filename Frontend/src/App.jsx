@@ -36,6 +36,7 @@ import Account from "./routes/account";
 import ContentController from "./routes/ContentController";
 import CertificateList from "./components/ProfilePage/CertificateList";
 import AdminEditor from "./components/Admin/Content/adminEditor";
+import Profilenew from "./components/ProfilePage/Profile";
 function App() {
   const { user } = useAppContext();
   const getCsrfToken = useGetCsrfToken();
@@ -87,6 +88,7 @@ function App() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/profile" element={user ? <Account /> : <LoginPage />}>
             <Route index element={user ? <ProfileDashboard /> : null} />
+            <Route path="profile2" element={<Profilenew/>}/>
             <Route path="editprofile" element={<EditProfile />} />
             <Route path="certificatelist" element={<CertificateList />} />
           </Route>
