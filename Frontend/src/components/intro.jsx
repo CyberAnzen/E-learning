@@ -82,8 +82,8 @@ const Intro = () => {
   }, [isMobile]);
 
   const textShadowStyle = isRevealed
-    ? "0 0 15px rgba(1,255,219,1), 0 0 30px rgba(1,255,219,0.8), 0 0 45px rgba(1,255,219,0.6), 0 0 60px rgba(1,255,219,0.4)"
-    : "0 0 10px rgba(1,255,219,0.8), 0 0 20px rgba(1,255,219,0.6), 0 0 30px rgba(1,255,219,0.4)";
+    ? "0 0 15px rgba(57,255,20,1), 0 0 30px rgba(57,255,20,0.8), 0 0 45px rgba(57,255,20,0.6), 0 0 60px rgba(57,255,20,0.4)"
+    : "0 0 10px rgba(57,255,20,0.8), 0 0 20px rgba(57,255,20,0.6), 0 0 30px rgba(57,255,20,0.4)";
 
   const containerVariant = {
     hidden: {},
@@ -107,7 +107,7 @@ const Intro = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center justify-center overflow-hidden px-4">
+    <div className="relative backdrop-blur-md min-h-screen bg-gradient-to-br from-green-900/40 via-black to-green-900/40 flex flex-col items-center justify-center overflow-hidden px-4">
       {/* Optimized favicon with enhanced glow */}
       <motion.img
         src="/favicon.png"
@@ -119,7 +119,7 @@ const Intro = () => {
             ? {
                 opacity: 1,
                 scale: 1,
-                filter: "brightness(1) drop-shadow(0 0 15px rgba(1,255,219,1))",
+                filter: "brightness(1) drop-shadow(0 0 15px rgba(57,255,20,1))",
               }
             : { opacity: 0, scale: 0.9, filter: "brightness(0)" }
         }
@@ -134,7 +134,7 @@ const Intro = () => {
       {/* Main text container with cyber font */}
       <div className="relative">
         <div
-          className="text-[#01ffdb] text-3xl md:text-5xl font-bold tracking-wider"
+          className="text-[#39FF14] text-3xl md:text-5xl font-bold tracking-wider"
           style={{
             textShadow: textShadowStyle,
             willChange: "transform, opacity",
@@ -150,7 +150,7 @@ const Intro = () => {
         {!isMobile && (
           <>
             <motion.div
-              className="absolute top-0 left-0 text-[#FF0000] text-3xl md:text-5xl font-bold tracking-wider mix-blend-screen"
+              className="absolute top-0 left-0 text-[#00FF41] text-3xl md:text-5xl font-bold tracking-wider mix-blend-screen"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
                 letterSpacing: "0.2em",
@@ -172,7 +172,7 @@ const Intro = () => {
               {cyberAnzenText}
             </motion.div>
             <motion.div
-              className="absolute top-0 left-0 text-[#00FF00] text-3xl md:text-5xl font-bold tracking-wider mix-blend-screen"
+              className="absolute top-0 left-0 text-[#7FFF00] text-3xl md:text-5xl font-bold tracking-wider mix-blend-screen"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
                 letterSpacing: "0.2em",
@@ -195,7 +195,7 @@ const Intro = () => {
               {cyberAnzenText}
             </motion.div>
             <motion.div
-              className="absolute top-0 left-0 text-[#0000FF] text-3xl md:text-5xl font-bold tracking-wider mix-blend-screen"
+              className="absolute top-0 left-0 text-[#ADFF2F] text-3xl md:text-5xl font-bold tracking-wider mix-blend-screen"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
                 letterSpacing: "0.2em",
@@ -229,10 +229,10 @@ const Intro = () => {
         transition={{ duration: 0.3, delay: 0.3 }}
       >
         <motion.img
-          src="/broken_security.png"
-          alt="Broken Security Icon"
+          src="/Lock.svg"
+          alt=" Security Lock Icon"
           className="w-6 md:w-7"
-          style={{ filter: "brightness(0) invert(1)" }}
+      
           animate={{
             rotate: [0, -5, 0, 5, 0],
             scale: [1, 1.05, 1, 1.05, 1],
@@ -252,6 +252,8 @@ const Intro = () => {
             willChange: "transform, opacity",
             fontFamily: "'Orbitron', sans-serif",
             letterSpacing: "0.1em",
+            textShadow:
+              "0 0 10px rgba(57,255,20,0.5), 0 0 20px rgba(57,255,20,0.3)",
           }}
         >
           {"Break the Code Secure the Future".split("").map((char, index) => (
@@ -268,10 +270,10 @@ const Intro = () => {
 
       {/* Grid background with subtle animation */}
       <div
-        className="absolute inset-0 bg-[linear-gradient(transparent_1px,_#000_1px),_linear-gradient(90deg,_transparent_1px,_#000_1px)] pointer-events-none"
+        className="absolute inset-0 bg-[linear-gradient(transparent_1px,_rgba(57,255,20,0.1)_1px),_linear-gradient(90deg,_transparent_1px,_rgba(57,255,20,0.1)_1px)] pointer-events-none"
         style={{
           backgroundSize: "30px 30px",
-          opacity: 0.2,
+          opacity: 0.3,
           animation: !isMobile ? "gridMove 20s linear infinite" : "none",
           willChange: "transform, opacity",
         }}
@@ -283,11 +285,12 @@ const Intro = () => {
           {[...Array(20)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-1 h-1 bg-[#01ffdb] rounded-full"
+              className="absolute w-1 h-1 bg-[#39FF14] rounded-full"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                boxShadow: "0 0 10px #01ffdb, 0 0 20px #01ffdb",
+                boxShadow:
+                  "0 0 10px #39FF14, 0 0 20px #39FF14, 0 0 30px rgba(57,255,20,0.5)",
               }}
               animate={{
                 y: [0, -20, 0],
@@ -302,6 +305,12 @@ const Intro = () => {
           ))}
         </div>
       )}
+
+      {/* Additional green accent elements */}
+      {/* <div className="absolute top-10 left-10 w-2 h-2 bg-[#39FF14] rounded-full animate-pulse shadow-[0_0_10px_#39FF14]"></div>
+      <div className="absolute bottom-10 right-10 w-3 h-3 bg-[#7FFF00] rounded-full animate-pulse shadow-[0_0_15px_#7FFF00]"></div>
+      <div className="absolute top-1/2 left-5 w-1 h-1 bg-[#ADFF2F] rounded-full animate-ping shadow-[0_0_8px_#ADFF2F]"></div>
+      <div className="absolute top-20 right-20 w-1 h-1 bg-[#00FF41] rounded-full animate-ping shadow-[0_0_8px_#00FF41]"></div> */}
     </div>
   );
 };

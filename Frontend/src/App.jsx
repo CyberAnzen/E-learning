@@ -64,9 +64,9 @@ function App() {
 
   return (
     <>
-      <div className="bg-gray-900">
+      <div className="">
         <Navbar />
-        {/* <div className="mt-23"></div> */}
+        <div className="mb-30"></div>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/learn" element={<LearnPage />} />
@@ -79,7 +79,7 @@ function App() {
             path="/lesson/update/:lessonId"
             element={<AdminEditor update />}
           />
-          <Route path="/contest" element={<ContestPage />} />
+          <Route path="/challenge" element={<ContestPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/signup" element={<Signup />} />

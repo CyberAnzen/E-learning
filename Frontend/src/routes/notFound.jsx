@@ -146,7 +146,17 @@ const NotFound = () => {
           <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-purple-400 rounded-full" />
           <div className="absolute bottom-1/4 right-1/4 w-1 h-1 bg-blue-400 rounded-full" />
         </motion.div>
-      </motion.div>
+      </motion.div>{" "}
+      {/* Blocking Overlay (Coming Soon...) */}
+      {/* Static "Coming Soon..." text */}
+      {/* <motion.div
+        className="absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-5xl font-bold text-white">Coming Soon...</h1>
+      </motion.div> */}
     </div>
   );
 };

@@ -20,9 +20,9 @@ const Logo = React.memo(() => {
     () => ({
       scale: [1, 1.05, 1],
       filter: [
-        "drop-shadow(0 0 8px #01ffdb)",
-        "drop-shadow(0 0 16px #01ffdb)",
-        "drop-shadow(0 0 8px #01ffdb)",
+        "drop-shadow(0 0 8px #00ff00)",
+        "drop-shadow(0 0 16px #00ff00)",
+        "drop-shadow(0 0 8px #00ff00)",
       ],
     }),
     []
@@ -67,14 +67,14 @@ const Logo = React.memo(() => {
                     src="/favicon.png"
                     alt="CyberAnzen Logo"
                     className="w-13 h-11 object-cover"
-                    style={{ filter: "drop-shadow(0 0 8px #01ffdb)" }}
+                    style={{ filter: "drop-shadow(0 0 8px #00ff00)" }}
                     animate={imgAnimation}
                     transition={imgTransition}
                   />
                 </center>
                 <div className="absolute inset-0 bg-gradient-to-r from-[#01ffdb]/10 to-[#00c3ff]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
               </div>
-              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#16e8da] via-[#01fff7] to-[#01ffdb] tracking-tight hover:from-[#00c3ff] hover:to-[#01ffdb] transition-all duration-300">
+              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#00ff00] via-[#32cd32] to-[#00ff00] tracking-tight hover:from-[#32cd32] hover:to-[#00ff00] transition-all duration-300">
                 CyberAnzen
               </h1>
             </motion.div>

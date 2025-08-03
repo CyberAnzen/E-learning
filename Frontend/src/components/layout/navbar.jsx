@@ -440,7 +440,7 @@ const Navbar = () => {
   const navItems = [
     { name: "Home", icon: Home, path: "/" },
     { name: "Learn", icon: BookOpen, path: "/learn" },
-    { name: "Challenges", icon: Trophy, path: "/contest" },
+    { name: "Challenges", icon: Trophy, path: "/challenge" },
     user
       ? { name: "Profile", icon: UserCircle, path: "/profile" }
       : { name: "Login", icon: User, path: "/login" },
@@ -491,9 +491,9 @@ const Navbar = () => {
         <div
           className={`container mx-auto max-w-6xl transition-all duration-500 ease-out ${
             scrolled ? config.topNavHeight : "py-2 sm:py-4"
-          } bg-black/50 ${config.blur} border border-[#00ffff]/15 ${
+          } bg-black/50 ${config.blur} border border-[#00ff00]/15 ${
             config.borderRadius
-          } shadow-[0_4px_20px_rgba(0,0,0,0.6),0_0_0_1px_rgba(0,255,255,0.08)] hover:shadow-[0_6px_25px_rgba(0,255,255,0.2)] hover:border-[#00ffff]/25 hover:bg-black/60`}
+          } shadow-[0_4px_20px_rgba(0,0,0,0.6),0_0_0_1px_rgba(0,255,0,0.08)] hover:shadow-[0_6px_25px_rgba(0,255,0,0.2)] hover:border-[#00ff00]/25 hover:bg-black/60`}
         >
           <div
             className={`flex justify-between items-center ${config.padding}`}
@@ -513,7 +513,7 @@ const Navbar = () => {
                     <motion.div
                       className={`absolute inset-0 ${config.borderRadius} ${
                         active
-                          ? "bg-gradient-to-r from-[#00ffff]/15 via-[#0080ff]/10 to-[#00ffff]/15 border border-[#00ffff]/30"
+                          ? "bg-gradient-to-r from-[#00ff00]/15 via-[#32cd32]/10 to-[#00ff00]/15 border border-[#00ff00]/30"
                           : "bg-transparent hover:bg-white/3 hover:border hover:border-white/8"
                       } transition-all duration-300`}
                       whileHover={{ scale: 1.05 }}
@@ -528,8 +528,8 @@ const Navbar = () => {
                       <item.icon
                         className={`${config.iconSize} ${
                           active
-                            ? "text-[#00ffff] drop-shadow-[0_0_6px_rgba(0,255,255,0.6)]"
-                            : "text-white/60 group-hover:text-[#00ffff] group-hover:drop-shadow-[0_0_4px_rgba(0,255,255,0.4)]"
+                            ? "text-[#00ff00] drop-shadow-[0_0_6px_rgba(0,255,0,0.6)]"
+                            : "text-white/60 group-hover:text-[#00ff00] group-hover:drop-shadow-[0_0_4px_rgba(0,255,0,0.4)]"
                         } transition-all duration-300`}
                       />
                       <span
@@ -544,7 +544,7 @@ const Navbar = () => {
                     </div>
                     {active && (
                       <motion.span
-                        className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-0.5 h-0.5 bg-[#00ffff] rounded-full shadow-[0_0_4px_rgba(0,255,255,0.6)]"
+                        className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-0.5 h-0.5 bg-[#00ff00] rounded-full shadow-[0_0_4px_rgba(0,255,0,0.6)]"
                         layoutId="navbar-indicator"
                         transition={animationConfig}
                       />
@@ -557,13 +557,13 @@ const Navbar = () => {
             {/* Mobile Menu Button */}
             {!ismenuBlacklisted && (
               <motion.button
-                className={`md:hidden relative p-1.5 ${config.borderRadius} overflow-hidden group bg-white/3 border border-white/8 hover:bg-white/8 hover:border-[#00ffff]/20`}
+                className={`md:hidden relative p-1.5 ${config.borderRadius} overflow-hidden group bg-white/3 border border-white/8 hover:bg-white/8 hover:border-[#00ff00]/20`}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 whileTap={{ scale: 0.95 }}
                 whileHover={{ scale: 1.05 }}
               >
                 <div
-                  className={`absolute inset-0 bg-gradient-to-r from-[#00ffff]/3 to-[#0080ff]/3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${config.borderRadius}`}
+                  className={`absolute inset-0 bg-gradient-to-r from-[#00ff00]/3 to-[#32cd32]/3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${config.borderRadius}`}
                 />
                 <AnimatePresence mode="wait">
                   {mobileMenuOpen ? (
@@ -614,7 +614,7 @@ const Navbar = () => {
                 deviceInfo.type === "mobile" ? "w-64 sm:w-72" : "w-72 sm:w-80"
               } bg-black/70 ${
                 config.blur
-              } border border-[#00ffff]/15 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.7)]`}
+              } border border-[#00ff00]/15 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.7)]`}
               initial={{ x: "100%", opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "100%", opacity: 0 }}
@@ -635,19 +635,19 @@ const Navbar = () => {
                         to={item.path}
                         className={`flex items-center gap-2.5 px-3 py-2.5 my-0.5 rounded-xl transition-all duration-300 relative overflow-hidden group border ${
                           active
-                            ? "bg-gradient-to-r from-[#00ffff]/8 to-[#0080ff]/8 text-white border-[#00ffff]/20"
+                            ? "bg-gradient-to-r from-[#00ff00]/8 to-[#32cd32]/8 text-white border-[#00ff00]/20"
                             : "text-white/60 hover:text-white border-transparent hover:border-white/8 hover:bg-white/3"
                         }`}
                       >
                         <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/3 to-[#0080ff]/3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"
+                          className="absolute inset-0 bg-gradient-to-r from-[#00ff00]/3 to-[#32cd32]/3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"
                           whileHover={{ scale: 1.02 }}
                         />
                         <item.icon
                           className={`${config.iconSize} relative z-10 ${
                             active
-                              ? "text-[#00ffff] drop-shadow-[0_0_4px_rgba(0,255,255,0.6)]"
-                              : "group-hover:text-[#00ffff] group-hover:drop-shadow-[0_0_3px_rgba(0,255,255,0.4)]"
+                              ? "text-[#00ff00] drop-shadow-[0_0_4px_rgba(0,255,0,0.6)]"
+                              : "group-hover:text-[#00ff00] group-hover:drop-shadow-[0_0_3px_rgba(0,255,0,0.4)]"
                           } transition-all duration-300`}
                         />
                         <span
@@ -657,7 +657,7 @@ const Navbar = () => {
                         </span>
                         {active && (
                           <motion.div
-                            className="w-1.5 h-1.5 bg-[#00ffff] rounded-full ml-auto shadow-[0_0_4px_rgba(0,255,255,0.6)]"
+                            className="w-1.5 h-1.5 bg-[#00ff00] rounded-full ml-auto shadow-[0_0_4px_rgba(0,255,0,0.6)]"
                             layoutId="sidebar-indicator"
                           />
                         )}
@@ -706,7 +706,7 @@ const Navbar = () => {
           }}
         >
           <div
-            className={`bg-black/70 ${config.blur} border border-[#00ffff]/12 ${config.borderRadius} ${config.bottomNavPadding} shadow-[0_4px_20px_rgba(0,0,0,0.6)]`}
+            className={`bg-black/70 ${config.blur} border border-[#00ff00]/12 ${config.borderRadius} ${config.bottomNavPadding} shadow-[0_4px_20px_rgba(0,0,0,0.6)]`}
           >
             <div className="flex justify-around">
               {navItems.map((item) => {
@@ -724,13 +724,13 @@ const Navbar = () => {
                         config.borderRadius
                       } transition-all duration-300 border ${
                         active
-                          ? "bg-gradient-to-r from-[#00ffff]/15 to-[#0080ff]/15 border-[#00ffff]/20"
+                          ? "bg-gradient-to-r from-[#00ff00]/15 to-[#32cd32]/15 border-[#00ff00]/20"
                           : "group-hover:bg-white/6 border-transparent group-hover:border-white/8"
                       }`}
                     >
                       {active && (
                         <motion.div
-                          className={`absolute inset-0 bg-gradient-to-r from-[#00ffff]/8 to-[#0080ff]/8 ${config.borderRadius}`}
+                          className={`absolute inset-0 bg-gradient-to-r from-[#00ff00]/8 to-[#32cd32]/8 ${config.borderRadius}`}
                           layoutId="mobile-nav-background"
                           transition={animationConfig}
                         />
@@ -740,8 +740,8 @@ const Navbar = () => {
                           config.iconSize
                         } relative z-10 transition-all duration-300 ${
                           active
-                            ? "text-[#00ffff] drop-shadow-[0_0_4px_rgba(0,255,255,0.6)]"
-                            : "text-white/50 group-hover:text-[#00ffff] group-hover:drop-shadow-[0_0_3px_rgba(0,255,255,0.4)]"
+                            ? "text-[#00ff00] drop-shadow-[0_0_4px_rgba(0,255,0,0.6)]"
+                            : "group-hover:text-[#00ff00] group-hover:drop-shadow-[0_0_3px_rgba(0,255,0,0.4)]"
                         }`}
                       />
                     </motion.div>
