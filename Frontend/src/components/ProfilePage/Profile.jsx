@@ -30,18 +30,18 @@ export default function ProfileSettings() {
     { name: "Report", icon: <BarChart /> },
   ];
   const inputStyle =
-    "w-full px-4 py-0 rounded-lg bg-gray-900 text-[#01ffdb] border border-gray-600 placeholder-gray-400";
+    "w-full px-4 py-0 rounded-lg inset-0 rounded-full bg-gradient-to-r from-[#00ff00]/15 via-[#32cd32]/10 to-[#00ff00]/5 border border-[#00ff00]/30 transition-all duration-300 text-white border border-[#00ff00]/30 placeholder-[#00ff00]/30 outline-none focus:outline-none focus:ring-1 focus:ring-[#00ff00]";
 
   return (
     <>
-      <div className="min-h-screen bg-gray-900 text-white flex">
+      <div className="min-h-screen bg-[rgb(23,24,26)] text-white flex">
         {/* Sidebar */}
         <div
-          className={` lg:mt-31 md:mt-31 fixed z-30 inset-y-0 left-0 w-64 lg:w-70 bg-gray-950 shadow transform transition-transform duration-300 ease-in-out md:translate-x-0  lg:m-2 border border-gray-700 rounded-2xl ${
+          className={`fixed z-30 inset-y-0 left-0 w-64 lg:w-70 bg-black/50 shadow transform transition-transform duration-300 ease-in-out md:translate-x-0 lg:m-2 border border-[#00ff00]/30 rounded-2xl ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           } md:relative md:z-0 md:block`}
         >
-          <div className="p-4 border-b border-gray-700">
+          <div className="p-4 border-b border-[#00ff00]/30">
             <div className="flex items-center space-x-2">
               <img
                 src="https://randomuser.me/api/portraits/men/1.jpg"
@@ -49,11 +49,11 @@ export default function ProfileSettings() {
                 className="w-10 h-10 rounded-full"
               />
               <div className="flex flex-col gap-0.5">
-                <h4 className="text-sm font-semibold text-white">
+                <h4 className="text-sm font-semibold text-[#00ff00]">
                   Cameron Williamson
                 </h4>
                 <p className="text-xs text-gray-400 flex gap-2">
-                  ID: 3482465765 <Copy className="cursor-pointer" size={14} />
+                  ID: 3482465765 <Copy className="cursor-pointer hover:text-[#00ff00]" size={14} />
                 </p>
               </div>
             </div>
@@ -64,13 +64,13 @@ export default function ProfileSettings() {
               <X className="w-5 h-5" />
             </button>
           </div>
-          <nav className="mt-4 space-y-2 text-gray-300">
+          <nav className="mt-4 px-2 space-y-2 text-gray-300">
             {menuItems.map((item) => (
               <div
                 key={item.name}
-                className="flex items-center px-4 py-2 hover:bg-gray-800 cursor-pointer"
+                className="flex items-center px-4 py-2 hover:text-[#00ff00] cursor-pointer"
               >
-                <div className="mr-3">{item.icon}</div>
+                <div className="mr-3 ">{item.icon}</div>
                 <span className="text-sm">{item.name}</span>
               </div>
             ))}
@@ -118,14 +118,14 @@ export default function ProfileSettings() {
           </button>
         </div>
 
-        <main className="flex-1 overflow-x-hidden px-1 md:px-6 py-6 md:py-10 mt-22 md:mt-0">
-          <div className=" px-0 bg-gray-900	 min-h-screen font-sans mt-22">
+        <main className="flex-1 overflow-x-hidden px-1 md:px-3 py-3 md:mt-0">
+          <div className=" px-0	 min-h-screen font-sans">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Side (Main Info) */}
               <div className="lg:col-span-2 space-y-6">
                 {/* General Information */}
-                <div className="bg-black/50	 rounded-xl border border-gray-600 p-6 space-y-4 shadow-sm">
-                  <h2 className="text-lg font-semibold">General Information</h2>
+                <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm">
+                  <h2 className="text-lg text-[#00ff00] font-semibold">General Information</h2>
                   <div className="grid md:grid-cols-2 gap-4">
                     <input
                       type="text"
@@ -140,8 +140,8 @@ export default function ProfileSettings() {
                       className={inputStyle}
                     />
                     <select className={inputStyle}>
-                      <option selected>Spain</option>
-                      <option>India</option>
+                      <option selected className="bg-black/50">Spain</option>
+                      <option className="bg-black/50">India</option>
                     </select>
                     <input
                       type="text"
@@ -150,8 +150,8 @@ export default function ProfileSettings() {
                       className={inputStyle}
                     />
                     <select className={inputStyle}>
-                      <option selected>Remote</option>
-                      <option>Onsite</option>
+                      <option selected className="bg-black/50">Remote</option>
+                      <option className="bg-black/50">Onsite</option>
                     </select>
                     <input
                       type="text"
@@ -174,13 +174,13 @@ export default function ProfileSettings() {
                     />
                   </div>
                   <div className="text-right">
-                    <button className="btn btn-neutral">Save all</button>
+                    <button className="btn btn-neutral hover:text-[#00ff00]">Save all</button>
                   </div>
                 </div>
 
                 {/* Password Info */}
-                <div className="bg-black/50	 rounded-xl border border-gray-600 p-6 space-y-4 shadow-sm">
-                  <h2 className="text-lg font-semibold">
+                <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm">
+                  <h2 className="text-lg text-[#00ff00] font-semibold">
                     Password Information
                   </h2>
                   <div className="grid md:grid-cols-2 gap-4">
@@ -195,7 +195,7 @@ export default function ProfileSettings() {
                       className={inputStyle}
                     />
                   </div>
-                  <ul className="text-sm text-gray-400 list-disc pl-5">
+                  <ul className="text-sm text-[#00ff00]/30 list-disc pl-5">
                     <li>At least 8 characters and up to 12 characters</li>
                     <li>At least one lowercase character</li>
                     <li>
@@ -203,7 +203,7 @@ export default function ProfileSettings() {
                     </li>
                   </ul>
                   <div className="text-right">
-                    <button className="btn btn-neutral">Save all</button>
+                    <button className="btn btn-neutral hover:text-[#00ff00]">Save all</button>
                   </div>
                 </div>
               </div>
@@ -211,7 +211,7 @@ export default function ProfileSettings() {
               {/* Right Side (Profile + Settings) */}
               <div className="space-y-6">
                 {/* Profile Card */}
-                <div className="bg-black/50	 rounded-xl border border-gray-600 p-6 flex items-center space-x-4 shadow-sm">
+                <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 flex items-center space-x-4 shadow-sm">
                   <div className="avatar">
                     <div className="w-16 rounded-full">
                       <img
@@ -221,17 +221,17 @@ export default function ProfileSettings() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-bold">Cameron Williamson</h3>
+                    <h3 className="font-bold text-[#00ff00]">Cameron Williamson</h3>
                     <p className="text-sm text-gray-500">Lead Product Design</p>
-                    <button className="text-sm text-blue-500 mt-1">
+                    <button className="text-sm text-blue-500 mt-1 hover:text-[#00ff00]">
                       Change Avatar
                     </button>
                   </div>
                 </div>
 
                 {/* Language / Timezone */}
-                <div className="bg-black/50	 rounded-xl border border-gray-600 p-6 space-y-4 shadow-sm">
-                  <h2 className="text-lg font-semibold">Language | Timezone</h2>
+                <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm">
+                  <h2 className="text-lg font-semibold text-[#00ff00]">Language | Timezone</h2>
                   <select className={inputStyle}>
                     <option selected>English (US)</option>
                     <option>English (UK)</option>
@@ -244,44 +244,44 @@ export default function ProfileSettings() {
                   </select>
                   <div className="flex justify-between">
                     <button className="btn btn-ghost">Cancel</button>
-                    <button className="btn btn-neutral">Save</button>
+                    <button className="btn btn-neutral hover:text-[#00ff00]">Save</button>
                   </div>
                 </div>
 
                 {/* Team Accounts */}
-                <div className="bg-black/50	 rounded-xl border border-gray-600 p-6 space-y-4 shadow-sm">
-                  <h2 className="text-lg font-semibold">Team Account</h2>
-                  <div className="flex justify-between items-center border border-gray-600 rounded-lg px-4 py-2">
+                <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm">
+                  <h2 className="text-lg font-semibold text-[#00ff00]">Team Account</h2>
+                  <div className="flex justify-between items-center border border-[#00ff00]/30 rounded-lg px-4 py-2">
                     <div>
-                      <p className="font-medium text-[#01ffdb] ">
+                      <p className="font-medium text-white ">
                         Slack account
                       </p>
                       <a
-                        className="text-sm text-gray-500"
+                        className="text-sm text-[#00ff00]/30"
                         href="https://www.slack.com"
                       >
                         www.slack.com
                       </a>
                     </div>
-                    <button className="btn btn-outline btn-sm">Remove</button>
+                    <button className="btn btn-outline btn-sm hover:text-[#00ff00]">Remove</button>
                   </div>
-                  <div className="flex justify-between items-center border border-gray-600 rounded-lg px-4 py-2">
+                  <div className="flex justify-between items-center border border-[#00ff00]/30 rounded-lg px-4 py-2">
                     <div>
-                      <p className="font-medium text-[#01ffdb]">
+                      <p className="font-medium text-white">
                         Trello account
                       </p>
                       <a
-                        className="text-sm text-gray-500"
+                        className="text-sm text-[#00ff00]/30"
                         href="https://www.trello.com"
                       >
                         www.trello.com
                       </a>
                     </div>
-                    <button className="btn btn-outline btn-sm">Remove</button>
+                    <button className="btn btn-outline btn-sm hover:text-[#00ff00]">Remove</button>
                   </div>
                   <div className="flex justify-between">
                     <button className="btn btn-ghost">Cancel</button>
-                    <button className="btn btn-neutral">Save</button>
+                    <button className="btn btn-neutral hover:text-[#00ff00]">Save</button>
                   </div>
                 </div>
               </div>
