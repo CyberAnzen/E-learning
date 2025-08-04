@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Home,
   User,
@@ -15,7 +15,156 @@ import {
   Copy,
 } from "lucide-react";
 export default function ProfileSettings() {
+  const [formData, setFormData] = useState({
+    fullName: "Cameron Williamson",
+    regNumber: "RA2311030050033",
+    section: "A section",
+    email: "cameron_williamson@gmail.com",
+    year: "Third Year",
+    dept: "cyber security",
+    officialEmail: "yu7786@srmist.edu.in",
+    gender: "Male",
+  });
+  // const [formData, setFormData] = useState({
+  //   username: "",
+  //   email: "",
+  //   fullName: "",
+  //   regNumber: "",
+  //   dept: "",
+  //   section: "",
+  //   year: "",
+  //   gender: "",
+  //   mobile: "",
+  //   officialEmail: "",
+  //   password: "",
+  //   confirmPassword: "",
+  //   terms: false,
+  // });
+  const [image, setImage] = useState(
+    "https://i.pinimg.com/736x/af/70/bb/af70bb880077591b711b83ee7717c91b.jpg"
+  );
+  const [copied, setCopied] = useState(false);
+  const [password, setPassword] = useState({ current: "", next: "" });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText("748589549");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500); // hide after 1.5s
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPassword((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const fileInputRef = useRef();
+  const handleImageClick = () => {
+    fileInputRef.current.click(); // trigger file input click
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(URL.createObjectURL(file));
+    }
+  };
+
+  const SignupSubmit = async (data) => {
+    console.log(formData);
+  };
+
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+    if (name === "username") {
+      validateUsername(value);
+    }
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) return "Email is required";
+    if (!emailRegex.test(email)) return "Please enter a valid email address";
+    return "";
+  };
+
+  const validateRegNumber = (regNumber) => {
+    if (!regNumber) return "Registration number is required";
+    if (regNumber.length < 5) return "Registration number is too short";
+    return "";
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.fullName) newErrors.fullName = "Full name is required";
+    if (!formData.regNumber)
+      newErrors.regNumber = "Registration number is required";
+    if (!formData.email) newErrors.email = "Email is required";
+    if (!formData.dept) newErrors.dept = "Department is required";
+    if (!formData.section) newErrors.section = "Section is required";
+    if (!formData.year) newErrors.year = "Year is required";
+    if (!formData.gender) newErrors.gender = "Gender is required";
+
+    const emailError = validateEmail(formData.email);
+    if (emailError) newErrors.email = emailError;
+
+    const regNumberError = validateRegNumber(formData.regNumber);
+    if (regNumberError) newErrors.regNumber = regNumberError;
+
+    setValidationErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const allTouched = Object.keys(formData).reduce((acc, key) => {
+      acc[key] = true;
+      return acc;
+    }, {});
+    setTouched(allTouched);
+
+    if (validateForm()) {
+      SignupSubmit(formData);
+    } else {
+      const firstError = document.querySelector('[data-error="true"]');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  };
+
+  const isFormComplete = () => {
+    const requiredFields = [
+      "email",
+      "fullName",
+      "regNumber",
+      "dept",
+      "section",
+      "year",
+      "gender",
+    ];
+    for (let field of requiredFields) {
+      if (!formData[field]) {
+        return false;
+      }
+    }
+    return true;
+  };
 
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "auto";
@@ -30,7 +179,7 @@ export default function ProfileSettings() {
     { name: "Report", icon: <BarChart /> },
   ];
   const inputStyle =
-    "w-full px-4 py-0 rounded-lg inset-0 rounded-full bg-gradient-to-r from-[#00ff00]/15 via-[#32cd32]/10 to-[#00ff00]/5 border border-[#00ff00]/30 transition-all duration-300 text-white border border-[#00ff00]/30 placeholder-[#00ff00]/30 outline-none focus:outline-none focus:ring-1 focus:ring-[#00ff00]";
+    "w-full px-4 py-0 rounded-lg inset-0 h-10  rounded-full bg-gradient-to-r from-[#00ff00]/15 via-[#32cd32]/10 to-[#00ff00]/5 border border-[#00ff00]/30 transition-all duration-300 text-white border border-[#00ff00]/30 placeholder-[#00ff00]/30 outline-none focus:outline-none focus:ring-1 focus:ring-[#00ff00]";
 
   return (
     <>
@@ -44,7 +193,7 @@ export default function ProfileSettings() {
           <div className="p-4 border-b border-[#00ff00]/30">
             <div className="flex items-center space-x-2">
               <img
-                src="https://randomuser.me/api/portraits/men/1.jpg"
+                src={image}
                 alt="avatar"
                 className="w-10 h-10 rounded-full"
               />
@@ -53,7 +202,17 @@ export default function ProfileSettings() {
                   Cameron Williamson
                 </h4>
                 <p className="text-xs text-gray-400 flex gap-2">
-                  ID: 3482465765 <Copy className="cursor-pointer hover:text-[#00ff00]" size={14} />
+                  ID: 748589549{" "}
+                  <Copy
+                    onClick={handleCopy}
+                    className="cursor-pointer hover:text-[#00ff00]"
+                    size={14}
+                  />
+                  {copied && (
+                    <span className="absolute -top-0.1 left-113 -translate-x-60 text-xs text-black font-medium bg-[#00ff00] px-2 py-0.5 rounded shadow ">
+                      Copied!
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
@@ -123,60 +282,152 @@ export default function ProfileSettings() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Side (Main Info) */}
               <div className="lg:col-span-2 space-y-6">
-                {/* General Information */}
-                <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm">
-                  <h2 className="text-lg text-[#00ff00] font-semibold">General Information</h2>
+                {/* formData Information */}
+                <form
+                  onSubmit={handleSubmit}
+                  className="bg-black/50 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm"
+                >
+                  <h2 className="text-lg text-[#00ff00] font-semibold">
+                    General Information
+                  </h2>
+
                   <div className="grid md:grid-cols-2 gap-4">
                     <input
-                      type="text"
-                      placeholder="First Name"
-                      defaultValue="Cameron"
-                      className={inputStyle}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Last Name"
-                      defaultValue="Williamson"
-                      className={inputStyle}
-                    />
-                    <select className={inputStyle}>
-                      <option selected className="bg-black/50">Spain</option>
-                      <option className="bg-black/50">India</option>
-                    </select>
-                    <input
-                      type="text"
-                      placeholder="City"
-                      defaultValue="Plaza del Rey No. 1"
-                      className={inputStyle}
-                    />
-                    <select className={inputStyle}>
-                      <option selected className="bg-black/50">Remote</option>
-                      <option className="bg-black/50">Onsite</option>
-                    </select>
-                    <input
-                      type="text"
-                      placeholder="ZIP Code"
-                      defaultValue="28004"
-                      className={inputStyle}
-                    />
-                    <input
                       type="email"
-                      placeholder="Email"
-                      defaultValue="cameron_williamson@gmail.com"
+                      name="officialEmail"
+                      placeholder="Official Email"
+                      value={formData.officialEmail}
                       className={inputStyle}
                       disabled
                     />
-                    <input
+                    <div>
+                      <input
+                        type="text"
+                        name="regNumber"
+                        placeholder="Registration Number"
+                        value={formData.regNumber}
+                        onChange={handleInputChange}
+                        onBlur={() => handleBlur("regNumber")}
+                        data-error={!!validationErrors.regNumber}
+                        className={inputStyle}
+                      />
+                      {validationErrors.regNumber && (
+                        <p className="text-red-400 text-xs mt-1">
+                          {validationErrors.regNumber}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <input
+                        type="text"
+                        name="fullName"
+                        placeholder="Full Name"
+                        value={formData.fullName}
+                        onChange={handleInputChange}
+                        onBlur={() => handleBlur("fullName")}
+                        data-error={!!validationErrors.fullName}
+                        className={inputStyle}
+                      />
+                      {validationErrors.fullName && (
+                        <p className="text-red-400 text-xs mt-1">
+                          {validationErrors.fullName}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <input
+                        type="text"
+                        name="email"
+                        placeholder="Personal Email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        onBlur={() => handleBlur("email")}
+                        data-error={!!validationErrors.email}
+                        className={inputStyle}
+                      />
+                      {validationErrors.email && (
+                        <p className="text-red-400 text-xs mt-1">
+                          {validationErrors.email}
+                        </p>
+                      )}
+                    </div>
+                    <select
                       type="text"
-                      placeholder="Team"
-                      defaultValue="Product & IT"
+                      name="gender"
+                      placeholder="Gender"
+                      value={formData.gender}
+                      onChange={handleInputChange}
+                      onBlur={() => handleBlur("gender")}
+                      data-error={!!validationErrors.gender}
                       className={inputStyle}
-                    />
+                    >
+                      {" "}
+                      <option value="">{formData.gender}</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>{" "}
+                    </select>
+                    <select
+                      name="section"
+                      value={formData.section}
+                      onChange={handleInputChange}
+                      onBlur={() => handleBlur("section")}
+                      data-error={!!validationErrors.section}
+                      className={inputStyle}
+                    >
+                      <option value="">{formData.section}</option>
+                      <option value="A section">A section</option>
+                      <option value="B section">B section</option>
+                      <option value="C section">C section</option>
+                      <option value="D section">D section</option>
+                      <option value="E section">E section</option>
+                      <option value="F section">F section</option>
+                      <option value="G section">G section</option>
+                    </select>
+
+                    <select
+                      name="year"
+                      value={formData.year}
+                      onChange={handleInputChange}
+                      onBlur={() => handleBlur("year")}
+                      data-error={!!validationErrors.year}
+                      className={inputStyle}
+                    >
+                      <option value="">{formData.year}</option>
+                      <option value="First Year">First Year</option>
+                      <option value="Second Year">Second Year</option>
+                      <option value="Third Year">Third Year</option>
+                      <option value="Fourth Year">Fourth Year</option>
+                    </select>
+                    <div>
+                      <input
+                        type="text"
+                        name="dept"
+                        placeholder="Department"
+                        value={formData.dept}
+                        onChange={handleInputChange}
+                        onBlur={() => handleBlur("dept")}
+                        data-error={!!validationErrors.dept}
+                        className={inputStyle}
+                      />
+                      {validationErrors.dept && (
+                        <p className="text-red-400 text-xs mt-1">
+                          {validationErrors.dept}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <button className="btn btn-neutral hover:text-[#00ff00]">Save all</button>
+
+                  <div className="text-right space-x-2">
+                    <button
+                      type="submit"
+                      className="btn btn-neutral hover:text-[#00ff00]"
+                      disabled={!isFormComplete() || isLoading}
+                    >
+                      {isLoading ? "Submitting..." : "Submit"}
+                    </button>
                   </div>
-                </div>
+                </form>
 
                 {/* Password Info */}
                 <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm">
@@ -203,7 +454,9 @@ export default function ProfileSettings() {
                     </li>
                   </ul>
                   <div className="text-right">
-                    <button className="btn btn-neutral hover:text-[#00ff00]">Save all</button>
+                    <button className="btn btn-neutral hover:text-[#00ff00]">
+                      Save all
+                    </button>
                   </div>
                 </div>
               </div>
@@ -214,24 +467,38 @@ export default function ProfileSettings() {
                 <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 flex items-center space-x-4 shadow-sm">
                   <div className="avatar">
                     <div className="w-16 rounded-full">
-                      <img
-                        src="https://avatars.githubusercontent.com/u/1?v=4"
-                        alt="avatar"
-                      />
+                      <img src={image} alt="avatar" />
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-bold text-[#00ff00]">Cameron Williamson</h3>
+                    <h3 className="font-bold text-[#00ff00]">
+                      Cameron Williamson
+                    </h3>
                     <p className="text-sm text-gray-500">Lead Product Design</p>
-                    <button className="text-sm text-blue-500 mt-1 hover:text-[#00ff00]">
-                      Change Avatar
-                    </button>
+
+                    <label htmlFor="">
+                      <input
+                        type="file"
+                        hidden
+                        ref={fileInputRef}
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                      <button
+                        onClick={handleImageClick}
+                        className="text-sm cursor-pointer text-[#00ff00]/30 hover:text-[#00ff00]"
+                      >
+                        Change Avatar
+                      </button>
+                    </label>
                   </div>
                 </div>
 
                 {/* Language / Timezone */}
                 <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm">
-                  <h2 className="text-lg font-semibold text-[#00ff00]">Language | Timezone</h2>
+                  <h2 className="text-lg font-semibold text-[#00ff00]">
+                    Language | Timezone
+                  </h2>
                   <select className={inputStyle}>
                     <option selected>English (US)</option>
                     <option>English (UK)</option>
@@ -244,18 +511,20 @@ export default function ProfileSettings() {
                   </select>
                   <div className="flex justify-between">
                     <button className="btn btn-ghost">Cancel</button>
-                    <button className="btn btn-neutral hover:text-[#00ff00]">Save</button>
+                    <button className="btn btn-neutral hover:text-[#00ff00]">
+                      Save
+                    </button>
                   </div>
                 </div>
 
                 {/* Team Accounts */}
                 <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm">
-                  <h2 className="text-lg font-semibold text-[#00ff00]">Team Account</h2>
+                  <h2 className="text-lg font-semibold text-[#00ff00]">
+                    Team Account
+                  </h2>
                   <div className="flex justify-between items-center border border-[#00ff00]/30 rounded-lg px-4 py-2">
                     <div>
-                      <p className="font-medium text-white ">
-                        Slack account
-                      </p>
+                      <p className="font-medium text-white ">Slack account</p>
                       <a
                         className="text-sm text-[#00ff00]/30"
                         href="https://www.slack.com"
@@ -263,13 +532,13 @@ export default function ProfileSettings() {
                         www.slack.com
                       </a>
                     </div>
-                    <button className="btn btn-outline btn-sm hover:text-[#00ff00]">Remove</button>
+                    <button className="btn btn-outline btn-sm hover:text-[#00ff00]">
+                      Remove
+                    </button>
                   </div>
                   <div className="flex justify-between items-center border border-[#00ff00]/30 rounded-lg px-4 py-2">
                     <div>
-                      <p className="font-medium text-white">
-                        Trello account
-                      </p>
+                      <p className="font-medium text-white">Trello account</p>
                       <a
                         className="text-sm text-[#00ff00]/30"
                         href="https://www.trello.com"
@@ -277,11 +546,15 @@ export default function ProfileSettings() {
                         www.trello.com
                       </a>
                     </div>
-                    <button className="btn btn-outline btn-sm hover:text-[#00ff00]">Remove</button>
+                    <button className="btn btn-outline btn-sm hover:text-[#00ff00]">
+                      Remove
+                    </button>
                   </div>
                   <div className="flex justify-between">
                     <button className="btn btn-ghost">Cancel</button>
-                    <button className="btn btn-neutral hover:text-[#00ff00]">Save</button>
+                    <button className="btn btn-neutral hover:text-[#00ff00]">
+                      Save
+                    </button>
                   </div>
                 </div>
               </div>
