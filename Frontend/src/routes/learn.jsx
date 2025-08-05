@@ -56,99 +56,103 @@ const LearnPage = () => {
   };
 
   return (
-    <div>
-      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 mt-22 to-black">
-        <div className="container mx-auto px-4 sm:px-6 py-12">
-          {/* Header section */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 flex items-center gap-3">
-                <BookOpen className="w-8 h-8" />
-                Learning Center
-              </h1>
-              <p className="text-gray-400">
-                Explore our comprehensive cybersecurity courses
-              </p>
-            </div>
-            {/* Overall progress indicator */}
-            <div className="hidden sm:flex items-center gap-4">
-              <BarChart className="w-6 h-6 text-gray-400" />
-              <div className="text-right">
-                <p className="text-sm text-gray-400">Overall Progress</p>
-                {loading ? (
-                  <div className="w-12 h-6 bg-gray-600 rounded animate-pulse"></div>
-                ) : (
-                  <p className="text-xl font-semibold text-white">
-                    {overallProgress}%
-                  </p>
-                )}
-              </div>
-            </div>
+    // <div>
+    //   <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 mt-22 to-black">
+    //     <div className="container mx-auto px-4 sm:px-6 py-12">
+    //       {/* Header section */}
+    //       <div className="flex items-center justify-between mb-8">
+    //         <div>
+    //           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 flex items-center gap-3">
+    //             <BookOpen className="w-8 h-8" />
+    //             Learning Center
+    //           </h1>
+    //           <p className="text-gray-400">
+    //             Explore our comprehensive cybersecurity courses
+    //           </p>
+    //         </div>
+    //         {/* Overall progress indicator */}
+    //         <div className="hidden sm:flex items-center gap-4">
+    //           <BarChart className="w-6 h-6 text-gray-400" />
+    //           <div className="text-right">
+    //             <p className="text-sm text-gray-400">Overall Progress</p>
+    //             {loading ? (
+    //               <div className="w-12 h-6 bg-gray-600 rounded animate-pulse"></div>
+    //             ) : (
+    //               <p className="text-xl font-semibold text-white">
+    //                 {overallProgress}%
+    //               </p>
+    //             )}
+    //           </div>
+    //         </div>
+    //       </div>
+
+    //       {/* Retry feedback
+    //       {error && loading && (
+    //         <div className="mb-8 p-4 bg-yellow-900/50 border border-yellow-500/50 rounded-lg">
+    //           <p className="text-yellow-300">{error}</p>
+    //           <button
+    //             onClick={handleRetry}
+    //             className="mt-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors duration-200"
+    //           >
+    //             Retry Now
+    //           </button>
+    //         </div>
+    //       )} */}
+
+    //       {/* Course grid */}
+    //       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    //         {!Admin ? (
+    //           loading ? (
+    //             Array.from({ length: 9 }).map((_, index) => (
+    //               <CourseCardSkeleton key={index} />
+    //             ))
+    //           ) : courses.length > 0 ? (
+    //             courses.map((course) => (
+    //               <CourseCard
+    //                 key={course.id}
+    //                 course={course}
+    //                 onCourseClick={handleCourseClick}
+    //               />
+    //             ))
+    //           ) : null
+    //         ) : loading ? (
+    //           Array.from({ length: 9 }).map((_, index) => (
+    //             <CourseCardSkeleton key={index} />
+    //           ))
+    //         ) : (
+    //           <>
+    //             <AddCourse handleRetry={() => {}} />
+    //             {courses.map((course) => (
+    //               <ModifyClassification
+    //                 key={course.id}
+    //                 course={course}
+    //                 handleRetry={() => {}}
+    //                 onCourseClick={handleCourseClick}
+    //               />
+    //             ))}
+    //           </>
+    //         )}
+    //       </div>
+
+    //       {/* Empty state */}
+    //       {!loading && courses.length === 0 && !Admin && (
+    //         <div className="text-center py-12">
+    //           <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+    //           <h3 className="text-xl font-semibold text-gray-400 mb-2">
+    //             No courses available
+    //           </h3>
+    //           <p className="text-gray-500">
+    //             Check back later for new learning opportunities.
+    //           </p>
+    //         </div>
+    //       )}
+    //     </div>
+    //   </div>{" "}
+    // </div>
+          <div className="absolute inset-1  bg-gradient-to-br from-black/40 to-black/60 backdrop-blur-2xl border border-green-400/20 rounded-2xl z-10 min-h-full flex" >
+            <div className="flex justify-center min-w-full items-center"><span className="text-3xl" >Blocked due to CTF</span></div>
           </div>
 
-          {/* Retry feedback
-          {error && loading && (
-            <div className="mb-8 p-4 bg-yellow-900/50 border border-yellow-500/50 rounded-lg">
-              <p className="text-yellow-300">{error}</p>
-              <button
-                onClick={handleRetry}
-                className="mt-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors duration-200"
-              >
-                Retry Now
-              </button>
-            </div>
-          )} */}
-
-          {/* Course grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {!Admin ? (
-              loading ? (
-                Array.from({ length: 9 }).map((_, index) => (
-                  <CourseCardSkeleton key={index} />
-                ))
-              ) : courses.length > 0 ? (
-                courses.map((course) => (
-                  <CourseCard
-                    key={course.id}
-                    course={course}
-                    onCourseClick={handleCourseClick}
-                  />
-                ))
-              ) : null
-            ) : loading ? (
-              Array.from({ length: 9 }).map((_, index) => (
-                <CourseCardSkeleton key={index} />
-              ))
-            ) : (
-              <>
-                <AddCourse handleRetry={() => {}} />
-                {courses.map((course) => (
-                  <ModifyClassification
-                    key={course.id}
-                    course={course}
-                    handleRetry={() => {}}
-                    onCourseClick={handleCourseClick}
-                  />
-                ))}
-              </>
-            )}
-          </div>
-
-          {/* Empty state */}
-          {!loading && courses.length === 0 && !Admin && (
-            <div className="text-center py-12">
-              <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-400 mb-2">
-                No courses available
-              </h3>
-              <p className="text-gray-500">
-                Check back later for new learning opportunities.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
   );
 };
 

@@ -82,6 +82,17 @@ function App() {
           />
           <Route path="/challenge" element={<ContestPage />} />
           <Route path="/challenge/add" element={<AddChallenges />} />
+          <Route
+            path="/challenge/edit/:challengeId"
+            element={
+              <AddChallenges
+                onSuccess={(action) => {
+                  alert(`Challenge ${action} successfully!`);
+                  navigate("/challenges"); // Redirect to challenges list
+                }}
+              />
+            }
+          />
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />
