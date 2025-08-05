@@ -14,7 +14,7 @@ const event = require("./router/eventRoutes");
 const lesson = require("./router/lessonRoutes");
 const validate = require("./router/ValidationRoutes");
 const profile = require("./router/profileRoutes");
-
+const CTF = require("./router/CTFRoutes");
 
 const ConnectDataBase = require("./config/connectDataBase");
 const initializeCaches = require("./cache/initCache");
@@ -75,6 +75,8 @@ app.use("/api/lesson", lesson);
 app.use("/api/answer", validate);
 
 app.use("/api/profile", profile);
+
+app.use("/api/challenge", CTF);
 
 app.use("/api/image", require("./router/imageRoutes"));
 
