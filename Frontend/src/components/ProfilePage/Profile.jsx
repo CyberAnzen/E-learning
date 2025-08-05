@@ -165,6 +165,9 @@ export default function ProfileSettings() {
     }
     return true;
   };
+  const [yearOpen, setYearOpen] = useState(false);
+  const [sectionOpen, setSectionOpen] = useState(false);
+  const [genderOpen, setGenderOpen] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "auto";
@@ -351,54 +354,142 @@ export default function ProfileSettings() {
                         </p>
                       )}
                     </div>
-                    <select
-                      type="text"
-                      name="gender"
-                      placeholder="Gender"
-                      value={formData.gender}
-                      onChange={handleInputChange}
-                      onBlur={() => handleBlur("gender")}
+                    <div
+                      className="relative"
                       data-error={!!validationErrors.gender}
-                      className={inputStyle}
                     >
-                      {" "}
-                      <option value="">{formData.gender}</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>{" "}
-                    </select>
-                    <select
-                      name="section"
-                      value={formData.section}
-                      onChange={handleInputChange}
-                      onBlur={() => handleBlur("section")}
-                      data-error={!!validationErrors.section}
-                      className={inputStyle}
-                    >
-                      <option value="">{formData.section}</option>
-                      <option value="A section">A section</option>
-                      <option value="B section">B section</option>
-                      <option value="C section">C section</option>
-                      <option value="D section">D section</option>
-                      <option value="E section">E section</option>
-                      <option value="F section">F section</option>
-                      <option value="G section">G section</option>
-                    </select>
+                      <button
+                        type="button"
+                        onClick={() => setGenderOpen(!genderOpen)}
+                        className={`${inputStyle} text-left cursor-pointer`}
+                      >
+                        {formData.gender || "Select Gender"}
+                      </button>
 
-                    <select
-                      name="year"
-                      value={formData.year}
-                      onChange={handleInputChange}
-                      onBlur={() => handleBlur("year")}
-                      data-error={!!validationErrors.year}
-                      className={inputStyle}
+                      {genderOpen && (
+                        <>
+                          {/* Dropdown menu */}
+                          <ul className="absolute z-30 w-full mt-1 bg-[#17181A] border border-[#00ff00] rounded-md shadow-lg">
+                            {["Male", "Female", "Other"].map((gender) => (
+                              <li
+                                key={gender}
+                                onClick={() => {
+                                  handleInputChange({
+                                    target: { name: "gender", value: gender },
+                                  });
+                                  setGenderOpen(false);
+                                }}
+                                className="px-3 py-0 cursor-pointer hover:bg-[#00ff00] hover:text-black"
+                              >
+                                {gender}
+                              </li>
+                            ))}
+                          </ul>
+
+                          {/* Click-outside backdrop */}
+                          <div
+                            className="fixed inset-0 z-20"
+                            onClick={() => setGenderOpen(false)}
+                          />
+                        </>
+                      )}
+                    </div>
+
+                    <div
+                      className="relative"
+                      data-error={!!validationErrors.section}
                     >
-                      <option value="">{formData.year}</option>
-                      <option value="First Year">First Year</option>
-                      <option value="Second Year">Second Year</option>
-                      <option value="Third Year">Third Year</option>
-                      <option value="Fourth Year">Fourth Year</option>
-                    </select>
+                      <button
+                        type="button"
+                        onClick={() => setSectionOpen(!sectionOpen)}
+                        className={`${inputStyle} text-left cursor-pointer`}
+                      >
+                        {formData.section || "Select Section"}
+                      </button>
+
+                      {sectionOpen && (
+                        <>
+                          {/* Dropdown menu */}
+                          <ul className="absolute z-30 w-full mt-1 bg-[#17181A] border border-[#00ff00] rounded-md shadow-lg">
+                            {[
+                              "A section",
+                              "B section",
+                              "C section",
+                              "D section",
+                              "E section",
+                              "F section",
+                              "G section",
+                            ].map((section) => (
+                              <li
+                                key={section}
+                                onClick={() => {
+                                  handleInputChange({
+                                    target: { name: "section", value: section },
+                                  });
+                                  setSectionOpen(false);
+                                }}
+                                className="px-3 py-0 cursor-pointer hover:bg-[#00ff00] hover:text-black"
+                              >
+                                {section}
+                              </li>
+                            ))}
+                          </ul>
+
+                          {/* Click-outside backdrop */}
+                          <div
+                            className="fixed inset-0 z-20"
+                            onClick={() => setSectionOpen(false)}
+                          />
+                        </>
+                      )}
+                    </div>
+
+                    <div
+                      className="relative"
+                      data-error={!!validationErrors.year}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setYearOpen(!yearOpen)}
+                        className={`${inputStyle} text-left cursor-pointer`}
+                      >
+                        {formData.year || "Select Year"}
+                      </button>
+
+                      {yearOpen && (
+                        <>
+                          {/* Dropdown menu */}
+                          <ul className="absolute z-30 w-full mt-1 bg-[#17181A] border border-[#00ff00] rounded-md shadow-lg">
+                            {[
+                              "First Year",
+                              "Second Year",
+                              "Third Year",
+                              "Fourth Year",
+                            ].map((year) => (
+                              <li
+                                key={year}
+                                onClick={() => {
+                                  handleInputChange({
+                                    target: { name: "year", value: year },
+                                  });
+                                  setYearOpen(false);
+                                }}
+                                className="px-3 py-0 cursor-pointer hover:bg-[#00ff00] hover:text-black"
+                              >
+                                {year}
+                              </li>
+                            ))}
+                          </ul>
+
+                          {/* Click-outside backdrop */}
+                          <div
+                            className="fixed inset-0 z-20"
+                            onClick={() => setYearOpen(false)}
+                          />
+                        </>
+                      )}
+                    </div>
+
                     <div>
                       <input
                         type="text"
