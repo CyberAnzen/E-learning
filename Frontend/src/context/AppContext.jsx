@@ -9,7 +9,7 @@ export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const [loggedIn, setLoggedIn] = useState(null);
-  const [user, setUser] = useState(true);
+  const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
 
   const [savedSkills, setSavedSkills] = useState([]);
@@ -75,7 +75,7 @@ export const AppContextProvider = ({ children }) => {
       if (!res.ok) throw new Error("Failed to fetch profile");
 
       const data = await res.json();
-      setUserData(data.user);
+      setUserData(data);
       setAdmin(data.user?.role === "admin");
       setLoggedIn(true);
     } catch (error) {
@@ -83,7 +83,11 @@ export const AppContextProvider = ({ children }) => {
       setLoggedIn(false);
     }
   };
-
+  useEffect(()=>{
+  if(userData){
+    setUser(userData.data)
+  }
+  })
   // Initialize Fingerprint → CSRF → Profile flow
   useEffect(() => {
     const init = async () => {

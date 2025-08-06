@@ -14,17 +14,22 @@ import {
   ChevronRight,
   Copy,
 } from "lucide-react";
+import { useAppContext } from "../../context/AppContext";
 export default function ProfileSettings() {
+  const { user } = useAppContext();
+  console.log(user);
+  
   const [formData, setFormData] = useState({
-    fullName: "Cameron Williamson",
-    regNumber: "RA2311030050033",
-    section: "A section",
-    email: "cameron_williamson@gmail.com",
-    year: "Third Year",
-    dept: "cyber security",
-    officialEmail: "yu7786@srmist.edu.in",
-    gender: "Male",
+    fullName: user.userDetails.name,
+    regNumber: user.regNumber,
+    section: user.userDetails.section,
+    email: user.email,
+    year: user.userDetails.year,
+    dept: user.userDetails.dept,
+    officialEmail: user.officialEmail,
+    gender: user.userDetails.gender,
   });
+
   // const [formData, setFormData] = useState({
   //   username: "",
   //   email: "",
