@@ -18,8 +18,8 @@ uploads/events/temp/**
 public/** 
 
 #add public avator for git push
-!public/avator/
-!public/avator/**
+#!public/avator/
+#!public/avator/**
 
 #temporary files
 temp/uploads/*/**
