@@ -7,15 +7,8 @@ export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
-<<<<<<< HEAD
-
-  const [loggedIn, setLoggedIn] = useState(null);
+  const [loggedIn, setLoggedIn] = useState(true);
   const [user, setUser] = useState(null);
-  const [userData, setUserData] = useState(null);
-=======
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
->>>>>>> 6e1e2ca0a2673982527831b06ae8b1626272f42b
 
   const [savedSkills, setSavedSkills] = useState([]);
   const [savedLinks, setSavedLinks] = useState(null);
@@ -77,11 +70,8 @@ export const AppContextProvider = ({ children }) => {
       if (!res.ok) throw new Error("Failed to fetch profile");
 
       const data = await res.json();
-<<<<<<< HEAD
-      setUserData(data);
-=======
-      setUser(data.user);
->>>>>>> 6e1e2ca0a2673982527831b06ae8b1626272f42b
+      setUser(data?.data);
+      
       setAdmin(data.user?.role === "admin");
       setLoggedIn(true);
     } catch (error) {
@@ -90,16 +80,6 @@ export const AppContextProvider = ({ children }) => {
       setUser(null);
     }
   };
-<<<<<<< HEAD
-  useEffect(()=>{
-  if(userData){
-    setUser(userData.data)
-  }
-  })
-  // Initialize Fingerprint → CSRF → Profile flow
-=======
-
->>>>>>> 6e1e2ca0a2673982527831b06ae8b1626272f42b
   useEffect(() => {
     const init = async () => {
       const fingerprint = await getFingerprint();

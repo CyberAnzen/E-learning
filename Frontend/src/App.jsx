@@ -39,7 +39,7 @@ import AdminEditor from "./components/Admin/Content/adminEditor";
 import Profilenew from "./components/ProfilePage/Profile";
 import AddChallenges from "./routes/CTF/AddChallenges";
 function App() {
-  const { user } = useAppContext();
+  const { loggedIn } = useAppContext();
   const getCsrfToken = useGetCsrfToken();
   const [intro, setIntro] = useState(true);
   const location = useLocation(); // Get the current route
@@ -100,8 +100,11 @@ function App() {
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/profile" element={user ? <Account /> : <LoginPage />}>
-            <Route index element={user ? <ProfileDashboard /> : null} />
+          <Route
+            path="/profile"
+            element={loggedIn ? <Account /> : <LoginPage />}
+          >
+            <Route index element={loggedIn ? <ProfileDashboard /> : null} />
             <Route path="profile2" element={<Profilenew />} />
             <Route path="editprofile" element={<EditProfile />} />
             <Route path="certificatelist" element={<CertificateList />} />

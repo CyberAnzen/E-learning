@@ -17,18 +17,29 @@ import {
 import { useAppContext } from "../../context/AppContext";
 export default function ProfileSettings() {
   const { user } = useAppContext();
-  console.log(user);
-  
+
   const [formData, setFormData] = useState({
-    fullName: user.userDetails.name,
-    regNumber: user.regNumber,
-    section: user.userDetails.section,
-    email: user.email,
-    year: user.userDetails.year,
-    dept: user.userDetails.dept,
-    officialEmail: user.officialEmail,
-    gender: user.userDetails.gender,
+    fullName: user?.userDetails.name,
+    regNumber: user?.regNumber,
+    section: user?.userDetails.section,
+    email: user?.email,
+    year: user?.userDetails.year,
+    dept: user?.userDetails.dept,
+    officialEmail: user?.officialEmail,
+    gender: user?.userDetails.gender,
   });
+  useEffect(() => {
+    setFormData({
+      fullName: user?.userDetails?.name,
+      regNumber: user?.regNumber,
+      section: user?.userDetails?.section,
+      email: user?.email,
+      year: user?.userDetails?.year,
+      dept: user?.userDetails?.dept,
+      officialEmail: user?.officialEmail,
+      gender: user?.userDetails?.gender,
+    });
+  }, [user]);
 
   // const [formData, setFormData] = useState({
   //   username: "",
