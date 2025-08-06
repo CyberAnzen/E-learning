@@ -3,7 +3,7 @@ import { Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import ChallengeSkeleton from "../components/Challenges/ChallengeSkeleton";
 import AddChallengesCard from "../components/Challenges/Admin/AddChallengesCard";
-import MdodifyChallengesCard from "../components/Challenges/Admin/ModifyChallengesCard";
+import ModifyChallengesCard from "../components/Challenges/Admin/ModifyChallengesCard";
 export default function ContestPage() {
   const loading = false;
   const isAdmin = true;
@@ -13,10 +13,9 @@ export default function ContestPage() {
     title: "Introduction to Cybersecurity",
     description:
       "Learn the basics of protecting systems and networks from cyber threats.",
-    icon: "Cybersecurity",
-    progress: 60,
-    completedLessons: 3,
-    totalLessons: 5,
+    score: 3343,
+    difficulty: "Hard",
+    number: 1,
     category: "Security",
   };
 
@@ -85,8 +84,8 @@ export default function ContestPage() {
             ) : isAdmin ? (
               <>
                 <AddChallengesCard />
-                <MdodifyChallengesCard
-                  course={fakeCourse}
+                <ModifyChallengesCard
+                  challenge={fakeCourse}
                   onCourseClick={handleChallengeClick}
                 />
               </>
@@ -96,7 +95,6 @@ export default function ContestPage() {
           </section>
         </motion.main>
       </motion.div>
-      
     </section>
   );
 }

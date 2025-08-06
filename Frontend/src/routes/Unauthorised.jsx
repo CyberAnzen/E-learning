@@ -6,9 +6,12 @@ import { AppContext } from "../context/AppContext";
 const Unauthorized = () => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(6);
-  const { setloggedIn, setCSRF } = useContext(AppContext);
-  setloggedIn(false);
-  setCSRF(null);
+  const { logout } = useContext(AppContext);
+
+  useEffect(() => {
+    logout();
+  }, [logout]);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown((prev) => {

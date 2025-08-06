@@ -7,10 +7,15 @@ export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
+<<<<<<< HEAD
 
   const [loggedIn, setLoggedIn] = useState(null);
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
+=======
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+>>>>>>> 6e1e2ca0a2673982527831b06ae8b1626272f42b
 
   const [savedSkills, setSavedSkills] = useState([]);
   const [savedLinks, setSavedLinks] = useState(null);
@@ -20,7 +25,6 @@ export const AppContextProvider = ({ children }) => {
   const [fp, setFp] = useState(null);
   const [csrf, setCSRF] = useState(null);
 
-  // Get Fingerprint
   const getFingerprint = async () => {
     try {
       const fingerprint = await FingerPrintJS();
@@ -32,7 +36,6 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Get CSRF using Fingerprint
   const getCsrf = async (fingerprint) => {
     try {
       const res = await fetch(`${BACKEND_URL}/auth/csrf-token`, {
@@ -57,7 +60,6 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Get User Profile (only if CSRF is available)
   const getProfile = async (csrfToken, fingerprint) => {
     try {
       const res = await fetch(`${BACKEND_URL}/profile/data`, {
@@ -75,20 +77,29 @@ export const AppContextProvider = ({ children }) => {
       if (!res.ok) throw new Error("Failed to fetch profile");
 
       const data = await res.json();
+<<<<<<< HEAD
       setUserData(data);
+=======
+      setUser(data.user);
+>>>>>>> 6e1e2ca0a2673982527831b06ae8b1626272f42b
       setAdmin(data.user?.role === "admin");
       setLoggedIn(true);
     } catch (error) {
       console.error("Profile fetch failed:", error);
       setLoggedIn(false);
+      setUser(null);
     }
   };
+<<<<<<< HEAD
   useEffect(()=>{
   if(userData){
     setUser(userData.data)
   }
   })
   // Initialize Fingerprint → CSRF → Profile flow
+=======
+
+>>>>>>> 6e1e2ca0a2673982527831b06ae8b1626272f42b
   useEffect(() => {
     const init = async () => {
       const fingerprint = await getFingerprint();
@@ -102,11 +113,15 @@ export const AppContextProvider = ({ children }) => {
 
     init();
   }, []);
+  const logout = () => {
+    setLoggedIn(false);
+    setUser(null);
+    setCSRF(null);
+  };
 
   const value = {
     navigate,
     user,
-    userData,
     setUser,
     savedSkills,
     setSavedSkills,
@@ -121,6 +136,7 @@ export const AppContextProvider = ({ children }) => {
     csrf,
     loggedIn,
     setLoggedIn,
+    logout,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

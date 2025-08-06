@@ -1,52 +1,17 @@
 import React, { useState, useEffect } from "react";
-import {
-  GraduationCap,
-  Cpu,
-  Shield,
-  Terminal,
-  BookOpen,
-  Brain,
-  Lightbulb,
-  Network,
-  Code,
-  Book,
-  Globe,
-  Server,
-  Lock,
-  Edit3,
-  Trash2,
-  AlertTriangle,
-} from "lucide-react";
+import { Edit3, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import Usefetch from "../../../hooks/Usefetch";
 import { Link } from "react-router-dom";
 import DeleteModal from "../../Admin/layout/DeleteModal";
-// Icon mapping for course icons
-const iconMap = {
-  Learning: GraduationCap,
-  Tech: Cpu,
-  Cybersecurity: Shield,
-  Coding: Terminal,
-  Knowledge: BookOpen,
-  Brain: Brain,
-  Ideas: Lightbulb,
-  Networks: Network,
-  Code: Code,
-  Books: Book,
-  Web: Globe,
-  Server: Server,
-  Security: Lock,
-  Bulb: Brain,
-};
 
-const MdodifyChallenges = ({ course, onCourseClick, handleRetry }) => {
-  const Icon = iconMap[course.icon] || Code;
+const ModifyChallenges = ({ challenge, onchallengeClick, handleRetry }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Handle delete request
   const { Data: DeleteResult, retry: DeleteRetry } = Usefetch(
-    `classification/delete/${course.id}`,
+    `classification/delete/${challenge.id}`,
     "delete",
     { data: null },
     {},
@@ -90,18 +55,20 @@ const MdodifyChallenges = ({ course, onCourseClick, handleRetry }) => {
       document.removeEventListener("touchmove", preventScroll);
     };
   }, [showDeleteConfirm]);
-
+  //bg-gradient-to-br from-green-900/90 to-green-700/40 border border-green-500/40 rounded-2xl shadow-[0_0_15px_rgba(0,255,0,0.3)]
   return (
     <>
       <div
-        className=" group relative flex flex-col min-h-[200px] sm:min-h-[250px] md:min-h-[300px] bg-green-900/20 backdrop-blur-xl p-6 rounded-xl border border-green-700 hover:border-green-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/10 cursor-pointer"
+        className=" group relative flex flex-col min-h-[200px] sm:min-h-[250px] md:min-h-[300px] bg-green-500/5 backdrop-blur-xl p-6 rounded-xl border border-green-700 hover:border-green-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/10 cursor-pointer "
         onClick={() => {
-          if (!showDeleteConfirm) onCourseClick(course.id);
+          if (!showDeleteConfirm) onchallengeClick(challenge.id);
         }}
       >
+        <div className="absolute -z-10 inset-0 bg-gradient-to-br from-black/40 to-green-900/20 backdrop-blur-xl rounded-2xl" />
+
         {/* Action buttons - positioned at top center */}
-        <div className="absolute top-5 left-1/2 -translate-x-1/2 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-          <Link to={`/edit-Challenges/${course.id}`}>
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <Link to={`/challenge/edit/${challenge.id}`}>
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -118,7 +85,7 @@ const MdodifyChallenges = ({ course, onCourseClick, handleRetry }) => {
               e.stopPropagation();
               setShowDeleteConfirm(true);
             }}
-            className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg border border-red-500/50 transition-all duration-200"
+            className="p-2 h- bg-red-500/20 hover:bg-red-500/30 rounded-lg border border-red-500/50 transition-all duration-200"
             aria-label="Delete Challenges"
           >
             <Trash2 className="w-4 h-4 text-red-400" />
@@ -127,25 +94,60 @@ const MdodifyChallenges = ({ course, onCourseClick, handleRetry }) => {
 
         {/* Header with icon and progress */}
         <div className="flex items-start justify-between mb-4">
-          <div className="p-3 bg-green-800/50 rounded-lg">
-            <Icon className="w-6 h-6 text-green-400" />
+          <div className="flex justify-center items-center w-10 h-10 bg-green-800/50 rounded-full">
+            <div className=" text-green-400">
+              {!challenge.number && <h3 className="w-5 h-5  text-2xl">-</h3>}
+              {challenge.number && <h3 className="">{challenge.number}</h3>}
+            </div>
+          </div>
+          <div className="flex flex-col items-end">
+            <span className="text-sm text-green-300">Score</span>
+            <span className="text-lg font-semibold text-white">
+              {!challenge.score && (
+                <h3 className="w-5 h-5 flex justify-center items-center text-2xl">
+                  -
+                </h3>
+              )}
+              {challenge.score && <h3 className="">{challenge.score}</h3>}
+            </span>
           </div>
           <div className="flex flex-col items-end">
             <span className="text-sm text-green-300">Difficulty</span>
-            <span className="text-lg font-semibold text-white">
-              {course.progress}%
+            <span
+              className={`text-sm font-semibold text-white rounded-4xl p-1.5 mt-1 backdrop-blur-sm ${
+                challenge.difficulty === "Easy"
+                  ? "bg-gradient-to-r from-green-400/40 to-green-600/40 border border-green-500/60"
+                  : challenge.difficulty === "Intermediate"
+                  ? "bg-gradient-to-r from-yellow-400/40 to-yellow-600/40 border border-yellow-500/60"
+                  : challenge.difficulty === "Hard"
+                  ? "bg-gradient-to-r from-red-500/40 to-red-700/40 border border-red-600/60"
+                  : challenge.difficulty === "Advanced"
+                  ? "bg-gradient-to-r from-purple-500/40 to-purple-700/40 border border-purple-600/60"
+                  : "bg-gradient-to-r from-amber-500/40 to-amber-700/40 border border-amber-600/60"
+              }`}
+            >
+              {!challenge.difficulty ? (
+                <h3 className="w-5 h-5 flex justify-center items-center text-2xl">
+                  -
+                </h3>
+              ) : (
+                <h3>{challenge.difficulty}</h3>
+              )}
             </span>
           </div>
         </div>
 
-        {/* Course title and description */}
-        <h2 className="text-xl font-semibold text-white mb-2 truncate">
-          {course.title}
+        {/* challenge title and description */}
+        <h2 className="text-xl font-semibold text-white mb-2 -mt-4 line-clamp-2">
+          {challenge.title}
         </h2>
-        <p className="text-green-300 mb-4 line-clamp-3">{course.description}</p>
+
+        <p className="text-green-300 mb-4 line-clamp-3">
+          {challenge.description}
+        </p>
 
         <div className="mt-auto flex justify-end text-sm">
-          <span className="text-green-400">{course.category}</span>
+          <span className="text-green-400">{challenge.category}</span>
         </div>
 
         {/* Hover overlay */}
@@ -162,8 +164,8 @@ const MdodifyChallenges = ({ course, onCourseClick, handleRetry }) => {
         message={
           <div>
             Are you sure you want to delete{" "}
-            <span className="font-semibold text-white">{course?.title}</span>?
-            This action{" "}
+            <span className="font-semibold text-white">{challenge?.title}</span>
+            ? This action{" "}
             <span className="font-semibold text-red-400">cannot</span> be
             undone.
           </div>
@@ -173,4 +175,4 @@ const MdodifyChallenges = ({ course, onCourseClick, handleRetry }) => {
   );
 };
 
-export default MdodifyChallenges;
+export default ModifyChallenges;
