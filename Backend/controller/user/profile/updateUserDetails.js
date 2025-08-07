@@ -3,7 +3,7 @@ const customError = require('../../../utilies/customError');
 
 const updateUserDetails = async (req, res) => {
     try {
-        const userId = req.body.id; // Assuming user ID is stored in req.user
+        const userId = req.user.id; // Assuming user ID is stored in req.user
         if (!userId) {
             throw new customError('User ID is required', 400, {}, `User ID is required`);
         }
