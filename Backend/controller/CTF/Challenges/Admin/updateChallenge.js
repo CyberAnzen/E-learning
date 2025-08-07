@@ -1,4 +1,4 @@
-const CTF_challenges = require("../../../model/CTFchallengeModel");
+const CTF_challenges = require("../../../../model/CTFchallengeModel");
 
 exports.updateChallenge = async (req, res) => {
   const { ChallengeId } = req.params;

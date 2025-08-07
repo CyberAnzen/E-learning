@@ -1,9 +1,9 @@
-const { decimalNumber } = require("docx");
 const mongoose = require("mongoose");
 const { Schema, Types } = mongoose;
 
 const CTFchallenge = new Schema(
   {
+    challengeNumber: { type: Number }, // unique: true, required: true
     title: { type: String, unique: true, required: true },
     description: { type: String, required: true },
     category: { type: String, required: true },

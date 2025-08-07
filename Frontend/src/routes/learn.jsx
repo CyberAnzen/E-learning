@@ -8,52 +8,52 @@ import ModifyClassification from "../components/Admin/Learn/ModifyClassification
 import { useAppContext } from "../context/AppContext";
 import Usefetch from "../hooks/Usefetch";
 
-const LessonNum = "6857f03a773f44b68582060b";
+// const LessonNum = "6857f03a773f44b68582060b";
 
 /**
  * Learning Center page component
  * Displays courses with loading skeletons and progress tracking
  */
 const LearnPage = () => {
-  const { Admin, loggedIn } = useAppContext();
-  const navigate = useNavigate();
-  const [courses, setCourses] = useState([]);
-  const [overallProgress, setOverallProgress] = useState(0);
-  const endpoint = loggedIn ? "classification/" : "classification/guest";
-  const { Data, error, loading } = Usefetch(endpoint);
+  //   const { Admin, loggedIn } = useAppContext();
+  //   const navigate = useNavigate();
+  //   const [courses, setCourses] = useState([]);
+  //   const [overallProgress, setOverallProgress] = useState(0);
+  //   const endpoint = loggedIn ? "classification/" : "classification/guest";
+  //   const { Data, error, loading } = Usefetch(endpoint);
 
-  // Scroll to top and disable page scrolling on mount
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, []);
+  //   // Scroll to top and disable page scrolling on mount
+  //   useEffect(() => {
+  //     window.scrollTo(0, 0);
+  //     document.body.style.overflow = "hidden";
+  //     return () => {
+  //       document.body.style.overflow = "auto";
+  //     };
+  //   }, []);
 
-  // Transform API data when it arrives
-  useEffect(() => {
-    if (!loading && Data?.data?.classification) {
-      const transformedCourses = Data.data.classification.map((course) => ({
-        id: course._id,
-        title: course.title,
-        description: course.description,
-        icon: course.icon,
-        category: course.category,
-        progress: course.progress || 0,
-        completedLessons: course.totalCompleted || 0,
-        totalLessons: course.lessonCount || 0,
-      }));
-      setCourses(transformedCourses);
-      setOverallProgress(Data.data.overallProgress || 0);
-    }
-  }, [Data, loading]);
-  console.log(courses);
+  //   // Transform API data when it arrives
+  //   useEffect(() => {
+  //     if (!loading && Data?.data?.classification) {
+  //       const transformedCourses = Data.data.classification.map((course) => ({
+  //         id: course._id,
+  //         title: course.title,
+  //         description: course.description,
+  //         icon: course.icon,
+  //         category: course.category,
+  //         progress: course.progress || 0,
+  //         completedLessons: course.totalCompleted || 0,
+  //         totalLessons: course.lessonCount || 0,
+  //       }));
+  //       setCourses(transformedCourses);
+  //       setOverallProgress(Data.data.overallProgress || 0);
+  //     }
+  //   }, [Data, loading]);
+  //   console.log(courses);
 
-  // Handle course navigation
-  const handleCourseClick = (courseId) => {
-    navigate(`/lesson/${courseId}/${LessonNum}`);
-  };
+  //   // Handle course navigation
+  //   const handleCourseClick = (courseId) => {
+  //     navigate(`/lesson/${courseId}/${LessonNum}`);
+  //   };
 
   return (
     // <div>
@@ -149,10 +149,11 @@ const LearnPage = () => {
     //     </div>
     //   </div>{" "}
     // </div>
-          <div className="absolute inset-1  bg-gradient-to-br from-black/40 to-black/60 backdrop-blur-2xl border border-green-400/20 rounded-2xl z-10 min-h-full flex" >
-            <div className="flex justify-center min-w-full items-center"><span className="text-3xl" >Blocked due to CTF</span></div>
-          </div>
-
+    <div className="absolute inset-1  bg-gradient-to-br from-black/40 to-black/60 backdrop-blur-2xl border border-green-400/20 rounded-2xl z-10 min-h-full flex">
+      <div className="flex justify-center min-w-full items-center">
+        <span className="text-3xl">Blocked due to CTF</span>
+      </div>
+    </div>
   );
 };
 

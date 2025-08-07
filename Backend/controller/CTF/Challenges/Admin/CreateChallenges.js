@@ -1,4 +1,4 @@
-const CTF_challenges = require("../../../model/CTFchallengeModel");
+const CTF_challenges = require("../../../../model/CTFchallengeModel");
 
 exports.CreateChallenges = async (req, res) => {
   const {

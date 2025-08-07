@@ -4,20 +4,18 @@ import { motion } from "framer-motion";
 import ChallengeSkeleton from "../components/Challenges/ChallengeSkeleton";
 import AddChallengesCard from "../components/Challenges/Admin/AddChallengesCard";
 import ModifyChallengesCard from "../components/Challenges/Admin/ModifyChallengesCard";
+import Usefetch from "../hooks/Usefetch";
+
 export default function ContestPage() {
   const loading = false;
   const isAdmin = true;
 
-  const fakeCourse = {
-    id: "1",
-    title: "Introduction to Cybersecurity",
-    description:
-      "Learn the basics of protecting systems and networks from cyber threats.",
-    score: 3343,
-    difficulty: "Hard",
-    number: 1,
-    category: "Security",
-  };
+  const {
+    Data: existingData,
+    error: fetchError,
+    loading: fetchLoading,
+    retry: fetchRetry,
+  } = Usefetch(`challenge/`, "get", null, {}, true);
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -29,16 +27,17 @@ export default function ContestPage() {
     visible: { opacity: 1, y: 0 },
   };
 
-  // Sample leaderboard data
   const leaderboard = [
     { rank: 1, name: "Alex Smith", score: 1250 },
     { rank: 2, name: "Jamie Lee", score: 1100 },
     { rank: 3, name: "Chris Wong", score: 950 },
     { rank: 4, name: "Sam Patel", score: 800 },
   ];
+
   const handleChallengeClick = (id) => {
     console.log(`Clicked on course with id: ${id}`);
   };
+
   return (
     <section className="min-h-screen text-white">
       <motion.div
@@ -47,7 +46,6 @@ export default function ContestPage() {
         initial="hidden"
         animate="visible"
       >
-        {/* Leaderboard (Top on mobile, Right on larger screens) */}
         <motion.aside
           className="w-full md:w-1/4 bg-gray-800 p-6 flex-shrink-0 md:h-screen order-first md:order-last"
           variants={itemVariants}
@@ -73,7 +71,6 @@ export default function ContestPage() {
           </div>
         </motion.aside>
 
-        {/* Main Content */}
         <motion.main className="flex-1 p-6" variants={itemVariants}>
           <h1 className="text-3xl font-bold mb-10">Challenges</h1>
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -84,10 +81,13 @@ export default function ContestPage() {
             ) : isAdmin ? (
               <>
                 <AddChallengesCard />
-                <ModifyChallengesCard
-                  challenge={fakeCourse}
-                  onCourseClick={handleChallengeClick}
-                />
+                {existingData?.challenges?.map((challenge) => (
+                  <ModifyChallengesCard
+                    key={challenge._id}
+                    challenge={challenge}
+                    onCourseClick={handleChallengeClick}
+                  />
+                ))}
               </>
             ) : (
               <h2>something</h2>
