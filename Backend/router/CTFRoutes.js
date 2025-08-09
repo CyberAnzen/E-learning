@@ -27,11 +27,10 @@ const {
 //Admin Routes
 router.get("/admin/:ChallengeId", Auth(), getChallengeAdmin);
 router.post("/admin/create", upload.none(), CreateChallenges);
-router.patch
-("/admin/update/:ChallengeId", upload.none(), updateChallenge);
+router.patch("/admin/update/:ChallengeId", upload.none(), updateChallenge);
 router.delete("/admin/delete/:ChallengeId", deleteChallenge);
 
 //User
 router.get("/", getallChallenge);
-router.get("/:ChallengeId", getChallenge);
+router.get("/:ChallengeId", Auth(), getChallenge);
 module.exports = router;

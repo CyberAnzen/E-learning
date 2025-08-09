@@ -1,9 +1,12 @@
-const CTF_challenges = require("../../../../model/CTFchallengeModel");
+const CTF_progress = require("../../../../model/CTFprogressModel");
 
 exports.getChallenge = async (req, res) => {
   const { ChallengeId } = req.params;
   try {
-    const Challenge = await CTF_challenges.findById(ChallengeId);
+    const Challenge = await CTF_progress.fetchProgress(
+      req.user.id,
+      ChallengeId
+    );
     if (!Challenge) {
       return res.status(500).json({ message: "Failed to fetch Challenge" });
     }
