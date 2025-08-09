@@ -9,15 +9,14 @@ import { AnimatePresence, motion } from "framer-motion";
 // Import page components
 import HomePage from "./routes/home";
 import LearnPage from "./routes/learn";
-import ContestPage from "./routes/contest";
+import ContestPage from "./routes/Challenge";
 import LoginPage from "./routes/login";
 import AboutPage from "./routes/about";
 import ForgetPassword from "./routes/forgetPassword";
 import Terms from "./routes/terms";
 import Signup from "./routes/signup";
 import PrivacyPolicy from "./routes/privacyPolicy";
-import Profile from "./routes/account";
-import Content from "./routes/content";
+import Challenge from "./routes/Challenge";
 import Unauthorized from "./routes/Unauthorised";
 import { useAppContext } from "./context/AppContext";
 import useGetCsrfToken from "./hooks/utils/useGetCsrfToken";
@@ -38,6 +37,7 @@ import CertificateList from "./components/ProfilePage/CertificateList";
 import AdminEditor from "./components/Admin/Content/adminEditor";
 import Profilenew from "./components/ProfilePage/Profile";
 import AddChallenges from "./routes/CTF/AddChallenges";
+import DisplayChallenge from "./routes/CTF/DisplayChallenge";
 function App() {
   const { loggedIn } = useAppContext();
   const getCsrfToken = useGetCsrfToken();
@@ -80,7 +80,11 @@ function App() {
             path="/lesson/update/:lessonId"
             element={<AdminEditor update />}
           />
-          <Route path="/challenge" element={<ContestPage />} />
+          <Route path="/challenge" element={<Challenge />} />
+          <Route
+            path="/challenge/:challengeId"
+            element={<DisplayChallenge />}
+          />
           <Route path="/challenge/add" element={<AddChallenges />} />
           <Route
             path="/challenge/edit/:challengeId"
