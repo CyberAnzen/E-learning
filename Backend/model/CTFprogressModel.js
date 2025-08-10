@@ -28,6 +28,7 @@ const CTFprogress = new Schema(
       max: Flag_attempt,
       default: 0,
     },
+
     score: {
       type: Number,
       required: true,
@@ -57,6 +58,79 @@ const CTFprogress = new Schema(
 );
 
 CTFprogress.index({ userId: 1, challengeId: 1 }, { unique: true });
+
+// Static methods for CTFprogress model
+CTFprogress.statics.getHint = async (userId, challengeId, hintId) => {
+  // Try to find existing progress
+  const exist = await this.findOne({ userId, challengeId }).lean();
+  if (!exist) throw new Error("Progress not found");
+  if (exist.Flag_Submitted) {
+  }
+};
+CTFprogress.statics.getHint = async function (userId, challengeId, hintId) {
+  const progress = await this.findOne({ userId, challengeId });
+  if (!progress) throw new Error("Progress not found");
+
+  const Challenge = await CTF_challenges.findById(challengeId).lean();
+  if (!Challenge) throw new Error("Challenge not found");
+
+  // ensure progress.hints initialized from Challenge if missing/empty
+  if (!Array.isArray(progress.hints) || progress.hints.length === 0) {
+    const initialHints = Array.isArray(Challenge.hints)
+      ? Challenge.hints.map((h) => ({ hintId: h._id, used: false }))
+      : [];
+    await this.updateOne(
+      { userId, challengeId },
+      { $set: { hints: initialHints } },
+      { upsert: true }
+    );
+    progress.hints = initialHints;
+  }
+
+  // Case 1: Flag already submitted -> always unlock, do NOT reduce score
+  if (progress.Flag_Submitted) {
+    const hintExists = progress.hints.some(
+      (h) => String(h.hintId) === String(hintId)
+    );
+
+    if (hintExists) {
+      await this.updateOne(
+        { userId, challengeId, "hints.hintId": hintId },
+        { $set: { "hints.$.used": true } }
+      );
+    } else {
+      await this.updateOne(
+        { userId, challengeId },
+        { $push: { hints: { hintId, used: true } } }
+      );
+    }
+
+    return this.fetchProgress(userId, challengeId);
+  }
+
+  // Case 2: Flag not submitted -> can only unlock first locked hint and reduce score by hint.cost
+  const firstLockedHint = progress.hints.find((h) => !h.used);
+  if (!firstLockedHint) return this.fetchProgress(userId, challengeId); // all used already
+
+  if (String(firstLockedHint.hintId) !== String(hintId)) {
+    return this.fetchProgress(userId, challengeId); // only first locked hint may be unlocked
+  }
+
+  // find cost from Challenge.hints
+  let cost = 0;
+  if (Array.isArray(Challenge.hints)) {
+    const hd = Challenge.hints.find((h) => String(h._id) === String(hintId));
+    if (hd && typeof hd.cost === "number") cost = hd.cost;
+  }
+
+  const update = { $set: { "hints.$.used": true } };
+  if (cost && typeof cost === "number")
+    update.$inc = { score: -Math.abs(cost) };
+
+  await this.updateOne({ userId, challengeId, "hints.hintId": hintId }, update);
+
+  return this.fetchProgress(userId, challengeId);
+};
 
 CTFprogress.statics.fetchProgress = async function (userId, challengeId) {
   const populateHints = async (doc, challenge) => {
@@ -148,15 +222,39 @@ CTFprogress.statics.fetchProgress = async function (userId, challengeId) {
   return { Flag_Submitted: false, Visited: false, ...data };
 };
 
-CTFprogress.statics.updateAttempts = async function (userId, challengeId) {
-  const exist = await this.findOne({ userId, challengeId });
-  if (!exist) return { updated: false, created: false, doc: false };
-  if (exist.attempt < Flag_attempt) {
-    exist.attempt += 1;
-    await exist.save();
-    return { updated: true, created: false, doc: exist };
+CTFprogress.statics.validateFlag = async function (userId, challengeId, Flag) {
+  const challenge = await CTF_challenges.findById(challengeId).lean();
+  if (!challenge)
+    return { updated: false, created: false, correct: false, Challenge: false };
+
+  // Normalize both values if case-insensitive match is desired
+  const submittedFlag = String(Flag).trim();
+  const correctFlag = String(challenge.flag).trim();
+
+  // Attempt to update atomically
+  const progress = await this.findOne({ userId, challengeId });
+  if (!progress)
+    return { updated: false, created: false, correct: false, Challenge: false };
+
+  if (progress.attempt >= Flag_attempt) {
+    return { updated: false, created: false, correct: false, Challenge: progress };
   }
-  return { updated: false, created: false, doc: false };
+
+  if (submittedFlag === correctFlag) {
+    const updatedDoc = await this.findOneAndUpdate(
+      { _id: progress._id },
+      { $set: { Flag_Submitted: true }, $inc: { attempt: 1 } }, // remove $inc if you don't want to count correct attempts
+      { new: true }
+    );
+    return { updated: true, created: false, correct: true, Challenge: updatedDoc };
+  } else {
+    const updatedDoc = await this.findOneAndUpdate(
+      { _id: progress._id },
+      { $inc: { attempt: 1 } },
+      { new: true }
+    );
+    return { updated: true, created: false, correct: false, Challenge: updatedDoc };
+  }
 };
 
 module.exports = mongoose.model("CTF_progress", CTFprogress);
