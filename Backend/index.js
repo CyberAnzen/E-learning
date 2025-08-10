@@ -7,6 +7,8 @@ const helmet = require("helmet");
 const { Auth } = require("./middleware/Auth");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const { Worker } = require('worker_threads');
+
 
 //routes
 const userRoutes = require("./router/userRoutes");
@@ -16,14 +18,23 @@ const validate = require("./router/ValidationRoutes");
 const profile = require("./router/profileRoutes");
 const CTF = require("./router/CTFRoutes");
 
+const createLogWorker = require('./logger/controller/workerLog');
 const ConnectDataBase = require("./config/connectDataBase");
 const initializeCaches = require("./cache/initCache");
 const classification = require("./router/classificationRoutes");
 const csrfProtection = require("./middleware/CSRFprotection");
+const requestLogger = require("./middleware/requestLogger");
+const errorLogger = require("./middleware/errorLogger");
+const gracefulShutdown=require("./utilies/gracefulShutdown")
 const FRONTEND_URL = process.env.FRONTEND_URL;
 //Database and Cache initialization
 ConnectDataBase();
 initializeCaches();
+
+
+// Logger worker setup
+const loggerWorker = new Worker('./logger/controller/logger.js');
+const logInBackground = createLogWorker(loggerWorker);
 
 // //Security Middlewares
 // // Middleware to handle CORS
@@ -55,6 +66,8 @@ app.use(bodyParser.json());
 
 app.use(express.static("public")); // Serve static files from the 'public' directory
 
+// Middleware to log requests
+app.use(requestLogger(logInBackground));
 //CSRF route
 
 app.get(
@@ -80,4 +93,14 @@ app.use("/api/challenge", CTF);
 
 app.use("/api/image", require("./router/imageRoutes"));
 
+
+// Middleware to handle errorsLog
+app.use(errorLogger(logInBackground));
+
+
+
 app.listen(port);
+
+
+process.on('SIGINT', () =>gracefulShutdown(loggerWorker));
+process.on('SIGTERM', () =>gracefulShutdown(loggerWorker));

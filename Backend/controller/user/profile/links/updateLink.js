@@ -11,6 +11,8 @@ const updateLink = async (req, res) => {
         if (!userId) {
             throw new customError('User ID is required', 400, {}, `User ID is required`);
         }
+        console.log(req.body);
+        
         const {linkedin, github, portfolio} = req.body; // Destructure to get the links
         const userData = await User.findById(userId);
         if (!userData) {
@@ -67,6 +69,11 @@ const updateLink = async (req, res) => {
                 message: error.message,
             });
         }
+        console.error(`[updateLink] [Error]:`, error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
     }
 }
 
