@@ -23,6 +23,7 @@ const {
 const {
   deleteChallenge,
 } = require("../controller/CTF/Challenges/Admin/deleteChallenge");
+const { getHint } = require("../controller/CTF/Challenges/User/getHints");
 
 //Admin Routes
 router.get("/admin/:ChallengeId", Auth(), getChallengeAdmin);
@@ -33,4 +34,10 @@ router.delete("/admin/delete/:ChallengeId", deleteChallenge);
 //User
 router.get("/", getallChallenge);
 router.get("/:ChallengeId", Auth(), getChallenge);
+router.get("/:ChallengeId/hint/:hintId", Auth(), getHint);
+router.post(
+  "/:ChallengeId/validateFlag",
+  Auth(),
+  require("../controller/CTF/Challenges/User/validateFlag").validateFlag
+);
 module.exports = router;
