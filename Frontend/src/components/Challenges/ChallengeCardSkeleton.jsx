@@ -1,171 +1,11 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-
-// New skeleton component
-const CyberpunkIDskeleton = ({ scaleFactor = 1 }) => {
-  return (
-    <div 
-      className="cyberpunk-card-wrapper" 
-      style={{ 
-        display: "inline-block", 
-        position: "relative",
-        cursor: "wait"
-      }}
-    >
-      <div style={{
-        width: 1080 * scaleFactor,
-        height: 700 * scaleFactor,
-        backgroundColor: "#111",
-        borderRadius: "28px",
-        position: "relative",
-        overflow: "hidden"
-      }}>
-        {/* Skeleton Loading Animation */}
-        <div style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `linear-gradient(
-            90deg,
-            rgba(30, 30, 30, 0) 0%,
-            rgba(30, 30, 30, 0.05) 20%,
-            rgba(30, 30, 30, 0.3) 60%,
-            rgba(30, 30, 30, 0)
-          )`,
-          animation: "skeletonShimmer 1.5s infinite",
-        }} />
-        
-        {/* Skeleton Content */}
-        <div style={{
-          position: "absolute",
-          top: 100 * scaleFactor,
-          left: 140 * scaleFactor,
-          width: 400 * scaleFactor,
-          height: 64 * scaleFactor,
-          backgroundColor: "#222",
-          borderRadius: 10 * scaleFactor
-        }} />
-        
-        <div style={{
-          position: "absolute",
-          top: 184 * scaleFactor,
-          left: 140 * scaleFactor,
-          width: 200 * scaleFactor,
-          height: 52 * scaleFactor,
-          backgroundColor: "#222",
-          borderRadius: 8 * scaleFactor
-        }} />
-        
-        <div style={{
-          position: "absolute",
-          top: 250 * scaleFactor,
-          left: 160 * scaleFactor,
-          width: 500 * scaleFactor,
-          height: 20 * scaleFactor,
-          backgroundColor: "#222",
-          borderRadius: 4 * scaleFactor
-        }} />
-        
-        <div style={{
-          position: "absolute",
-          top: 290 * scaleFactor,
-          left: 160 * scaleFactor,
-          width: 450 * scaleFactor,
-          height: 20 * scaleFactor,
-          backgroundColor: "#222",
-          borderRadius: 4 * scaleFactor
-        }} />
-        
-        <div style={{
-          position: "absolute",
-          top: 40 * scaleFactor,
-          right: 140 * scaleFactor,
-          width: 80 * scaleFactor,
-          height: 40 * scaleFactor,
-          backgroundColor: "#222",
-          borderRadius: 8 * scaleFactor
-        }} />
-        
-        <div style={{
-          position: "absolute",
-          top: 40 * scaleFactor,
-          right: 40 * scaleFactor,
-          width: 80 * scaleFactor,
-          height: 40 * scaleFactor,
-          backgroundColor: "#222",
-          borderRadius: 8 * scaleFactor
-        }} />
-        
-        <div style={{
-          position: "absolute",
-          bottom: 100 * scaleFactor,
-          right: 160 * scaleFactor,
-          width: 120 * scaleFactor,
-          height: 40 * scaleFactor,
-          backgroundColor: "#222",
-          borderRadius: 8 * scaleFactor
-        }} />
-        
-        <div style={{
-          position: "absolute",
-          bottom: 100 * scaleFactor,
-          right: 40 * scaleFactor,
-          width: 40 * scaleFactor,
-          height: 32 * scaleFactor,
-          backgroundColor: "#222",
-          borderRadius: 6 * scaleFactor
-        }} />
-        
-        <div style={{
-          position: "absolute",
-          bottom: 48 * scaleFactor,
-          left: 140 * scaleFactor,
-          width: 280 * scaleFactor,
-          height: 8 * scaleFactor,
-          backgroundColor: "#222",
-          borderRadius: 4 * scaleFactor
-        }} />
-        
-        <div style={{
-          position: "absolute",
-          top: "50%",
-          left: 92 * scaleFactor,
-          transform: "translateY(-50%) rotate(-90deg)",
-          width: 200 * scaleFactor,
-          height: 25 * scaleFactor,
-          backgroundColor: "#222",
-          borderRadius: 4 * scaleFactor
-        }} />
-        
-        <div style={{
-          position: "absolute",
-          bottom: 69 * scaleFactor,
-          right: 45 * scaleFactor,
-          width: 40 * scaleFactor,
-          height: 40 * scaleFactor,
-          backgroundColor: "#222",
-          borderRadius: "50%"
-        }} />
-      </div>
-    </div>
-  );
-};
 
 const ChallengeCardSkeleton = ({
-  Challenge,
   scaleFactor = 1,
-  redColor = "#E53935",
+  redColor = "#E5E5E5", // Gray color for skeleton
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  
-  // Return skeleton if Challenge data is not available
-  if (!Challenge) {
-    return <CyberpunkIDskeleton scaleFactor={scaleFactor} />;
-  }
 
-  // Original component logic below
   // Calculate hover scale factor (5% larger when hovered)
   const hoverScale = 1;
   const effectiveScaleFactor = scaleFactor * hoverScale;
@@ -196,17 +36,13 @@ const ChallengeCardSkeleton = ({
   const overlayWidth = width - overlayInset * 2;
   const overlayHeight = height - overlayInset * 2;
 
-  // Colors
-  const brightRed = isHovered ? "rgba(128,128,128,0.5)" : redColor;
-  const black = "#111111";
-  const darkGrayTechMap = "#424242";
+  // Colors - All grays for skeleton
+  const brightGray = isHovered ? "rgba(200,200,200,0.8)" : "#E5E5E5";
+  const darkGray = "#2A2A2A";
   const mediumGray = "#9E9E9E";
+  const lightGray = "#F5F5F5";
 
-  // Legal text content (example placeholder)
-  const legalText =
-    "Don't Zoom in here, you won't find anything. Your clock is ticking so solve the challenges before time runs out.";
-
-  // Barcode bars generation (vertical red barcode)
+  // Barcode bars generation (vertical gray barcode)
   const barcodeX =
     width - 60 * effectiveScaleFactor - 120 * effectiveScaleFactor;
   const barcodeY =
@@ -220,7 +56,7 @@ const ChallengeCardSkeleton = ({
     width: 100 * effectiveScaleFactor,
     height: 4 * effectiveScaleFactor,
     rotate: 45,
-    opacity: 0.2,
+    opacity: 0.1,
     x:
       width -
       baseInset -
@@ -232,14 +68,11 @@ const ChallengeCardSkeleton = ({
     width: 160 * effectiveScaleFactor,
     height: 3 * effectiveScaleFactor,
     rotate: -12,
-    opacity: 0.1,
+    opacity: 0.05,
     x: width / 2 - (160 * effectiveScaleFactor) / 2,
     y:
       height - baseInset - 48 * effectiveScaleFactor - 3 * effectiveScaleFactor,
   };
-
-  // Vertical "AUTHORIZATION" rotated text properties
-  const authorizationText = "CyberAnzen";
 
   // Simple Tech-map silhouette shape
   const techMapWidth = overlayWidth * 0.6;
@@ -254,10 +87,8 @@ const ChallengeCardSkeleton = ({
   const authFontSize = 25 * effectiveScaleFactor;
 
   return (
-        <Link to={`/challenge/${Challenge?._id}`}>
-
     <div
-      className="cyberpunk-card-wrapper"
+      className="cyberpunk-card-skeleton-wrapper animate-pulse"
       style={{
         display: "inline-block",
         transition: "transform 0.5s ease-out",
@@ -277,12 +108,12 @@ const ChallengeCardSkeleton = ({
         viewBox={`0 0 ${width} ${height}`}
         xmlns="http://www.w3.org/2000/svg"
         role="img"
-        aria-label="Cyberpunk style ID card"
+        aria-label="Loading cyberpunk style ID card"
       >
         <defs>
           {/* Drop shadow filter for overlay */}
           <filter
-            id="dropShadow"
+            id="dropShadowSkeleton"
             x="-50%"
             y="-50%"
             width="200%"
@@ -293,57 +124,50 @@ const ChallengeCardSkeleton = ({
               dx="0"
               dy={8 * effectiveScaleFactor}
               stdDeviation={12 * effectiveScaleFactor}
-              floodColor="rgba(0,0,0,0.4)"
+              floodColor="rgba(0,0,0,0.2)"
               floodOpacity="1"
             />
           </filter>
-          {/* Fonts: Techno & Glitch stencil-like using system fallback */}
-          <style>
-            {`
-            .techno-font {
-              font-family: 'Orbitron', 'Segoe UI Mono', 'Courier New', monospace;
-              font-weight: 900;
-              letter-spacing: ${2.5 * effectiveScaleFactor}px;
-            }
-            .glitch-font {
-              font-family: 'VT323', monospace;
-              font-weight: 900;
-              letter-spacing: ${0.1 * effectiveScaleFactor}em;
-            }
-            .legal-text {
-              font-family: 'Courier New', monospace;
-            }
-            `}
-          </style>
+
+          {/* Skeleton shimmer animation */}
+          <linearGradient id="shimmer" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#F3F4F6" stopOpacity="1" />
+            <stop offset="50%" stopColor="#E5E7EB" stopOpacity="1" />
+            <stop offset="100%" stopColor="#F3F4F6" stopOpacity="1" />
+            <animateTransform
+              attributeName="gradientTransform"
+              attributeType="XML"
+              values="translateX(-100%);translateX(100%);translateX(-100%)"
+              dur="2s"
+              repeatCount="indefinite"
+            />
+          </linearGradient>
         </defs>
-        {/* Base bright red shape with tab */}
+
+        {/* Base gray shape with tab */}
         <path
           d={`
-    M${baseX + baseRadius},${baseY}
-    h${(baseWidth - baseTabWidth) / 2 - baseRadius}
-    a${baseRadius},${baseRadius} 0 0 1 ${baseRadius},${baseRadius}
-    v${baseTabHeight}
-    h${baseTabWidth}
-    v${-baseTabHeight}
-    a${baseRadius},${baseRadius} 0 0 1 ${baseRadius},-${baseRadius}
-    h${(baseWidth - baseTabWidth) / 2 - baseRadius}
-    a${baseRadius},${baseRadius} 0 0 1 ${baseRadius},${baseRadius}
-    v${baseHeight - 2 * baseRadius}
-    a${baseRadius},${baseRadius} 0 0 1 -${baseRadius},${baseRadius}
-    h${-baseWidth + 2 * baseRadius}
-    a${baseRadius},${baseRadius} 0 0 1 -${baseRadius},-${baseRadius}
-    v${-baseHeight + 2 * baseRadius}
-    a${baseRadius},${baseRadius} 0 0 1 ${baseRadius},-${baseRadius}
-    Z
-  `}
-          fill={brightRed}
-          style={{
-            backdropFilter: "blur(8px) saturate(180%)",
-            WebkitBackdropFilter: "blur(8px) saturate(180%)",
-          }}
-        ></path>
+            M${baseX + baseRadius},${baseY}
+            h${(baseWidth - baseTabWidth) / 2 - baseRadius}
+            a${baseRadius},${baseRadius} 0 0 1 ${baseRadius},${baseRadius}
+            v${baseTabHeight}
+            h${baseTabWidth}
+            v${-baseTabHeight}
+            a${baseRadius},${baseRadius} 0 0 1 ${baseRadius},-${baseRadius}
+            h${(baseWidth - baseTabWidth) / 2 - baseRadius}
+            a${baseRadius},${baseRadius} 0 0 1 ${baseRadius},${baseRadius}
+            v${baseHeight - 2 * baseRadius}
+            a${baseRadius},${baseRadius} 0 0 1 -${baseRadius},${baseRadius}
+            h${-baseWidth + 2 * baseRadius}
+            a${baseRadius},${baseRadius} 0 0 1 -${baseRadius},-${baseRadius}
+            v${-baseHeight + 2 * baseRadius}
+            a${baseRadius},${baseRadius} 0 0 1 ${baseRadius},-${baseRadius}
+            Z
+          `}
+          fill={brightGray}
+        />
 
-        {/* Overlay black rounded rectangle with shadow */}
+        {/* Overlay dark gray rounded rectangle with shadow */}
         <rect
           x={overlayX}
           y={overlayY}
@@ -351,18 +175,18 @@ const ChallengeCardSkeleton = ({
           height={overlayHeight}
           rx={overlayRadius}
           ry={overlayRadius}
-          fill={black}
-          filter="url(#dropShadow)"
+          fill={darkGray}
+          filter="url(#dropShadowSkeleton)"
         />
 
         {/* Tech map silhouette (center-back, subtle) */}
-        <g opacity={0.2}>
+        <g opacity={0.1}>
           <rect
             x={techMapX}
             y={techMapY + techMapHeight * 0.6}
             width={techMapWidth * 0.25}
             height={techMapHeight * 0.05}
-            fill={darkGrayTechMap}
+            fill={mediumGray}
             rx={4 * effectiveScaleFactor}
             ry={4 * effectiveScaleFactor}
           />
@@ -371,7 +195,7 @@ const ChallengeCardSkeleton = ({
             y={techMapY + techMapHeight * 0.4}
             width={techMapWidth * 0.6}
             height={techMapHeight * 0.1}
-            fill={darkGrayTechMap}
+            fill={mediumGray}
             rx={6 * effectiveScaleFactor}
             ry={6 * effectiveScaleFactor}
           />
@@ -379,101 +203,51 @@ const ChallengeCardSkeleton = ({
             cx={techMapX + techMapWidth * 0.75}
             cy={techMapY + techMapHeight * 0.55}
             r={techMapHeight * 0.05}
-            fill={darkGrayTechMap}
-          />
-          <line
-            x1={techMapX + techMapWidth * 0.45}
-            y1={techMapY + techMapHeight * 0.48}
-            x2={techMapX + techMapWidth * 0.75}
-            y2={techMapY + techMapHeight * 0.55}
-            stroke={darkGrayTechMap}
-            strokeWidth={techMapHeight * 0.01}
-            strokeLinecap="round"
-          />
-          <line
-            x1={techMapX + techMapWidth * 0.3}
-            y1={techMapY + techMapHeight * 0.6}
-            x2={techMapX + techMapWidth * 0.45}
-            y2={techMapY + techMapHeight * 0.48}
-            stroke={darkGrayTechMap}
-            strokeWidth={techMapHeight * 0.01}
-            strokeLinecap="round"
+            fill={mediumGray}
           />
         </g>
 
-        {/* Top-left text group */}
+        {/* Top-left text placeholders */}
         <g
           transform={`translate(${overlayX + 40 * effectiveScaleFactor}, ${
             overlayY + 80 * effectiveScaleFactor
           })`}
         >
-          {/* "SECRET" white techno font */}
-          <text
-            className="techno-font "
-            fill="#FFFFFF"
-            fontSize={Math.min(
-              secretFontSize,
-              ((width - 210) / (Challenge?.title?.length || 1)) * 1.6
-            )}
-            fontWeight="900"
-            textTransform="uppercase"
-            letterSpacing={`${2.5 * effectiveScaleFactor}px`}
-            y={5}
+          {/* Title placeholder - animated shimmer rectangle */}
+          <rect
             x={0}
-          >
-            {(Challenge?.title || "").replace(/\n/g, " ").trim()}
-          </text>
-          text
-          {/* Glitch-stencil font "DARK ZONE." uppercase */}
-          <text
-            className="glitch-font"
-            fontWeight="900"
-            letterSpacing={`${0.2 * effectiveScaleFactor}em`}
+            y={-20 * effectiveScaleFactor}
+            width={400 * effectiveScaleFactor}
+            height={secretFontSize * 0.8}
+            rx={8 * effectiveScaleFactor}
+            fill="url(#shimmer)"
+          />
+
+          {/* Category placeholder */}
+          <rect
             x={0}
-            y={105 * effectiveScaleFactor}
-          >
-            <tspan
-              x={0}
-              dy={0}
-              fontSize={darkZoneFontSize}
-              fill="#808080"
-              textTransform="uppercase"
-            >
-              {(Challenge?.category || "").toUpperCase()}
-            </tspan>
-            {Challenge?.description
-              ?.split(" ")
-              .reduce(
-                (lines, word) => {
-                  const currentLine = lines[lines.length - 1];
-                  const testLine = currentLine
-                    ? `${currentLine} ${word}`
-                    : word;
-                  if (testLine.length > 20) {
-                    lines.push(word);
-                  } else {
-                    lines[lines.length - 1] = testLine;
-                  }
-                  return lines;
-                },
-                [""]
-              )
-              .slice(0, 3)
-              .map((line, i) => (
-                <tspan
-                  key={i}
-                  x={20 * effectiveScaleFactor}
-                  dy={darkZoneFontSize * 1.2}
-                  fontSize={darkZoneFontSize * 0.75}
-                  fill="#666666"
-                >
-                  {line}
-                </tspan>
-              ))}
-          </text>
+            y={60 * effectiveScaleFactor}
+            width={200 * effectiveScaleFactor}
+            height={darkZoneFontSize * 0.6}
+            rx={6 * effectiveScaleFactor}
+            fill="#666666"
+          />
+
+          {/* Description placeholders - multiple lines */}
+          {[0, 1, 2].map((i) => (
+            <rect
+              key={i}
+              x={20 * effectiveScaleFactor}
+              y={(120 + i * 50) * effectiveScaleFactor}
+              width={Math.max(150, 300 - i * 50) * effectiveScaleFactor}
+              height={darkZoneFontSize * 0.5}
+              rx={4 * effectiveScaleFactor}
+              fill="#555555"
+            />
+          ))}
         </g>
 
-        {/* Top-right: two red icons (polygon and rifle silhouette) */}
+        {/* Top-right: skeleton icons */}
         <g
           transform={`translate(${
             overlayX +
@@ -483,61 +257,29 @@ const ChallengeCardSkeleton = ({
             12 * effectiveScaleFactor
           }, ${overlayY + 40 * effectiveScaleFactor})`}
         >
-          {/* Abstract polygon icon */}
-          <polygon
-            points={`
-              ${20 * effectiveScaleFactor},0 
-              ${35 * effectiveScaleFactor},${10 * effectiveScaleFactor} 
-              ${40 * effectiveScaleFactor},${30 * effectiveScaleFactor} 
-              ${25 * effectiveScaleFactor},${40 * effectiveScaleFactor} 
-              ${10 * effectiveScaleFactor},${30 * effectiveScaleFactor} 
-              ${5 * effectiveScaleFactor},${10 * effectiveScaleFactor}
-            `}
-            fill={brightRed}
-            stroke="#710000"
-            strokeWidth={effectiveScaleFactor}
+          {/* Abstract shape placeholder */}
+          <rect
+            x={5 * effectiveScaleFactor}
+            y={0}
+            width={40 * effectiveScaleFactor}
+            height={40 * effectiveScaleFactor}
+            rx={8 * effectiveScaleFactor}
+            fill={mediumGray}
           />
 
-          {/* Rifle silhouette (simple approximation) */}
-          <g transform={`translate(${52 * effectiveScaleFactor},0)`}>
-            <rect
-              x="0"
-              y={10 * effectiveScaleFactor}
-              width={35 * effectiveScaleFactor}
-              height={10 * effectiveScaleFactor}
-              rx={2 * effectiveScaleFactor}
-              ry={2 * effectiveScaleFactor}
-              fill={brightRed}
-            />
-            <rect
-              x={25 * effectiveScaleFactor}
-              y={5 * effectiveScaleFactor}
-              width={10 * effectiveScaleFactor}
-              height={20 * effectiveScaleFactor}
-              fill={brightRed}
-            />
-            <rect
-              x={10 * effectiveScaleFactor}
-              y={18 * effectiveScaleFactor}
-              width={15 * effectiveScaleFactor}
-              height={4 * effectiveScaleFactor}
-              fill="#8B0000"
-            />
-            <polygon
-              points={`
-                ${35 * effectiveScaleFactor},${10 * effectiveScaleFactor} 
-                ${45 * effectiveScaleFactor},0 
-                ${40 * effectiveScaleFactor},0 
-                ${42 * effectiveScaleFactor},${10 * effectiveScaleFactor}
-              `}
-              fill={brightRed}
-            />
-          </g>
+          {/* Second icon placeholder */}
+          <rect
+            x={52 * effectiveScaleFactor}
+            y={5 * effectiveScaleFactor}
+            width={45 * effectiveScaleFactor}
+            height={25 * effectiveScaleFactor}
+            rx={4 * effectiveScaleFactor}
+            fill={mediumGray}
+          />
         </g>
 
-        {/* Right-center: vertical red barcode and microchip icon */}
+        {/* Right-center: skeleton barcode */}
         <g transform={`translate(${barcodeX}, ${barcodeY})`}>
-          {/* Barcode vertical bars */}
           {Array.from({ length: barcodeBarsCount }).map((_, i) => {
             const barHeight = (6 + (i % 4) * 4) * effectiveScaleFactor;
             return (
@@ -547,12 +289,13 @@ const ChallengeCardSkeleton = ({
                 y={barcodeBarHeight - barHeight}
                 width={barcodeBarWidth}
                 height={barHeight}
-                fill={brightRed}
+                fill={mediumGray}
               />
             );
           })}
         </g>
 
+        {/* Skeleton microchip */}
         <g
           transform={`translate(${
             width - 60 * effectiveScaleFactor - 40 * effectiveScaleFactor
@@ -563,103 +306,44 @@ const ChallengeCardSkeleton = ({
             32 * effectiveScaleFactor
           })`}
         >
-          {/* Microchip icon: simplified with chip pins */}
           <rect
             width={40 * effectiveScaleFactor}
             height={32 * effectiveScaleFactor}
             rx={6 * effectiveScaleFactor}
             ry={6 * effectiveScaleFactor}
-            fill={brightRed}
-          />
-          {/* Pins */}
-          {[4, 12, 20, 28].map((y) => (
-            <rect
-              key={"pinL" + y}
-              x={-6 * effectiveScaleFactor}
-              y={y * effectiveScaleFactor}
-              width={6 * effectiveScaleFactor}
-              height={2 * effectiveScaleFactor}
-              fill="#8B0000"
-            />
-          ))}
-          {[4, 12, 20, 28].map((y) => (
-            <rect
-              key={"pinR" + y}
-              x={40 * effectiveScaleFactor}
-              y={y * effectiveScaleFactor}
-              width={6 * effectiveScaleFactor}
-              height={2 * effectiveScaleFactor}
-              fill="#8B0000"
-            />
-          ))}
-          {/* Inner circuits */}
-          <rect
-            x={8 * effectiveScaleFactor}
-            y={8 * effectiveScaleFactor}
-            width={24 * effectiveScaleFactor}
-            height={16 * effectiveScaleFactor}
-            rx={3 * effectiveScaleFactor}
-            ry={3 * effectiveScaleFactor}
-            fill="#AE1C1C"
-          />
-          {/* Cross in center */}
-          <line
-            x1={20 * effectiveScaleFactor}
-            y1={12 * effectiveScaleFactor}
-            x2={20 * effectiveScaleFactor}
-            y2={24 * effectiveScaleFactor}
-            stroke="#FFF"
-            strokeWidth={effectiveScaleFactor}
-          />
-          <line
-            x1={12 * effectiveScaleFactor}
-            y1={18 * effectiveScaleFactor}
-            x2={28 * effectiveScaleFactor}
-            y2={18 * effectiveScaleFactor}
-            stroke="#FFF"
-            strokeWidth={effectiveScaleFactor}
+            fill={mediumGray}
           />
         </g>
 
-        {/* Bottom-left fine print white monospace legal text */}
-        <text
-          className="legal-text"
+        {/* Bottom-left legal text placeholder */}
+        <rect
           x={overlayX + 40 * effectiveScaleFactor}
-          y={height - baseInset - 48 * effectiveScaleFactor}
-          fill="white"
-          fontSize={legalFontSize}
+          y={height - baseInset - 60 * effectiveScaleFactor}
+          width={280 * effectiveScaleFactor}
+          height={12 * effectiveScaleFactor}
+          rx={2 * effectiveScaleFactor}
+          fill="#444444"
           opacity={0.6}
-          letterSpacing={0.4 * effectiveScaleFactor}
-          style={{ whiteSpace: "pre-wrap", width: 280 * effectiveScaleFactor }}
-        >
-          {legalText}
-        </text>
+        />
 
-        {/* Left edge: vertical gray AUTHORIZATION rotated -90°, offset 8px outside card */}
-        <text
-          x={overlayX - 8 * effectiveScaleFactor}
-          y={overlayY + overlayHeight / 2}
+        {/* Left edge: vertical authorization text placeholder */}
+        <rect
+          x={overlayX - 15 * effectiveScaleFactor}
+          y={overlayY + overlayHeight / 2 - 60 * effectiveScaleFactor}
+          width={authFontSize * 0.8}
+          height={120 * effectiveScaleFactor}
+          rx={4 * effectiveScaleFactor}
           fill={mediumGray}
-          fontSize={authFontSize}
-          fontWeight="700"
-          textTransform="uppercase"
-          style={{ userSelect: "none" }}
-          transform={`rotate(-90 ${overlayX - 8 * effectiveScaleFactor} ${
-            overlayY + overlayHeight / 2
-          })`}
-          dominantBaseline="middle"
-          textAnchor="middle"
-        >
-          {authorizationText}
-        </text>
+          opacity={0.7}
+        />
 
-        {/* Ghosted glitch lines */}
+        {/* Ghosted glitch lines - much more subtle */}
         <rect
           x={glitchLine1.x}
           y={glitchLine1.y}
           width={glitchLine1.width}
           height={glitchLine1.height}
-          fill="#FFF"
+          fill="#AAA"
           opacity={glitchLine1.opacity}
           transform={`rotate(${glitchLine1.rotate} ${glitchLine1.x} ${glitchLine1.y})`}
           rx={2 * effectiveScaleFactor}
@@ -670,29 +354,30 @@ const ChallengeCardSkeleton = ({
           y={glitchLine2.y}
           width={glitchLine2.width}
           height={glitchLine2.height}
-          fill="#FFF"
+          fill="#AAA"
           opacity={glitchLine2.opacity}
           transform={`rotate(${glitchLine2.rotate} ${glitchLine2.x} ${glitchLine2.y})`}
           rx={1.5 * effectiveScaleFactor}
           ry={1.5 * effectiveScaleFactor}
         />
       </svg>
-      <span
+
+      {/* Score placeholder */}
+      <div
         style={{
           position: "absolute",
           bottom: "69px",
           right: "45px",
-          color: "white",
-          fontSize: `${40 * effectiveScaleFactor}px`,
-          fontWeight: "bold",
+          width: `${60 * effectiveScaleFactor}px`,
+          height: `${40 * effectiveScaleFactor}px`,
+          backgroundColor: "#666666",
+          borderRadius: `${8 * effectiveScaleFactor}px`,
           pointerEvents: "none",
           transform: isHovered ? `scale(${1.05})` : "scale(1)",
-          transition: "transform 0.3s ease, font-size 0.3s ease",
+          transition: "transform 0.3s ease",
         }}
-      >
-        {Challenge?.score || "-"}
-      </span>
-    </div></Link>
+      />
+    </div>
   );
 };
 

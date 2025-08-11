@@ -10,7 +10,7 @@ import ChallengeCard from "../components/Challenges/ChallengeCard";
 export default function Challenge() {
   const { Admin, loggedIn } = useAppContext();
   const [scaleFactor, setScaleFactor] = useState(0.36);
-
+// const Admin =true
   const {
     Data: ChallengesData,
     error: fetchError,

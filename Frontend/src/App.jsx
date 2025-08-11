@@ -2,14 +2,12 @@ import { useState, useEffect } from "react";
 import Navbar from "./components/layout/navbar";
 import "./App.css";
 import "./index.css";
-import Home from "./routes/home";
 import Footer from "./components/layout/footer";
 import Intro from "./components/intro";
 import { AnimatePresence, motion } from "framer-motion";
 // Import page components
 import HomePage from "./routes/home";
 import LearnPage from "./routes/learn";
-import ContestPage from "./routes/Challenge";
 import LoginPage from "./routes/login";
 import AboutPage from "./routes/about";
 import ForgetPassword from "./routes/forgetPassword";
@@ -19,13 +17,13 @@ import PrivacyPolicy from "./routes/privacyPolicy";
 import Challenge from "./routes/Challenge";
 import Unauthorized from "./routes/Unauthorised";
 import { useAppContext } from "./context/AppContext";
-import useGetCsrfToken from "./hooks/utils/useGetCsrfToken";
+// import useGetCsrfToken from "./hooks/utils/useGetCsrfToken";
 import Testing from "./routes/testing";
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
-  Link,
+  Navigate,
+  useNavigate,
   useLocation,
 } from "react-router-dom";
 import NotFound from "./routes/notFound";
@@ -40,12 +38,12 @@ import AddChallenges from "./routes/CTF/AddChallenges";
 import DisplayChallenge from "./routes/CTF/DisplayChallenge";
 function App() {
   const { loggedIn } = useAppContext();
-  const getCsrfToken = useGetCsrfToken();
+  // const getCsrfToken = useGetCsrfToken();
   const [intro, setIntro] = useState(true);
   const location = useLocation(); // Get the current route
   // Define routes where the footer should NOT appear
   const noFooterRoutes = ["/login", "/signup", "/forget-password", "/profile"];
-
+  const navigate = useNavigate();
   // Check if the current route is NOT in the noFooterRoutes list
   const showFooter = !noFooterRoutes.includes(location.pathname);
   useEffect(() => {
@@ -115,7 +113,9 @@ function App() {
           </Route>
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/test" element={<Testing />} />
-          <Route path="/*" element={<NotFound />} />
+          <Route path="/404" element={<NotFound />} />
+
+          <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>
 
         {/* Animated line */}
