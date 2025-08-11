@@ -167,14 +167,51 @@ CTFprogress.statics.fetchProgress = async function (userId, challengeId) {
     return { ...doc, hints };
   };
 
-  // Try to find existing progress
-  const exist = await this.findOne({ userId, challengeId }).lean();
-
-  // Load challenge once (used in both branches)
+  // Load challenge once
   const Challenge = await CTF_challenges.findById(challengeId).lean();
   if (!Challenge) throw new Error("Challenge not found");
 
+  // Try to find existing progress
+  let exist = await this.findOne({ userId, challengeId }).lean();
+
   if (exist) {
+    // Build canonical hints array from Challenge (preserves challenge order)
+    const canonicalHints = Array.isArray(Challenge.hints)
+      ? Challenge.hints.map((h) => ({ hintId: h._id, used: false }))
+      : [];
+
+    // Map existing used flags by hintId for preservation
+    const usedMap = {};
+    if (Array.isArray(exist.hints)) {
+      exist.hints.forEach((h) => {
+        if (h && h.hintId) usedMap[String(h.hintId)] = !!h.used;
+      });
+    }
+
+    // Merge: preserve used=true where hintId still present, default false for new ones
+    const mergedHints = canonicalHints.map((h) => ({
+      hintId: h.hintId,
+      used: !!usedMap[String(h.hintId)],
+    }));
+
+    // Detect difference between stored exist.hints and mergedHints
+    const normalize = (arr) =>
+      (arr || [])
+        .map((x) => `${String(x.hintId)}|${x.used ? "1" : "0"}`)
+        .join(",");
+    const storedNormalized = normalize(exist.hints);
+    const mergedNormalized = normalize(mergedHints);
+
+    if (storedNormalized !== mergedNormalized) {
+      // Update DB with the merged hints atomically
+      await this.updateOne(
+        { userId, challengeId },
+        { $set: { hints: mergedHints } }
+      );
+      // Refresh exist with updated hints
+      exist = await this.findOne({ userId, challengeId }).lean();
+    }
+
     const doc = await populateHints(exist, Challenge);
     const data = {
       ...doc,
@@ -237,7 +274,12 @@ CTFprogress.statics.validateFlag = async function (userId, challengeId, Flag) {
     return { updated: false, created: false, correct: false, Challenge: false };
 
   if (progress.attempt >= Flag_attempt) {
-    return { updated: false, created: false, correct: false, Challenge: progress };
+    return {
+      updated: false,
+      created: false,
+      correct: false,
+      Challenge: progress,
+    };
   }
 
   if (submittedFlag === correctFlag) {
@@ -246,14 +288,24 @@ CTFprogress.statics.validateFlag = async function (userId, challengeId, Flag) {
       { $set: { Flag_Submitted: true }, $inc: { attempt: 1 } }, // remove $inc if you don't want to count correct attempts
       { new: true }
     );
-    return { updated: true, created: false, correct: true, Challenge: updatedDoc };
+    return {
+      updated: true,
+      created: false,
+      correct: true,
+      Challenge: updatedDoc,
+    };
   } else {
     const updatedDoc = await this.findOneAndUpdate(
       { _id: progress._id },
       { $inc: { attempt: 1 } },
       { new: true }
     );
-    return { updated: true, created: false, correct: false, Challenge: updatedDoc };
+    return {
+      updated: true,
+      created: false,
+      correct: false,
+      Challenge: updatedDoc,
+    };
   }
 };
 
