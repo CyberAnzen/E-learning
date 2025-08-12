@@ -218,18 +218,17 @@ export default function ProfileSettings() {
     { name: "Report", icon: <BarChart /> },
   ];
   const inputStyle =
-    "w-full px-4 py-0 rounded-lg inset-0 h-10  rounded-full bg-gradient-to-r from-[#00ff00]/15 via-[#32cd32]/10 to-[#00ff00]/5 border border-[#00ff00]/30 transition-all duration-300 text-white border border-[#00ff00]/30 placeholder-[#00ff00]/30 outline-none focus:outline-none focus:ring-1 focus:ring-[#00ff00]";
-
+ "w-full px-4 py-0 rounded-lg inset-0 h-10 rounded-full bg-gradient-to-r from-[#00bfff]/15 via-[#1e90ff]/10 to-[#00bfff]/5 border border-[#00bfff]/30 transition-all duration-300 text-white placeholder-[#00bfff]/30 outline-none focus:outline-none focus:ring-1 focus:ring-[#00bfff]";
   return (
     <>
       <div className="min-h-screen bg-[rgb(23,24,26)] text-white flex">
         {/* Sidebar */}
         <div
-          className={`fixed z-30 inset-y-0 left-0 w-64 lg:w-70 bg-black/50 shadow transform transition-transform duration-300 ease-in-out md:translate-x-0 lg:m-2 border border-[#00ff00]/30 rounded-2xl ${
+          className={`fixed z-30 inset-y-0 left-0 w-64 lg:w-70 bg-black/50 shadow transform transition-transform duration-300 ease-in-out md:translate-x-0 lg:m-2 border border-[#00ffff]/25 rounded-2xl ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           } md:relative md:z-0 md:block`}
         >
-          <div className="p-4 border-b border-[#00ff00]/30">
+          <div className="p-4 border-b border-[#00ffff]/30">
             <div className="flex items-center space-x-2">
               <img
                 src={image}
@@ -237,14 +236,14 @@ export default function ProfileSettings() {
                 className="w-10 h-10 rounded-full"
               />
               <div className="flex flex-col gap-0.5">
-                <h4 className="text-sm font-semibold text-[#00ff00]">
+                <h4 className="text-sm font-semibold text-[#00ffff]">
                   Cameron Williamson
                 </h4>
                 <p className="text-xs text-gray-400 flex gap-2">
                   ID: 748589549{" "}
                   <Copy
                     onClick={handleCopy}
-                    className="cursor-pointer hover:text-[#00ff00]"
+                    className="cursor-pointer hover:text-[#00ffff]/25"
                     size={14}
                   />
                   {copied && (
@@ -266,7 +265,7 @@ export default function ProfileSettings() {
             {menuItems.map((item) => (
               <div
                 key={item.name}
-                className="flex items-center px-4 py-2 hover:text-[#00ff00] cursor-pointer"
+                className="flex items-center px-4 py-2 hover:text-[#00ffff] cursor-pointer"
               >
                 <div className="mr-3 ">{item.icon}</div>
                 <span className="text-sm">{item.name}</span>
@@ -324,9 +323,9 @@ export default function ProfileSettings() {
                 {/* formData Information */}
                 <form
                   onSubmit={handleSubmit}
-                  className="bg-black/50 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm"
+                  className="bg-black/50 rounded-xl border text-[#00ffff]/25 p-6 space-y-4 shadow-sm"
                 >
-                  <h2 className="text-lg text-[#00ff00] font-semibold">
+                  <h2 className="text-lg text-[#00ffff] font-semibold">
                     General Information
                   </h2>
 
@@ -405,7 +404,7 @@ export default function ProfileSettings() {
                       {genderOpen && (
                         <>
                           {/* Dropdown menu */}
-                          <ul className="absolute z-30 w-full mt-1 bg-[#17181A] border border-[#00ff00] rounded-md shadow-lg">
+                          <ul className="absolute z-30 w-full mt-1 bg-[#17181A] border border-[#00ffff] rounded-md shadow-lg">
                             {["Male", "Female", "Other"].map((gender) => (
                               <li
                                 key={gender}
@@ -415,7 +414,7 @@ export default function ProfileSettings() {
                                   });
                                   setGenderOpen(false);
                                 }}
-                                className="px-3 py-0 cursor-pointer hover:bg-[#00ff00] hover:text-black"
+                                className="px-3 py-0 cursor-pointer hover:bg-[#00ffff] hover:text-black"
                               >
                                 {gender}
                               </li>
@@ -446,7 +445,7 @@ export default function ProfileSettings() {
                       {sectionOpen && (
                         <>
                           {/* Dropdown menu */}
-                          <ul className="absolute z-30 w-full mt-1 bg-[#17181A] border border-[#00ff00] rounded-md shadow-lg">
+                          <ul className="absolute z-30 w-full mt-1 bg-[#17181A] border border-[#00ffff] rounded-md shadow-lg">
                             {[
                               "A section",
                               "B section",
@@ -464,7 +463,7 @@ export default function ProfileSettings() {
                                   });
                                   setSectionOpen(false);
                                 }}
-                                className="px-3 py-0 cursor-pointer hover:bg-[#00ff00] hover:text-black"
+                                className="px-3 py-0 cursor-pointer hover:bg-[#00ffff] hover:text-black"
                               >
                                 {section}
                               </li>
@@ -495,7 +494,7 @@ export default function ProfileSettings() {
                       {yearOpen && (
                         <>
                           {/* Dropdown menu */}
-                          <ul className="absolute z-30 w-full mt-1 bg-[#17181A] border border-[#00ff00] rounded-md shadow-lg">
+                          <ul className="absolute z-30 w-full mt-1 bg-[#17181A] border border-[#00ffff] rounded-md shadow-lg">
                             {[
                               "First Year",
                               "Second Year",
@@ -510,7 +509,7 @@ export default function ProfileSettings() {
                                   });
                                   setYearOpen(false);
                                 }}
-                                className="px-3 py-0 cursor-pointer hover:bg-[#00ff00] hover:text-black"
+                                className="px-3 py-0 cursor-pointer hover:bg-[#00ffff] hover:text-black"
                               >
                                 {year}
                               </li>
@@ -548,7 +547,7 @@ export default function ProfileSettings() {
                   <div className="text-right space-x-2">
                     <button
                       type="submit"
-                      className="btn btn-neutral hover:text-[#00ff00]"
+                      className="btn btn-neutral hover:text-[#00ffff]"
                       disabled={!isFormComplete() || isLoading}
                     >
                       {isLoading ? "Submitting..." : "Submit"}
@@ -557,8 +556,8 @@ export default function ProfileSettings() {
                 </form>
 
                 {/* Password Info */}
-                <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm">
-                  <h2 className="text-lg text-[#00ff00] font-semibold">
+                <div className="bg-black/50	 rounded-xl border text-[#00ffff]/25 p-6 space-y-4 shadow-sm">
+                  <h2 className="text-lg text-[#00ffff] font-semibold">
                     Password Information
                   </h2>
                   <div className="grid md:grid-cols-2 gap-4">
@@ -573,7 +572,7 @@ export default function ProfileSettings() {
                       className={inputStyle}
                     />
                   </div>
-                  <ul className="text-sm text-[#00ff00]/30 list-disc pl-5">
+                  <ul className="text-sm text-[#00ffff]/30 list-disc pl-5">
                     <li>At least 8 characters and up to 12 characters</li>
                     <li>At least one lowercase character</li>
                     <li>
@@ -581,7 +580,7 @@ export default function ProfileSettings() {
                     </li>
                   </ul>
                   <div className="text-right">
-                    <button className="btn btn-neutral hover:text-[#00ff00]">
+                    <button className="btn btn-neutral hover:text-[#00ffff]">
                       Save all
                     </button>
                   </div>
@@ -591,14 +590,14 @@ export default function ProfileSettings() {
               {/* Right Side (Profile + Settings) */}
               <div className="space-y-6">
                 {/* Profile Card */}
-                <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 flex items-center space-x-4 shadow-sm">
+                <div className="bg-black/50	 rounded-xl border border-[#00ffff]/25 p-6 flex items-center space-x-4 shadow-sm">
                   <div className="avatar">
                     <div className="w-16 rounded-full">
                       <img src={image} alt="avatar" />
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-bold text-[#00ff00]">
+                    <h3 className="font-bold text-[#00ffff]">
                       Cameron Williamson
                     </h3>
                     <p className="text-sm text-gray-500">Lead Product Design</p>
@@ -613,7 +612,7 @@ export default function ProfileSettings() {
                       />
                       <button
                         onClick={handleImageClick}
-                        className="text-sm cursor-pointer text-[#00ff00]/30 hover:text-[#00ff00]"
+                        className="text-sm cursor-pointer text-[#00ffff]/30 hover:text-[#00ffff]"
                       >
                         Change Avatar
                       </button>
@@ -622,8 +621,8 @@ export default function ProfileSettings() {
                 </div>
 
                 {/* Language / Timezone */}
-                <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm">
-                  <h2 className="text-lg font-semibold text-[#00ff00]">
+                <div className="bg-black/50	 rounded-xl border border-[#00ffff]/25 p-6 space-y-4 shadow-sm">
+                  <h2 className="text-lg font-semibold text-[#00ffff]">
                     Language | Timezone
                   </h2>
                   <select className={inputStyle}>
@@ -638,48 +637,48 @@ export default function ProfileSettings() {
                   </select>
                   <div className="flex justify-between">
                     <button className="btn btn-ghost">Cancel</button>
-                    <button className="btn btn-neutral hover:text-[#00ff00]">
+                    <button className="btn btn-neutral hover:text-[#00ffff]">
                       Save
                     </button>
                   </div>
                 </div>
 
                 {/* Team Accounts */}
-                <div className="bg-black/50	 rounded-xl border border-[#00ff00]/30 p-6 space-y-4 shadow-sm">
-                  <h2 className="text-lg font-semibold text-[#00ff00]">
+                <div className="bg-black/50	 rounded-xl border text-[#00ffff]/25 p-6 space-y-4 shadow-sm">
+                  <h2 className="text-lg font-semibold text-[#00ffff]">
                     Team Account
                   </h2>
-                  <div className="flex justify-between items-center border border-[#00ff00]/30 rounded-lg px-4 py-2">
+                  <div className="flex justify-between items-center border text-[#00ffff]/30 rounded-lg px-4 py-2">
                     <div>
                       <p className="font-medium text-white ">Slack account</p>
                       <a
-                        className="text-sm text-[#00ff00]/30"
+                        className="text-sm text-[#00ffff]/30"
                         href="https://www.slack.com"
                       >
                         www.slack.com
                       </a>
                     </div>
-                    <button className="btn btn-outline btn-sm hover:text-[#00ff00]">
+                    <button className="btn btn-outline btn-sm hover:text-[#00ffff]">
                       Remove
                     </button>
                   </div>
-                  <div className="flex justify-between items-center border border-[#00ff00]/30 rounded-lg px-4 py-2">
+                  <div className="flex justify-between items-center border text-[#00ffff]/30 rounded-lg px-4 py-2">
                     <div>
                       <p className="font-medium text-white">Trello account</p>
                       <a
-                        className="text-sm text-[#00ff00]/30"
+                        className="text-sm text-[#00ffff]/30"
                         href="https://www.trello.com"
                       >
                         www.trello.com
                       </a>
                     </div>
-                    <button className="btn btn-outline btn-sm hover:text-[#00ff00]">
+                    <button className="btn btn-outline btn-sm hover:text-[#00ffff]">
                       Remove
                     </button>
                   </div>
                   <div className="flex justify-between">
                     <button className="btn btn-ghost">Cancel</button>
-                    <button className="btn btn-neutral hover:text-[#00ff00]">
+                    <button className="btn btn-neutral hover:text-[#00ffff]">
                       Save
                     </button>
                   </div>
