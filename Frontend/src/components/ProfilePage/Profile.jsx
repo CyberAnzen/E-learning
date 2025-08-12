@@ -15,6 +15,7 @@ import {
   Copy,
 } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
+import Usefetch from "../../hooks/Usefetch";
 export default function ProfileSettings() {
   const { user } = useAppContext();
 
@@ -89,9 +90,28 @@ export default function ProfileSettings() {
       setImage(URL.createObjectURL(file));
     }
   };
+  const { Data, loading, retry } = Usefetch(
+    "profile/update", // endpoint
+    "post", // method
+    null, // we pass null here because we'll send data manually
+    {}, // custom headers if any
+    false // auto = false
+  );
 
   const SignupSubmit = async (data) => {
-    console.log(formData);
+
+    // console.log(data); // This will be the same object as formData at the time you called it
+    const Payload = {
+      fullName: data.fullName,
+      section: data.section,
+      dept: data.dept,
+      gender: data.gender,
+      email: data.email,
+      regNumber: data.regNumber,
+      year: data.year,
+    };
+    console.log(Payload);
+    retry({}, { data: Payload });
   };
 
   const handleBlur = (field) => {
