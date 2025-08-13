@@ -9,6 +9,18 @@ function generateInviteCode() {
 const TeamSchema = new Schema(
   {
     teamName: { type: String, required: true, unique: true, index: true },
+    description: {
+      type: String,
+      required: true,
+      validate: {
+        validator: function (value) {
+          // Count words by splitting on whitespace and filtering out empties
+          const wordCount = value.trim().split(/\s+/).length;
+          return wordCount <= 200;
+        },
+        message: "Description must not exceed 200 words.",
+      },
+    },
     teamLeader: {
       type: Schema.Types.ObjectId,
       ref: "Users",
@@ -110,7 +122,7 @@ const TeamSchema = new Schema(
 
 // TeamSchema.index({ teamName: 1 }, { unique: true });
 
-TeamSchema.statics.createTeam = async function (teamName, UserId) {
+TeamSchema.statics.createTeam = async function (teamName, description, UserId) {
   const User = mongoose.model("Users");
 
   const leader = await User.findById(UserId);
@@ -122,6 +134,7 @@ TeamSchema.statics.createTeam = async function (teamName, UserId) {
   const team = await this.create({
     teamName,
     teamMembers: [{ userId: UserId }],
+    description,
     teamLeader: UserId,
   });
 
@@ -148,7 +161,6 @@ TeamSchema.statics.deleteTeam = async function (teamId, userId) {
 
   return { message: "Team deleted successfully" };
 };
-
 
 TeamSchema.statics.updateMembers = async function (teamId, leaderId, members) {
   if (!teamId || !members || !Array.isArray(members)) {
@@ -241,4 +253,32 @@ TeamSchema.statics.inviteMember = async function (teamId, leaderId, memberId) {
 
   return { memberId, inviteCode };
 };
+// Method for the leader to revoke a user
+TeamSchema.statics.revokeInvite = async function (teamId, leaderId, memberId) {
+  if (!teamId || !leaderId || !memberId) {
+    throw new Error("Team ID, Leader ID, and Member ID are required");
+  }
+
+  const team = await this.findById(teamId);
+  if (!team) throw new Error("Team not found");
+
+  if (team.teamLeader.toString() !== leaderId.toString()) {
+    throw new Error("Only the team leader can revoke invites");
+  }
+
+  // Remove all invites for that member
+  const originalLength = team.invites.length;
+  team.invites = team.invites.filter(
+    (invite) => invite.memberId.toString() !== memberId.toString()
+  );
+
+  if (team.invites.length === originalLength) {
+    throw new Error("Invite not found for this member");
+  }
+
+  await team.save();
+
+  return { memberId, revoked: true };
+};
+
 module.exports = mongoose.model("Teams", TeamSchema);
