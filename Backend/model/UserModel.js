@@ -1,52 +1,66 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 const currentYear = new Date().getFullYear() % 100;
-const getRandomAvatar =require('../controller/user/profile/avator/getRandomAvator')
-
+const getRandomAvatar = require("../controller/user/profile/avator/getRandomAvator");
+const TeamModel = require("./TeamModel");
 // Detailed user schema
 const UserModel = new mongoose.Schema(
   {
+    teamId: {
+      type: Schema.Types.ObjectId,
+      ref: "Teams",
+      validate: {
+        validator: async function (value) {
+          if (!value) return true; // Allow null or undefined
+          const teamExists = await TeamModel.exists({ _id: value });
+          return !!teamExists;
+        },
+        message: "Team with the given ID does not exist",
+      },
+    },
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     userRole: { type: String, default: "User", enum: ["User", "Admin"] },
     phoneNo: {
-        type: Number,
-        required: true,
-        unique: true,
-        validate: {
-          validator: function (v) {
-            return /^[6-9]\d{9}$/.test(v.toString());
-          },
-          message: "Phone number must be a valid 10-digit Indian mobile number",
+      type: Number,
+      required: [true, "Phone number is required"],
+      unique: true,
+      validate: {
+        validator: function (v) {
+          return v != null && /^[6-9]\d{9}$/.test(v.toString());
         },
+        message: "Phone number must be a valid 10-digit Indian mobile number",
       },
+      set: (v) => (v === null ? undefined : v),
+    },
     email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      },
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    },
     regNumber: {
-        type: String,
-        required: true,
-        unique: true,
-        set: (v) => v.toUpperCase(),
-        match: /^RA\d{2}\d{9,11}$/,
-        validate: {
-          validator: function (v) {
-            const yearPart = parseInt(v.slice(2, 4), 10);
-            return yearPart <= currentYear;
-          },
-          message: `Admission year in regNumber cannot be in the future.`,
+      type: String,
+      required: true,
+      unique: true,
+      set: (v) => v.toUpperCase(),
+      match: /^RA\d{2}\d{9,11}$/,
+      validate: {
+        validator: function (v) {
+          const yearPart = parseInt(v.slice(2, 4), 10);
+          return yearPart <= currentYear;
         },
+        message: `Admission year in regNumber cannot be in the future.`,
       },
+    },
     officialEmail: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      },
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    },
     userDetails: {
       name: {
         type: String,
@@ -66,7 +80,7 @@ const UserModel = new mongoose.Schema(
         required: true,
         match: /^[A-Z]$/,
       },
-      
+
       gender: {
         type: String,
         required: true,
@@ -81,7 +95,7 @@ const UserModel = new mongoose.Schema(
     },
     profile: {
       socialLinks: {
-        type:Array,
+        type: Array,
         default: [],
         validate: {
           validator: function (v) {
@@ -91,34 +105,35 @@ const UserModel = new mongoose.Schema(
           },
           message: "All social links must be valid URLs",
         },
-    },
-    skills:{
-      type: Array,
-      default: [],
-      validate: {
-        validator: function (v) {
-          return v.every((skill) => typeof skill === "string" && skill.length > 0);
-        },
-        message: "All skills must be non-empty strings",
       },
-    },
-    avator: {
-      type: String,
+      skills: {
+        type: Array,
+        default: [],
+        validate: {
+          validator: function (v) {
+            return v.every(
+              (skill) => typeof skill === "string" && skill.length > 0
+            );
+          },
+          message: "All skills must be non-empty strings",
+        },
+      },
+      avator: {
+        type: String,
 
-      validate: {
-        validator: function (v) {
-          return typeof v === "string" && v.startsWith("/avator/");
+        validate: {
+          validator: function (v) {
+            return typeof v === "string" && v.startsWith("/avator/");
+          },
+          message: "Avatar path must start with '/avator/'",
         },
-        message: "Avatar path must start with '/avator/'",
       },
     },
-  },
   },
   {
     timestamps: true,
   }
 );
-
 
 UserModel.pre("save", function (next) {
   if (!this.profile.avator || this.profile.avator === "") {
@@ -132,7 +147,36 @@ UserModel.pre("save", function (next) {
   }
   next();
 });
+UserModel.index({ teamId: 1 });
 
+UserModel.statics.UpdateTeamId = async function (
+  teamId,
+  userId,
+  rollbackTeamOnFail = false
+) {
+  if (teamId) {
+    const exists = await TeamModel.exists({ _id: teamId });
+    if (!exists) throw new Error("Team with the given ID does not exist");
+  }
+
+  const user = await this.findById(userId);
+  if (!user) throw new Error("No User record found");
+
+  if (user.teamId?.toString() === teamId?.toString()) {
+    return { updated: false, user };
+  }
+
+  try {
+    user.teamId = teamId;
+    await user.save();
+    return { updated: true, user };
+  } catch (err) {
+    if (rollbackTeamOnFail && teamId) {
+      await TeamModel.deleteOne({ _id: teamId }).catch(() => {});
+    }
+    throw err;
+  }
+};
 
 const User = mongoose.model("Users", UserModel);
 
