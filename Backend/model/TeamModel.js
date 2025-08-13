@@ -39,10 +39,10 @@ const TeamSchema = new Schema(
     },
     invites: [
       {
-        memeberId: {
+        memberId: {
           type: Schema.Types.ObjectId,
           ref: "Users",
-          required: [true, "teamLeader is required"],
+          required: [true, "Member ID is required"],
           validate: {
             validator: async function (value) {
               const Team = mongoose.model("Teams");
@@ -54,11 +54,15 @@ const TeamSchema = new Schema(
             },
             message: "User is already in another team.",
           },
-          code: { type: String, default: generateInviteCode, unique: true },
+        },
+        code: {
+          type: String,
+          default: generateInviteCode,
+          required: true,
+          unique: true,
         },
       },
     ],
-
     teamMembers: {
       type: [
         new Schema(
@@ -121,6 +125,14 @@ const TeamSchema = new Schema(
 );
 
 // TeamSchema.index({ teamName: 1 }, { unique: true });
+// ensure uniqueness for invites.code only when code is a string
+TeamSchema.index(
+  { "invites.code": 1 },
+  {
+    unique: true,
+    partialFilterExpression: { "invites.code": { $type: "string" } },
+  }
+);
 
 TeamSchema.statics.createTeam = async function (teamName, description, UserId) {
   const User = mongoose.model("Users");
@@ -231,8 +243,8 @@ TeamSchema.statics.updateMembers = async function (teamId, leaderId, members) {
     path: "teamMembers.userId teamLeader",
   });
 };
-
-// Method for leader to invite a user
+// Static method to invite a member
+// This method generates an invite code for a member to join the team
 TeamSchema.statics.inviteMember = async function (teamId, leaderId, memberId) {
   if (!teamId || !leaderId || !memberId) {
     throw new Error("Team ID, Leader ID, and Member ID are required");
@@ -245,14 +257,20 @@ TeamSchema.statics.inviteMember = async function (teamId, leaderId, memberId) {
     throw new Error("Only the team leader can invite members");
   }
 
-  const inviteCode = generateInviteCode();
+  // Remove old invite if exists
+  team.invites = team.invites.filter(
+    (invite) => invite.memberId.toString() !== memberId.toString()
+  );
 
-  // Add to invites array
+  // Generate and add new code
+  const inviteCode = generateInviteCode();
   team.invites.push({ memberId, code: inviteCode });
+
   await team.save();
 
   return { memberId, inviteCode };
 };
+
 // Method for the leader to revoke a user
 TeamSchema.statics.revokeInvite = async function (teamId, leaderId, memberId) {
   if (!teamId || !leaderId || !memberId) {
@@ -279,6 +297,185 @@ TeamSchema.statics.revokeInvite = async function (teamId, leaderId, memberId) {
   await team.save();
 
   return { memberId, revoked: true };
+};
+
+// Static method to accept an invite
+// This method allows a user to accept an invite using the invite code
+TeamSchema.statics.acceptInvite = async function (userId, teamId, inviteCode) {
+  if (!userId || !teamId || !inviteCode) {
+    throw new Error("User ID, Team ID, and Invite Code are required");
+  }
+
+  const User = mongoose.model("Users");
+  const Team = this;
+
+  // normalize inputs
+  inviteCode = String(inviteCode).trim();
+  let userObjId, teamObjId;
+  try {
+    userObjId = new mongoose.Types.ObjectId(userId);
+    teamObjId = new mongoose.Types.ObjectId(teamId);
+  } catch (e) {
+    throw new Error("Invalid userId or teamId format");
+  }
+
+  // 1. Load user
+  const user = await User.findById(userObjId);
+  if (!user) throw new Error("User not found");
+
+  const prevTeamId = user.teamId ? user.teamId.toString() : null;
+
+  // 2. Quick diagnostic: show invites for this team (use in logs)
+  const rawTeam = await Team.findById(teamObjId).lean();
+  if (!rawTeam) throw new Error("Target team not found (check teamId)");
+  console.log(
+    "DEBUG team.invites:",
+    JSON.stringify(rawTeam.invites || [], null, 2)
+  );
+
+  // 3. Try to locate invite in-memory with defensive equality checks
+  const foundInvite = (rawTeam.invites || []).find((i) => {
+    if (!i || !i.code) return false;
+    const codeMatch = String(i.code).trim() === inviteCode;
+    // i.memberId might be an ObjectId or string
+    const memberIdStr = i.memberId ? String(i.memberId) : null;
+    const userIdStr = String(userObjId);
+    const memberMatch = memberIdStr === userIdStr;
+    // also allow match if invite code matches and memberId is missing (for debugging)
+    return codeMatch && memberMatch;
+  });
+
+  if (!foundInvite) {
+    // helpful diagnostic: is code present but for different user?
+    const inviteByCode = (rawTeam.invites || []).find(
+      (i) => String(i.code).trim() === inviteCode
+    );
+    if (inviteByCode) {
+      console.log(
+        "Invite code found but memberId differs. invite.memberId:",
+        String(inviteByCode.memberId),
+        "expected userId:",
+        String(userObjId)
+      );
+      throw new Error(
+        "Invalid invite code or user (code exists but for different member)."
+      );
+    }
+    // no invite at all for given code
+    throw new Error("Invalid invite code or user (no matching invite found).");
+  }
+
+  // 4. Do an atomic update on the team: remove invite + add member
+  const inviteBackup = {
+    memberId: foundInvite.memberId,
+    code: foundInvite.code,
+  };
+  const updatedTeam = await Team.findOneAndUpdate(
+    {
+      _id: teamObjId,
+      "invites.code": inviteCode,
+      "invites.memberId": userObjId,
+    },
+    {
+      $pull: { invites: { code: inviteCode, memberId: userObjId } },
+      $addToSet: { teamMembers: { userId: userObjId, timestamp: new Date() } },
+    },
+    { new: true }
+  );
+
+  if (!updatedTeam) {
+    // race or type mismatch — give diagnostic
+    console.log(
+      "Atomic update failed: invite may have been removed or memberId type mismatch."
+    );
+    throw new Error("Invalid invite code or user (atomic update failed).");
+  }
+
+  // 5. Remove user from previous team if needed
+  try {
+    if (prevTeamId && prevTeamId !== teamObjId.toString()) {
+      await Team.updateOne(
+        { _id: new mongoose.Types.ObjectId(prevTeamId) },
+        { $pull: { teamMembers: { userId: userObjId } } }
+      );
+    }
+  } catch (e) {
+    // rollback team change
+    await Team.updateOne(
+      { _id: teamObjId },
+      { $pull: { teamMembers: { userId: userObjId } } }
+    );
+    await Team.updateOne(
+      { _id: teamObjId },
+      { $addToSet: { invites: inviteBackup } }
+    );
+    throw new Error("Failed removing user from previous team: " + e.message);
+  }
+
+  // 6. Update user's teamId
+  try {
+    const updated = await User.findByIdAndUpdate(
+      userObjId,
+      { $set: { teamId: teamObjId } },
+      { new: true }
+    );
+    if (!updated) throw new Error("Failed to update user's teamId");
+  } catch (userErr) {
+    // rollback: remove member from new team, restore invite, restore prev team membership
+    const rollbackErrors = [];
+    try {
+      await Team.updateOne(
+        { _id: teamObjId },
+        { $pull: { teamMembers: { userId: userObjId } } }
+      );
+      await Team.updateOne(
+        { _id: teamObjId },
+        { $addToSet: { invites: inviteBackup } }
+      );
+    } catch (e) {
+      rollbackErrors.push("Failed to restore new team: " + e.message);
+    }
+    if (prevTeamId && prevTeamId !== teamObjId.toString()) {
+      try {
+        await Team.updateOne(
+          { _id: new mongoose.Types.ObjectId(prevTeamId) },
+          {
+            $addToSet: {
+              teamMembers: { userId: userObjId, timestamp: new Date() },
+            },
+          }
+        );
+      } catch (e) {
+        rollbackErrors.push(
+          "Failed to restore previous team membership: " + e.message
+        );
+      }
+    }
+    // attempt revert user.teamId to previous
+    try {
+      await User.findByIdAndUpdate(userObjId, {
+        $set: {
+          teamId: prevTeamId ? new mongoose.Types.ObjectId(prevTeamId) : null,
+        },
+      });
+    } catch (e) {
+      rollbackErrors.push("Failed to revert user's teamId: " + e.message);
+    }
+
+    if (rollbackErrors.length) {
+      throw new Error(
+        `Failed updating user: ${
+          userErr.message
+        }. Rollback issues: ${rollbackErrors.join(" | ")}`
+      );
+    }
+    throw new Error("Failed updating user: " + userErr.message);
+  }
+
+  // 7. Return populated team
+  return await Team.findById(teamObjId)
+    .select("-invites")
+    .populate("teamMembers.userId teamLeader");
 };
 
 module.exports = mongoose.model("Teams", TeamSchema);
