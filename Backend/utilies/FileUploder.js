@@ -21,7 +21,7 @@ function formatDate(date) {
  * @param {number} [options.maxSize] - Maximum allowed file size in bytes
  * @returns {multer.Instance} - Multer middleware
  */
-function fileUploader(filePath,{ allowedTypes = [], maxSize } = {}) {
+function fileUploader(filePath,{ allowedTypes = [], maxSize } = {}, randomFileName = true) {
     const storage = multer.diskStorage({
         destination: function (req, file, cb) {
             const uploadPath = path.join(process.cwd(), filePath);
@@ -29,9 +29,14 @@ function fileUploader(filePath,{ allowedTypes = [], maxSize } = {}) {
             cb(null, uploadPath);
         },
         filename: function (req, file, cb) {
+        if (!randomFileName) {
+            cb(null, file.originalname);
+        }
+        else {
             const formattedDate = formatDate(new Date());
             const randomNumber = Math.floor(Math.random() * 900000) + 100000;
             cb(null, formattedDate + randomNumber + file.originalname);
+        }
         }
     });
 

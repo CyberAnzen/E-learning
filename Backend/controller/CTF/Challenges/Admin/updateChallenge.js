@@ -1,17 +1,25 @@
 const CTF_challenges = require("../../../../model/CTFchallengeModel");
+const customError = require("../../../../utilies/customError");
+const Path = require("path");
+const fs = require("fs");
+
 
 exports.updateChallenge = async (req, res) => {
   const { ChallengeId } = req.params;
+  let deleteDir=false
+  let relativePath
+  let dirPath
   const {
     title,
     description,
     score,
     category,
-
-    attachments,
+    //attachments,
+    existingAttachments,
     flag,
     difficulty,
   } = req.body;
+ // console.log(req.body);
   // 2) Tags come in as either a string or an array of strings
   //    Because you did `formData.append("tags", tag)` for each tag,
   //    multer will expose req.body.tags as an array if >1, or a string if just 1.
@@ -33,6 +41,61 @@ exports.updateChallenge = async (req, res) => {
     }
   }
   try {
+     const challenge = await CTF_challenges.findById(ChallengeId);
+    
+    if (!challenge) {
+      return res.status(404).json({ message: "Challenge not found" });
+    }
+    //console.log("challenge:", challenge.attachments);
+    let existingAttachmentsArray = [];
+    let deletedAttachments = [];
+    if (existingAttachments) {
+      try {
+        existingAttachmentsArray= JSON.parse(existingAttachments);
+      } catch (error) {
+        throw new customError("Invalid existingAttachments JSON", 400);
+      }
+      // Check for attachments to delete
+      deletedAttachments = challenge.attachments.filter(
+    (filePath) => !existingAttachmentsArray.includes(filePath)
+  );}
+  else{
+    deletedAttachments = challenge.attachments;
+    deleteDir=true
+    relativePath = Array.isArray(deletedAttachments) ? deletedAttachments[0] : deletedAttachments;
+    dirPath = Path.dirname(relativePath);
+
+  }
+  
+    console.log("Deleted Attachments:", deletedAttachments);
+    
+
+
+    try {
+
+            deletedAttachments.forEach((filePath) => {
+                const fullPath = Path.join(process.cwd(), filePath);
+                console.log(`Attempting to delete file: ${fullPath}`);
+                
+                if (fs.existsSync(fullPath)) {
+                    fs.unlinkSync(fullPath);
+                    console.log(`Deleted file: ${fullPath}`);
+                } else {
+                    console.warn(`File not found for deletion: ${fullPath}`);
+                }})
+        } catch (error) {
+            throw new customError('Error deleting ctf challemges: ', 500,{}, error.message);
+      }
+    
+    let newAttachments = (req.files || []).map(f => {
+      const filePath = Path.join(req.customFileUpload.randomPathName, f.filename);
+      return filePath.replace(/\\/g, '/').replace(/^public\//, '');
+    });
+
+    // Combine existing attachments with new ones
+    if (existingAttachmentsArray && existingAttachmentsArray.length > 0) {
+      newAttachments = [...existingAttachmentsArray, ...newAttachments];
+    } 
     const payload = {
       title,
       description,
@@ -40,10 +103,13 @@ exports.updateChallenge = async (req, res) => {
       category,
       tags,
       hints,
-      attachments,
+      attachments:newAttachments,
       flag,
       difficulty,
     };
+
+    console.log("Payload for update:", payload);
+    
 
     const Challenge = await CTF_challenges.findByIdAndUpdate(
       ChallengeId,
@@ -52,6 +118,7 @@ exports.updateChallenge = async (req, res) => {
     );
 
     if (!Challenge) {
+      console.error("Challenge not found for update:", ChallengeId);
       return res.status(404).json({ message: "Challenge not found" });
     }
 
@@ -59,8 +126,21 @@ exports.updateChallenge = async (req, res) => {
       message: "Challenge updated successfully",
       Challenge,
     });
+    if(deleteDir){
+      dirPath = Path.join(process.cwd(),"public",dirPath);
+      console.log("Deleting challenge folder:", dirPath);
+      
+      try {
+      fs.rmSync(dirPath, { recursive: true, force: true });
+      console.log("Challenge folder deleted");
+      } catch (error) {
+        console.error("Error deleting challenge folder:", error);
+      }
+
+    }
   } catch (error) {
     console.error("Challenge update error:", error);
     return res.status(400).json({ message: "Error updating challenge", error });
+
   }
 };
