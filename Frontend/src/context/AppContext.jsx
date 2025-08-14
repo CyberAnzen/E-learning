@@ -9,7 +9,7 @@ export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(true);
   const [user, setUser] = useState(null);
-
+  const [team, setTeam] = useState(null);
   const [savedSkills, setSavedSkills] = useState([]);
   const [savedLinks, setSavedLinks] = useState(null);
   const [LearnAdd, setLearnAdd] = useState(false);
@@ -71,7 +71,7 @@ export const AppContextProvider = ({ children }) => {
 
       const data = await res.json();
       setUser(data?.data);
-      
+
       setAdmin(data.user?.role === "admin");
       setLoggedIn(true);
     } catch (error) {
@@ -117,6 +117,7 @@ export const AppContextProvider = ({ children }) => {
     loggedIn,
     setLoggedIn,
     logout,
+    team,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
