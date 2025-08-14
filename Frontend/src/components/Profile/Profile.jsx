@@ -87,7 +87,7 @@ function Profile() {
         setActiveItem={setActiveItem}
       />
 
-      <main className="flex-1 overflow-x-hidden px-1 md:px-3 py-3 md:mt-0">
+      <main className="flex-1 overflow-x-hidden px-1 md:px-3 py-3 md:mt-0 md:ml-64 lg:ml-72">
         {renderContent()}
       </main>
     </div>

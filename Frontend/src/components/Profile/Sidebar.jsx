@@ -1,3 +1,4 @@
+// src/components/Sidebar.jsx
 import React, { useState } from "react";
 import {
   Home,
@@ -42,9 +43,7 @@ export default function Sidebar({
   return (
     <>
       <div
-        className={`fixed z-30 inset-y-0 left-0 w-64 lg:w-70 bg-black/50 shadow transform transition-transform duration-300 ease-in-out md:translate-x-0 lg:m-2 border border-[#00ffff]/25 rounded-2xl ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:relative md:z-0 md:block`}
+        className={`fixed z-30  left-1 bottom-3 w-64 lg:w-72 h-[84vh] bg-black/50 shadow transform transition-transform duration-300 ease-in-out border border-[#00ffff]/25 rounded-2xl ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:block`}
       >
         <div className="p-4 border-b border-[#00ffff]/30">
           <div className="flex items-center space-x-2">
@@ -94,33 +93,7 @@ export default function Sidebar({
               <span className="text-sm">{item.name}</span>
             </div>
           ))}
-          <div className="mt-30 px-4">
-            <button className="w-full flex items-center justify-center border border-dashed border-gray-500 py-2 rounded text-gray-300 hover:border-[#00ffff]/30 hover:text-[#00ffff]/70 transition-colors">
-              <Plus className="w-4 h-4 mr-2" />
-              Add New Project
-            </button>
-          </div>
         </nav>
-        <div className="mt-6 px-4 space-y-2 text-sm text-gray-400">
-          <div>
-            Web Design <span className="float-right">25%</span>
-          </div>
-          <div className="w-full h-2 bg-gray-700 rounded">
-            <div className="h-2 bg-green-500 rounded w-1/4" />
-          </div>
-          <div>
-            Design System <span className="float-right">50%</span>
-          </div>
-          <div className="w-full h-2 bg-gray-700 rounded">
-            <div className="h-2 bg-yellow-500 rounded w-1/2" />
-          </div>
-          <div>
-            Webflow Dev <span className="float-right">75%</span>
-          </div>
-          <div className="w-full h-2 bg-gray-700 rounded">
-            <div className="h-2 bg-blue-500 rounded w-3/4" />
-          </div>
-        </div>
       </div>
 
       {/* Click-outside overlay */}
