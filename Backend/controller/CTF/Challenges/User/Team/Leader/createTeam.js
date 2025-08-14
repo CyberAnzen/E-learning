@@ -1,6 +1,6 @@
-const TeamModal = require("../../../../../model/TeamModel");
+const TeamModal = require("../../../../../../model/TeamModel");
 exports.createTeam = async (req, res) => {
-  const { teamName,description } = req.body;
+  const { teamName, description } = req.body;
   const userId = req.user.id;
 
   if (!teamName) {
@@ -14,7 +14,7 @@ exports.createTeam = async (req, res) => {
       return res.status(400).json({ message: "Team name already exists" });
     }
 
-    const newTeam = await TeamModal.createTeam(teamName, description,userId);
+    const newTeam = await TeamModal.createTeam(teamName, description, userId);
     res.status(201).json({
       message: "Team created successfully",
       team: newTeam,

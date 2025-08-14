@@ -1,4 +1,4 @@
-const TeamModal = require("../../../../../model/TeamModel");
+const TeamModal = require("../../../../../../model/TeamModel");
 exports.acceptInvite = async (req, res) => {
   const { teamId, inviteCode } = req.body;
   const userId = req.user.id;

@@ -1,4 +1,4 @@
-const TeamModal = require("../../../../../model/TeamModel");
+const TeamModal = require("../../../../../../model/TeamModel");
 
 exports.updateMembers = async (req, res) => {
   try {

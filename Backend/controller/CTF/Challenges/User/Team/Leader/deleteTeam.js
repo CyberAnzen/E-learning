@@ -1,4 +1,4 @@
-const TeamModal = require("../../../../../model/TeamModel");
+const TeamModal = require("../../../../../../model/TeamModel");
 
 exports.deleteTeam = async (req, res) => {
   const { teamId } = req.body;

@@ -1,4 +1,4 @@
-const TeamModel = require("../../../../../model/TeamModel");
+const TeamModel = require("../../../../../../model/TeamModel");
 
 exports.revokeInvite = async (req, res) => {
   try {

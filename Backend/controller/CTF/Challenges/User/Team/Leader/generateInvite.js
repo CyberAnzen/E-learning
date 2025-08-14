@@ -1,4 +1,4 @@
-const TeamModel = require("../../../../../model/TeamModel");
+const TeamModel = require("../../../../../../model/TeamModel");
 
 exports.generateInvite = async (req, res) => {
   try {
@@ -18,4 +18,3 @@ exports.generateInvite = async (req, res) => {
     });
   }
 };
-
