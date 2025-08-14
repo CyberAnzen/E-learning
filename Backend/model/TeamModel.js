@@ -11,6 +11,28 @@ function generateInviteCode(length = 10) {
   if (typeof length !== "number" || length <= 0) return hex; // fallback to full hex
   return hex.slice(0, Math.min(length, hex.length));
 }
+// - using part of a uuid keeps randomness high while making the string shorter.
+
+// Standalone async function
+async function generateUniqueTeamCode(model, length = 8, attempt = 1) {
+  const maxAttempts = 10; // Increased from 5 for better reliability
+  if (attempt > maxAttempts) {
+    throw new Error(
+      "Failed to generate unique team code after multiple attempts"
+    );
+  }
+
+  // Generate random alphanumeric string (not just UUID segments)
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < length; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  // Check for existing code
+  const existing = await model.findOne({ teamCode: code });
+  return existing ? generateUniqueTeamCode(model, length, attempt + 1) : code;
+}
 
 // Helper: Throw if any user in userIds is already in a different team.
 // teamIdToIgnore is optional: pass the current team's id when checking updates so the check doesn't consider the current team a conflict.
@@ -54,6 +76,15 @@ async function ensureUsersNotInOtherTeams(userIds = [], teamIdToIgnore = null) {
 const TeamSchema = new Schema(
   {
     teamName: { type: String, required: true, unique: true, index: true },
+    teamCode: {
+      type: String,
+      required: true,
+      unique: true,
+      match: [
+        /^[A-Z0-9]{8}$/,
+        "Team code must be an 8-character alphanumeric string",
+      ],
+    },
     description: {
       type: String,
       required: true,
@@ -152,8 +183,26 @@ const TeamSchema = new Schema(
   }
 );
 
+// Pre-save hook to generate unique code (MUST be defined before model compilation)
+// Change this from pre("save") to pre("validate")
+TeamSchema.pre("validate", async function (next) {
+  // Only generate code for new documents or if code is missing
+  if (this.isNew && !this.teamCode) {
+    try {
+      this.teamCode = await generateUniqueTeamCode(this.constructor);
+      next();
+    } catch (err) {
+      next(err);
+    }
+  } else {
+    next();
+  }
+});
+
 // TeamSchema.index({ teamName: 1 }, { unique: true });
 // ensure uniqueness for invites.code only when code is a string
+// Indexes
+TeamSchema.index({ teamName: 1 }, { unique: true });
 TeamSchema.index(
   { "invites.code": 1 },
   {
@@ -161,6 +210,7 @@ TeamSchema.index(
     partialFilterExpression: { "invites.code": { $type: "string" } },
   }
 );
+TeamSchema.index({ teamCode: 1 }, { unique: true });
 
 // generateUniqueInviteCode(maxAttempts = 5, length = 10)
 // - tries up to maxAttempts to find a code not already present in the collection.
