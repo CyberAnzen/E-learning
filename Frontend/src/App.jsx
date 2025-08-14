@@ -36,6 +36,7 @@ import AdminEditor from "./components/Admin/Content/adminEditor";
 import Profilenew from "./components/ProfilePage/Profile";
 import AddChallenges from "./routes/CTF/AddChallenges";
 import DisplayChallenge from "./routes/CTF/DisplayChallenge";
+import Sidebar from "./components/ProfilePage/Sidebar";
 function App() {
   const { loggedIn } = useAppContext();
   // const getCsrfToken = useGetCsrfToken();

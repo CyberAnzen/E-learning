@@ -16,8 +16,10 @@ import {
 } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import Usefetch from "../../hooks/Usefetch";
+import { NavLink } from "react-router-dom";
+import Sidebar from "./Sidebar";
 export default function ProfileSettings() {
-  const { user } = useAppContext();
+  const { user, setImage, image } = useAppContext();
 
   const [formData, setFormData] = useState({
     fullName: user?.userDetails.name,
@@ -42,24 +44,51 @@ export default function ProfileSettings() {
     });
   }, [user]);
 
-  // const [formData, setFormData] = useState({
-  //   username: "",
-  //   email: "",
-  //   fullName: "",
-  //   regNumber: "",
-  //   dept: "",
-  //   section: "",
-  //   year: "",
-  //   gender: "",
-  //   mobile: "",
-  //   officialEmail: "",
-  //   password: "",
-  //   confirmPassword: "",
-  //   terms: false,
-  // });
-  const [image, setImage] = useState(
-    "https://i.pinimg.com/736x/af/70/bb/af70bb880077591b711b83ee7717c91b.jpg"
-  );
+  const initialFormRef = useRef({
+    fullName: user?.userDetails?.name ?? "",
+    regNumber: user?.regNumber ?? "",
+    section: user?.userDetails?.section ?? "",
+    email: user?.email ?? "",
+    year: user?.userDetails?.year ?? "",
+    dept: user?.userDetails?.dept ?? "",
+    officialEmail: user?.officialEmail ?? "",
+    gender: user?.userDetails?.gender ?? "",
+  });
+  useEffect(() => {
+    const init = {
+      fullName: user?.userDetails?.name ?? "",
+      regNumber: user?.regNumber ?? "",
+      section: user?.userDetails?.section ?? "",
+      email: user?.email ?? "",
+      year: user?.userDetails?.year ?? "",
+      dept: user?.userDetails?.dept ?? "",
+      officialEmail: user?.officialEmail ?? "",
+      gender: user?.userDetails?.gender ?? "",
+    };
+
+    initialFormRef.current = init; // <-- set baseline
+    setFormData(init);
+  }, [user]);
+
+  const isFormChanged = () => {
+    // fields we want to compare
+    const keys = [
+      "fullName",
+      "regNumber",
+      "section",
+      "email",
+      "year",
+      "dept",
+      "officialEmail",
+      "gender",
+    ];
+
+    return keys.some((key) => {
+      const a = (formData[key] ?? "").toString().trim();
+      const b = (initialFormRef.current[key] ?? "").toString().trim();
+      return a !== b;
+    });
+  };
   const [copied, setCopied] = useState(false);
   const [password, setPassword] = useState({ current: "", next: "" });
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -67,6 +96,10 @@ export default function ProfileSettings() {
   const [touched, setTouched] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  // status will control the button text and is managed based on loading transitions
+  const [status, setStatus] = useState("idle"); // "idle" | "submitting" | "submitted"
+  const timersRef = useRef([]); // holds active timeouts to clear later
+  const prevLoadingRef = useRef(false); // track previous loading value for transitions
 
   const handleCopy = () => {
     navigator.clipboard.writeText("748589549");
@@ -99,7 +132,6 @@ export default function ProfileSettings() {
   );
 
   const SignupSubmit = async (data) => {
-
     // console.log(data); // This will be the same object as formData at the time you called it
     const Payload = {
       fullName: data.fullName,
@@ -117,6 +149,58 @@ export default function ProfileSettings() {
   const handleBlur = (field) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
+
+  useEffect(() => {
+    // clear any existing timers before scheduling new ones
+    timersRef.current.forEach((t) => clearTimeout(t));
+    timersRef.current = [];
+
+    // loading started (transition false -> true)
+    if (!prevLoadingRef.current && loading) {
+      setStatus("submitting");
+    }
+
+    // loading finished (transition true -> false)
+    if (prevLoadingRef.current && !loading) {
+      if (Data?.success) {
+        // Ensure at least a short submitting visual, then show "Submitted", then revert to idle
+        const toSubmitted = setTimeout(() => {
+          setStatus("submitted");
+          initialFormRef.current = formData;
+
+          const toIdle = setTimeout(() => {
+            setStatus("idle");
+          }, 2000); // keep "Submitted" visible for 2s
+
+          timersRef.current.push(toIdle);
+        }, 500); // wait 500ms before showing "Submitted"
+        timersRef.current.push(toSubmitted);
+      } else {
+        // not successful (either error or no response) -> go back to idle
+        setStatus("idle");
+      }
+    }
+
+    prevLoadingRef.current = loading;
+
+    // cleanup on dependency change / unmount
+    return () => {
+      timersRef.current.forEach((t) => clearTimeout(t));
+      timersRef.current = [];
+    };
+  }, [loading, Data]);
+
+  // map status to button text
+  const buttonText = (() => {
+    switch (status) {
+      case "submitting":
+        return "Submitting...";
+      case "submitted":
+        return "Submitted";
+      default:
+        return "Submit";
+    }
+  })();
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -210,111 +294,20 @@ export default function ProfileSettings() {
   }, [sidebarOpen]);
 
   const menuItems = [
-    { name: "Dashboard", icon: <Home /> },
-    { name: "User Profile", icon: <User /> },
-    { name: "Documents", icon: <FileText /> },
-    { name: "Setting", icon: <Settings /> },
-    { name: "Schedule", icon: <Calendar /> },
-    { name: "Report", icon: <BarChart /> },
+    { name: "Dashboard", icon: <Home />, to: "/dashboard" },
+    { name: "User Profile", icon: <User />, to: "/profile/profile2" },
+    { name: "Team", icon: <FileText />, to: "/documents" },
+    { name: "Setting", icon: <Settings />, to: "/settings" },
+    { name: "Schedule", icon: <Calendar />, to: "/schedule" },
+    { name: "Report", icon: <BarChart />, to: "/report" },
   ];
   const inputStyle =
- "w-full px-4 py-0 rounded-lg inset-0 h-10 rounded-full bg-gradient-to-r from-[#00bfff]/15 via-[#1e90ff]/10 to-[#00bfff]/5 border border-[#00bfff]/30 transition-all duration-300 text-white placeholder-[#00bfff]/30 outline-none focus:outline-none focus:ring-1 focus:ring-[#00bfff]";
+    "w-full px-4 py-0 rounded-lg inset-0 h-10 rounded-full bg-gradient-to-r from-[#00bfff]/15 via-[#1e90ff]/10 to-[#00bfff]/5 border border-[#00bfff]/30 transition-all duration-300 text-white placeholder-[#00bfff]/30 outline-none focus:outline-none focus:ring-1 focus:ring-[#00bfff]";
   return (
     <>
       <div className="min-h-screen bg-[rgb(23,24,26)] text-white flex">
         {/* Sidebar */}
-        <div
-          className={`fixed z-30 inset-y-0 left-0 w-64 lg:w-70 bg-black/50 shadow transform transition-transform duration-300 ease-in-out md:translate-x-0 lg:m-2 border border-[#00ffff]/25 rounded-2xl ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } md:relative md:z-0 md:block`}
-        >
-          <div className="p-4 border-b border-[#00ffff]/30">
-            <div className="flex items-center space-x-2">
-              <img
-                src={image}
-                alt="avatar"
-                className="w-10 h-10 rounded-full"
-              />
-              <div className="flex flex-col gap-0.5">
-                <h4 className="text-sm font-semibold text-[#00ffff]">
-                  Cameron Williamson
-                </h4>
-                <p className="text-xs text-gray-400 flex gap-2">
-                  ID: 748589549{" "}
-                  <Copy
-                    onClick={handleCopy}
-                    className="cursor-pointer hover:text-[#00ffff]/25"
-                    size={14}
-                  />
-                  {copied && (
-                    <span className="absolute -top-0.1 left-113 -translate-x-60 text-xs text-black font-medium bg-[#00ff00] px-2 py-0.5 rounded shadow ">
-                      Copied!
-                    </span>
-                  )}
-                </p>
-              </div>
-            </div>
-            <button
-              className="md:hidden absolute top-4 right-4 text-gray-400"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          <nav className="mt-4 px-2 space-y-2 text-gray-300">
-            {menuItems.map((item) => (
-              <div
-                key={item.name}
-                className="flex items-center px-4 py-2 hover:text-[#00ffff] cursor-pointer"
-              >
-                <div className="mr-3 ">{item.icon}</div>
-                <span className="text-sm">{item.name}</span>
-              </div>
-            ))}
-            <div className="mt-30 px-4 ">
-              <button className="w-full flex items-center justify-center border border-dashed border-gray-500 py-2 rounded text-gray-300">
-                <Plus className="w-4 h-4 mr-2" />
-                Add New Project
-              </button>
-            </div>
-          </nav>
-          <div className="mt-6 px-4 space-y-2 text-sm text-gray-400">
-            <div>
-              Web Design <span className="float-right">25%</span>
-            </div>
-            <div className="w-full h-2 bg-gray-700 rounded">
-              <div className="h-2 bg-green-500 rounded w-1/4" />
-            </div>
-            <div>
-              Design System <span className="float-right">50%</span>
-            </div>
-            <div className="w-full h-2 bg-gray-700 rounded">
-              <div className="h-2 bg-yellow-500 rounded w-1/2" />
-            </div>
-            <div>
-              Webflow Dev <span className="float-right">75%</span>
-            </div>
-            <div className="w-full h-2 bg-gray-700 rounded">
-              <div className="h-2 bg-blue-500 rounded w-3/4" />
-            </div>
-          </div>
-        </div>
-
-        {/* Click-outside overlay */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-1.00 z-20 md:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        {/* Mobile Navbar */}
-        <div className="md:hidden absolute top-1 left-0 z-20 bg-black/50 rounded-2xl p-2 h-12 w-10 shadow mt-20">
-          <button onClick={() => setSidebarOpen(true)}>
-            <ChevronRight className="w-6 h-6 text-white" />
-          </button>
-        </div>
-
+        <Sidebar />
         <main className="flex-1 overflow-x-hidden px-1 md:px-3 py-3 md:mt-0">
           <div className=" px-0	 min-h-screen font-sans">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -548,9 +541,14 @@ export default function ProfileSettings() {
                     <button
                       type="submit"
                       className="btn btn-neutral hover:text-[#00ffff]"
-                      disabled={!isFormComplete() || isLoading}
+                      disabled={
+                        !isFormComplete() ||
+                        loading ||
+                        status === "submitted" ||
+                        !isFormChanged() // <-- disabled when nothing changed
+                      }
                     >
-                      {isLoading ? "Submitting..." : "Submit"}
+                      {buttonText}
                     </button>
                   </div>
                 </form>
