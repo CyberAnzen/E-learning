@@ -1,16 +1,16 @@
 const TeamModal = require("../../../../../../model/TeamModel");
 exports.acceptInvite = async (req, res) => {
-  const { teamId, inviteCode } = req.body;
+  const { teamCode, inviteCode } = req.body;
   const userId = req.user.id;
 
-  if (!teamId || !inviteCode) {
+  if (!teamCode || !inviteCode) {
     return res
       .status(400)
       .json({ message: "Team ID and invite code are required" });
   }
 
   try {
-    const result = await TeamModal.acceptInvite(userId, teamId, inviteCode);
+    const result = await TeamModal.acceptInvite(userId, teamCode, inviteCode);
     if (result) {
       res.status(200).json({
         message: "Invite accepted successfully",
