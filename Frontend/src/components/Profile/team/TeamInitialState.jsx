@@ -1,17 +1,35 @@
-import React, { useState } from "react";
-import { Users, Plus, UserPlus, Copy } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Users, Plus, UserPlus } from "lucide-react";
 import { useAppContext } from "../../../context/AppContext";
+import Usefetch from "../../../hooks/Usefetch";
 
 export default function TeamInitialState() {
-  const { createTeam, joinTeam } = useAppContext();
+  const { createTeam } = useAppContext();
   const [activeTab, setActiveTab] = useState("join");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     teamCode: "",
+    inviteCode: "",
     teamName: "",
     teamDescription: "",
   });
+
+  // Use Usefetch hook for accepting invite - don't auto-trigger
+  const {
+    Data: inviteData,
+    error: inviteError,
+    loading: inviteLoading,
+    retry: acceptInvite,
+  } = Usefetch("team/acceptInvite", "post", null, {}, false);
+
+  // Use Usefetch hook for creating team - don't auto-trigger
+  const {
+    Data: createTeamData,
+    error: createTeamError,
+    loading: createTeamLoading,
+    retry: createTeamAPI,
+  } = Usefetch("team/createTeam", "post", null, {}, false);
 
   const inputStyle =
     "w-full px-4 py-3 rounded-lg bg-gradient-to-r from-[#00bfff]/15 via-[#1e90ff]/10 to-[#00bfff]/5 border border-[#00bfff]/30 transition-all duration-300 text-white placeholder-[#00bfff]/50 outline-none focus:outline-none focus:ring-1 focus:ring-[#00bfff] focus:border-[#00bfff]/50";
@@ -24,21 +42,24 @@ export default function TeamInitialState() {
 
   const handleJoinTeam = async (e) => {
     e.preventDefault();
-    if (!formData.teamCode.trim()) {
-      setError("Please enter a team code");
+
+    if (!formData.teamCode.trim() || !formData.inviteCode.trim()) {
+      setError("Please enter both team code and invite code");
       return;
     }
 
-    setIsLoading(true);
     setError("");
 
-    try {
-      await joinTeam(formData.teamCode);
-    } catch (err) {
-      setError("Invalid team code. Please check and try again.");
-    } finally {
-      setIsLoading(false);
-    }
+    // Call the acceptInvite function with both codes
+    await acceptInvite(
+      {},
+      {
+        data: {
+          teamCode: formData.teamCode,
+          inviteCode: formData.inviteCode,
+        },
+      }
+    );
   };
 
   const handleCreateTeam = async (e) => {
@@ -48,29 +69,53 @@ export default function TeamInitialState() {
       return;
     }
 
-    setIsLoading(true);
     setError("");
 
-    try {
-      await createTeam({
-        name: formData.teamName,
-        description: formData.teamDescription,
-      });
-    } catch (err) {
-      setError("Failed to create team. Please try again.");
-    } finally {
-      setIsLoading(false);
+    // Call the createTeamAPI function with team data
+    await createTeamAPI(
+      {},
+      {
+        data: {
+          teamName: formData.teamName,
+          description: formData.teamDescription,
+        },
+      }
+    );
+  };
+
+  // Handle invite response
+  useEffect(() => {
+    if (inviteData?.message === "Invite accepted successfully") {
+      // Handle successful invite acceptance
+      console.log("Successfully joined team:", inviteData.data);
+      // You might want to redirect or update app state here
+      // navigate('/team-dashboard') or similar
     }
-  };
+  }, [inviteData]);
 
-  const demoCode = "DEV2024";
-  const [codeCopied, setCodeCopied] = useState(false);
+  // Handle invite errors
+  useEffect(() => {
+    if (inviteError) {
+      setError("Invalid invite code. Please check and try again.");
+    }
+  }, [inviteError]);
 
-  const handleCopyDemo = () => {
-    navigator.clipboard.writeText(demoCode);
-    setCodeCopied(true);
-    setTimeout(() => setCodeCopied(false), 2000);
-  };
+  // Handle create team response
+  useEffect(() => {
+    if (createTeamData?.message === "Team created successfully") {
+      // Handle successful team creation
+      console.log("Successfully created team:", createTeamData.team);
+      // You might want to redirect or update app state here
+      // navigate('/team-dashboard') or similar
+    }
+  }, [createTeamData]);
+
+  // Handle create team errors
+  useEffect(() => {
+    if (createTeamError) {
+      setError("Failed to create team. Please try again.");
+    }
+  }, [createTeamError]);
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center">
@@ -123,47 +168,38 @@ export default function TeamInitialState() {
                   Join Existing Team
                 </h2>
                 <p className="text-[#00ffff]/50 mb-6">
-                  Enter the team code provided by your team leader
+                  Enter the invite code provided by your team leader
                 </p>
 
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-[#00ffff]/70 mb-2">
-                      Team Code
+                      Team Code *
                     </label>
                     <input
                       type="text"
                       name="teamCode"
                       value={formData.teamCode}
                       onChange={handleInputChange}
-                      placeholder="Enter team code (e.g., DEV2024)"
+                      placeholder="Enter team code"
                       className={inputStyle}
-                      disabled={isLoading}
+                      disabled={inviteLoading}
                     />
                   </div>
 
-                  {/* Demo code section */}
-                  <div className="bg-[#00ffff]/5 border border-[#00ffff]/20 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-[#00ffff]/70 mb-1">
-                          Demo Team Code:
-                        </p>
-                        <code className="text-[#00ffff] font-mono text-lg">
-                          {demoCode}
-                        </code>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleCopyDemo}
-                        className="flex items-center space-x-2 px-3 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded-md transition-colors"
-                      >
-                        <Copy className="w-4 h-4" />
-                        <span className="text-sm">
-                          {codeCopied ? "Copied!" : "Copy"}
-                        </span>
-                      </button>
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#00ffff]/70 mb-2">
+                      Invite Code *
+                    </label>
+                    <input
+                      type="text"
+                      name="inviteCode"
+                      value={formData.inviteCode}
+                      onChange={handleInputChange}
+                      placeholder="Enter invite code"
+                      className={inputStyle}
+                      disabled={inviteLoading}
+                    />
                   </div>
                 </div>
               </div>
@@ -174,12 +210,24 @@ export default function TeamInitialState() {
                 </div>
               )}
 
+              {inviteData?.message === "Invite accepted successfully" && (
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+                  <p className="text-green-400 text-sm">
+                    Successfully joined team: {inviteData.data.teamName}
+                  </p>
+                </div>
+              )}
+
               <button
                 type="submit"
-                disabled={isLoading || !formData.teamCode.trim()}
+                disabled={
+                  inviteLoading ||
+                  !formData.teamCode.trim() ||
+                  !formData.inviteCode.trim()
+                }
                 className="w-full bg-gradient-to-r from-[#00bfff] to-[#1e90ff] text-white py-3 px-6 rounded-lg font-medium hover:from-[#00bfff]/90 hover:to-[#1e90ff]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
               >
-                {isLoading ? "Joining..." : "Join Team"}
+                {inviteLoading ? "Joining..." : "Join Team"}
               </button>
             </form>
           ) : (
@@ -204,22 +252,23 @@ export default function TeamInitialState() {
                       onChange={handleInputChange}
                       placeholder="Enter team name"
                       className={inputStyle}
-                      disabled={isLoading}
+                      disabled={createTeamLoading}
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-[#00ffff]/70 mb-2">
-                      Team Description (Optional)
+                      Team Description *
                     </label>
                     <textarea
                       name="teamDescription"
                       value={formData.teamDescription}
                       onChange={handleInputChange}
-                      placeholder="Describe your team's purpose and goals"
+                      placeholder="Describe your team's purpose and goals (max 200 words)"
                       rows={3}
+                      maxLength={1000}
                       className={inputStyle}
-                      disabled={isLoading}
+                      disabled={createTeamLoading}
                     />
                   </div>
                 </div>
@@ -231,12 +280,23 @@ export default function TeamInitialState() {
                 </div>
               )}
 
+              {createTeamData?.message === "Team created successfully" && (
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+                  <p className="text-green-400 text-sm">
+                    Successfully created team: {createTeamData.team.teamName}
+                  </p>
+                  <p className="text-green-400 text-xs mt-1">
+                    Team Code: {createTeamData.team.teamCode}
+                  </p>
+                </div>
+              )}
+
               <button
                 type="submit"
-                disabled={isLoading || !formData.teamName.trim()}
+                disabled={createTeamLoading || !formData.teamName.trim()}
                 className="w-full bg-gradient-to-r from-[#00bfff] to-[#1e90ff] text-white py-3 px-6 rounded-lg font-medium hover:from-[#00bfff]/90 hover:to-[#1e90ff]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
               >
-                {isLoading ? "Creating..." : "Create Team"}
+                {createTeamLoading ? "Creating..." : "Create Team"}
               </button>
             </form>
           )}
