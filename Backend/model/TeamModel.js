@@ -800,5 +800,77 @@ TeamSchema.statics.changeLeader = async function (
     throw new Error(`Failed updating user records: ${err.message}`);
   }
 };
+TeamSchema.statics.getTeamByUserId = async function (userId) {
+  const logPrefix = "[Team.getTeamByUserId]";
+
+  try {
+    if (!userId) {
+      console.error(`${logPrefix} Missing userId`);
+      throw new Error("User ID is required");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      console.error(`${logPrefix} Invalid ObjectId: ${userId}`);
+      throw new Error("Invalid user ID format");
+    }
+
+    const User = mongoose.model("Users");
+    const UserData = await User.findById(userId).lean();
+
+    if (!UserData) {
+      console.error(`${logPrefix} No user found with id: ${userId}`);
+      throw new Error("User not found");
+    }
+
+    if (!UserData.teamId) {
+      console.warn(`${logPrefix} User ${userId} is not in any team`);
+      throw new Error("User is not part of any team");
+    }
+
+    let query = this.findById(UserData.teamId).populate(
+      "teamMembers.userId teamLeader"
+    );
+
+    // Only populate invites if leader
+    const teamTemp = await query.exec();
+
+    if (!teamTemp) {
+      console.error(
+        `${logPrefix} Team not found for user ${userId}, teamId: ${UserData.teamId}`
+      );
+      throw new Error("Team not found for the given user ID");
+    }
+
+    const isLeader =
+      String(teamTemp.teamLeader?._id || teamTemp.teamLeader) ===
+      String(userId);
+
+    let team;
+    if (isLeader) {
+      // repopulate including invites with user details
+      team = await this.findById(UserData.teamId)
+        .populate("teamMembers.userId teamLeader")
+        .populate(
+          "invites.memberId",
+          "username email regNumber userDetails profile"
+        )
+        .lean();
+    } else {
+      team = teamTemp.toObject();
+      delete team.invites;
+    }
+
+    const teamWithRole = { ...team, leader: isLeader };
+
+    console.info(
+      `${logPrefix} Successfully fetched team ${teamWithRole._id} for user ${userId}, leader: ${isLeader}`
+    );
+
+    return teamWithRole;
+  } catch (err) {
+    console.error(`${logPrefix} Error: ${err.message}`, { stack: err.stack });
+    throw err;
+  }
+};
 
 module.exports = mongoose.model("Teams", TeamSchema);

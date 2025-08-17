@@ -13,6 +13,13 @@ const {
 const {
   generateInvite,
 } = require("../controller/CTF/Challenges/User/Team/Leader/generateInvite");
+
+router.get(
+  "/",
+  Auth(),
+  require("../controller/CTF/Challenges/User/Team/getteamDetails")
+    .getTeamDetails
+);
 router.post("/createTeam", Auth(), createTeam);
 router.patch("/updateMembers", Auth(), updateMembers);
 router.delete("/deleteTeam", Auth(), deleteTeam);
@@ -40,4 +47,5 @@ router.put(
   require("../controller/CTF/Challenges/User/Team/Leader/changeLeader")
     .changeLeader
 );
+
 module.exports = router;
