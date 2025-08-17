@@ -70,33 +70,86 @@ export const AppContextProvider = ({ children }) => {
       if (!res.ok) throw new Error("Failed to fetch profile");
 
       const data = await res.json();
-      setUser(data?.data);
-
-      setAdmin(data.user?.role === "admin");
+      setUser(data?.data || null);
+      setAdmin(data?.user?.role === "admin");
       setLoggedIn(true);
+      return data?.data || null;
     } catch (error) {
       console.error("Profile fetch failed:", error);
       setLoggedIn(false);
       setUser(null);
+      setAdmin(false);
+      return null;
     }
   };
+
+  const getTeam = async (csrfToken, fingerprint) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/team`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "x-client-fp": fingerprint,
+          "x-csrf-token": csrfToken,
+          timestamp: Date.now(),
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 404) {
+          setTeam(null);
+          return null;
+        }
+        throw new Error("Failed to fetch team");
+      }
+
+      const data = await res.json();
+      setTeam(data?.data || null);
+      return data?.data || null;
+    } catch (error) {
+      console.error("Team fetch failed:", error);
+      setTeam(null);
+      return null;
+    }
+  };
+
+  const fetchUser = async () => {
+    const fingerprint = fp || (await getFingerprint());
+    if (!fingerprint) return null;
+    const csrfToken = csrf || (await getCsrf(fingerprint));
+    if (!csrfToken) return null;
+    return getProfile(csrfToken, fingerprint);
+  };
+
+  const fetchTeam = async () => {
+    const fingerprint = fp || (await getFingerprint());
+    if (!fingerprint) return null;
+    const csrfToken = csrf || (await getCsrf(fingerprint));
+    if (!csrfToken) return null;
+    return getTeam(csrfToken, fingerprint);
+  };
+
   useEffect(() => {
     const init = async () => {
       const fingerprint = await getFingerprint();
       if (!fingerprint) return;
-
       const csrfToken = await getCsrf(fingerprint);
       if (!csrfToken) return;
-
       await getProfile(csrfToken, fingerprint);
+      await getTeam(csrfToken, fingerprint);
     };
 
     init();
-  }, []);
+  }, [loggedIn]);
+
   const logout = () => {
     setLoggedIn(false);
     setUser(null);
     setCSRF(null);
+    setTeam(null);
+    setAdmin(false);
   };
 
   const value = {
@@ -118,6 +171,9 @@ export const AppContextProvider = ({ children }) => {
     setLoggedIn,
     logout,
     team,
+    setTeam,
+    fetchUser,
+    fetchTeam,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
