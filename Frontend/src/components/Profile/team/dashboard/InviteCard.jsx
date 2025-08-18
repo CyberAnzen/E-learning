@@ -85,3 +85,4 @@ export default function InviteCard({ invite, onCancel, onRevoke }) {
     </div>
   );
 }
+ 
