@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { Users, UserPlus, Copy } from "lucide-react";
 import InviteForm from "./InviteForm";
 
-
-
 export default function TeamHeader({ team }) {
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
@@ -34,6 +32,15 @@ export default function TeamHeader({ team }) {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
+          {team?.leader && (
+            <button
+              onClick={() => setShowInviteForm(!showInviteForm)}
+              className="flex items-center space-x-2 bg-gradient-to-r from-[#00bfff] to-[#1e90ff] text-white px-4 py-2 rounded-lg hover:from-[#00bfff]/90 hover:to-[#1e90ff]/90 transition-all duration-300"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Invite</span>
+            </button>
+          )}
           <div className="flex items-center space-x-2 bg-[#00ffff]/5 border border-[#00ffff]/20 rounded-lg px-4 py-2">
             <span className="text-sm text-[#00ffff]/70">Code:</span>
             <code className="text-[#00ffff] font-mono">{team.teamCode}</code>
@@ -44,14 +51,6 @@ export default function TeamHeader({ team }) {
               <Copy className="w-4 h-4" />
             </button>
           </div>
-
-          <button
-            onClick={() => setShowInviteForm(!showInviteForm)}
-            className="flex items-center space-x-2 bg-gradient-to-r from-[#00bfff] to-[#1e90ff] text-white px-4 py-2 rounded-lg hover:from-[#00bfff]/90 hover:to-[#1e90ff]/90 transition-all duration-300"
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>Invite</span>
-          </button>
         </div>
       </div>
 

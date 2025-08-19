@@ -25,7 +25,7 @@ export default function Sidebar({
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(user?.regNumber || "748589549");
+    navigator.clipboard.writeText(user?._id || "748589549");
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -43,7 +43,9 @@ export default function Sidebar({
   return (
     <>
       <div
-        className={`fixed z-30  left-1 bottom-3 w-64 lg:w-72 h-[84vh] bg-black/50 shadow transform transition-transform duration-300 ease-in-out border border-[#00ffff]/25 rounded-2xl ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:block`}
+        className={`fixed z-30  left-1 bottom-3 w-64 lg:w-72 h-[84vh] bg-black/50 shadow transform transition-transform duration-300 ease-in-out border border-[#00ffff]/25 rounded-2xl ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 md:block`}
       >
         <div className="p-4 border-b border-[#00ffff]/30">
           <div className="flex items-center space-x-2">
@@ -54,17 +56,17 @@ export default function Sidebar({
             />
             <div className="flex flex-col gap-0.5">
               <h4 className="text-sm font-semibold text-[#00ffff]">
-                {user?.userDetails?.name || "Cameron Williamson"}
+                {user?.username || "James CameraMan"}
               </h4>
-              <p className="text-xs text-gray-400 flex gap-2 relative">
-                ID: {user?.regNumber || "748589549"}
+              <p className="flex items-center justify-center gap-1.5 lg:text-[10px] sm:text-[8px] text-gray-300 relative">
+                {user?._id || "748589549"}
                 <Copy
                   onClick={handleCopy}
-                  className="cursor-pointer hover:text-[#00ffff]/25"
-                  size={14}
+                  className="cursor-pointer hover:text-[#00ffff]/50"
+                  size={12}
                 />
                 {copied && (
-                  <span className="absolute -top-8 left-0 text-xs text-black font-medium bg-[#00ff00] px-2 py-0.5 rounded shadow">
+                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 text-xs text-black font-medium bg-[#00ff00] px-2 py-0.5 rounded shadow">
                     Copied!
                   </span>
                 )}

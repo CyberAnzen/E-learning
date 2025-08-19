@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Crown, User, MoreVertical } from "lucide-react";
 import MemberActions from "./MemberActions";
-
+import { useAppContext } from "../../../../context/AppContext";
 export default function MemberCard({ member, isLeader }) {
   const [showActions, setShowActions] = useState(false);
-
+  const { team } = useAppContext();
   const getRoleIcon = (role) => {
     switch (role) {
       case "leader":
@@ -52,9 +52,7 @@ export default function MemberCard({ member, isLeader }) {
           />
         </div>
         <div>
-          <h3 className="font-medium text-white">
-            {member.userDetails?.name || member.username}
-          </h3>
+          <h3 className="font-medium text-white">{member?.username}</h3>
           <p className="text-sm text-[#00ffff]/50">{member.email}</p>
           {member.userDetails && (
             <p className="text-xs text-[#00ffff]/40">
@@ -81,7 +79,7 @@ export default function MemberCard({ member, isLeader }) {
         </div>
 
         {/* Only show actions for active members */}
-        {!isLeader && member.status !== "pending" && (
+        {team?.leader && !isLeader && member.status !== "pending" && (
           <div className="relative">
             <button
               onClick={() => setShowActions(!showActions)}

@@ -4,7 +4,7 @@ import { useAppContext } from "../../../context/AppContext";
 import Usefetch from "../../../hooks/Usefetch";
 
 export default function TeamInitialState() {
-  const { createTeam } = useAppContext();
+  const { fetchTeam } = useAppContext();
   const [activeTab, setActiveTab] = useState("join");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -87,7 +87,10 @@ export default function TeamInitialState() {
   useEffect(() => {
     if (inviteData?.message === "Invite accepted successfully") {
       // Handle successful invite acceptance
-      console.log("Successfully joined team:", inviteData.data);
+      setTimeout(() => {
+        fetchTeam();
+      }, 800);
+      // console.log("Successfully joined team:", inviteData.data);
       // You might want to redirect or update app state here
       // navigate('/team-dashboard') or similar
     }
@@ -104,7 +107,9 @@ export default function TeamInitialState() {
   useEffect(() => {
     if (createTeamData?.message === "Team created successfully") {
       // Handle successful team creation
-      console.log("Successfully created team:", createTeamData.team);
+      setTimeout(() => {
+        fetchTeam();
+      }, 800); // console.log("Successfully created team:", createTeamData.team);
       // You might want to redirect or update app state here
       // navigate('/team-dashboard') or similar
     }

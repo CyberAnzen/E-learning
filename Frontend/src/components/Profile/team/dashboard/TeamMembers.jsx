@@ -2,6 +2,7 @@ import React from "react";
 import { Users } from "lucide-react";
 import MemberCard from "./MemberCard";
 import InviteCard from "./InviteCard";
+import RefreshButton from "../ui/Refreshbutton";
 export default function TeamMembers({ team }) {
   const teamMembers = team.teamMembers || [];
   const teamLeader = team.teamLeader;
@@ -15,9 +16,12 @@ export default function TeamMembers({ team }) {
     <div className="bg-black/50 rounded-xl border border-[#00ffff]/25 p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-white">Team Members</h2>
-        <span className="text-[#00ffff]/60 text-sm">
-          {filteredMembers.length + (teamLeader ? 1 : 0)} members
-        </span>
+        <div className="flex items-center space-x-1.5">
+          <RefreshButton />
+          <span className="text-[#00ffff]/60 text-sm">
+            {filteredMembers.length + (teamLeader ? 1 : 0)} Members
+          </span>
+        </div>
       </div>
 
       <div className="space-y-4">
