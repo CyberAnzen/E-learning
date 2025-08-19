@@ -23,7 +23,7 @@ router.get(
 router.post("/createTeam", Auth(), createTeam);
 router.patch("/updateMembers", Auth(), updateMembers);
 router.delete("/deleteTeam", Auth(), deleteTeam);
-router.get("/generateInvite", Auth(), generateInvite);
+router.post("/generateInvite", Auth(), generateInvite);
 router.post(
   "/revokeInvite",
   Auth(),
@@ -47,5 +47,15 @@ router.put(
   require("../controller/CTF/Challenges/User/Team/Leader/changeLeader")
     .changeLeader
 );
-
+router.post(
+  "/leaveTeam",
+  Auth(),
+  require("../controller/CTF/Challenges/User/Team/leaveTeam").leaveTeam
+);
+router.delete(
+  "/removeMember",
+  Auth(),
+  require("../controller/CTF/Challenges/User/Team/Leader/removeMember")
+    .removeMember
+);
 module.exports = router;

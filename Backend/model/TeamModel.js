@@ -873,4 +873,182 @@ TeamSchema.statics.getTeamByUserId = async function (userId) {
   }
 };
 
+TeamSchema.statics.leaveTeam = async function (userId) {
+  const MAX_RETRIES = 6;
+  if (!userId) throw new Error("User ID is required");
+  if (!mongoose.Types.ObjectId.isValid(userId))
+    throw new Error("Invalid user ID format");
+  const User = mongoose.model("Users");
+  const userObjId = new mongoose.Types.ObjectId(userId);
+
+  // confirm user exists and has a team
+  const user = await User.findById(userObjId).lean();
+  if (!user) throw new Error("User not found");
+  if (!user.teamId) throw new Error("User is not part of any team");
+
+  const teamId = new mongoose.Types.ObjectId(user.teamId);
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    // reload fresh team snapshot
+    const team = await this.findById(teamId).lean();
+    if (!team) throw new Error("Team not found for the given user ID");
+
+    const isMember = (team.teamMembers || []).some(
+      (m) => String(m.userId) === String(userObjId)
+    );
+    if (!isMember) throw new Error("User is not a member of this team");
+
+    const isLeader = String(team.teamLeader) === String(userObjId);
+
+    try {
+      if (isLeader) {
+        // leader leaving
+        if (!team.teamMembers || team.teamMembers.length <= 1) {
+          // attempt atomic delete only if no other members remain
+          const del = await this.deleteOne({
+            _id: team._id,
+            teamLeader: userObjId,
+            "teamMembers.1": { $exists: false }, // ensures members length <= 1
+          });
+          if (del && (del.deletedCount === 1 || del.n === 1)) {
+            await User.updateOne(
+              { _id: userObjId, teamId: team._id },
+              { $unset: { teamId: "" } }
+            );
+            return { message: "Successfully team deleted", teamId: team._id };
+          }
+          // if delete didn't succeed, retry
+          continue;
+        } else {
+          // choose next leader (first member that's not the current leader)
+          const next = (team.teamMembers || []).find(
+            (m) => String(m.userId) !== String(userObjId)
+          );
+          if (!next) {
+            // rare: no candidate, retry loop
+            continue;
+          }
+          const newLeaderId = new mongoose.Types.ObjectId(next.userId);
+
+          // atomically set new leader and remove old leader from members
+          const updated = await this.findOneAndUpdate(
+            {
+              _id: team._id,
+              teamLeader: userObjId,
+              "teamMembers.userId": userObjId,
+            },
+            {
+              $set: { teamLeader: newLeaderId },
+              $pull: { teamMembers: { userId: userObjId } },
+            },
+            { new: true }
+          ).lean();
+
+          if (updated) {
+            await User.updateOne(
+              { _id: userObjId, teamId: team._id },
+              { $unset: { teamId: "" } }
+            );
+            return {
+              message: "Successfully leader transferred",
+              teamId: team._id,
+            };
+          }
+          // otherwise retry
+          continue;
+        }
+      } else {
+        // normal member leaving: atomically remove member
+        const res = await this.updateOne(
+          { _id: team._id, "teamMembers.userId": userObjId },
+          { $pull: { teamMembers: { userId: userObjId } } }
+        );
+
+        const modified =
+          typeof res.modifiedCount !== "undefined"
+            ? res.modifiedCount
+            : res.nModified;
+        const matched =
+          typeof res.matchedCount !== "undefined" ? res.matchedCount : res.n;
+
+        if (matched && modified) {
+          await User.updateOne(
+            { _id: userObjId, teamId: team._id },
+            { $unset: { teamId: "" } }
+          );
+          return { message: "Successfully left", teamId: team._id };
+        }
+
+        // If matched but not modified -> maybe already removed; ensure user's teamId is cleared
+        if (matched && !modified) {
+          const u = await User.findById(userObjId).lean();
+          if (!u || !u.teamId || String(u.teamId) !== String(team._id)) {
+            return {
+              message: "Already removed or inconsistent (treated as left)",
+              teamId: team._id,
+            };
+          }
+        }
+
+        // not matched -> race, retry
+        continue;
+      }
+    } catch (e) {
+      // on transient errors, retry a few times
+      if (attempt === MAX_RETRIES) throw e;
+      continue;
+    }
+  }
+
+  // after retries, give a helpful diagnostic
+  const finalTeam = await this.findById(teamId).lean();
+  const stillMember =
+    finalTeam &&
+    (finalTeam.teamMembers || []).some(
+      (m) => String(m.userId) === String(userObjId)
+    );
+  if (stillMember)
+    throw new Error(
+      "Failed to leave team after multiple attempts due to concurrent updates"
+    );
+  // best-effort: unset user's teamId if it still points to this team
+  await User.updateOne(
+    { _id: userObjId, teamId: teamId },
+    { $unset: { teamId: "" } }
+  );
+  return { message: "Leave processed (post-retry cleanup)", teamId };
+};
+
+TeamSchema.statics.removeMember = async function (teamId, leaderId, memberId) {
+  if (!teamId || !leaderId || !memberId) {
+    throw new Error("Team ID, Leader ID, and Member ID are required");
+  }
+
+  const team = await this.findById(teamId);
+  if (!team) throw new Error("Team not found");
+
+  if (team.teamLeader.toString() !== String(leaderId)) {
+    throw new Error("Only the team leader can remove members");
+  }
+
+  // ensure member is in this team
+  const memberIndex = team.teamMembers.findIndex(
+    (m) => String(m.userId) === String(memberId)
+  );
+  if (memberIndex === -1) {
+    throw new Error("Member not found in this team");
+  }
+
+  // remove from teamMembers
+  team.teamMembers.splice(memberIndex, 1);
+
+  // also clear user's teamId
+  await mongoose
+    .model("Users")
+    .updateOne({ _id: memberId }, { $unset: { teamId: "" } });
+
+  await team.save();
+
+  return await this.findById(teamId).populate("teamMembers.userId teamLeader");
+};
 module.exports = mongoose.model("Teams", TeamSchema);
