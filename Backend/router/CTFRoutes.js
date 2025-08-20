@@ -1,9 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
-const upload = multer();
+const {dynamicFileUpload}= require("../middleware//dynamicFileUploadPath");
+const randomPathName = require("../middleware/randomPathName");
+const updateRandomPath = require("../middleware/updateRandomPath");
+const fileUploader = require("../utilies/FileUploder");
+const upload = fileUploader("public/CTF/Challenges/");
 const { Auth } = require("../middleware/Auth");
 const xssSanitizer = require("../middleware/xssSanitizer");
+const Path = require("path");
+
+
 //controllers
 const {
   CreateChallenges,
@@ -27,8 +33,29 @@ const { getHint } = require("../controller/CTF/Challenges/User/getHints");
 
 //Admin Routes
 router.get("/admin/:ChallengeId", Auth(), getChallengeAdmin);
-router.post("/admin/create", upload.none(), CreateChallenges);
-router.patch("/admin/update/:ChallengeId", upload.none(), updateChallenge);
+router.post("/admin/create",
+   dynamicFileUpload({
+    type: "multi",
+    tempPath: Path.join("temp","CTF_Challenges"),
+    para: "attachments",
+    maxCount: 10,
+    randomFileName: false,
+    randomPathName: true,
+}),
+    randomPathName(Path.join("public","CTF","Challenges"), "title"),
+   CreateChallenges);
+   
+router.patch("/admin/update/:ChallengeId", 
+  dynamicFileUpload({
+    type: "multi",
+    tempPath: Path.join("temp","CTF_Challenges"),
+    para: "attachments",
+    maxCount: 10,
+    randomFileName: false,
+    randomPathName: true,
+}),
+    updateRandomPath(Path.join("public","CTF","Challenges"),"existingAttachments", "title")  ,
+     updateChallenge);
 router.delete("/admin/delete/:ChallengeId", deleteChallenge);
 
 //User

@@ -1,4 +1,7 @@
 const CTF_challenges = require("../../../../model/CTFchallengeModel");
+const customError = require("../../../../utilies/customError");
+const Path = require("path");
+const fs = require("fs");
 
 exports.CreateChallenges = async (req, res) => {
   const {
@@ -7,10 +10,20 @@ exports.CreateChallenges = async (req, res) => {
     score,
     category,
 
-    attachments,
+    //attachments,
     flag,
     difficulty,
   } = req.body;
+  const pathName = req.customFileUpload.randomPathName;
+  let attachments = (req.files || []).map(f => {
+      const filePath = Path.join(pathName, f.filename);
+      return filePath.replace(/\\/g, '/').replace(/^public\//, '');
+  });
+  // 1) Validate required fields
+  // validate the files name for the attachments
+  if (!attachments|| !Array.isArray(attachments)){
+    return res.status(400).json({ message: "attachments must be an array" });
+  }
   // 2) Tags come in as either a string or an array of strings
   //    Because you did `formData.append("tags", tag)` for each tag,
   //    multer will expose req.body.tags as an array if >1, or a string if just 1.
@@ -31,6 +44,7 @@ exports.CreateChallenges = async (req, res) => {
       return res.status(400).json({ message: "Invalid hints JSON" });
     }
   }
+
   try {
     // 6) create & save
     payload = {
@@ -55,6 +69,23 @@ exports.CreateChallenges = async (req, res) => {
       .json({ message: "Challenge created successfully", Challenge });
   } catch (error) {
     console.error("Challenge creation error:", error);
+    try {
+
+            attachments.forEach((filePath) => {
+                const fullPath = Path.join(process.cwd(), filePath);
+                console.log(`Attempting to delete file: ${fullPath}`);
+                
+                if (fs.existsSync(fullPath)) {
+                    fs.unlinkSync(fullPath);
+                    console.log(`Deleted file: ${fullPath}`);
+                } else {
+                    console.warn(`File not found for deletion: ${fullPath}`);
+                }})
+        } catch (error) {
+            throw new customError('Error deleting ctf challemges: ', 500,{}, error.message);
+      }
+    
     return res.status(400).json({ message: "Challenge Not Created", error });
+
   }
 };

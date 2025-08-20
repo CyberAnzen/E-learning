@@ -231,7 +231,7 @@ const Intro = () => {
         <motion.img
           src="/Lock.svg"
           alt=" Security Lock Icon"
-          className="w-6 md:w-7"
+          className="w-5"
       
           animate={{
             rotate: [0, -5, 0, 5, 0],

@@ -27,7 +27,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import NotFound from "./routes/notFound";
-import ProfileDashboard from "./components/ProfilePage/ProfileDashboard";
+import Profile from "./components/Profile/Profile";
 import EditProfile from "./components/ProfilePage/EditProfile";
 import Account from "./routes/account";
 import ContentController from "./routes/ContentController";
@@ -103,15 +103,8 @@ function App() {
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route
-            path="/profile"
-            element={loggedIn ? <Account /> : <LoginPage />}
-          >
-            <Route index element={loggedIn ? <ProfileDashboard /> : null} />
-            <Route path="profile2" element={<Profilenew />} />
-            <Route path="editprofile" element={<EditProfile />} />
-            <Route path="certificatelist" element={<CertificateList />} />
-          </Route>
+          <Route path="/profile" element={<Profile />} />
+
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/test" element={<Testing />} />
           <Route path="/404" element={<NotFound />} />
