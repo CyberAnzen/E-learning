@@ -40,6 +40,12 @@ exports.updateChallenge = async (req, res) => {
       return res.status(400).json({ message: "Invalid hints JSON" });
     }
   }
+
+  const uploadedFiles = (req.files || []).map(f =>
+    Path.join(process.cwd(), req.customFileUpload.randomPathName, f.filename)
+  );
+
+
   try {
      const challenge = await CTF_challenges.findById(ChallengeId);
     
@@ -61,13 +67,20 @@ exports.updateChallenge = async (req, res) => {
   );}
   else{
     deletedAttachments = challenge.attachments;
-    deleteDir=true
-    relativePath = Array.isArray(deletedAttachments) ? deletedAttachments[0] : deletedAttachments;
-    dirPath = Path.dirname(relativePath);
+    console.log("Deleted Attachments:", deletedAttachments);
+    
+    if(deletedAttachments.length > 0){
+        deleteDir=true
+        relativePath = Array.isArray(deletedAttachments) ? deletedAttachments[0] : deletedAttachments;
+        dirPath = Path.dirname(relativePath);
+    }
+    else{
+        deleteDir=false
+    }
 
   }
   
-    console.log("Deleted Attachments:", deletedAttachments);
+    
     
 
 
@@ -126,21 +139,31 @@ exports.updateChallenge = async (req, res) => {
       message: "Challenge updated successfully",
       Challenge,
     });
-    if(deleteDir){
-      dirPath = Path.join(process.cwd(),"public",dirPath);
-      console.log("Deleting challenge folder:", dirPath);
-      
-      try {
-      fs.rmSync(dirPath, { recursive: true, force: true });
-      console.log("Challenge folder deleted");
-      } catch (error) {
-        console.error("Error deleting challenge folder:", error);
-      }
 
-    }
   } catch (error) {
     console.error("Challenge update error:", error);
+   
+     // 🔥 Rollback: remove any uploaded files since the update failed
+    uploadedFiles.forEach(file => {
+      if (fs.existsSync(file)) {
+        fs.unlinkSync(file);
+        console.log(`Rolled back uploaded file: ${file}`);
+      }
+    });
     return res.status(400).json({ message: "Error updating challenge", error });
 
+
   }
+  if(deleteDir){
+  dirPath = Path.join(process.cwd(),"public",dirPath);
+  console.log("Deleting challenge folder:", dirPath);
+  
+  try {
+  fs.rmSync(dirPath, { recursive: true, force: true });
+  console.log("Challenge folder deleted");
+  } catch (error) {
+    console.error("Error deleting challenge folder:", error);
+  }
+
+ }
 };
