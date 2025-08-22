@@ -1,6 +1,6 @@
 const sanitizeHtml = require('sanitize-html');
 
-function sanitizeInput(obj, config, debug = false, path = '') {
+function sanitizeInput(obj, config, debug = false, path = '', modifiedTracker) {
   // Skip if obj is null or not an object
   if (obj === null || typeof obj !== 'object') {
     return;
@@ -17,14 +17,17 @@ function sanitizeInput(obj, config, debug = false, path = '') {
       if (typeof obj[i] === 'string') {
         const original = obj[i];
         obj[i] = sanitizeHtml(obj[i], config);
-        if (debug && original !== obj[i]) {
-          console.log(`Sanitized array element "${currentPath}":`, {
-            before: original,
-            after: obj[i]
-          });
+        if (original !== obj[i]) {
+          modifiedTracker.modified = true; // <-- mark change
+          if (debug) {
+            console.log(`Sanitized array element "${currentPath}":`, {
+              before: original,
+              after: obj[i]
+            });
+          }
         }
       } else if (typeof obj[i] === 'object' && obj[i] !== null) {
-        sanitizeInput(obj[i], config, debug, currentPath);
+        sanitizeInput(obj[i], config, debug, currentPath, modifiedTracker);
       }
     }
   } else {
@@ -37,14 +40,17 @@ function sanitizeInput(obj, config, debug = false, path = '') {
         if (typeof obj[key] === 'string') {
           const original = obj[key];
           obj[key] = sanitizeHtml(obj[key], config);
-          if (debug && original !== obj[key]) {
-            console.log(`Sanitized field "${currentPath}":`, {
-              before: original,
-              after: obj[key]
-            });
+          if (original !== obj[key]) {
+            modifiedTracker.modified = true; // <-- mark change
+            if (debug) {
+              console.log(`Sanitized field "${currentPath}":`, {
+                before: original,
+                after: obj[key]
+              });
+            }
           }
         } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-          sanitizeInput(obj[key], config, debug, currentPath);
+          sanitizeInput(obj[key], config, debug, currentPath, modifiedTracker);
         }
       }
     }
@@ -85,11 +91,21 @@ const xssSanitizer = (options = {}) => {
       console.log(`\n=== Sanitizing ${req.method} request to ${req.path} ===`);
     }
 
+    const modifiedTracker = { modified: false };
+
     try {
-      sanitizeInput(req.body, config, debug, 'body');
-      sanitizeInput(req.query, config, debug, 'query');
-      sanitizeInput(req.params, config, debug, 'params');
-      
+      sanitizeInput(req.body, config, debug, 'body', modifiedTracker);
+      sanitizeInput(req.query, config, debug, 'query', modifiedTracker);
+      sanitizeInput(req.params, config, debug, 'params', modifiedTracker);
+
+      if (modifiedTracker.modified) {
+        if (debug) {
+          console.log('❌ XSS detected, blocking request');
+        }
+        return res.status(400).json({ error: 'Invalid input: possible XSS detected' });
+      }
+
+
       if (debug) {
         console.log('Sanitization completed successfully');
         console.log('=======================================\n');

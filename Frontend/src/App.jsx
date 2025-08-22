@@ -37,6 +37,7 @@ import Profilenew from "./components/ProfilePage/Profile";
 import AddChallenges from "./routes/CTF/AddChallenges";
 import DisplayChallenge from "./routes/CTF/DisplayChallenge";
 import FaultyTerminal from "./components/Background";
+import Sidebar from "./components/ProfilePage/Sidebar";
 function App() {
   const { loggedIn } = useAppContext();
   // const getCsrfToken = useGetCsrfToken();
