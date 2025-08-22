@@ -39,8 +39,11 @@ const loggerWorker = new Worker("./logger/controller/logger.js");
 const logInBackground = createLogWorker(loggerWorker);
 
 // Security Middlewares
-app.use(cors({ origin: FRONTEND_URL || true, credentials: true }));
-app.use(helmet()); // Adds common security headers
+app.use(cors({ origin: true, credentials: true }));
+
+// app.use(cors({ origin: FRONTEND_URL || true, credentials: true }));
+// app.use(helmet());
+// Adds common security headers
 
 // parser middlewares
 app.use(cookieParser());
@@ -56,10 +59,10 @@ const downloadLimiter = rateLimit({
 
 // Serve only challenge files (not full public folder)
 app.use(
-  "/files",
+  "/",
   downloadLimiter,
   Auth(),
-  express.static(path.join(__dirname, "public/challenges"), {
+  express.static(path.join(__dirname, "public/"), {
     dotfiles: "deny", // Prevent access to .env or hidden files
     index: false, // Disable directory indexing
     maxAge: "1h", // Cache for 1 hour
