@@ -17,9 +17,6 @@ export const AppContextProvider = ({ children }) => {
   const [classificationId, setClassificationId] = useState();
   const [fp, setFp] = useState(null);
   const [csrf, setCSRF] = useState(null);
-    const [image, setImage] = useState(
-      "https://i.pinimg.com/736x/af/70/bb/af70bb880077591b711b83ee7717c91b.jpg"
-    );
 
   const getFingerprint = async () => {
     try {
@@ -74,7 +71,7 @@ export const AppContextProvider = ({ children }) => {
 
       const data = await res.json();
       setUser(data?.data || null);
-      setAdmin(data?.user?.role === "admin");
+      setAdmin(data?.userRole === "Admin");
       setLoggedIn(true);
       return data?.data || null;
     } catch (error) {
@@ -173,8 +170,10 @@ export const AppContextProvider = ({ children }) => {
     loggedIn,
     setLoggedIn,
     logout,
-    image,
-    setImage,
+    team,
+    setTeam,
+    fetchUser,
+    fetchTeam,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
