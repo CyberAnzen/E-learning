@@ -59,14 +59,14 @@ const CTFprogress = new Schema(
 
 CTFprogress.index({ userId: 1, challengeId: 1 }, { unique: true });
 
-// Static methods for CTFprogress model
-CTFprogress.statics.getHint = async (userId, challengeId, hintId) => {
-  // Try to find existing progress
-  const exist = await this.findOne({ userId, challengeId }).lean();
-  if (!exist) throw new Error("Progress not found");
-  if (exist.Flag_Submitted) {
-  }
-};
+// // Static methods for CTFprogress model
+// CTFprogress.statics.getHint = async (userId, challengeId, hintId) => {
+//   // Try to find existing progress
+//   const exist = await this.findOne({ userId, challengeId }).lean();
+//   if (!exist) throw new Error("Progress not found");
+//   if (exist.Flag_Submitted) {
+//   }
+// };
 CTFprogress.statics.getHint = async function (userId, challengeId, hintId) {
   const progress = await this.findOne({ userId, challengeId });
   if (!progress) throw new Error("Progress not found");

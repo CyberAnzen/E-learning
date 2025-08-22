@@ -57,18 +57,6 @@ const downloadLimiter = rateLimit({
   message: "Too many downloads, please slow down.",
 });
 
-// Serve only challenge files (not full public folder)
-app.use(
-  "/",
-  downloadLimiter,
-  Auth(),
-  express.static(path.join(__dirname, "public/"), {
-    dotfiles: "deny", // Prevent access to .env or hidden files
-    index: false, // Disable directory indexing
-    maxAge: "1h", // Cache for 1 hour
-  })
-);
-
 // Middleware to log requests
 app.use(requestLogger(logInBackground));
 
@@ -92,7 +80,21 @@ app.use("/api/profile", profile);
 app.use("/api/challenge", CTF);
 app.use("/api/image", require("./router/imageRoutes"));
 app.use("/api/team", TeamRoutes);
-
+// Serve only challenge files (not full public folder)
+app.use(
+  "/",
+  downloadLimiter,
+  Auth(),
+  express.static(path.join(__dirname, "public/"), {
+    dotfiles: "deny", // Prevent access to hidden files
+    index: false, // Disable directory listing
+    maxAge: "1h", // Cache for 1 hour
+    setHeaders: (res, filePath) => {
+      res.setHeader("Content-Disposition", "attachment");
+      res.setHeader("X-Content-Type-Options", "nosniff"); // extra safety
+    },
+  })
+);
 // Error logging
 app.use(errorLogger(logInBackground));
 

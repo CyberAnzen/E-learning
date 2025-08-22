@@ -79,7 +79,7 @@ function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-[rgb(23,24,26)] text-white flex">
+    <div className="min-h-screen  text-white flex">
       <Sidebar
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}

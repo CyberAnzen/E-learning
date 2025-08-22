@@ -78,10 +78,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center mt-[-3.25rem] justify-center px-4 sm:px-6 relative bg-gradient-to-br from-black via-gray-900 to-black min-h-screen overflow-y-auto pt-10 pb-0 lg:pb-0">
+    <div className="flex items-center mt-[-3.25rem] justify-center px-4 sm:px-6 relative min-h-screen overflow-y-auto pt-10 pb-0 lg:pb-0">
       <ParticleBackground />
       {/* Cyberpunk grid overlay */}
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0 opacity-60">
         <div
           className="absolute inset-0"
           style={{

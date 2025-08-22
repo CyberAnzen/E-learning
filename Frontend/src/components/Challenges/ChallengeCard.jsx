@@ -40,7 +40,7 @@ const ChallengeCard = ({
   const overlayHeight = height - overlayInset * 2;
 
   // Colors
-  const brightRed = isHovered ? "rgba(128,128,128,0.5)" : redColor;
+  const brightRed = isHovered ? "rgba(23, 35, 38)" : "rgba(58, 75, 79)";
   const black = "#111111";
   const darkGrayTechMap = "#424242";
   const mediumGray = "#9E9E9E";
@@ -315,71 +315,9 @@ const ChallengeCard = ({
             </text>
           </g>
 
-          {/* Top-right: two red icons (polygon and rifle silhouette) */}
-          <g
-            transform={`translate(${
-              overlayX +
-              overlayWidth -
-              40 * effectiveScaleFactor -
-              80 * effectiveScaleFactor -
-              12 * effectiveScaleFactor
-            }, ${overlayY + 40 * effectiveScaleFactor})`}
-          >
-            {/* Abstract polygon icon */}
-            <polygon
-              points={`
-              ${20 * effectiveScaleFactor},0 
-              ${35 * effectiveScaleFactor},${10 * effectiveScaleFactor} 
-              ${40 * effectiveScaleFactor},${30 * effectiveScaleFactor} 
-              ${25 * effectiveScaleFactor},${40 * effectiveScaleFactor} 
-              ${10 * effectiveScaleFactor},${30 * effectiveScaleFactor} 
-              ${5 * effectiveScaleFactor},${10 * effectiveScaleFactor}
-            `}
-              fill={brightRed}
-              stroke="#710000"
-              strokeWidth={effectiveScaleFactor}
-            />
-
-            {/* Rifle silhouette (simple approximation) */}
-            <g transform={`translate(${52 * effectiveScaleFactor},0)`}>
-              <rect
-                x="0"
-                y={10 * effectiveScaleFactor}
-                width={35 * effectiveScaleFactor}
-                height={10 * effectiveScaleFactor}
-                rx={2 * effectiveScaleFactor}
-                ry={2 * effectiveScaleFactor}
-                fill={brightRed}
-              />
-              <rect
-                x={25 * effectiveScaleFactor}
-                y={5 * effectiveScaleFactor}
-                width={10 * effectiveScaleFactor}
-                height={20 * effectiveScaleFactor}
-                fill={brightRed}
-              />
-              <rect
-                x={10 * effectiveScaleFactor}
-                y={18 * effectiveScaleFactor}
-                width={15 * effectiveScaleFactor}
-                height={4 * effectiveScaleFactor}
-                fill="#8B0000"
-              />
-              <polygon
-                points={`
-                ${35 * effectiveScaleFactor},${10 * effectiveScaleFactor} 
-                ${45 * effectiveScaleFactor},0 
-                ${40 * effectiveScaleFactor},0 
-                ${42 * effectiveScaleFactor},${10 * effectiveScaleFactor}
-              `}
-                fill={brightRed}
-              />
-            </g>
-          </g>
-
-          {/* Right-center: vertical red barcode and microchip icon */}
-          <g transform={`translate(${barcodeX}, ${barcodeY})`}>
-            {/* Barcode vertical bars */}
+          {/* 
+         {/* Right-center: vertical red barcode and microchip icon */}
+          {/* <g transform={`translate(${barcodeX}, ${barcodeY})`}>
             {Array.from({ length: barcodeBarsCount }).map((_, i) => {
               const barHeight = (6 + (i % 4) * 4) * effectiveScaleFactor;
               return (
@@ -405,7 +343,6 @@ const ChallengeCard = ({
               32 * effectiveScaleFactor
             })`}
           >
-            {/* Microchip icon: simplified with chip pins */}
             <rect
               width={40 * effectiveScaleFactor}
               height={32 * effectiveScaleFactor}
@@ -413,7 +350,6 @@ const ChallengeCard = ({
               ry={6 * effectiveScaleFactor}
               fill={brightRed}
             />
-            {/* Pins */}
             {[4, 12, 20, 28].map((y) => (
               <rect
                 key={"pinL" + y}
@@ -434,7 +370,6 @@ const ChallengeCard = ({
                 fill="#8B0000"
               />
             ))}
-            {/* Inner circuits */}
             <rect
               x={8 * effectiveScaleFactor}
               y={8 * effectiveScaleFactor}
@@ -444,7 +379,6 @@ const ChallengeCard = ({
               ry={3 * effectiveScaleFactor}
               fill="#AE1C1C"
             />
-            {/* Cross in center */}
             <line
               x1={20 * effectiveScaleFactor}
               y1={12 * effectiveScaleFactor}
@@ -461,7 +395,7 @@ const ChallengeCard = ({
               stroke="#FFF"
               strokeWidth={effectiveScaleFactor}
             />
-          </g>
+          </g> */}
 
           {/* Bottom-left fine print white monospace legal text */}
           <text

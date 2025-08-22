@@ -249,9 +249,9 @@ function DisplayChallenge() {
           <HexagonalFrame className="absolute inset-0 w-full h-full opacity-60" />
 
           {/* Main content container */}
-          <div className="relative bg-gradient-to-br from-black/90 via-gray-900/80 to-black/90 backdrop-blur-sm border border-teal-500/50 rounded-lg overflow-hidden h-full flex flex-col">
+          <div className="relative bg-gradient-to-br opacity-90 from-black/90 via-gray-900/80 to-black/90 backdrop-blur-sm border border-teal-500/50 rounded-lg overflow-hidden h-full flex flex-col">
             {/* Top header with data stream */}
-            <div className="relative h-10 sm:h-12 lg:h-16 bg-gradient-to-r from-teal-500/20 to-teal-600/30 border-b border-teal-500/50 flex-shrink-0">
+            <div className="relative h-10 sm:h-12 lg:h-16 bg-gradient-to-r from-teal-500/10 to-teal-600/20 border-b border-teal-500/50 flex-shrink-0">
               <div className="relative z-10 flex items-center justify-between px-2 sm:px-4 lg:px-6 h-full">
                 <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
                   <span className="text-teal-300 font-mono text-xs sm:text-sm tracking-wider">

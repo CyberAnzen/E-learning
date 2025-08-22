@@ -1,15 +1,15 @@
 @import "tailwindcss";
 @plugin "daisyui";
-body {
+/* body {
     -webkit-overflow-scrolling: touch;
-            background-color: rgb(23, 24, 26);
+            background-color: rgb(172, 163, 163);
 
   }
 html{
     scroll-behavior: smooth;
             background-color: rgb(23, 24, 26);
 
-}
+} */
 
 
 /*Login page desing*/

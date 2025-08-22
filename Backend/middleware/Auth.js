@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_SECRET;
-const TIMESTAMP_WINDOW = process.env.TIMESTAMP_WINDOW;
+const TIMESTAMP_WINDOW = 5 * 60 * 1000;
 const RefreshToken = require("../model/RefreshTokenModel");
 const csrfProtection = require("../middleware/CSRFprotection");
 const ClearCookies = async (res) => {
@@ -13,7 +13,7 @@ const ClearCookies = async (res) => {
     secure: process.env.NODE_ENV === "production" ? true : false,
     sameSite: "Lax",
   });
- 
+
   // Clear the rememberMe cookie
   res.cookie("refresh_token", "", {
     expires: new Date(0),

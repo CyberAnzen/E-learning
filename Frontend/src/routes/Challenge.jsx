@@ -40,11 +40,12 @@ export default function Challenge() {
   };
 
   const redColors = {
-    easy: "url(#greenGlass)",
-    intermediate: "url(#goldGlass)",
-    hard: "url(#orangeGlass)",
-    advanced: "url(#rubyGlass)",
-  };
+  easy: "linear-gradient(135deg, #4a0000, #800000)",        // dark maroon fade
+  intermediate: "linear-gradient(135deg, #660000, #990000)", // richer red-black fade
+  hard: "linear-gradient(135deg, #330000, #660000)",         // very dark red fade
+  advanced: "linear-gradient(135deg, #1a0000, #4d0000)"      // almost black with deep red
+};
+
 
   useEffect(() => {
     const updateScale = () => {
