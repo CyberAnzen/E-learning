@@ -36,6 +36,7 @@ import AdminEditor from "./components/Admin/Content/adminEditor";
 import Profilenew from "./components/ProfilePage/Profile";
 import AddChallenges from "./routes/CTF/AddChallenges";
 import DisplayChallenge from "./routes/CTF/DisplayChallenge";
+import FaultyTerminal from "./components/Background";
 function App() {
   const { loggedIn } = useAppContext();
   // const getCsrfToken = useGetCsrfToken();
@@ -63,7 +64,11 @@ function App() {
 
   return (
     <>
-      <div className="">
+      <div className="relative w-full h-full min-h-screen overflow-hidden">
+        {/*Background*/}
+
+        {/* Live Background */}
+
         <Navbar />
         <div className="mb-30"></div>
         <Routes>
