@@ -133,7 +133,7 @@ CTF_LeaderBoardSchema.statics.updateScore = async function (
       (acc, c) => acc + (c.ObtainedScore || 0),
       0
     );
-
+    //reddis update#########################
     await leaderboard.save();
     return leaderboard;
   } catch (error) {
