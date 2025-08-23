@@ -20,6 +20,9 @@ import {
   Paperclip,
   Eye,
   Coins,
+  ZapIcon,
+  Archive,
+  FolderArchive,
 } from "lucide-react";
 import {
   CircuitPattern,
@@ -32,13 +35,14 @@ import Usefetch from "../../hooks/Usefetch";
 import HintModal from "../../components/Challenges/HintModal";
 import FlagModal from "../../components/Challenges/FlagModal";
 import { useAppContext } from "../../context/AppContext";
+import { use } from "react";
+import JSZip from "jszip";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL_W;
 
 function DisplayChallenge() {
   const textRef = useRef(null);
   const { fp, csrf } = useAppContext();
-
   const { challengeId } = useParams();
   const {
     Data: ChallengeData,
@@ -64,9 +68,7 @@ function DisplayChallenge() {
     loading: flagLoading,
     retry: submitFlagRetry,
   } = Usefetch(flagEndpoint, "post", null, {}, false);
-  const [attempts, setAttempts] = useState(
-    ChallengeData?.Challenge?.attempt ?? 0
-  );
+  const [attempts, setAttempts] = useState(ChallengeData?.Challenge.attempt);
   // const attempts = ChallengeData?.Challenge?.attempt ?? 0;
   const flagSubmitted = Boolean(ChallengeData?.Challenge?.Flag_Submitted);
   const disabled = attempts >= 5;
@@ -74,6 +76,7 @@ function DisplayChallenge() {
   const [dataFlow, setDataFlow] = useState(0);
   const [systemLoad, setSystemLoad] = useState(67);
   const [isMobile, setIsMobile] = useState(false);
+  const [Challenge, setChallengeData] = useState();
 
   // Hint management state
   const [hints, setHints] = useState([]);
@@ -90,17 +93,23 @@ function DisplayChallenge() {
   // Initialize hints and score when data loads
   useEffect(() => {
     if (ChallengeData?.Challenge) {
+      setChallengeData(ChallengeData?.Challenge);
+
       setHints(ChallengeData.Challenge.hints || []);
       setCurrentScore(ChallengeData.Challenge.score || 0);
+      setAttempts(ChallengeData?.Challenge.attempt);
     }
   }, [ChallengeData]);
 
   // Handle hint data response
   useEffect(() => {
     if (HintData?.Challenge) {
+      setChallengeData(HintData?.Challenge);
+
       setHints(HintData.Challenge.hints || []);
       setCurrentScore(HintData.Challenge.score || 0);
-      setAttempts(HintData.Challenge?.attempt);
+      setAttempts(HintData?.Challenge.attempt);
+
       if (HintData.hintContent) {
         const hintId = hintEndpoint.split("/").pop();
         setHintContents((prev) => ({
@@ -114,6 +123,8 @@ function DisplayChallenge() {
   // Handle flag submission response
   useEffect(() => {
     if (FlagData) {
+      setChallengeData(FlagData?.Challenge);
+      setAttempts(FlagData?.Challenge.attempt);
       if (FlagData.success || FlagData.message === "Correct flag") {
         setFlagSubmissionSuccess(
           "Flag accepted! Challenge completed successfully."
@@ -223,6 +234,8 @@ function DisplayChallenge() {
 
       // Submit the flag with the specified format
       await submitFlagRetry({}, { data: flagData });
+      console.log(flagData?.Challenge?.attempt);
+      setAttempts(flagData.Challenge.attempt);
     } catch (error) {
       console.error("Failed to submit flag:", error);
       setFlagSubmissionError("Submission failed. Please try again.");
@@ -405,17 +418,66 @@ function DisplayChallenge() {
   const handleBatchDownload = async (attachments = []) => {
     if (!Array.isArray(attachments) || attachments.length === 0) return;
 
-    // sequential downloads with short delay prevents race conditions and rate-limits
+    const zip = new JSZip();
+    const errors = [];
+
     for (let i = 0; i < attachments.length; i++) {
       const attachment = attachments[i];
-      // attempt download and wait before next
-      const result = await handleDownload(attachment);
-      // small delay between downloads
-      await new Promise((r) => setTimeout(r, 450));
-      // If the server sent a 404/Cannot GET, log it and continue (so rest of files attempt)
-      if (!result?.ok) {
-        console.error(`[batch] failed to download ${attachment}`, result);
+      try {
+        const fullUrl = buildUrl(attachment);
+        const resp = await fetch(fullUrl, {
+          method: "GET",
+          headers: getDownloadHeaders(),
+          credentials: "include",
+          cache: "no-store",
+        });
+
+        if (!resp.ok) {
+          errors.push({ url: attachment, status: resp.status });
+          continue;
+        }
+
+        const contentDisposition =
+          resp.headers.get("content-disposition") ||
+          resp.headers.get("Content-Disposition") ||
+          "";
+        const filename = getFileNameFromDisposition(
+          contentDisposition,
+          fullUrl
+        );
+
+        const blob = await resp.blob();
+        zip.file(filename, blob);
+        // small throttle to avoid head-of-line bursts
+        await new Promise((r) => setTimeout(r, 150));
+      } catch (err) {
+        console.error("[batch] fetch error", attachment, err);
+        errors.push({ url: attachment, error: err?.message || err });
       }
+    }
+
+    if (Object.keys(zip.files).length === 0) {
+      alert("No files available to download.");
+      return { ok: false, errors };
+    }
+
+    try {
+      const content = await zip.generateAsync({ type: "blob" });
+      const blobUrl = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `attachments_${Date.now()}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+      return { ok: true, errors };
+    } catch (zipErr) {
+      console.error("[batch] zip error", zipErr);
+      return {
+        ok: false,
+        errors: [...errors, { zipError: zipErr.message || zipErr }],
+      };
     }
   };
 
@@ -603,89 +665,28 @@ function DisplayChallenge() {
                     </div>
                   </div>
                 </div>
+                <div className="space-y-2 sm:space-y-3">
+                  <div className="h-px bg-gradient-to-r from-transparent via-teal-500/50 to-transparent"></div>
 
-                {/* Attachments Section */}
-                <div className="relative flex-1 flex flex-col">
-                  {/* Section Title */}
-                  <div className="text-center mb-4 flex-shrink-0">
-                    <div className="flex items-center justify-center gap-3 flex-wrap">
-                      {/* Title with Icon */}
-                      <div className="flex items-center gap-2">
-                        <Paperclip className="w-5 h-5 text-teal-400" />
-                        <div className="text-lg sm:text-xl font-semibold tracking-wide text-teal-300">
-                          Attachments
-                        </div>
-                      </div>
-
-                      {/* Batch download button (shows only if >1 file) */}
-                      {ChallengeData?.Challenge?.attachments?.length > 1 && (
-                        <button
-                          onClick={() =>
-                            handleBatchDownload(
-                              ChallengeData.Challenge.attachments
-                            )
-                          }
-                          className="flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-mono text-teal-200 border border-teal-500/40 rounded-full hover:bg-teal-600/20 hover:border-teal-400 transition-all duration-300"
-                        >
-                          <Download className="w-4 h-4 text-teal-400" />
-                          <span>
-                            {ChallengeData.Challenge.attachments.length} Files
-                          </span>
-                        </button>
-                      )}
-                    </div>
+                  <div className="flex justify-center items-center gap-2 text-xs sm:text-sm">
+                    <Coins className="w-3 h-3 text-yellow-400" />
+                    <span className="text-gray-300">Score:</span>
+                    <span className="font-semibold text-teal-400">
+                      {currentScore} pts
+                    </span>
                   </div>
 
-                  {/* Scrollable Container */}
-                  <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-gray-800 rounded-lg">
-                    {ChallengeData?.Challenge?.attachments?.length > 0 ? (
-                      <div className="space-y-2">
-                        {ChallengeData.Challenge.attachments.map(
-                          (attachment, index) => {
-                            // Extract filename from path
-                            const fileName =
-                              attachment.split("/").pop() ||
-                              `File ${index + 1}`;
-
-                            // Handle truncation (show ... in middle if long)
-                            const maxLength = 30;
-                            const displayName =
-                              fileName.length > maxLength
-                                ? fileName.substring(0, 15) +
-                                  "..." +
-                                  fileName.slice(-10)
-                                : fileName;
-
-                            return (
-                              <div
-                                key={index}
-                                className="group p-3 border border-teal-500/40 bg-gray-900/40 rounded-lg hover:border-teal-400 hover:bg-gray-800/60 cursor-pointer transition-all duration-300"
-                                onClick={() => handleDownload(attachment)}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2 min-w-0">
-                                    <Paperclip className="w-4 h-4 text-teal-400 group-hover:scale-110 transition-transform shrink-0" />
-                                    <span
-                                      title={fileName}
-                                      className="font-mono text-sm text-teal-200 truncate max-w-[200px]"
-                                    >
-                                      {displayName}
-                                    </span>
-                                  </div>
-                                  <Download className="w-4 h-4 text-teal-400 group-hover:text-teal-300 shrink-0" />
-                                </div>
-                              </div>
-                            );
-                          }
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center p-6 border border-gray-700 rounded-lg bg-gray-900/40">
-                        <div className="text-gray-500 font-mono text-sm">
-                          No attachments
-                        </div>
-                      </div>
-                    )}
+                  <div className="flex justify-center items-center gap-2 text-xs sm:text-sm">
+                    <span className={`text-gray-300`}>Attempts:</span>
+                    <span
+                      className={`font-semibold ${
+                        !disabled || flagSubmitted
+                          ? "text-teal-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {attempts}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -693,7 +694,7 @@ function DisplayChallenge() {
               {/* Center main display */}
               <div className="flex-1 p-2 sm:p-4 lg:p-8 overflow-hidden flex flex-col">
                 {/* Warning section with advanced styling */}
-                <div className="relative mb-3 sm:mb-4 lg:mb-6 flex-shrink-0">
+                {/* <div className="relative mb-3 sm:mb-4 lg:mb-6 flex-shrink-0">
                   <div className="absolute -inset-2 bg-gradient-to-r from-teal-500/20 to-transparent rounded-lg blur-sm"></div>
                   <div className="relative flex items-center gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-3 lg:p-4 border border-red-500/30 rounded-lg bg-red-950/50">
                     <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-red-500 animate-pulse flex-shrink-0" />
@@ -705,13 +706,13 @@ function DisplayChallenge() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Main title with holographic effect */}
                 <div className="relative mb-3 sm:mb-4 lg:mb-6 flex-shrink-0">
                   <div className="absolute -inset-4 bg-gradient-to-r from-teal-500/10 via-teal-400/20 to-teal-500/10 rounded-lg blur-lg"></div>
                   <div className="relative">
-                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-teal-400 font-mono tracking-wider mb-1 sm:mb-2 glow text-center">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-teal-400  tracking-wider mb-1 sm:mb-2 glow text-center">
                       {ChallengeData?.Challenge?.title}
                     </h1>
                     <div className="h-1 bg-gradient-to-r from-teal-500 via-teal-400 to-transparent rounded-full"></div>
@@ -751,13 +752,13 @@ function DisplayChallenge() {
               {/* Right technical panel - responsive sizing */}
               <div className="w-40 sm:w-48 lg:w-64 p-2 sm:p-3 lg:p-6 border-l border-teal-500/30 bg-gradient-to-b from-teal-500/10 to-black/50">
                 {/* Circuit pattern overlay */}
-                <div className="absolute inset-0 opacity-10 pointer-events-none">
+                {/* <div className="absolute inset-0 opacity-10 pointer-events-none">
                   <CircuitPattern className="w-full h-full" />
-                </div>
+                </div> */}
 
                 <div className="relative space-y-3 sm:space-y-4 lg:space-y-6 h-full flex flex-col">
                   {/* Power core display */}
-                  <div className="text-center flex-shrink-0">
+                  {/* <div className="text-center flex-shrink-0">
                     <div className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-20 lg:h-20 mx-auto mb-1 sm:mb-2 lg:mb-4">
                       <div
                         className="absolute inset-0 border-2 border-teal-400/50 rounded-full animate-spin"
@@ -778,11 +779,11 @@ function DisplayChallenge() {
                       Start Instance{" "}
                       <span className="text-red-300">(Experimental)</span>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Technical readouts */}
                   <div className="space-y-2 sm:space-y-3 lg:space-y-4 flex-1">
-                    <div className="p-1.5 sm:p-2 lg:p-3 border border-teal-500/30 rounded bg-black/30">
+                    {/* <div className="p-1.5 sm:p-2 lg:p-3 border border-teal-500/30 rounded bg-black/30">
                       <div className="text-teal-400 font-mono text-xs sm:text-sm mb-1">
                         SSH connection
                       </div>
@@ -792,34 +793,92 @@ function DisplayChallenge() {
                       <div className="text-teal-300 font-mono text-xs sm:text-sm">
                         893-5
                       </div>
-                    </div>
-
-                    <div className="space-y-2 sm:space-y-3">
-                      <div className="flex justify-center items-center gap-2 text-xs sm:text-sm">
-                        <Coins className="w-3 h-3 text-yellow-400" />
-                        <span className="text-gray-300">Score:</span>
-                        <span className="font-semibold text-teal-400">
-                          {currentScore} pts
-                        </span>
-                      </div>
-
-                      <div className="flex justify-center items-center gap-2 text-xs sm:text-sm">
-                        <span className={`text-gray-300`}>Attempts:</span>
-                        <span
-                          className={`font-semibold ${
-                            !disabled || flagSubmitted
-                              ? "text-teal-400"
-                              : "text-red-400"
-                          }`}
-                        >
-                          {attempts}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="h-px bg-gradient-to-r from-transparent via-teal-500/50 to-transparent"></div>
+                    </div> */}
                   </div>
+                  {/* Attachments Section */}
+                  <div className="relative flex-1 flex flex-col">
+                    {/* Section Title */}
+                    <div className="text-center mb-4 flex-shrink-0">
+                      <div className="flex items-center justify-center gap-3 flex-wrap">
+                        {/* Title with Icon */}
+                        <div className="flex items-center gap-2">
+                          <Paperclip className="w-5 h-5 text-teal-400" />
+                          <div className="text-lg sm:text-xl font-semibold tracking-wide text-teal-300">
+                            Attachments
+                          </div>
+                        </div>
 
+                        {/* Batch download button (shows only if >1 file) */}
+                        {ChallengeData?.Challenge?.attachments?.length > 1 && (
+                          <button
+                            onClick={() =>
+                              handleBatchDownload(
+                                ChallengeData.Challenge.attachments
+                              )
+                            }
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-mono text-teal-200 border border-teal-500/40 rounded-full hover:bg-teal-600/20 hover:border-teal-400 transition-all duration-300"
+                          >
+                            <FolderArchive className="w-4 h-4 text-teal-400" />
+                            <span>
+                              {ChallengeData.Challenge.attachments.length} Files
+                            </span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Scrollable Container */}
+                    <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-gray-800 rounded-lg">
+                      {ChallengeData?.Challenge?.attachments?.length > 0 ? (
+                        <div className="space-y-2">
+                          {ChallengeData.Challenge.attachments.map(
+                            (attachment, index) => {
+                              // Extract filename from path
+                              const fileName =
+                                attachment.split("/").pop() ||
+                                `File ${index + 1}`;
+
+                              // Handle truncation (show ... in middle if long)
+                              const maxLength = 30;
+                              const displayName =
+                                fileName.length > maxLength
+                                  ? fileName.substring(0, 15) +
+                                    "..." +
+                                    fileName.slice(-10)
+                                  : fileName;
+
+                              return (
+                                <div
+                                  key={index}
+                                  className="group p-3 border border-teal-500/40 bg-gray-900/40 rounded-lg hover:border-teal-400 hover:bg-gray-800/60 cursor-pointer transition-all duration-300"
+                                  onClick={() => handleDownload(attachment)}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <Paperclip className="w-4 h-4 text-teal-400 group-hover:scale-110 transition-transform shrink-0" />
+                                      <span
+                                        title={fileName}
+                                        className="font-mono text-sm text-teal-200 truncate max-w-[200px]"
+                                      >
+                                        {displayName}
+                                      </span>
+                                    </div>
+                                    <Download className="w-4 h-4 text-teal-400 group-hover:text-teal-300 shrink-0" />
+                                  </div>
+                                </div>
+                              );
+                            }
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-center p-6 border border-gray-700 rounded-lg bg-gray-900/40">
+                          <div className="text-gray-500 font-mono text-sm">
+                            No attachments
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   {/* Control buttons */}
                   <div className="space-y-2 sm:space-y-3 flex-shrink-0">
                     <button className="w-full p-1 sm:p-1.5 lg:p-2 border border-teal-500/30 rounded bg-black/30 hover:bg-teal-500/10 transition-colors">
@@ -931,7 +990,7 @@ function DisplayChallenge() {
           setFlagSubmissionSuccess("");
         }}
         onSubmitFlag={handleFlagSubmission}
-        challengeData={ChallengeData}
+        challengeData={{ Challenge }}
         loading={flagLoading}
         error={flagSubmissionError}
         success={flagSubmissionSuccess}

@@ -7,11 +7,15 @@ import {
   User,
   Menu,
   X,
+  Radar,
   UserCircle,
+  Terminal,
+  Code2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppContext } from "../../context/AppContext";
 import Logo from "./Logo";
+import { BugAntIcon } from "@heroicons/react/24/solid";
 
 // Device detection utility
 const useDeviceDetection = () => {
@@ -438,9 +442,11 @@ const Navbar = () => {
   }, [mobileMenuOpen]);
 
   const navItems = [
-    { name: "Home", icon: Home, path: "/" },
     { name: "Learn", icon: BookOpen, path: "/learn" },
-    { name: "Challenges", icon: Trophy, path: "/challenge" },
+
+    { name: "Challenges", icon: Code2, path: "/challenge" },
+    { name: "Leaderboard", icon: Radar, path: "/leaderboard" },
+
     user
       ? { name: "Profile", icon: UserCircle, path: "/profile" }
       : { name: "Login", icon: User, path: "/login" },

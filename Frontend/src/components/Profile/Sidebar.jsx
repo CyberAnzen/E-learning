@@ -43,7 +43,7 @@ export default function Sidebar({
   return (
     <>
       <div
-        className={`fixed z-30  left-1 bottom-3 w-64 lg:w-72 h-[84vh] bg-black/50 shadow transform transition-transform duration-300 ease-in-out border border-[#00ffff]/25 rounded-2xl ${
+        className={`fixed z-30  left-1 top-27 w-64 lg:w-72 h-[84vh] bg-black/50 shadow transform transition-transform duration-300 ease-in-out border border-[#00ffff]/25 rounded-2xl ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 md:block`}
       >

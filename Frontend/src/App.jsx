@@ -36,6 +36,7 @@ import AdminEditor from "./components/Admin/Content/adminEditor";
 import Profilenew from "./components/ProfilePage/Profile";
 import AddChallenges from "./routes/CTF/AddChallenges";
 import DisplayChallenge from "./routes/CTF/DisplayChallenge";
+import Leaderboard from "./routes/CTF/LeaderBoard";
 function App() {
   const { loggedIn } = useAppContext();
   // const getCsrfToken = useGetCsrfToken();
@@ -64,6 +65,8 @@ function App() {
   return (
     <>
       <div className="relative w-full h-full min-h-screen overflow-hidden">
+        {/*backdrop-blur-md */}
+        <div className="fixed inset-0 bg-gradient-to-b from-black/0 to-black/0 backdrop-saturate-500 border border-[#01ffdb]/10 shadow-2xl -z-10"></div>
         {/*Background*/}
 
         {/* Live Background */}
@@ -99,7 +102,7 @@ function App() {
               />
             }
           />
-
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/signup" element={<Signup />} />

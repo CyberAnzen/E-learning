@@ -55,7 +55,7 @@ const Logo = React.memo(() => {
           exit={{ rotateY: 90, opacity: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <Link to="/about">
+          <Link to="/">
             <motion.div
               className="flex items-center gap-3"
               whileHover={{ scale: 1.05 }}

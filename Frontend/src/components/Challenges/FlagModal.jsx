@@ -76,15 +76,15 @@ const FlagModal = ({
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* Challenge Info */}
-          <div className="flex items-center justify-between p-4 border border-teal-500/30 rounded-lg bg-black/30">
+          {/* <div className="flex items-center justify-between p-4 border border-teal-500/30 rounded-lg bg-black/30">
             <div className="flex items-center gap-3">
               <Flag className="w-5 h-5 text-teal-400" />
               <span className="text-teal-300 font-mono">Challenge:</span>
             </div>
             <span className="text-teal-400 font-mono text-lg font-bold">
-              {challengeData?.Challenge?.title || "Unknown Challenge"}
+              {challengeData?.title || "Unknown Challenge"}
             </span>
-          </div>
+          </div> */}
 
           {/* Team/Individual Indicator */}
           {isTeamChallenge && (
