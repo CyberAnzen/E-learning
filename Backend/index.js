@@ -10,6 +10,7 @@ const bodyParser = require("body-parser");
 const { Worker } = require("worker_threads");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
+const http = require("http");
 
 // Routes
 const userRoutes = require("./router/userRoutes");
@@ -29,7 +30,10 @@ const csrfProtection = require("./middleware/CSRFprotection");
 const requestLogger = require("./middleware/requestLogger");
 const errorLogger = require("./middleware/errorLogger");
 const gracefulShutdown = require("./utilies/gracefulShutdown");
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000"; // Fallback to localhost:3000 for development
+const initLeaderboardSocket = require("./controller/CTF/LeaderBoard/leaderboardSocket");
+
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173"; // Fallback to localhost:3000 for development
+const server = http.createServer(app);
 
 // Database and Cache initialization
 ConnectDataBase();
@@ -40,6 +44,9 @@ ConnectDataBase();
   if u dont want to use redis, comment the line below
 */
 connectRedis();
+// attach leaderboard websocket to same HTTP server
+
+initLeaderboardSocket(server);
 
 initializeCaches();
 
@@ -113,7 +120,7 @@ app.use(
       );
       res.setHeader("X-Content-Type-Options", "nosniff");
       // Ensure CORS headers are set for static files
-      res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
+      // res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
       res.setHeader("Access-Control-Allow-Methods", "GET");
       res.setHeader("Access-Control-Allow-Headers", "Authorization");
     },
@@ -157,9 +164,11 @@ app.use(
 // Error logging
 app.use(errorLogger(logInBackground));
 
-app.listen(port, () => {
+// app.listen(port, () => {
+//   console.log(`CTF platform running on port ${port}`);
+// });
+server.listen(port, () => {
   console.log(`CTF platform running on port ${port}`);
 });
-
 process.on("SIGINT", () => gracefulShutdown(loggerWorker));
 process.on("SIGTERM", () => gracefulShutdown(loggerWorker));
