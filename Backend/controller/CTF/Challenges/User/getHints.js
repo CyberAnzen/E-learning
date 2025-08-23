@@ -18,28 +18,29 @@ exports.getHint = async (req, res) => {
       return res.status(400).json({ message: "Error fetching User Data" });
 
     const teamId = user.teamId || null;
-console.log(teamId);
 
-    // Always update user hint first
-    const userHint = await CTF_progress.getHint(userId, ChallengeId, hintId);
-    if (!userHint) return res.status(404).json({ message: "Hint not found" });
+    let finalChallenge;
 
-    let finalChallenge = userHint;
-
-    // If user has a team, sync hint for team
     if (teamId) {
-      try {
-        const teamHint = await CTF_Teamprogress.getHint(
-          teamId,
-          ChallengeId,
-          hintId,
-          userId
-        );
-        if (teamHint) finalChallenge = teamHint;
-      } catch (err) {
-        console.error("Team hint sync error:", err.message || err);
-      }
+      // User is in a team, use team hint
+      finalChallenge = await CTF_Teamprogress.getHint(
+        teamId,
+        ChallengeId,
+        hintId,
+        userId
+      );
+    } else {
+      // User is not in a team, use individual hint
+      finalChallenge = await CTF_progress.getHint(
+        userId,
+        ChallengeId,
+        hintId,
+        userId
+      );
     }
+
+    if (!finalChallenge)
+      return res.status(404).json({ message: "Hint not found" });
 
     return res.status(200).json({
       message: "Hint fetched successfully",

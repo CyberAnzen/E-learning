@@ -30,9 +30,11 @@ import {
 } from "./SVGelements";
 import Usefetch from "../../hooks/Usefetch";
 import HintModal from "../../components/Challenges/HintModal";
+import FlagModal from "../../components/Challenges/FlagModal";
 import { useAppContext } from "../../context/AppContext";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL_W;
+
 function DisplayChallenge() {
   const textRef = useRef(null);
   const { fp, csrf } = useAppContext();
@@ -53,7 +55,19 @@ function DisplayChallenge() {
     loading: hintLoading,
     retry: fetchHintRetry,
   } = Usefetch(hintEndpoint, "get", null, {}, false);
-  const attempts = ChallengeData?.Challenge?.attempt ?? 0;
+
+  // Flag submission hook
+  const [flagEndpoint, setFlagEndpoint] = useState("");
+  const {
+    Data: FlagData,
+    error: flagError,
+    loading: flagLoading,
+    retry: submitFlagRetry,
+  } = Usefetch(flagEndpoint, "post", null, {}, false);
+  const [attempts, setAttempts] = useState(
+    ChallengeData?.Challenge?.attempt ?? 0
+  );
+  // const attempts = ChallengeData?.Challenge?.attempt ?? 0;
   const flagSubmitted = Boolean(ChallengeData?.Challenge?.Flag_Submitted);
   const disabled = attempts >= 5;
   const [activeStatus, setActiveStatus] = useState(true);
@@ -66,7 +80,12 @@ function DisplayChallenge() {
   const [currentScore, setCurrentScore] = useState(0);
   const [selectedHint, setSelectedHint] = useState(null);
   const [isHintModalOpen, setIsHintModalOpen] = useState(false);
-  const [hintContents, setHintContents] = useState({}); // Store fetched hint contents
+  const [hintContents, setHintContents] = useState({});
+
+  // Flag submission state
+  const [isFlagModalOpen, setIsFlagModalOpen] = useState(false);
+  const [flagSubmissionError, setFlagSubmissionError] = useState("");
+  const [flagSubmissionSuccess, setFlagSubmissionSuccess] = useState("");
 
   // Initialize hints and score when data loads
   useEffect(() => {
@@ -79,11 +98,9 @@ function DisplayChallenge() {
   // Handle hint data response
   useEffect(() => {
     if (HintData?.Challenge) {
-      // Update the challenge data with the latest hint information
       setHints(HintData.Challenge.hints || []);
       setCurrentScore(HintData.Challenge.score || 0);
-
-      // Store hint content if provided in response
+      setAttempts(HintData.Challenge?.attempt);
       if (HintData.hintContent) {
         const hintId = hintEndpoint.split("/").pop();
         setHintContents((prev) => ({
@@ -93,6 +110,37 @@ function DisplayChallenge() {
       }
     }
   }, [HintData, hintEndpoint]);
+
+  // Handle flag submission response
+  useEffect(() => {
+    if (FlagData) {
+      if (FlagData.success || FlagData.message === "Correct flag") {
+        setFlagSubmissionSuccess(
+          "Flag accepted! Challenge completed successfully."
+        );
+        setFlagSubmissionError("");
+        // Refresh challenge data to get updated state
+        setTimeout(() => {
+          fetchRetry();
+          setIsFlagModalOpen(false);
+          setFlagSubmissionSuccess("");
+        }, 2000);
+      } else {
+        setFlagSubmissionError(
+          FlagData.message || "Invalid flag. Please try again."
+        );
+        setFlagSubmissionSuccess("");
+      }
+    }
+  }, [FlagData]);
+
+  // Handle flag submission errors
+  useEffect(() => {
+    if (flagError) {
+      setFlagSubmissionError("Submission failed. Please try again.");
+      setFlagSubmissionSuccess("");
+    }
+  }, [flagError]);
 
   const handleCopy = (e) => {
     e.preventDefault();
@@ -108,7 +156,6 @@ function DisplayChallenge() {
   };
 
   const handleHintClick = async (hint, index) => {
-    // If hint is already used, show it directly
     if (hint.used) {
       const hintWithContent = {
         ...hint,
@@ -119,17 +166,13 @@ function DisplayChallenge() {
       return;
     }
 
-    // If hint content is not fetched yet, fetch it
     if (!hintContents[hint.id]) {
       try {
-        // Set the endpoint to trigger the fetch
         const endpoint = `challenge/${challengeId}/hint/${hint.id}`;
         setHintEndpoint(endpoint);
 
-        // Trigger the fetch manually using retry function
         await fetchHintRetry();
 
-        // Store a placeholder hint content for now
         setHintContents((prev) => ({
           ...prev,
           [hint.id]: `${
@@ -152,14 +195,11 @@ function DisplayChallenge() {
 
   const handleUnlockHint = async (hintId, cost) => {
     try {
-      // Set endpoint for unlocking hint (POST request)
       const endpoint = `challenge/${challengeId}/hint/${hintId}`;
       setHintEndpoint(endpoint);
 
-      // Make API call to unlock hint using retry function with POST method
       await fetchHintRetry({}, { data: null });
 
-      // Update local state - mark hint as used and reduce score
       setHints((prevHints) =>
         prevHints.map((hint) =>
           hint.id === hintId ? { ...hint, used: true } : hint
@@ -170,6 +210,22 @@ function DisplayChallenge() {
       console.log(`Hint ${hintId} unlocked for ${cost} points`);
     } catch (error) {
       console.error("Failed to unlock hint:", error);
+    }
+  };
+
+  const handleFlagSubmission = async (flagData) => {
+    try {
+      setFlagSubmissionError("");
+      setFlagSubmissionSuccess("");
+
+      const endpoint = `challenge/${challengeId}/validateFlag`;
+      setFlagEndpoint(endpoint);
+
+      // Submit the flag with the specified format
+      await submitFlagRetry({}, { data: flagData });
+    } catch (error) {
+      console.error("Failed to submit flag:", error);
+      setFlagSubmissionError("Submission failed. Please try again.");
     }
   };
 
@@ -184,153 +240,184 @@ function DisplayChallenge() {
     );
   };
 
-/* ---------- Download helpers (replace existing ones) ---------- */
+  /* ---------- Download helpers (replace existing ones) ---------- */
 
-const buildUrl = (url) => {
-  try {
-    // if absolute, return encoded absolute URL
-    const u = new URL(url);
-    return encodeURI(u.toString());
-  } catch {
-    // relative path -> ensure exactly one slash between BACKEND_URL and url
-    const base = BACKEND_URL.endsWith("/") ? BACKEND_URL.slice(0, -1) : BACKEND_URL;
-    const path = url.startsWith("/") ? url : `/${url}`;
-    return encodeURI(`${base}${path}`);
-  }
-};
-
-const getDownloadHeaders = () => {
-  return {
-    Accept: "application/octet-stream",
-    "x-client-fp": fp,
-    "csrf-token": csrf,
-    timestamp: Date.now(),
-    Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-  };
-};
-
-const getFileNameFromDisposition = (header, fallbackUrl) => {
-  if (!header) {
+  const buildUrl = (url) => {
     try {
-      const u = new URL(fallbackUrl, window.location.href);
-      return decodeURIComponent(u.pathname.split("/").pop() || "download");
+      // if absolute, return encoded absolute URL
+      const u = new URL(url);
+      return encodeURI(u.toString());
     } catch {
-      return "download";
+      // relative path -> ensure exactly one slash between BACKEND_URL and url
+      const base = BACKEND_URL.endsWith("/")
+        ? BACKEND_URL.slice(0, -1)
+        : BACKEND_URL;
+      const path = url.startsWith("/") ? url : `/${url}`;
+      return encodeURI(`${base}${path}`);
     }
-  }
-  const fnStar = header.match(/filename\*\s*=\s*([^;]+)/i);
-  if (fnStar) {
-    let v = fnStar[1].trim();
-    const parts = v.split("''");
-    v = parts.length > 1 ? parts.slice(1).join("''") : v;
-    return decodeURIComponent(v.replace(/^UTF-8''/i, "").replace(/(^"|"$)/g, ""));
-  }
-  const fn = header.match(/filename\s*=\s*"([^"]+)"/i) || header.match(/filename\s*=\s*([^;]+)/i);
-  if (fn) return decodeURIComponent(fn[1].replace(/(^"|"$)/g, ""));
-  return fallbackUrl.split("/").pop() || "download";
-};
-
-const handleDownload = async (url, { retryOnFail = true } = {}) => {
-  const fullUrl = buildUrl(url);
-  const encodedUrl = fullUrl; // already encoded by buildUrl
-
-  const doFetch = async () => {
-    const response = await fetch(encodedUrl, {
-      method: "GET",
-      headers: getDownloadHeaders(),
-      credentials: "include",
-      cache: "no-store",
-    });
-    return response;
   };
 
-  try {
-    let response = await doFetch();
+  const getDownloadHeaders = () => {
+    return {
+      Accept: "application/octet-stream",
+      "x-client-fp": fp,
+      "csrf-token": csrf,
+      timestamp: Date.now(),
+      Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+    };
+  };
 
-    // Debug logging for diagnosis
-    console.debug("[download] url:", encodedUrl, "status:", response.status, "resp-url:", response.url);
-
-    // If server returned HTML (login page) or error, treat as failure
-    const contentType = response.headers.get("content-type") || "";
-    if (!response.ok || contentType.includes("text/html")) {
-      const text = await response.text().catch(() => "");
-      // optional retry once for transient errors (but not for auth errors)
-      if (retryOnFail && response.status >= 500) {
-        console.warn("[download] server error, retrying once...", response.status);
-        await new Promise((r) => setTimeout(r, 300));
-        response = await doFetch();
-      }
-      if (!response.ok || (response.headers.get("content-type") || "").includes("text/html")) {
-        throw new Error(`Download failed: ${response.status} ${response.statusText} - ${text}`);
+  const getFileNameFromDisposition = (header, fallbackUrl) => {
+    if (!header) {
+      try {
+        const u = new URL(fallbackUrl, window.location.href);
+        return decodeURIComponent(u.pathname.split("/").pop() || "download");
+      } catch {
+        return "download";
       }
     }
+    const fnStar = header.match(/filename\*\s*=\s*([^;]+)/i);
+    if (fnStar) {
+      let v = fnStar[1].trim();
+      const parts = v.split("''");
+      v = parts.length > 1 ? parts.slice(1).join("''") : v;
+      return decodeURIComponent(
+        v.replace(/^UTF-8''/i, "").replace(/(^"|"$)/g, "")
+      );
+    }
+    const fn =
+      header.match(/filename\s*=\s*"([^"]+)"/i) ||
+      header.match(/filename\s*=\s*([^;]+)/i);
+    if (fn) return decodeURIComponent(fn[1].replace(/(^"|"$)/g, ""));
+    return fallbackUrl.split("/").pop() || "download";
+  };
 
-    const contentDisposition =
-      response.headers.get("content-disposition") ||
-      response.headers.get("Content-Disposition") ||
-      "";
-    const fileName = getFileNameFromDisposition(contentDisposition, encodedUrl);
+  const handleDownload = async (url, { retryOnFail = true } = {}) => {
+    const fullUrl = buildUrl(url);
+    const encodedUrl = fullUrl; // already encoded by buildUrl
 
-    const blob = await response.blob();
-    const blobUrl = window.URL.createObjectURL(blob);
+    const doFetch = async () => {
+      const response = await fetch(encodedUrl, {
+        method: "GET",
+        headers: getDownloadHeaders(),
+        credentials: "include",
+        cache: "no-store",
+      });
+      return response;
+    };
 
-    const link = document.createElement("a");
-    link.href = blobUrl;
-    link.download = fileName || "download";
-    link.style.display = "none";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // revoke after small delay to ensure download starts in all browsers
-    setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1500);
-
-    return { ok: true, fileName };
-  } catch (err) {
-    console.warn("[download] authenticated fetch failed, trying navigation fallback:", err?.message || err);
-
-    // Fallback navigation: will NOT send custom headers but will send cookies if CORS allows
     try {
-      const win = window.open(encodedUrl, "_blank", "noopener,noreferrer");
-      if (win) {
-        win.focus?.();
-        return { ok: true, fallback: true };
+      let response = await doFetch();
+
+      // Debug logging for diagnosis
+      console.debug(
+        "[download] url:",
+        encodedUrl,
+        "status:",
+        response.status,
+        "resp-url:",
+        response.url
+      );
+
+      // If server returned HTML (login page) or error, treat as failure
+      const contentType = response.headers.get("content-type") || "";
+      if (!response.ok || contentType.includes("text/html")) {
+        const text = await response.text().catch(() => "");
+        // optional retry once for transient errors (but not for auth errors)
+        if (retryOnFail && response.status >= 500) {
+          console.warn(
+            "[download] server error, retrying once...",
+            response.status
+          );
+          await new Promise((r) => setTimeout(r, 300));
+          response = await doFetch();
+        }
+        if (
+          !response.ok ||
+          (response.headers.get("content-type") || "").includes("text/html")
+        ) {
+          throw new Error(
+            `Download failed: ${response.status} ${response.statusText} - ${text}`
+          );
+        }
       }
 
-      // last-resort anchor click (popup-blocking safe)
-      const anchor = document.createElement("a");
-      anchor.href = encodedUrl;
-      anchor.target = "_blank";
-      anchor.rel = "noopener noreferrer";
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
+      const contentDisposition =
+        response.headers.get("content-disposition") ||
+        response.headers.get("Content-Disposition") ||
+        "";
+      const fileName = getFileNameFromDisposition(
+        contentDisposition,
+        encodedUrl
+      );
 
-      return { ok: true, fallback: true };
-    } catch (navErr) {
-      console.error("[download] fallback navigation failed:", navErr);
-      alert(`Download failed: ${err?.message || navErr?.message || "Unknown error"}`);
-      return { ok: false, error: err };
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = fileName || "download";
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // revoke after small delay to ensure download starts in all browsers
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1500);
+
+      return { ok: true, fileName };
+    } catch (err) {
+      console.warn(
+        "[download] authenticated fetch failed, trying navigation fallback:",
+        err?.message || err
+      );
+
+      // Fallback navigation: will NOT send custom headers but will send cookies if CORS allows
+      try {
+        const win = window.open(encodedUrl, "_blank", "noopener,noreferrer");
+        if (win) {
+          win.focus?.();
+          return { ok: true, fallback: true };
+        }
+
+        // last-resort anchor click (popup-blocking safe)
+        const anchor = document.createElement("a");
+        anchor.href = encodedUrl;
+        anchor.target = "_blank";
+        anchor.rel = "noopener noreferrer";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+
+        return { ok: true, fallback: true };
+      } catch (navErr) {
+        console.error("[download] fallback navigation failed:", navErr);
+        alert(
+          `Download failed: ${
+            err?.message || navErr?.message || "Unknown error"
+          }`
+        );
+        return { ok: false, error: err };
+      }
     }
-  }
-};
+  };
 
-const handleBatchDownload = async (attachments = []) => {
-  if (!Array.isArray(attachments) || attachments.length === 0) return;
+  const handleBatchDownload = async (attachments = []) => {
+    if (!Array.isArray(attachments) || attachments.length === 0) return;
 
-  // sequential downloads with short delay prevents race conditions and rate-limits
-  for (let i = 0; i < attachments.length; i++) {
-    const attachment = attachments[i];
-    // attempt download and wait before next
-    const result = await handleDownload(attachment);
-    // small delay between downloads
-    await new Promise((r) => setTimeout(r, 450));
-    // If the server sent a 404/Cannot GET, log it and continue (so rest of files attempt)
-    if (!result?.ok) {
-      console.error(`[batch] failed to download ${attachment}`, result);
+    // sequential downloads with short delay prevents race conditions and rate-limits
+    for (let i = 0; i < attachments.length; i++) {
+      const attachment = attachments[i];
+      // attempt download and wait before next
+      const result = await handleDownload(attachment);
+      // small delay between downloads
+      await new Promise((r) => setTimeout(r, 450));
+      // If the server sent a 404/Cannot GET, log it and continue (so rest of files attempt)
+      if (!result?.ok) {
+        console.error(`[batch] failed to download ${attachment}`, result);
+      }
     }
-  }
-};
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -752,9 +839,7 @@ const handleBatchDownload = async (attachments = []) => {
                           : "Submit flag"
                       }
                       onClick={
-                        disabled
-                          ? undefined
-                          : () => setActiveStatus(!activeStatus)
+                        disabled ? undefined : () => setIsFlagModalOpen(true)
                       }
                       className={`flex justify-around items-center w-full p-1.5 sm:p-2 lg:p-3 rounded-lg backdrop-blur-md border transition-all duration-300 group ${
                         flagSubmitted
@@ -835,6 +920,21 @@ const handleBatchDownload = async (attachments = []) => {
         hint={selectedHint}
         onUnlockHint={handleUnlockHint}
         currentScore={currentScore}
+      />
+
+      {/* Flag Submission Modal */}
+      <FlagModal
+        isOpen={isFlagModalOpen}
+        onClose={() => {
+          setIsFlagModalOpen(false);
+          setFlagSubmissionError("");
+          setFlagSubmissionSuccess("");
+        }}
+        onSubmitFlag={handleFlagSubmission}
+        challengeData={ChallengeData}
+        loading={flagLoading}
+        error={flagSubmissionError}
+        success={flagSubmissionSuccess}
       />
 
       {/* Additional responsive styles */}

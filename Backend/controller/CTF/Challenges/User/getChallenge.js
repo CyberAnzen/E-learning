@@ -18,31 +18,21 @@ exports.getChallenge = async (req, res) => {
 
     const teamId = user.teamId || null;
 
-    // Fetch user progress
-    const userProgress = await CTF_progress.fetchProgress(userId, ChallengeId);
-    if (!userProgress) {
-      return res.status(404).json({ message: "User progress not found" });
+    let finalChallenge;
+
+    if (teamId) {
+      // User is in a team, use team progress
+      finalChallenge = await CTF_Teamprogress.fetchProgress(
+        teamId,
+        ChallengeId
+      );
+    } else {
+      // User is not in a team, use individual progress
+      finalChallenge = await CTF_progress.fetchProgress(userId, ChallengeId);
     }
 
-    let finalChallenge = userProgress;
-
-    // If user is part of a team, fetch team progress
-    if (teamId) {
-      try {
-        const teamProgress = await CTF_Teamprogress.fetchProgress(
-          teamId,
-          ChallengeId
-        );
-
-        if (teamProgress) {
-          console.log("team Fetch called ");
-
-          finalChallenge = teamProgress;
-        }
-        console.log(teamProgress);
-      } catch (err) {
-        console.error("Team progress fetch error:", err.message || err);
-      }
+    if (!finalChallenge) {
+      return res.status(404).json({ message: "Progress not found" });
     }
 
     return res.status(200).json({

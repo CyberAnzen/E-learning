@@ -421,7 +421,7 @@ CTFTeamSchema.statics.validateFlag = async function (
     );
   }
 
-  if (progress.attempt >= Flag_attempt) {
+  if (progress.Flag_Submitted || progress.attempt >= Flag_attempt) {
     return {
       updated: false,
       created,
@@ -443,7 +443,6 @@ CTFTeamSchema.statics.validateFlag = async function (
             Flag_Submitted: true,
             submittedBy: submittedBy || progress.submittedBy || null,
           },
-          $inc: { attempt: 1 },
         },
         { new: true }
       )

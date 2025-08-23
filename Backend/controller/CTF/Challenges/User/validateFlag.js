@@ -19,40 +19,35 @@ exports.validateFlag = async (req, res) => {
 
     const teamId = user.teamId || null;
 
-    // Always update user progress first
-    const userResult = await CTF_progress.validateFlag(
-      userId,
-      ChallengeId,
-      Flag
-    );
-    if (!userResult.Challenge)
-      return res.status(404).json({ message: "User progress not found" });
+    let result;
 
-    let finalChallenge = userResult.Challenge;
-
-    // If correct & user has a team, update team progress
-    if (userResult.correct && teamId) {
-      try {
-        const teamResult = await CTF_Teamprogress.validateFlag(
-          teamId,
-          ChallengeId,
-          Flag,
-          userId
-        );
-        if (teamResult?.Challenge) {
-          finalChallenge = teamResult.Challenge; // Prefer team challenge view
-        }
-      } catch (err) {
-        console.error("Team flag sync error:", err.message || err);
-      }
+    if (teamId) {
+      // User is in a team, validate using team progress
+      result = await CTF_Teamprogress.validateFlag(
+        teamId,
+        ChallengeId,
+        Flag,
+        userId
+      );
+    } else {
+      // User is not in a team, validate using individual progress
+      result = await CTF_progress.validateFlag(
+        userId,
+        ChallengeId,
+        Flag,
+        userId
+      );
     }
 
+    if (!result.Challenge)
+      return res.status(404).json({ message: "Progress not found" });
+
     return res.status(200).json({
-      message: userResult.correct ? "Flag is correct" : "Flag is incorrect",
-      updated: userResult.updated,
-      created: userResult.created,
-      Challenge: finalChallenge,
-      correct: userResult.correct,
+      message: result.correct ? "Flag is correct" : "Flag is incorrect",
+      updated: result.updated,
+      created: result.created,
+      Challenge: result.Challenge,
+      correct: result.correct,
     });
   } catch (error) {
     console.error("Flag validation error:", error);
