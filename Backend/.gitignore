@@ -14,6 +14,10 @@ logs
 uploads/events/images/**
 uploads/events/temp/**
 
+test
+
+testRun.js
+
 #public images
 public/** 
 

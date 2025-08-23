@@ -22,6 +22,7 @@ const TeamRoutes = require("./router/TeamRoutes");
 
 const createLogWorker = require("./logger/controller/workerLog");
 const ConnectDataBase = require("./config/connectDataBase");
+const {connectRedis} = require("./redis/config/connectRedis");
 const initializeCaches = require("./cache/initCache");
 const classification = require("./router/classificationRoutes");
 const csrfProtection = require("./middleware/CSRFprotection");
@@ -32,6 +33,14 @@ const FRONTEND_URL = process.env.FRONTEND_URL;
 
 //Database and Cache initialization
 ConnectDataBase();
+
+/*
+  Redis connection
+  Make sure to start Redis server before running the application.
+  if u dont want to use redis, comment the line below
+*/
+connectRedis()
+
 initializeCaches();
 
 // Logger worker setup
