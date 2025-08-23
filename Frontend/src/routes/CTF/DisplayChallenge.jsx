@@ -16,8 +16,8 @@ import {
   Lightbulb,
   Lock,
   Unlock,
-  Paperclip,
   Download,
+  Paperclip,
   Eye,
   Coins,
 } from "lucide-react";
@@ -30,9 +30,12 @@ import {
 } from "./SVGelements";
 import Usefetch from "../../hooks/Usefetch";
 import HintModal from "../../components/Challenges/HintModal";
+import { useAppContext } from "../../context/AppContext";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL_W;
 function DisplayChallenge() {
   const textRef = useRef(null);
+  const { fp, csrf } = useAppContext();
 
   const { challengeId } = useParams();
   const {
@@ -50,7 +53,6 @@ function DisplayChallenge() {
     loading: hintLoading,
     retry: fetchHintRetry,
   } = Usefetch(hintEndpoint, "get", null, {}, false);
-
   const attempts = ChallengeData?.Challenge?.attempt ?? 0;
   const flagSubmitted = Boolean(ChallengeData?.Challenge?.Flag_Submitted);
   const disabled = attempts >= 5;
@@ -176,9 +178,159 @@ function DisplayChallenge() {
   };
 
   const canUnlockHint = (hintIndex) => {
-    const nextUnlockableIndex = getNextUnlockableHintIndex();
-    return nextUnlockableIndex === -1 || hintIndex <= nextUnlockableIndex;
+    return (
+      getNextUnlockableHintIndex() === -1 ||
+      hintIndex <= getNextUnlockableHintIndex()
+    );
   };
+
+/* ---------- Download helpers (replace existing ones) ---------- */
+
+const buildUrl = (url) => {
+  try {
+    // if absolute, return encoded absolute URL
+    const u = new URL(url);
+    return encodeURI(u.toString());
+  } catch {
+    // relative path -> ensure exactly one slash between BACKEND_URL and url
+    const base = BACKEND_URL.endsWith("/") ? BACKEND_URL.slice(0, -1) : BACKEND_URL;
+    const path = url.startsWith("/") ? url : `/${url}`;
+    return encodeURI(`${base}${path}`);
+  }
+};
+
+const getDownloadHeaders = () => {
+  return {
+    Accept: "application/octet-stream",
+    "x-client-fp": fp,
+    "csrf-token": csrf,
+    timestamp: Date.now(),
+    Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+  };
+};
+
+const getFileNameFromDisposition = (header, fallbackUrl) => {
+  if (!header) {
+    try {
+      const u = new URL(fallbackUrl, window.location.href);
+      return decodeURIComponent(u.pathname.split("/").pop() || "download");
+    } catch {
+      return "download";
+    }
+  }
+  const fnStar = header.match(/filename\*\s*=\s*([^;]+)/i);
+  if (fnStar) {
+    let v = fnStar[1].trim();
+    const parts = v.split("''");
+    v = parts.length > 1 ? parts.slice(1).join("''") : v;
+    return decodeURIComponent(v.replace(/^UTF-8''/i, "").replace(/(^"|"$)/g, ""));
+  }
+  const fn = header.match(/filename\s*=\s*"([^"]+)"/i) || header.match(/filename\s*=\s*([^;]+)/i);
+  if (fn) return decodeURIComponent(fn[1].replace(/(^"|"$)/g, ""));
+  return fallbackUrl.split("/").pop() || "download";
+};
+
+const handleDownload = async (url, { retryOnFail = true } = {}) => {
+  const fullUrl = buildUrl(url);
+  const encodedUrl = fullUrl; // already encoded by buildUrl
+
+  const doFetch = async () => {
+    const response = await fetch(encodedUrl, {
+      method: "GET",
+      headers: getDownloadHeaders(),
+      credentials: "include",
+      cache: "no-store",
+    });
+    return response;
+  };
+
+  try {
+    let response = await doFetch();
+
+    // Debug logging for diagnosis
+    console.debug("[download] url:", encodedUrl, "status:", response.status, "resp-url:", response.url);
+
+    // If server returned HTML (login page) or error, treat as failure
+    const contentType = response.headers.get("content-type") || "";
+    if (!response.ok || contentType.includes("text/html")) {
+      const text = await response.text().catch(() => "");
+      // optional retry once for transient errors (but not for auth errors)
+      if (retryOnFail && response.status >= 500) {
+        console.warn("[download] server error, retrying once...", response.status);
+        await new Promise((r) => setTimeout(r, 300));
+        response = await doFetch();
+      }
+      if (!response.ok || (response.headers.get("content-type") || "").includes("text/html")) {
+        throw new Error(`Download failed: ${response.status} ${response.statusText} - ${text}`);
+      }
+    }
+
+    const contentDisposition =
+      response.headers.get("content-disposition") ||
+      response.headers.get("Content-Disposition") ||
+      "";
+    const fileName = getFileNameFromDisposition(contentDisposition, encodedUrl);
+
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = fileName || "download";
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // revoke after small delay to ensure download starts in all browsers
+    setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1500);
+
+    return { ok: true, fileName };
+  } catch (err) {
+    console.warn("[download] authenticated fetch failed, trying navigation fallback:", err?.message || err);
+
+    // Fallback navigation: will NOT send custom headers but will send cookies if CORS allows
+    try {
+      const win = window.open(encodedUrl, "_blank", "noopener,noreferrer");
+      if (win) {
+        win.focus?.();
+        return { ok: true, fallback: true };
+      }
+
+      // last-resort anchor click (popup-blocking safe)
+      const anchor = document.createElement("a");
+      anchor.href = encodedUrl;
+      anchor.target = "_blank";
+      anchor.rel = "noopener noreferrer";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+
+      return { ok: true, fallback: true };
+    } catch (navErr) {
+      console.error("[download] fallback navigation failed:", navErr);
+      alert(`Download failed: ${err?.message || navErr?.message || "Unknown error"}`);
+      return { ok: false, error: err };
+    }
+  }
+};
+
+const handleBatchDownload = async (attachments = []) => {
+  if (!Array.isArray(attachments) || attachments.length === 0) return;
+
+  // sequential downloads with short delay prevents race conditions and rate-limits
+  for (let i = 0; i < attachments.length; i++) {
+    const attachment = attachments[i];
+    // attempt download and wait before next
+    const result = await handleDownload(attachment);
+    // small delay between downloads
+    await new Promise((r) => setTimeout(r, 450));
+    // If the server sent a 404/Cannot GET, log it and continue (so rest of files attempt)
+    if (!result?.ok) {
+      console.error(`[batch] failed to download ${attachment}`, result);
+    }
+  }
+};
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -203,7 +355,7 @@ function DisplayChallenge() {
     return (
       <div className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 backdrop-blur-lg bg-black/80"></div>
-        <div className="relative z-10 text-center p-6">
+        <div className="relative text-center p-6">
           <Monitor className="w-20 h-20 text-teal-400 mx-auto mb-6 animate-pulse" />
           <h2 className="text-2xl font-bold text-teal-400 font-mono mb-4">
             SCREEN SIZE INCOMPATIBLE
@@ -275,10 +427,10 @@ function DisplayChallenge() {
 
             <div className="flex flex-1 overflow-hidden">
               {/* Left holographic display - Hints and Attachments */}
-              <div className="relative w-48 sm:w-56 lg:w-80 p-2 sm:p-4 lg:p-6 border-r border-teal-500/30 hidden md:block">
+              <div className="relative w-48 sm:w-56 lg:w-80 p-2 sm:p-4 lg:p-6 border-r border-teal-500/30 hidden md:flex md:flex-col">
                 {/* Hints Section */}
-                <div className="relative mb-6">
-                  <div className="text-center mb-4">
+                <div className="relative flex-1 flex flex-col mb-3">
+                  <div className="text-center mb-4 flex-shrink-0">
                     <div className="flex items-center justify-center gap-2 mb-2">
                       <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-teal-400" />
                       <div className="text-lg sm:text-xl font-bold text-teal-400">
@@ -287,116 +439,161 @@ function DisplayChallenge() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    {hints.map((hint, index) => {
-                      const isUnlockable = canUnlockHint(index);
-                      const isUsed = hint.used;
-                      const isLocked = !isUsed && !isUnlockable;
+                  <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-gray-800">
+                    <div className="space-y-2">
+                      {hints.map((hint, index) => {
+                        const isUnlockable = canUnlockHint(index);
+                        const isUsed = hint.used;
+                        const isLocked = !isUsed && !isUnlockable;
 
-                      return (
-                        <div
-                          key={hint.id}
-                          className={`relative p-3 border rounded-lg cursor-pointer transition-all duration-300 ${
-                            isUsed
-                              ? "border-green-400/50 bg-green-500/10 hover:bg-green-500/20"
-                              : isUnlockable
-                              ? "border-teal-400/50 bg-teal-500/10 hover:bg-teal-500/20"
-                              : "border-gray-600/30 bg-gray-800/20 cursor-not-allowed"
-                          } ${isLocked ? "blur-sm" : ""}`}
-                          onClick={() =>
-                            !isLocked && handleHintClick(hint, index)
-                          }
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              {isUsed ? (
-                                <Unlock className="w-4 h-4 text-green-400" />
-                              ) : isUnlockable ? (
-                                <Eye className="w-4 h-4 text-teal-400" />
-                              ) : (
-                                <Lock className="w-4 h-4 text-gray-500" />
-                              )}
-                              <span
-                                className={`font-mono text-sm ${
+                        return (
+                          <div
+                            key={hint.id}
+                            className={`relative p-3 border rounded-lg cursor-pointer transition-all duration-300 ${
+                              isUsed
+                                ? "border-green-400/50 bg-green-500/10 hover:bg-green-500/20"
+                                : isUnlockable
+                                ? "border-teal-400/50 bg-teal-500/10 hover:bg-teal-500/20"
+                                : "border-gray-600/30 bg-gray-800/20 cursor-not-allowed"
+                            } ${isLocked ? "blur-sm" : ""}`}
+                            onClick={() =>
+                              !isLocked && handleHintClick(hint, index)
+                            }
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                {isUsed ? (
+                                  <Unlock className="w-4 h-4 text-green-400" />
+                                ) : isUnlockable ? (
+                                  <Eye className="w-4 h-4 text-teal-400" />
+                                ) : (
+                                  <Lock className="w-4 h-4 text-gray-500" />
+                                )}
+                                <span
+                                  className={`font-mono text-sm ${
+                                    isUsed
+                                      ? "text-green-300"
+                                      : isUnlockable
+                                      ? "text-teal-300"
+                                      : "text-gray-500"
+                                  }`}
+                                >
+                                  Hint {index + 1}
+                                </span>
+                              </div>
+                              <div
+                                className={`font-mono text-xs ${
                                   isUsed
-                                    ? "text-green-300"
+                                    ? "text-green-400"
                                     : isUnlockable
-                                    ? "text-teal-300"
+                                    ? "text-yellow-400"
                                     : "text-gray-500"
                                 }`}
                               >
-                                Hint {index + 1}
-                              </span>
+                                {hint.usedBy
+                                  ? `Used By: ${hint.usedBy}`
+                                  : isUsed
+                                  ? "USED"
+                                  : `${hint.cost} pts`}
+                              </div>
                             </div>
-                            <div
-                              className={`font-mono text-xs ${
-                                isUsed
-                                  ? "text-green-400"
-                                  : isUnlockable
-                                  ? "text-yellow-400"
-                                  : "text-gray-500"
-                              }`}
-                            >
-                              {isUsed ? "USED" : `${hint.cost} pts`}
-                            </div>
+                            {isLocked && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <Lock className="w-6 h-6 text-gray-600" />
+                              </div>
+                            )}
                           </div>
-                          {isLocked && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <Lock className="w-6 h-6 text-gray-600" />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
 
-                    {hints.length === 0 && (
-                      <div className="text-center p-4 border border-gray-600/30 rounded-lg bg-gray-800/20">
-                        <div className="text-gray-500 font-mono text-sm">
-                          No hints available
+                      {hints.length === 0 && (
+                        <div className="text-center p-4 border border-gray-600/30 rounded-lg bg-gray-800/20">
+                          <div className="text-gray-500 font-mono text-sm">
+                            No hints available
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 {/* Attachments Section */}
-                <div className="relative">
-                  <div className="text-center mb-4">
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                      <Paperclip className="w-4 h-4 sm:w-5 sm:h-5 text-teal-400" />
-                      <div className="text-lg sm:text-xl font-bold text-teal-400">
-                        Attachments
+                <div className="relative flex-1 flex flex-col">
+                  {/* Section Title */}
+                  <div className="text-center mb-4 flex-shrink-0">
+                    <div className="flex items-center justify-center gap-3 flex-wrap">
+                      {/* Title with Icon */}
+                      <div className="flex items-center gap-2">
+                        <Paperclip className="w-5 h-5 text-teal-400" />
+                        <div className="text-lg sm:text-xl font-semibold tracking-wide text-teal-300">
+                          Attachments
+                        </div>
                       </div>
+
+                      {/* Batch download button (shows only if >1 file) */}
+                      {ChallengeData?.Challenge?.attachments?.length > 1 && (
+                        <button
+                          onClick={() =>
+                            handleBatchDownload(
+                              ChallengeData.Challenge.attachments
+                            )
+                          }
+                          className="flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-mono text-teal-200 border border-teal-500/40 rounded-full hover:bg-teal-600/20 hover:border-teal-400 transition-all duration-300"
+                        >
+                          <Download className="w-4 h-4 text-teal-400" />
+                          <span>
+                            {ChallengeData.Challenge.attachments.length} Files
+                          </span>
+                        </button>
+                      )}
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  {/* Scrollable Container */}
+                  <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-gray-800 rounded-lg">
                     {ChallengeData?.Challenge?.attachments?.length > 0 ? (
-                      ChallengeData.Challenge.attachments.map(
-                        (attachment, index) => (
-                          <div
-                            key={index}
-                            className="p-3 border border-teal-400/50 bg-teal-500/10 rounded-lg hover:bg-teal-500/20 cursor-pointer transition-all duration-300"
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <Paperclip className="w-4 h-4 text-teal-400" />
-                                <span className="font-mono text-sm text-teal-300 truncate">
-                                  {attachment.name || `File ${index + 1}`}
-                                </span>
+                      <div className="space-y-2">
+                        {ChallengeData.Challenge.attachments.map(
+                          (attachment, index) => {
+                            // Extract filename from path
+                            const fileName =
+                              attachment.split("/").pop() ||
+                              `File ${index + 1}`;
+
+                            // Handle truncation (show ... in middle if long)
+                            const maxLength = 30;
+                            const displayName =
+                              fileName.length > maxLength
+                                ? fileName.substring(0, 15) +
+                                  "..." +
+                                  fileName.slice(-10)
+                                : fileName;
+
+                            return (
+                              <div
+                                key={index}
+                                className="group p-3 border border-teal-500/40 bg-gray-900/40 rounded-lg hover:border-teal-400 hover:bg-gray-800/60 cursor-pointer transition-all duration-300"
+                                onClick={() => handleDownload(attachment)}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <Paperclip className="w-4 h-4 text-teal-400 group-hover:scale-110 transition-transform shrink-0" />
+                                    <span
+                                      title={fileName}
+                                      className="font-mono text-sm text-teal-200 truncate max-w-[200px]"
+                                    >
+                                      {displayName}
+                                    </span>
+                                  </div>
+                                  <Download className="w-4 h-4 text-teal-400 group-hover:text-teal-300 shrink-0" />
+                                </div>
                               </div>
-                              <Download className="w-4 h-4 text-teal-400" />
-                            </div>
-                            {attachment.size && (
-                              <div className="text-xs text-teal-400/60 font-mono mt-1">
-                                {attachment.size}
-                              </div>
-                            )}
-                          </div>
-                        )
-                      )
+                            );
+                          }
+                        )}
+                      </div>
                     ) : (
-                      <div className="text-center p-4 border border-gray-600/30 rounded-lg bg-gray-800/20">
+                      <div className="text-center p-6 border border-gray-700 rounded-lg bg-gray-900/40">
                         <div className="text-gray-500 font-mono text-sm">
                           No attachments
                         </div>

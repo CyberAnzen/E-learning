@@ -377,7 +377,7 @@ export default function AddChallenges() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen px-4 sm:px-6 lg:px-8 py-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">

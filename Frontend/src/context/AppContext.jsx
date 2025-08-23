@@ -71,7 +71,9 @@ export const AppContextProvider = ({ children }) => {
 
       const data = await res.json();
       setUser(data?.data || null);
-      setAdmin(data?.userRole === "Admin");
+      setAdmin(data?.data.userRole === "Admin");
+      console.log(data.data.userRole);
+
       setLoggedIn(true);
       return data?.data || null;
     } catch (error) {

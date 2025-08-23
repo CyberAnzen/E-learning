@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Crown, User, MoreVertical } from "lucide-react";
+import { Wrench, User, MoreVertical } from "lucide-react";
 import MemberActions from "./MemberActions";
 import { useAppContext } from "../../../../context/AppContext";
 export default function MemberCard({ member, isLeader }) {
@@ -7,8 +7,8 @@ export default function MemberCard({ member, isLeader }) {
   const { team } = useAppContext();
   const getRoleIcon = (role) => {
     switch (role) {
-      case "leader":
-        return <Crown className="w-4 h-4 text-yellow-400" />;
+      case "Admin":
+        return <Wrench className="w-4 h-4 text-yellow-400" />;
       default:
         return <User className="w-4 h-4 text-gray-400" />;
     }
@@ -16,7 +16,7 @@ export default function MemberCard({ member, isLeader }) {
 
   const getRoleBadgeColor = (role) => {
     switch (role) {
-      case "leader":
+      case "Admin":
         return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
       default:
         return "bg-gray-500/20 text-gray-400 border-gray-500/30";

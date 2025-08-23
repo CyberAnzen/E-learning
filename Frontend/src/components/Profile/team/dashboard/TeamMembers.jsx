@@ -35,7 +35,7 @@ export default function TeamMembers({ team }) {
             <MemberCard
               member={{
                 ...teamLeader,
-                role: "leader",
+                role: "Admin",
                 status: "active",
                 joinedAt: team.createdAt,
               }}
