@@ -11,7 +11,7 @@ const { Worker } = require("worker_threads");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
 
-//routes
+// Routes
 const userRoutes = require("./router/userRoutes");
 const event = require("./router/eventRoutes");
 const lesson = require("./router/lessonRoutes");
@@ -28,9 +28,9 @@ const csrfProtection = require("./middleware/CSRFprotection");
 const requestLogger = require("./middleware/requestLogger");
 const errorLogger = require("./middleware/errorLogger");
 const gracefulShutdown = require("./utilies/gracefulShutdown");
-const FRONTEND_URL = process.env.FRONTEND_URL;
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000"; // Fallback to localhost:3000 for development
 
-//Database and Cache initialization
+// Database and Cache initialization
 ConnectDataBase();
 initializeCaches();
 
@@ -39,13 +39,19 @@ const loggerWorker = new Worker("./logger/controller/logger.js");
 const logInBackground = createLogWorker(loggerWorker);
 
 // Security Middlewares
-app.use(cors({ origin: true, credentials: true }));
+// Production CORS configuration (commented out)
+// app.use(
+//   cors({
+//     origin: FRONTEND_URL, // Explicitly set the frontend origin
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
+//   })
+// );
+app.use(cors({ origin: true, credentials: true })); // Development CORS configuration
+app.use(helmet()); // Adds common security headers
 
-// app.use(cors({ origin: FRONTEND_URL || true, credentials: true }));
-// app.use(helmet());
-// Adds common security headers
-
-// parser middlewares
+// Parser middlewares
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json());
@@ -80,21 +86,31 @@ app.use("/api/profile", profile);
 app.use("/api/challenge", CTF);
 app.use("/api/image", require("./router/imageRoutes"));
 app.use("/api/team", TeamRoutes);
+
 // Serve only challenge files (not full public folder)
 app.use(
   "/",
   downloadLimiter,
-  Auth(),
+  Auth({ timestamp: false }),
   express.static(path.join(__dirname, "public/"), {
     dotfiles: "deny", // Prevent access to hidden files
     index: false, // Disable directory listing
     maxAge: "1h", // Cache for 1 hour
     setHeaders: (res, filePath) => {
-      res.setHeader("Content-Disposition", "attachment");
-      res.setHeader("X-Content-Type-Options", "nosniff"); // extra safety
+      const fileName = path.basename(filePath);
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${fileName}"`
+      );
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      // Ensure CORS headers are set for static files
+      res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
+      res.setHeader("Access-Control-Allow-Methods", "GET");
+      res.setHeader("Access-Control-Allow-Headers", "Authorization");
     },
   })
 );
+
 // Error logging
 app.use(errorLogger(logInBackground));
 
