@@ -22,7 +22,7 @@ const TeamRoutes = require("./router/TeamRoutes");
 
 const createLogWorker = require("./logger/controller/workerLog");
 const ConnectDataBase = require("./config/connectDataBase");
-const {connectRedis} = require("./redis/config/connectRedis");
+const { connectRedis } = require("./redis/config/connectRedis");
 const initializeCaches = require("./cache/initCache");
 const classification = require("./router/classificationRoutes");
 const csrfProtection = require("./middleware/CSRFprotection");
@@ -39,7 +39,7 @@ ConnectDataBase();
   Make sure to start Redis server before running the application.
   if u dont want to use redis, comment the line below
 */
-connectRedis()
+connectRedis();
 
 initializeCaches();
 
@@ -119,6 +119,40 @@ app.use(
     },
   })
 );
+// app.post("/api/auth/verify-captcha", async (req, res) => {
+//   try {
+//     const token = req.body["cf-turnstile-response"]; // comes from form
+//     if (!token) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "No captcha token" });
+//     }
+
+//     const url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+//     const response = await fetch(url, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/x-www-form-urlencoded" },
+//       body: new URLSearchParams({
+//         secret: process.env.CF_SECRET_KEY,
+//         response: token,
+//         remoteip: req.ip,
+//       }),
+//     });
+
+//     const data = await response.json();
+
+//     if (data.success) {
+//       return res.json({ success: true, message: "Captcha verified ✅" });
+//     } else {
+//       return res
+//         .status(403)
+//         .json({ success: false, message: "Captcha failed ❌" });
+//     }
+//   } catch (err) {
+//     console.error("Captcha error:", err);
+//     return res.status(500).json({ success: false, message: "Server error" });
+//   }
+// });
 
 // Error logging
 app.use(errorLogger(logInBackground));

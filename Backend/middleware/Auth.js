@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_SECRET;
-const TIMESTAMP_WINDOW = 5 * 60 * 1000;
 const RefreshToken = require("../model/RefreshTokenModel");
 const csrfProtection = require("../middleware/CSRFprotection");
 const ClearCookies = async (res) => {
@@ -34,16 +33,31 @@ const ClearCookies = async (res) => {
 exports.Auth = (options = {}) => {
   return async (req, res, next) => {
     //Timestamp Checking to prevent Replay attack
-    const now = Date.now();
-    const timestamp = req.headers["timestamp"];
-    if (!timestamp || timestamp > now) {
-      console.log("Current time:", now, "Timestamp:", timestamp);
-      return res.status(411).json({ error: "Invalid Request" });
-    }
-    if (now - timestamp > TIMESTAMP_WINDOW) {
-      //console.log("Request expired:", now - timestamp, "ms");
-      console.log("Current time:", now, "Timestamp:", timestamp);
-      return res.status(411).json({ error: "Request expired" });
+    const timestamp = options?.timestamp || false;
+    const TIMESTAMP_WINDOW = timestamp || 5 * 60 * 1000;
+
+    // 1) Timestamp check (optional)
+    if (timestamp) {
+      const tsHeader = req.headers["timestamp"] || req.query.timestamp;
+      if (!tsHeader)
+        return res.status(400).json({ error: "Missing timestamp header" });
+
+      const ts = Number(tsHeader);
+      if (!Number.isFinite(ts))
+        return res.status(400).json({ error: "Invalid timestamp" });
+
+      const windowMs =
+        typeof timestamp === "number" && timestamp > 0
+          ? timestamp
+          : DEFAULT_WINDOW;
+      const now = Date.now();
+      if (Math.abs(now - ts) > windowMs) {
+        return res
+          .status(408)
+          .json({ error: "Timestamp outside allowed window" });
+      }
+      // Optionally attach timestamp to req
+      req.requestTimestamp = ts;
     }
 
     // Apply CSRF protection

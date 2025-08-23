@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const Flag_attempt = Number(process.env.Flag_Attemtps) || 5;
+const Flag_attempt = Number(process.env.Flag_Attempts) || 5;
 const CTF_challenges = require("./CTFchallengeModel");
 
 const CTFTeamSchema = new Schema(
@@ -25,6 +25,13 @@ const CTFTeamSchema = new Schema(
       type: Number,
       required: true,
       min: 0,
+      default: 0,
+    },
+    attempt: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: Flag_attempt,
       default: 0,
     },
     Flag_Submitted: {
@@ -110,7 +117,7 @@ async function _populateHints(doc, challenge) {
         id,
         hint: hd ? hd.text ?? null : null,
         cost,
-        usedBy: h.usedBy || null,
+        usedBy: h.usedBy ? h.usedBy.username : null,
         usedAt: h.usedAt || null,
       };
     } else {
@@ -257,7 +264,7 @@ CTFTeamSchema.statics.fetchProgress = async function (teamId, challengeId) {
   const Challenge = await CTF_challenges.findById(challengeId).lean();
   if (!Challenge) throw new Error("Challenge not found");
 
-  // Try to find existing progress
+  // Try to find existing progress without populate for merging
   let exist = await model.findOne({ teamId, challengeId }).lean();
 
   if (exist) {
@@ -305,15 +312,21 @@ CTFTeamSchema.statics.fetchProgress = async function (teamId, challengeId) {
         { teamId, challengeId },
         { $set: { hints: mergedHints } }
       );
-      // Refresh exist with updated hints
-      exist = await model.findOne({ teamId, challengeId }).lean();
     }
+
+    // Now fetch with populate
+    exist = await model
+      .findOne({ teamId, challengeId })
+      .populate("submittedBy", "username")
+      .populate("hints.usedBy", "username")
+      .lean();
 
     // populate hints for response
     const doc = await _populateHints(exist, Challenge);
 
     const data = {
       ...doc,
+      submittedBy: exist.submittedBy ? exist.submittedBy.username : null,
       title: Challenge.title,
       description: Challenge.description,
       category: Challenge.category,
@@ -331,7 +344,7 @@ CTFTeamSchema.statics.fetchProgress = async function (teamId, challengeId) {
     ? Challenge.hints.map((h) => ({ hintId: h._id, used: false }))
     : [];
 
-  const newProgress = await model
+  let newProgress = await model
     .findOneAndUpdate(
       { teamId, challengeId },
       {
@@ -343,11 +356,16 @@ CTFTeamSchema.statics.fetchProgress = async function (teamId, challengeId) {
       },
       { new: true, upsert: true }
     )
+    .populate("submittedBy", "username")
+    .populate("hints.usedBy", "username")
     .lean();
 
   const doc = await _populateHints(newProgress, Challenge);
   const data = {
     ...doc,
+    submittedBy: newProgress.submittedBy
+      ? newProgress.submittedBy.username
+      : null,
     title: Challenge.title,
     description: Challenge.description,
     category: Challenge.category,
@@ -383,7 +401,9 @@ CTFTeamSchema.statics.validateFlag = async function (
 
   // Attempt to find progress doc
   let progress = await model.findOne({ teamId, challengeId });
+  let created = false;
   if (!progress) {
+    created = true;
     // create a progress doc first (so attempts tracked)
     const initialHints = Array.isArray(challenge.hints)
       ? challenge.hints.map((h) => ({ hintId: h._id, used: false }))
@@ -404,39 +424,51 @@ CTFTeamSchema.statics.validateFlag = async function (
   if (progress.attempt >= Flag_attempt) {
     return {
       updated: false,
-      created: false,
+      created,
       correct: false,
-      Challenge: progress,
+      Challenge: await model
+        .findById(progress._id)
+        .populate("submittedBy", "username")
+        .populate("hints.usedBy", "username")
+        .lean(),
     };
   }
 
   if (submittedFlag === correctFlag) {
-    const updatedDoc = await model.findOneAndUpdate(
-      { _id: progress._id },
-      {
-        $set: {
-          Flag_Submitted: true,
-          submittedBy: submittedBy || progress.submittedBy || null,
+    const updatedDoc = await model
+      .findOneAndUpdate(
+        { _id: progress._id },
+        {
+          $set: {
+            Flag_Submitted: true,
+            submittedBy: submittedBy || progress.submittedBy || null,
+          },
+          $inc: { attempt: 1 },
         },
-        $inc: { attempt: 1 },
-      },
-      { new: true }
-    );
+        { new: true }
+      )
+      .populate("submittedBy", "username")
+      .populate("hints.usedBy", "username")
+      .lean();
     return {
       updated: true,
-      created: false,
+      created,
       correct: true,
       Challenge: updatedDoc,
     };
   } else {
-    const updatedDoc = await model.findOneAndUpdate(
-      { _id: progress._id },
-      { $inc: { attempt: 1 } },
-      { new: true }
-    );
+    const updatedDoc = await model
+      .findOneAndUpdate(
+        { _id: progress._id },
+        { $inc: { attempt: 1 } },
+        { new: true }
+      )
+      .populate("submittedBy", "username")
+      .populate("hints.usedBy", "username")
+      .lean();
     return {
       updated: true,
-      created: false,
+      created,
       correct: false,
       Challenge: updatedDoc,
     };
