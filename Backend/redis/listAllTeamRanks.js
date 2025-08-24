@@ -18,6 +18,8 @@ async function listAllTeamRanks() {
     result.push({
       teamName: meta.teamName,
       score: Number(meta.score),
+      teamId:meta.teamId,
+      isTeam:meta.isTeam,
       updatedAt: new Date(Number(meta.updatedAt)),
       rank: rank++
     });

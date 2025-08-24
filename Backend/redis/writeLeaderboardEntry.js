@@ -29,7 +29,7 @@ async function writeLeaderboardEntry(teamName,teamId, score, isTeam=true,updated
   // 2. Hash → store metadata
   pipeline.hSet(`${TEAM_META_KEY}:${member}`, {
     teamName: String(teamName),
-    isTeam: isTeam? "true":"solo",
+    isTeam: isTeam? "team":"solo",
     teamId: member,
     score: score,
     updatedAt: ts,
