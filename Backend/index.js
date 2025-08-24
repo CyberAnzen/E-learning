@@ -65,8 +65,6 @@ const gracefulShutdown = require("./utilies/gracefulShutdown");
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173"; // Fallback to localhost:3000 for development
 let server = http.createServer(app);
 
-const { redisTest } = require("./test/redisTest");
-
 //*************************************************************************** */
 ///blocking code to wait for caches to initialize
 // Start server after initialization
@@ -131,15 +129,6 @@ app.use("/api/challenge", CTF);
 app.use("/api/image", require("./router/imageRoutes"));
 app.use("/api/team", TeamRoutes);
 
-
-app.use("/test", async (req, res) => {
-  res.json({ message: "Server is running fine." });
-    try {
-    await redisTest();
-  } catch (err) {
-    console.error("❌ Error during tests:", err);
-  }
-})
 
 // Serve only challenge files (not full public folder)
 app.use(
