@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Turnstile from "react-turnstile";
 import { User, Lock, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import ParticleBackground from "../components/Login/ParticleBackground";
@@ -15,9 +14,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { fp } = useAppContext();
-  const [captchaToken, setCaptchaToken] = useState("");
-  const [captchaVerified, setCaptchaVerified] = useState(false);
-  const [showSubmit, setShowSubmit] = useState(false);
 
   useEffect(() => {
     // Smooth scroll to top
@@ -48,30 +44,10 @@ export default function LoginPage() {
       };
     }
   }, []);
-
-  // Show submit button with a short delay after captcha success and animate it
-  useEffect(() => {
-    let t;
-    if (captchaVerified) {
-      // hide first to allow animation reset, then show after delay
-      setShowSubmit(false);
-      t = setTimeout(() => setShowSubmit(true), 700); // 700ms delay before showing
-    } else {
-      setShowSubmit(false);
-    }
-    return () => clearTimeout(t);
-  }, [captchaVerified]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-
-    if (!captchaToken) {
-      setError("Please complete the captcha");
-      setIsLoading(false);
-      return;
-    }
 
     try {
       const res = await fetch(`${BACKEND_URL}/user/login`, {
@@ -83,7 +59,6 @@ export default function LoginPage() {
           password,
           rememberMe,
           fp,
-          captcha: captchaToken,
         }),
       });
 
@@ -103,7 +78,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center -mt-21 justify-center px-4 sm:px-6 relative  min-h-screen overflow-y-auto pt-10 pb-0 lg:pb-0">
+    <div className="flex items-center mt-[-3.25rem] justify-center px-4 sm:px-6 relative bg-gradient-to-br from-black via-gray-900 to-black min-h-screen overflow-y-auto pt-10 pb-0 lg:pb-0">
       <ParticleBackground />
       {/* Cyberpunk grid overlay */}
       <div className="absolute inset-0 opacity-10">
@@ -119,7 +94,7 @@ export default function LoginPage() {
         />
       </div>
 
-      <div className="relative z-10 min-w-[85vw] sm:min-w-[70vw]  md:min-w-[60vw] lg:max-h-[80vh]   sm:overflow-y-auto">
+      <div className="relative z-10 min-w-[85vw] sm:min-w-[70vw]  md:min-w-[60vw]   sm:overflow-y-auto">
         {/* Main Container */}
         <div className="relative">
           {/* Angled border container */}
@@ -263,57 +238,30 @@ export default function LoginPage() {
                       </Link>
                     </div>
 
-                    <div className="flex justify-center">
-                      <Turnstile
-                        sitekey={import.meta.env.VITE_CF_SITE_KEY}
-                        onVerify={(token) => {
-                          setCaptchaToken(token);
-                          setCaptchaVerified(true);
-                        }}
-                        onExpire={() => {
-                          setCaptchaToken("");
-                          setCaptchaVerified(false);
-                        }}
-                        theme="dark"
-                        size="flexible"
-                      />
-                    </div>
-
-                    {/* Submit Button - hidden until captcha success, fades in with animation */}
-                    <div
-                      className={`transition-all duration-700 ease-out transform ${
-                        showSubmit
-                          ? "opacity-100 translate-y-0"
-                          : "opacity-0 -translate-y-6 pointer-events-none"
-                      }`}
-                      style={{ willChange: "opacity, transform" }}
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="cyber-button w-full py-3 px-6 sm:px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
+                               text-[#01ffdb] font-mono text-lg font-bold
+                               hover:bg-[#01ffdb]/20 hover:border-[#01ffdb]
+                               transition-all duration-300 relative
+                               disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{
+                        clipPath:
+                          "polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px))",
+                      }}
                     >
-                      <button
-                        type="submit"
-                        disabled={isLoading || !captchaVerified}
-                        className="cyber-button w-full py-3 px-6 sm:px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
-                                 text-[#01ffdb] font-mono text-lg font-bold
-                                 hover:bg-[#01ffdb]/20 hover:border-[#01ffdb]
-                                 transition-all duration-300 relative
-                                 disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{
-                          clipPath:
-                            "polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px))",
-                        }}
-                      >
-                        <div className="relative z-10">
-                          {isLoading
-                            ? "AUTHENTICATING..."
-                            : "INITIALIZE SESSION"}
-                        </div>
+                      <div className="relative z-10">
+                        {isLoading ? "AUTHENTICATING..." : "INITIALIZE SESSION"}
+                      </div>
 
-                        {/* Animated background effect */}
-                        <div
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-[#01ffdb]/10 to-transparent 
-                                      transform -skew-x-12 -translate-x-full animate-pulse"
-                        />
-                      </button>
-                    </div>
+                      {/* Animated background effect */}
+                      <div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-[#01ffdb]/10 to-transparent 
+                                    transform -skew-x-12 -translate-x-full animate-pulse"
+                      />
+                    </button>
 
                     {/* Sign up link */}
                     <div className="text-center text-[#01ffdb]/70 font-mono">

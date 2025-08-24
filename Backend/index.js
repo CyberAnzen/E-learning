@@ -71,7 +71,6 @@ app.use(helmet()); // Adds common security headers
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json());
-<<<<<<< HEAD
 
 // Rate limiting for static files (prevent abuse)
 const downloadLimiter = rateLimit({
@@ -95,9 +94,7 @@ app.get(
 
 // Routes
 app.use("/api/event", event);
-=======
 // app.use("/api/event", xssSanitizer(), event);
->>>>>>> 4215ebf1ac4a90c4c4d6cea652f376e85eef939b
 app.use("/api/user", userRoutes);
 app.use("/api/classification", classification);
 app.use("/api/lesson", lesson);
