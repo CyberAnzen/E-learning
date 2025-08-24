@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const Flag_attempt = Number(process.env.Flag_Attemtps) || 5;
 const CTF_challenges = require("./CTFchallengeModel");
+const CTF_LeaderBoardSchema = require("./CTF_LeaderBoardModel");
 
 const CTFprogress = new Schema(
   {
@@ -260,53 +261,107 @@ CTFprogress.statics.fetchProgress = async function (userId, challengeId) {
 };
 
 CTFprogress.statics.validateFlag = async function (userId, challengeId, Flag) {
+  // 1) fetch challenge
   const challenge = await CTF_challenges.findById(challengeId).lean();
-  if (!challenge)
+  if (!challenge) {
     return { updated: false, created: false, correct: false, Challenge: false };
+  }
 
-  // Normalize both values if case-insensitive match is desired
+  // 2) normalize flags
   const submittedFlag = String(Flag).trim();
   const correctFlag = String(challenge.flag).trim();
 
-  // Attempt to update atomically
+  // 3) get existing progress (this method assumes progress already exists)
   const progress = await this.findOne({ userId, challengeId });
-  if (!progress)
+  if (!progress) {
     return { updated: false, created: false, correct: false, Challenge: false };
+  }
 
-  if (progress.attempt >= Flag_attempt) {
+  // 4) attempts / already submitted guard
+  if ((progress.attempt || 0) >= Flag_attempt || progress.Flag_Submitted) {
+    const locked = await this.findById(progress._id).lean();
     return {
       updated: false,
       created: false,
       correct: false,
-      Challenge: progress,
+      Challenge: locked,
     };
   }
 
+  // 5) correct flag path
   if (submittedFlag === correctFlag) {
     const updatedDoc = await this.findOneAndUpdate(
       { _id: progress._id },
       { $set: { Flag_Submitted: true }, $inc: { attempt: 1 } }, // remove $inc if you don't want to count correct attempts
       { new: true }
-    );
+    ).lean();
+
+    // 6) leaderboard update (best-effort; never throw)
+    try {
+      // resolve a display name for the user if the Users model is registered
+      let identifierName = "";
+      let UsersModel = null;
+      try {
+        UsersModel = mongoose.model("Users");
+      } catch (_) {
+        UsersModel = null; // not registered; skip name resolution
+      }
+      if (UsersModel) {
+        const u = await UsersModel.findById(userId)
+          .select("username name email")
+          .lean()
+          .catch(() => null);
+        identifierName = u ? u.username || u.name || u.email || "" : "";
+      }
+
+      // prefer the required model; fall back to registry if needed
+      const LB =
+        typeof CTF_LeaderBoard !== "undefined" &&
+        CTF_LeaderBoard &&
+        typeof CTF_LeaderBoard.updateScore === "function"
+          ? CTF_LeaderBoard
+          : mongoose.modelNames().includes("CTF_LeaderBoard")
+          ? mongoose.model("CTF_LeaderBoard")
+          : null;
+
+      if (LB) {
+        await LB.updateScore(
+          userId, // identifierId
+          false, // isTeam
+          challenge.score || 0,
+          challengeId,
+          identifierName
+        );
+      } else {
+        console.warn(
+          "Leaderboard model not available; skipping leaderboard update."
+        );
+      }
+    } catch (err) {
+      console.error("Leaderboard update error (user):", err);
+    }
+
     return {
       updated: true,
       created: false,
       correct: true,
       Challenge: updatedDoc,
     };
-  } else {
-    const updatedDoc = await this.findOneAndUpdate(
-      { _id: progress._id },
-      { $inc: { attempt: 1 } },
-      { new: true }
-    );
-    return {
-      updated: true,
-      created: false,
-      correct: false,
-      Challenge: updatedDoc,
-    };
   }
+
+  // 7) wrong flag path
+  const updatedDoc = await this.findOneAndUpdate(
+    { _id: progress._id },
+    { $inc: { attempt: 1 } },
+    { new: true }
+  ).lean();
+
+  return {
+    updated: true,
+    created: false,
+    correct: false,
+    Challenge: updatedDoc,
+  };
 };
 
 module.exports = mongoose.model("CTF_progress", CTFprogress);

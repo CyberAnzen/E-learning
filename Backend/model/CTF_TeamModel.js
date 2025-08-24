@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const Flag_attempt = Number(process.env.Flag_Attempts) || 5;
 const CTF_challenges = require("./CTFchallengeModel");
-
+const CTF_LeaderBoard = require("./CTF_LeaderBoardModel"); // adjust path if needed
 const CTFTeamSchema = new Schema(
   {
     challengeId: {
@@ -399,12 +399,10 @@ CTFTeamSchema.statics.validateFlag = async function (
   const submittedFlag = String(Flag).trim();
   const correctFlag = String(challenge.flag).trim();
 
-  // Attempt to find progress doc
   let progress = await model.findOne({ teamId, challengeId });
   let created = false;
   if (!progress) {
     created = true;
-    // create a progress doc first (so attempts tracked)
     const initialHints = Array.isArray(challenge.hints)
       ? challenge.hints.map((h) => ({ hintId: h._id, used: false }))
       : [];
@@ -415,13 +413,14 @@ CTFTeamSchema.statics.validateFlag = async function (
           score: challenge.score || 0,
           Flag_Submitted: false,
           hints: initialHints,
+          attempt: 0,
         },
       },
       { new: true, upsert: true }
     );
   }
 
-  if (progress.Flag_Submitted || progress.attempt >= Flag_attempt) {
+  if (progress.Flag_Submitted || (progress.attempt || 0) >= Flag_attempt) {
     return {
       updated: false,
       created,
@@ -449,6 +448,41 @@ CTFTeamSchema.statics.validateFlag = async function (
       .populate("submittedBy", "username")
       .populate("hints.usedBy", "username")
       .lean();
+
+    try {
+      const Teams = mongoose.modelNames().includes("Teams")
+        ? mongoose.model("Teams")
+        : null;
+      let identifierName = "";
+      if (Teams) {
+        const teamDoc = await Teams.findById(teamId)
+          .lean()
+          .catch(() => null);
+        identifierName = teamDoc
+          ? teamDoc.teamName || teamDoc.name || teamDoc.username || ""
+          : "";
+      }
+
+      if (
+        CTF_LeaderBoard &&
+        typeof CTF_LeaderBoard.updateScore === "function"
+      ) {
+        await CTF_LeaderBoard.updateScore(
+          teamId,
+          true,
+          challenge.score || 0,
+          challengeId,
+          identifierName
+        );
+      } else {
+        console.warn(
+          "CTF_LeaderBoard model or updateScore() not found. Skipping update."
+        );
+      }
+    } catch (err) {
+      console.error("Leaderboard update error:", err);
+    }
+
     return {
       updated: true,
       created,
