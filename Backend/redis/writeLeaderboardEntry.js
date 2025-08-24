@@ -1,4 +1,5 @@
 const { redis } = require("./config/connectRedis");
+const LeaderboardManager=require("../controller/CTF/LeaderBoard/leaderBoardManager")
 
 
 const LEADERBOARD_KEY = process.env.LEADERBOARD_KEY; // sorted set
@@ -10,8 +11,9 @@ const TEAM_META_KEY = process.env.TEAM_META_KEY;     // hash for extra data
  * @param {number} score - Score to set
  * @param {Date} updatedAt - Last updated time
  */
-async function writeLeaderboardEntry(teamName, score, updatedAt = new Date()) {
-  const member = String(teamName);
+async function writeLeaderboardEntry(teamName,teamId, score, isTeam=true,updatedAt = new Date()) {
+  try {
+  const member = String(teamId);
 
   const ts = updatedAt.getTime(); // ms timestamp
   const compositeScore = (score * 1e13) + (1e13 - ts);
@@ -26,7 +28,9 @@ async function writeLeaderboardEntry(teamName, score, updatedAt = new Date()) {
 
   // 2. Hash → store metadata
   pipeline.hSet(`${TEAM_META_KEY}:${member}`, {
-    teamName: member,
+    teamName: String(teamName),
+    isTeam: isTeam? "true":"solo",
+    teamId: member,
     score: score,
     updatedAt: ts,
   });
@@ -34,6 +38,15 @@ async function writeLeaderboardEntry(teamName, score, updatedAt = new Date()) {
   await pipeline.exec();
 
   console.log(`✅ Leaderboard updated: ${teamName} -> ${score} (at ${updatedAt})`);
+  // Notify connected clients about the update
+  await LeaderboardManager.broadcastAllRanks().catch((err) => {
+    console.error("❌ Failed to broadcast leaderboard after update:", err);
+    throw err;
+  });
+     return {success:true};
+  } catch (error) {
+    return { success: false, message: error.message}
+  }
 }
 
 module.exports = { writeLeaderboardEntry };

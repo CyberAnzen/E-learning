@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const CTF_challenges = require("./CTFchallengeModel");
+const { writeLeaderboardEntry } = require("../redis/writeLeaderboardEntry");
+const customError = require("../utilies/customError");
 
 const CTF_LeaderBoardSchema = new Schema(
   {
@@ -133,7 +135,24 @@ CTF_LeaderBoardSchema.statics.updateScore = async function (
       (acc, c) => acc + (c.ObtainedScore || 0),
       0
     );
+
     //reddis update#########################
+    try {
+      const res = await writeLeaderboardEntry(
+        leaderboard.identifierName,
+        leaderboard.identifierId,
+        leaderboard.total_score,
+        isTeam
+      );
+      if (!res.success) {
+        throw new customError("Failed to update Redis leaderboard", 500);
+      }
+    } catch (error) {
+      console.error("Redis update error:", error);
+      throw new customError("Failed to update Redis leaderboard", 500);
+    }
+   
+
     await leaderboard.save();
     return leaderboard;
   } catch (error) {

@@ -11,6 +11,40 @@ const { Worker } = require("worker_threads");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
 const http = require("http");
+const deasync = require("deasync");
+
+const ConnectDataBase = require("./config/connectDataBase");
+const { connectRedis } = require("./redis/config/connectRedis");
+const initializeCaches = require("./cache/initCache");
+const initLeaderboard = require("./redis/initLeaderboard"); 
+const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
+
+    //initLeaderboardSocket(server);
+    
+async function initializeServer() {
+  try {
+    
+    await ConnectDataBase()
+    // Database and Cache initialization
+    
+
+    /*
+      Redis connection
+      Make sure to start Redis server before running the application.
+      if u dont want to use redis, comment the line below
+    */
+    await connectRedis();
+    // attach leaderboard websocket to same HTTP server
+
+    await initLeaderboard(); // Initialize leaderboard from MongoDB
+    LeaderboardManager.attachToServer(server)
+  } catch (err) {
+    console.error("❌ Initialization error:", err);
+    process.exit(1); // Exit if initialization fails
+  }
+}
+
+
 
 // Routes
 const userRoutes = require("./router/userRoutes");
@@ -22,37 +56,31 @@ const CTF = require("./router/CTFRoutes");
 const TeamRoutes = require("./router/TeamRoutes");
 
 const createLogWorker = require("./logger/controller/workerLog");
-const ConnectDataBase = require("./config/connectDataBase");
-const { connectRedis } = require("./redis/config/connectRedis");
-const initializeCaches = require("./cache/initCache");
 const classification = require("./router/classificationRoutes");
 const csrfProtection = require("./middleware/CSRFprotection");
 const requestLogger = require("./middleware/requestLogger");
 const errorLogger = require("./middleware/errorLogger");
 const gracefulShutdown = require("./utilies/gracefulShutdown");
-const initLeaderboardSocket = require("./controller/CTF/LeaderBoard/leaderboardSocket");
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173"; // Fallback to localhost:3000 for development
-const server = http.createServer(app);
+let server = http.createServer(app);
 
-// Database and Cache initialization
-ConnectDataBase();
+const { redisTest } = require("./test/redisTest");
 
-/*
-  Redis connection
-  Make sure to start Redis server before running the application.
-  if u dont want to use redis, comment the line below
-*/
-connectRedis();
-// attach leaderboard websocket to same HTTP server
+//*************************************************************************** */
+///blocking code to wait for caches to initialize
+// Start server after initialization
+let initDone = false;
+initializeServer()
+  .then(() => { initDone = true; })
+  .catch(err => { throw err; });
+deasync.loopWhile(() => !initDone);
+//-***************************************************************************************
 
-initLeaderboardSocket(server);
+    // Logger worker setup
+    const loggerWorker = new Worker("./logger/controller/logger.js");
+    const logInBackground = createLogWorker(loggerWorker);
 
-initializeCaches();
-
-// Logger worker setup
-const loggerWorker = new Worker("./logger/controller/logger.js");
-const logInBackground = createLogWorker(loggerWorker);
 
 // Security Middlewares
 // Production CORS configuration (commented out)
@@ -103,6 +131,16 @@ app.use("/api/challenge", CTF);
 app.use("/api/image", require("./router/imageRoutes"));
 app.use("/api/team", TeamRoutes);
 
+
+app.use("/test", async (req, res) => {
+  res.json({ message: "Server is running fine." });
+    try {
+    await redisTest();
+  } catch (err) {
+    console.error("❌ Error during tests:", err);
+  }
+})
+
 // Serve only challenge files (not full public folder)
 app.use(
   "/",
@@ -117,7 +155,7 @@ app.use(
       res.setHeader(
         "Content-Disposition",
         `attachment; filename="${fileName}"`
-      );
+      ); 
       res.setHeader("X-Content-Type-Options", "nosniff");
       // Ensure CORS headers are set for static files
       // res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
@@ -167,6 +205,13 @@ app.use(errorLogger(logInBackground));
 // app.listen(port, () => {
 //   console.log(`CTF platform running on port ${port}`);
 // });
+
+let cachesDone = false;
+initializeCaches()
+  .then(() => { cachesDone = true; })
+  .catch(err => { throw err; });
+deasync.loopWhile(() => !cachesDone);
+
 server.listen(port, () => {
   console.log(`CTF platform running on port ${port}`);
 });
