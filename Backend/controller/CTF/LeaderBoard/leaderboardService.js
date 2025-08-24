@@ -27,11 +27,42 @@ class LeaderboardService {
     
     this.webSocketServer.on('clientConnected', async (ws) => {
       try {
-        console.log("📢 Client connected event received");
+        console.log("[leaderboardservice] 📢 Client connected event received");
         await this.broadcastAllRanks();  // 🔥 send to all immediately
-        console.log("✅ Broadcasted leaderboard after client connect");
+        console.log("[leaderboardservice] ✅ Broadcasted leaderboard after client connect");
+
+        const totalClients = this.getConnectedClientCount();
+        this.webSocketServer.getClients().forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: "CLIENT_COUNT",
+              totalClients,
+              timestamp: new Date().toISOString()
+            }));
+          }
+        });
+      
       } catch (err) {
-        console.error("❌ Error broadcasting on connect:", err);
+        console.error("[leaderboardservice] [ERROR] ❌ Error broadcasting on connect:", err);
+      }
+    });
+
+    this.webSocketServer.on('clientDisconnected', async (ws) => {
+      try { // 🔥 send to all immediately
+          console.log("[leaderboardservice] 📢 Client disconnected event received");
+          const totalClients = this.getConnectedClientCount();
+          this.webSocketServer.getClients().forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(JSON.stringify({
+                type: "CLIENT_COUNT",
+                totalClients,
+                timestamp: new Date().toISOString()
+              }));
+            }
+          });
+      }
+      catch (err) {
+        console.error("[leaderboardservice] [ERROR] ❌ Error in clientDisconnected handler:", err);
       }
     });
 
@@ -41,20 +72,20 @@ class LeaderboardService {
     if (typeof this.webSocketServer.on === 'function') {
       this.webSocketServer.on('teamRegistered', async (ws) => {
         try {
-          console.log(`📢 Team registered event received: ${ws.teamName}`);
+          console.log(`[leaderboardservice] 📢 Team registered event received: ${ws.teamName}`);
           await this.sendLeaderboardToClient(ws);
-          console.log("✅ Sent leaderboard to newly registered client");
+          console.log("[leaderboardservice] ✅ Sent leaderboard to newly registered client");
 
-          console.log("✅ Broadcast complete");
+          console.log("[leaderboardservice] ✅ Broadcast complete");
         } catch (err) {
-          console.error("❌ Error in teamRegistered handler:", err);
+          console.error("[leaderboardservice] [ERROR] ❌ Error in teamRegistered handler:", err);
         }
       });
       
       this.eventHandlersSetUp = true;
-      console.log("✅ Event handlers setup complete");
+      console.log("[leaderboardservice] ✅ Event handlers setup complete");
     } else {
-      console.error("❌ webSocketServer.on is not a function");
+      console.error("[leaderboardservice] [ERROR] ❌ webSocketServer.on is not a function");
     }
   }
 
@@ -78,7 +109,7 @@ class LeaderboardService {
         );
       }
     } catch (error) {
-      console.error("Error sending leaderboard to client:", error);
+      console.error("[leaderboardservice] [ERROR] Error sending leaderboard to client:", error);
     }
   }
 
@@ -102,9 +133,9 @@ class LeaderboardService {
         }
       });
 
-      console.log(`Broadcasted leaderboard to ${this.getConnectedClientCount()} clients`);
+      console.log(`[leaderboardservice] Broadcasted leaderboard to ${this.getConnectedClientCount()} clients`);
     } catch (error) {
-      console.error("Error broadcasting leaderboard:", error);
+      console.error("[leaderboardservice] [ERROR] Error broadcasting leaderboard:", error);
     }
   }
 
@@ -126,9 +157,9 @@ class LeaderboardService {
         }
       });
 
-      console.log(`Broadcasted leaderboard to ${this.getConnectedClientCount()} clients`);
+      console.log(`[leaderboardservice] Broadcasted leaderboard to ${this.getConnectedClientCount()} clients`);
     } catch (error) {
-      console.error("Error broadcasting leaderboard:", error);
+      console.error("[leaderboardservice] Error broadcasting leaderboard:", error);
     }
   }
 
@@ -157,7 +188,7 @@ class LeaderboardService {
 
       return true;
     } catch (error) {
-      console.error("Error updating team score:", error);
+      console.error("[leaderboardservice] [ERROR] Error updating team score:", error);
       return false;
     }
   }

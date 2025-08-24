@@ -22,7 +22,7 @@ class WebSocketLeaderboardServer {
   }
 
   handleConnection(ws, request) {
-    console.log("Client connected:", request.socket.remoteAddress);
+    console.log("[WebSocket] Client connected:", request.socket.remoteAddress);
 
     ws.isAlive = true;
     ws.teamName = null;
@@ -48,16 +48,17 @@ class WebSocketLeaderboardServer {
         this.emit('teamRegistered', ws);
       }
     } catch (err) {
-      console.error("WebSocket message error:", err);
+      console.error("[WebSocket] [ERROR] WebSocket message error:", err);
     }
   }
 
   handleClose(ws) {
-    console.log(`Client disconnected${ws.teamName ? ` (Team: ${ws.teamName})` : ''}`);
+    console.log(`[WebSocket] Client disconnected${ws.teamName ? ` (Team: ${ws.teamName})` : ''}`);
+    this.emit("clientDisconnected", ws);
   }
 
   handleError(ws, err) {
-    console.error(`WebSocket error for ${ws.teamName || 'unknown client'}:`, err);
+    console.error(`[WebSocket] [ERROR] WebSocket error for ${ws.teamName || 'unknown client'}:`, err);
   }
 
   setupHeartbeat() {
@@ -89,22 +90,22 @@ class WebSocketLeaderboardServer {
       this.eventHandlers[event] = [];
     }
     this.eventHandlers[event].push(callback);
-    console.log(`Registered handler for event: ${event}`);
+    console.log(`[WebSocket] Registered handler for event: ${event}`);
   }
 
   // ✅ Emit events to all registered handlers
   emit(event, data) {
     if (this.eventHandlers[event]) {
-      console.log(`Emitting event: ${event} to ${this.eventHandlers[event].length} handlers`);
+      console.log(`[WebSocket] Emitting event: ${event} to ${this.eventHandlers[event].length} handlers`);
       this.eventHandlers[event].forEach(callback => {
         try {
           callback(data);
         } catch (error) {
-          console.error(`Error in ${event} handler:`, error);
+          console.error(`[WebSocket] [ERROR] Error in ${event} handler:`, error);
         }
       });
     } else {
-      console.log(`No handlers registered for event: ${event}`);
+      console.log(`[WebSocket] [ERROR] No handlers registered for event: ${event}`);
     }
   }
 
