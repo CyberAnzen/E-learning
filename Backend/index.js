@@ -16,20 +16,20 @@ const deasync = require("deasync");
 
 const ConnectDataBase = require("./config/connectDataBase");
 const { connectRedis } = require("./redis/config/connectRedis");
-const initializeCaches = require("./cache/initCache");
+// const initializeCaches = require("./cache/initCache");
 const initLeaderboard = require("./redis/initLeaderboard");
 const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
 const createLogWorker = require("./logger/controller/workerLog");
-const classification = require("./router/classificationRoutes");
+// const classification = require("./router/classificationRoutes");
 const csrfProtection = require("./middleware/CSRFprotection");
 const requestLogger = require("./middleware/requestLogger");
 const errorLogger = require("./middleware/errorLogger");
 const gracefulShutdown = require("./utilies/gracefulShutdown");
 
 const userRoutes = require("./router/userRoutes");
-const event = require("./router/eventRoutes");
-const lesson = require("./router/lessonRoutes");
-const validate = require("./router/ValidationRoutes");
+// const event = require("./router/eventRoutes");
+// const lesson = require("./router/lessonRoutes");
+// const validate = require("./router/ValidationRoutes");
 const profile = require("./router/profileRoutes");
 const CTF = require("./router/CTFRoutes");
 const TeamRoutes = require("./router/TeamRoutes");
