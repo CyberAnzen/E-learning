@@ -80,6 +80,7 @@ const passwordResetLimiter = rateLimit({
 });
 
 // -------------------- Route definitions --------------------
+router.get("/logout", userManager.logout);
 
 // Compose a single middleware chain for login (keeps router clean)
 const loginOnly = [
@@ -100,8 +101,6 @@ router.post(
 );
 
 router.post("/login", ...loginOnly, userManager.login);
-
-router.post("/logout", userManager.logout);
 
 router.get(
   "/check-username",
