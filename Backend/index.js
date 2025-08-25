@@ -147,15 +147,15 @@ if (cluster.isMaster) {
   app.use(errorLogger(logInBackground));
 
   // Cache initialization
-  let cachesDone = false;
-  initializeCaches()
-    .then(() => {
-      cachesDone = true;
-    })
-    .catch((err) => {
-      throw err;
-    });
-  deasync.loopWhile(() => !cachesDone);
+  // let cachesDone = false;
+  // initializeCaches()
+  //   .then(() => {
+  //     cachesDone = true;
+  //   })
+  //   .catch((err) => {
+  //     throw err;
+  //   });
+  // deasync.loopWhile(() => !cachesDone);
 
   // Start server
   server.listen(port, () => {
