@@ -12,8 +12,10 @@ import {
   ChevronRight,
   Copy,
   Users,
+  LogOut,
 } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Sidebar({
   sidebarOpen,
@@ -21,6 +23,7 @@ export default function Sidebar({
   activeItem,
   setActiveItem,
 }) {
+  const navigate = useNavigate();
   const { user } = useAppContext();
   const [copied, setCopied] = useState(false);
 
@@ -28,6 +31,10 @@ export default function Sidebar({
     navigator.clipboard.writeText(user?._id || "748589549");
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  };
+
+  const handleLogout = () => {
+    navigate("/logout");
   };
 
   const menuItems = [
@@ -96,6 +103,16 @@ export default function Sidebar({
             </div>
           ))}
         </nav>
+        {/* Logout Button */}
+        <div className="absolute bottom-4 w-full px-4">
+          <button
+            onClick={handleLogout}
+            className="flex items-center justify-center gap-2 w-full py-2 rounded-xl text-sm font-medium bg-[#ff0040]/20 text-[#ff0040] hover:bg-[#ff0040]/40 transition-colors"
+          >
+            <LogOut size={16} />
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Click-outside overlay */}

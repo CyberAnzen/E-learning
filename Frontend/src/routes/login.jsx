@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Turnstile from "react-turnstile";
 import { User, Lock, Shield } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ParticleBackground from "../components/Login/ParticleBackground";
 import FingerprintIcon from "../components/Login/FingerprintIcon";
 import { useAppContext } from "../context/AppContext";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function LoginPage() {
-  const { navigate, setloggedIn } = useAppContext();
+  const navigate = useNavigate();
+  const { loggedIn, setLoggedIn, User } = useAppContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
@@ -18,6 +19,11 @@ export default function LoginPage() {
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [showSubmit, setShowSubmit] = useState(false);
+  useEffect(() => {
+    if (loggedIn || User) {
+      navigate("/profile");
+    }
+  }, [loggedIn, User, navigate]);
 
   useEffect(() => {
     // Smooth scroll to top
@@ -88,8 +94,9 @@ export default function LoginPage() {
       });
 
       const data = await res.json();
-      if (res.ok) {
-        setloggedIn(true);
+      console.log(data);
+      if (data.message === "Login successful") {
+        setLoggedIn(true);
         navigate("/");
       } else {
         setError(data.message || "Access Denied: Authentication Failed");

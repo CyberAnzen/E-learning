@@ -38,6 +38,7 @@ import AddChallenges from "./routes/CTF/AddChallenges";
 import DisplayChallenge from "./routes/CTF/DisplayChallenge";
 import Leaderboard from "./routes/CTF/LeaderBoard";
 import ScrollToTop from "./components/ScrollTop";
+import Logout from "./routes/logout";
 function App() {
   const { loggedIn } = useAppContext();
   // const getCsrfToken = useGetCsrfToken();
@@ -105,6 +106,7 @@ function App() {
             }
           />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/logout" element={<Logout />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/signup" element={<Signup />} />

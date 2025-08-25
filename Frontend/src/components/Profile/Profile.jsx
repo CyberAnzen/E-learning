@@ -4,11 +4,20 @@ import Sidebar from "./Sidebar";
 import ProfileSettings from "./ProfileSettings";
 import Team from "./Team";
 import Dashboard from "./Dashboard";
+// import { useAppContext } from "../../context/AppContext";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
+  const navigate = useNavigate();
+  const { loggedIn, User } = useAppContext();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Dashboard");
-
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!loggedIn && !User) {
+      navigate("/login");
+    }
+  }, [loggedIn, User, navigate]);
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "auto";
   }, [sidebarOpen]);

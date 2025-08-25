@@ -4,10 +4,10 @@ import {
   Home,
   BookOpen,
   Trophy,
-  User,
   Menu,
   X,
   Radar,
+  User,
   UserCircle,
   Terminal,
   Code2,
@@ -106,7 +106,7 @@ const useDeviceDetection = () => {
 };
 
 const Navbar = () => {
-  const { user } = useAppContext();
+  const { loggedIn } = useAppContext();
   const location = useLocation();
   const deviceInfo = useDeviceDetection();
 
@@ -447,7 +447,7 @@ const Navbar = () => {
     { name: "Challenges", icon: Code2, path: "/challenge" },
     { name: "Leaderboard", icon: Radar, path: "/leaderboard" },
 
-    user
+    loggedIn
       ? { name: "Profile", icon: UserCircle, path: "/profile" }
       : { name: "Login", icon: User, path: "/login" },
   ];
