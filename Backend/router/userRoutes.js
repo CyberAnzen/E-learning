@@ -95,6 +95,7 @@ router.post(
   TimeStamp(2),
   signupLimiter,
   xssSanitizer(),
+  requireTurnstile, // verifies Turnstile token, calls next() on success
   userManager.signup
 );
 
