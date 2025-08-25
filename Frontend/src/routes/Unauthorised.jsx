@@ -57,7 +57,7 @@ const Unauthorized = () => {
   };
 
   return (
-    <div className="min-h-[90vh] bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-[90vh]  flex items-center justify-center p-4 relative overflow-hidden">
       <motion.div
         variants={containerVariants}
         initial="initial"

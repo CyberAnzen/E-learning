@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Flag, Send, AlertTriangle, Check, Users, User } from "lucide-react";
 
 const FlagModal = ({
@@ -13,14 +13,34 @@ const FlagModal = ({
   const [flag, setFlag] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (!isOpen) return null;
+  const [isTeamChallenge, setIsTeamChallenge] = useState(
+    Boolean(challengeData?.Challenge?.submittedBy)
+  );
+  const [attempts, setAttempts] = useState(
+    challengeData?.Challenge?.attempt ?? 0
+  );
+  const maxAttempts = 5; // keep as constant
+  const [remainingAttempts, setRemainingAttempts] = useState(
+    maxAttempts - (challengeData?.Challenge?.attempt ?? 0)
+  );
+  const [isDisabled, setIsDisabled] = useState(
+    (challengeData?.Challenge?.attempt ?? 0) >= maxAttempts
+  );
+  const [flagSubmitted, setFlagSubmitted] = useState(
+    Boolean(challengeData?.Challenge?.Flag_Submitted)
+  );
 
-  const isTeamChallenge = challengeData?.Challenge?.submittedBy;
-  const attempts = challengeData?.Challenge?.attempt ?? 0;
-  const maxAttempts = 5;
-  const remainingAttempts = maxAttempts - attempts;
-  const isDisabled = attempts >= maxAttempts;
-  const flagSubmitted = Boolean(challengeData?.Challenge?.Flag_Submitted);
+  // Keep state in sync whenever challengeData changes
+  useEffect(() => {
+    const att = challengeData?.Challenge?.attempt ?? 0;
+    setAttempts(att);
+    setIsTeamChallenge(Boolean(challengeData?.Challenge?.submittedBy));
+    setRemainingAttempts(maxAttempts - att);
+    setIsDisabled(att >= maxAttempts);
+    setFlagSubmitted(Boolean(challengeData?.Challenge?.Flag_Submitted));
+  }, [challengeData, maxAttempts]);
+
+  if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -180,7 +200,7 @@ const FlagModal = ({
 
           {/* Flag Input Form */}
           {!flagSubmitted && !isDisabled && (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form className="space-y-4">
               <div className="space-y-2">
                 <label className="text-teal-400 font-mono text-sm block">
                   Enter Flag:

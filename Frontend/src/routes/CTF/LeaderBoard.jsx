@@ -39,9 +39,9 @@ export default function Leaderboard() {
             <div className="text-xl font-semibold text-[#01ffdb]">
               CTF Live Feed
             </div>
-            <div className="text-[rgba(255,255,255,0.55)] text-center mt-2">
+            {/* <div className="text-[rgba(255,255,255,0.55)] text-center mt-2">
               Half of this page reserved for live graph / match info
-            </div>
+            </div> */}
             <Radarcomponent clientCount={clientCount} />
           </div>
         </div>
@@ -56,9 +56,9 @@ export default function Leaderboard() {
                   <h2 className="text-2xl font-semibold text-[#01ffdb]">
                     CTF Leaderboard
                   </h2>
-                  <div className="text-sm text-[rgba(255,255,255,0.55)]">
+                  {/* <div className="text-sm text-[rgba(255,255,255,0.55)]">
                     Live standings · minimal glass UI
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 items-stretch md:items-center w-full md:w-auto">
@@ -149,7 +149,7 @@ export default function Leaderboard() {
             </div>
 
             <div className="mt-4 text-sm text-[rgba(255,255,255,0.55)] text-right">
-              Live updates via WebSocket
+              Live updates
             </div>
           </div>
         </div>

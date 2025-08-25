@@ -38,25 +38,13 @@ const RadarStaticElements = React.memo(() => (
         <stop offset="100%" stopColor="rgba(0,0,0,0.14)" />
       </linearGradient>
 
-      <linearGradient
-        id="matrixGridGradient"
-        x1="0%"
-        y1="0%"
-        x2="100%"
-        y2="0%"
-      >
+      <linearGradient id="matrixGridGradient" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" stopColor="#06b6d4" stopOpacity="0" />
         <stop offset="50%" stopColor="#06b6d4" stopOpacity="0.35" />
         <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
       </linearGradient>
 
-      <filter
-        id="clientGlow"
-        x="-50%"
-        y="-50%"
-        width="300%"
-        height="300%"
-      >
+      <filter id="clientGlow" x="-50%" y="-50%" width="300%" height="300%">
         <feGaussianBlur stdDeviation="1" result="coloredBlur" />
         <feMerge>
           <feMergeNode in="coloredBlur" />
@@ -65,7 +53,13 @@ const RadarStaticElements = React.memo(() => (
       </filter>
     </defs>
 
-    <circle cx="100" cy="100" r="90" fill="url(#cyberRadarGlow)" className="radar-glow" />
+    <circle
+      cx="100"
+      cy="100"
+      r="90"
+      fill="url(#cyberRadarGlow)"
+      className="radar-glow"
+    />
 
     {[20, 40, 60, 80, 90].map((radius, index) => (
       <circle
@@ -75,15 +69,11 @@ const RadarStaticElements = React.memo(() => (
         r={radius}
         fill={index === 4 ? "rgba(0,0,0,0.08)" : "none"}
         stroke={
-          index === 4
-            ? "url(#cyberProgressGradient)"
-            : "rgba(6,182,212,0.16)"
+          index === 4 ? "url(#cyberProgressGradient)" : "rgba(6,182,212,0.16)"
         }
         strokeWidth={index === 4 ? "2.4" : index === 0 ? "1.6" : "1"}
         opacity={index === 4 ? "0.88" : index === 0 ? "0.45" : "0.28"}
-        strokeDasharray={
-          index % 2 === 0 ? "none" : index === 1 ? "4,4" : "2,2"
-        }
+        strokeDasharray={index % 2 === 0 ? "none" : index === 1 ? "4,4" : "2,2"}
         className="radar-ring"
       />
     ))}
@@ -249,7 +239,7 @@ const RadarComponent = ({ clientCount = 0 }) => {
                     border border-emerald-400/18"
       >
         {/* Header with count */}
-        <div className="relative z-10 flex items-center justify-between mb-4">
+        {/* <div className="relative z-10 flex items-center justify-between mb-4">
           <h3 className="text-emerald-400 font-bold text-lg flex items-center gap-2 font-mono">
             <Target className="w-5 h-5 text-emerald-300 drop-shadow-lg" />
             <span className="hidden sm:inline bg-gradient-to-r from-emerald-400 to-lime-400 bg-clip-text text-transparent glitch-text">
@@ -267,8 +257,23 @@ const RadarComponent = ({ clientCount = 0 }) => {
               [ACTIVE_CLIENTS]
             </div>
           </div>
-        </div>
+        </div> */}
 
+        <div
+          style={{
+            textAlign: "center",
+            padding: "6px 12px",
+            background: "rgba(0, 255, 219, 0.1)",
+            color: "#01ffdb",
+            borderRadius: "12px",
+            fontWeight: "500",
+            fontSize: "0.9rem",
+            display: "inline-block",
+            minWidth: "160px",
+          }}
+        >
+          {clientCount} Players online
+        </div>
         {/* RADAR */}
         <div className="relative w-full max-w-sm mx-auto aspect-square">
           <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl">
@@ -284,88 +289,122 @@ const RadarComponent = ({ clientCount = 0 }) => {
           position: relative;
           animation: glitch 3s linear infinite;
         }
-        
+
         .radar-glow {
           animation: radarGlow 2.2s ease-in-out infinite;
         }
-        
+
         .radar-ring {
           animation: radarRingPulse 3s ease-in-out infinite;
         }
-        
+
         .radar-line {
           animation: radarLinePulse 4s ease-in-out infinite;
         }
-        
+
         .radar-sweep-main {
           transform-origin: 100px 100px;
           animation: radarSweepMain 3s linear infinite;
         }
-        
+
         .radar-sweep-secondary {
           transform-origin: 100px 100px;
           animation: radarSweepSecondary 2s linear infinite;
         }
-        
+
         .radar-sweep-tertiary {
           transform-origin: 100px 100px;
           animation: radarSweepTertiary 1.5s linear infinite;
         }
-        
+
         .radar-sweep-path {
           transform-origin: 100px 100px;
           animation: radarSweepMain 3s linear infinite;
         }
-        
+
         .radar-center {
           animation: radarCenterPulse 1.5s ease-in-out infinite;
         }
-        
+
         @keyframes glitch {
-          2%, 64% {
+          2%,
+          64% {
             transform: translate(1px, 0) skew(0deg);
           }
-          4%, 60% {
+          4%,
+          60% {
             transform: translate(-1px, 0) skew(0deg);
           }
           62% {
             transform: translate(0, 0) skew(1.5deg);
           }
         }
-        
+
         @keyframes radarGlow {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 0.85; }
+          0%,
+          100% {
+            opacity: 0.5;
+          }
+          50% {
+            opacity: 0.85;
+          }
         }
-        
+
         @keyframes radarRingPulse {
-          0%, 100% { opacity: 0.1; }
-          50% { opacity: 0.7; }
+          0%,
+          100% {
+            opacity: 0.1;
+          }
+          50% {
+            opacity: 0.7;
+          }
         }
-        
+
         @keyframes radarLinePulse {
-          0%, 100% { opacity: 0.08; }
-          50% { opacity: 0.5; }
+          0%,
+          100% {
+            opacity: 0.08;
+          }
+          50% {
+            opacity: 0.5;
+          }
         }
-        
+
         @keyframes radarSweepMain {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
-        
+
         @keyframes radarSweepSecondary {
-          0% { transform: rotate(120deg); }
-          100% { transform: rotate(480deg); }
+          0% {
+            transform: rotate(120deg);
+          }
+          100% {
+            transform: rotate(480deg);
+          }
         }
-        
+
         @keyframes radarSweepTertiary {
-          0% { transform: rotate(240deg); }
-          100% { transform: rotate(600deg); }
+          0% {
+            transform: rotate(240deg);
+          }
+          100% {
+            transform: rotate(600deg);
+          }
         }
-        
+
         @keyframes radarCenterPulse {
-          0%, 100% { r: 4px; }
-          50% { r: 7px; }
+          0%,
+          100% {
+            r: 4px;
+          }
+          50% {
+            r: 7px;
+          }
         }
       `}</style>
     </div>

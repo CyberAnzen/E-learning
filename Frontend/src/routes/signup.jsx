@@ -6,10 +6,14 @@ import { debounce } from "lodash";
 import ParticleBackground from "../components/Login/ParticleBackground";
 import UserIcon from "../components/Login/UserIcon";
 import "../index.css";
+import Turnstile from "react-turnstile";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function Signup() {
   const navigate = useNavigate();
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaVerified, setCaptchaVerified] = useState(false);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -119,6 +123,7 @@ export default function Signup() {
   const SignupSubmit = async (data) => {
     try {
       const numericData = {
+        captcha: captchaToken,
         ...data,
         mobile: parseInt(data.mobile, 10) || 0,
         year: parseInt(data.year, 10) || 0,
@@ -1136,30 +1141,58 @@ export default function Signup() {
                         )}
                       </div>
 
-                      {/* Submit Button */}
-                      <button
-                        type="submit"
-                        disabled={!isFormComplete() || isLoading}
-                        className="cyber-button w-full py-3 px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
-                                 text-[#01ffdb] font-mono text-lg font-bold
-                                 hover:bg-[#01ffdb]/20 hover:border-[#01ffdb]
-                                 transition-all duration-300 relative overflow-hidden
-                                 disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{
-                          clipPath:
-                            "polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px))",
-                        }}
-                      >
-                        <div className="relative z-10">
-                          {isLoading ? "PROCESSING..." : "CREATE ACCOUNT"}
-                        </div>
-
-                        {/* Animated background effect */}
-                        <div
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-[#01ffdb]/10 to-transparent 
-                                      transform -skew-x-12 -translate-x-full animate-pulse"
+                      {/* Captcha Cloudflare */}
+                      <div className="flex justify-center mb-4">
+                        <Turnstile
+                          sitekey={import.meta.env.VITE_CF_SITE_KEY}
+                          onVerify={(token) => {
+                            setCaptchaToken(token);
+                            setCaptchaVerified(true);
+                          }}
+                          onExpire={() => {
+                            setCaptchaToken("");
+                            setCaptchaVerified(false);
+                          }}
+                          theme="dark"
+                          size="flexible"
                         />
-                      </button>
+                      </div>
+
+                      {/* Submit Button - hidden until form complete and captcha verified */}
+                      <div
+                        className={`transition-all duration-700 ease-out transform ${
+                          isFormComplete() && captchaVerified
+                            ? "opacity-100 translate-y-0"
+                            : "opacity-0 -translate-y-6 pointer-events-none"
+                        }`}
+                        style={{ willChange: "opacity, transform" }}
+                      >
+                        <button
+                          type="submit"
+                          disabled={
+                            !isFormComplete() || !captchaVerified || isLoading
+                          }
+                          className="cyber-button w-full py-3 px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
+             text-[#01ffdb] font-mono text-lg font-bold
+             hover:bg-[#01ffdb]/20 hover:border-[#01ffdb]
+             transition-all duration-300 relative overflow-hidden
+             disabled:opacity-50 disabled:cursor-not-allowed"
+                          style={{
+                            clipPath:
+                              "polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px))",
+                          }}
+                        >
+                          <div className="relative z-10">
+                            {isLoading ? "PROCESSING..." : "CREATE ACCOUNT"}
+                          </div>
+
+                          {/* Animated background effect */}
+                          <div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-[#01ffdb]/10 to-transparent 
+                  transform -skew-x-12 -translate-x-full animate-pulse"
+                          />
+                        </button>
+                      </div>
 
                       {/* Login link */}
                       <div className="text-center text-[#01ffdb]/70 font-mono">

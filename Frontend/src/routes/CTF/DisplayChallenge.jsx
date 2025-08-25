@@ -37,7 +37,7 @@ import FlagModal from "../../components/Challenges/FlagModal";
 import { useAppContext } from "../../context/AppContext";
 import { use } from "react";
 import JSZip from "jszip";
-
+import { Link } from "react-router-dom";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL_W;
 
 function DisplayChallenge() {
@@ -118,6 +118,7 @@ function DisplayChallenge() {
         }));
       }
     }
+    fetchRetry();
   }, [HintData, hintEndpoint]);
 
   // Handle flag submission response
@@ -132,7 +133,6 @@ function DisplayChallenge() {
         setFlagSubmissionError("");
         // Refresh challenge data to get updated state
         setTimeout(() => {
-          fetchRetry();
           setIsFlagModalOpen(false);
           setFlagSubmissionSuccess("");
         }, 2000);
@@ -143,6 +143,7 @@ function DisplayChallenge() {
         setFlagSubmissionSuccess("");
       }
     }
+    fetchRetry();
   }, [FlagData]);
 
   // Handle flag submission errors
@@ -232,10 +233,30 @@ function DisplayChallenge() {
       const endpoint = `challenge/${challengeId}/validateFlag`;
       setFlagEndpoint(endpoint);
 
-      // Submit the flag with the specified format
-      await submitFlagRetry({}, { data: flagData });
-      console.log(flagData?.Challenge?.attempt);
-      setAttempts(flagData.Challenge.attempt);
+      // If submitFlagRetry returns a value, capture it
+      const result = await submitFlagRetry({}, { data: flagData });
+
+      // If submitFlagRetry returns parsed data immediately, handle it
+      if (result && result.Challenge) {
+        setChallengeData(result?.Challenge);
+        setAttempts(result.Challenge.attempt ?? attempts);
+        if (result.success || result.message === "Correct flag") {
+          setFlagSubmissionSuccess(
+            "Flag accepted! Challenge completed successfully."
+          );
+          setFlagSubmissionError("");
+          setTimeout(() => {
+            fetchRetry();
+            setIsFlagModalOpen(false);
+            setFlagSubmissionSuccess("");
+          }, 2000);
+        } else {
+          setFlagSubmissionError(
+            result.message || "Invalid flag. Please try again."
+          );
+        }
+      }
+      // Otherwise the existing useEffect(FlagData) will handle updates when FlagData changes
     } catch (error) {
       console.error("Failed to submit flag:", error);
       setFlagSubmissionError("Submission failed. Please try again.");
@@ -881,11 +902,16 @@ function DisplayChallenge() {
                   </div>
                   {/* Control buttons */}
                   <div className="space-y-2 sm:space-y-3 flex-shrink-0">
-                    <button className="w-full p-1 sm:p-1.5 lg:p-2 border border-teal-500/30 rounded bg-black/30 hover:bg-teal-500/10 transition-colors">
-                      <span className="text-teal-300 text-xs sm:text-sm">
-                        LeaderBoard
-                      </span>
-                    </button>
+                    <div className="flex justify-center mt-4">
+                      <Link to="/leaderboard" className="w-full max-w-xs">
+                        <div className="w-full p-1 sm:p-1.5 lg:p-2 border border-teal-500/30 rounded bg-black/30 hover:bg-teal-500/10 transition-colors text-center">
+                          <span className="text-teal-300 text-xs sm:text-sm">
+                            LeaderBoard
+                          </span>
+                        </div>
+                      </Link>
+                    </div>
+
                     <button
                       type="button"
                       disabled={disabled}

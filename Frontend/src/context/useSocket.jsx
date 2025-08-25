@@ -23,16 +23,22 @@ export const SocketProvider = ({ children }) => {
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [clientCount, setClientCount] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
-  const [ws, setWs] = useState(null);
-  const [reconnectTimer, setReconnectTimer] = useState(null);
+  const wsRef = React.useRef(null);
+  const reconnectTimerRef = React.useRef(null);
 
   const connect = useCallback(() => {
-    if (ws) {
-      ws.close();
+    if (wsRef.current) {
+      wsRef.current.onopen = null;
+      wsRef.current.onmessage = null;
+      wsRef.current.onclose = null;
+      wsRef.current.onerror = null;
+      wsRef.current.close();
+      wsRef.current = null;
     }
 
     console.log("[WS] Connecting to:", WS_URL);
     const newWs = new WebSocket(WS_URL);
+    wsRef.current = newWs;
 
     newWs.onopen = () => {
       console.log("[WS] Connected to leaderboard");
@@ -42,8 +48,6 @@ export const SocketProvider = ({ children }) => {
     newWs.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log("[WS] Received message:", data);
-
         if (data.type === "CLIENT_COUNT") {
           setClientCount(data.totalClients);
         } else if (data.type === "LEADERBOARD_UPDATE" && data.allRanks) {
@@ -57,8 +61,7 @@ export const SocketProvider = ({ children }) => {
     newWs.onclose = () => {
       console.log("[WS] Disconnected. Reconnecting in 2s...");
       setIsConnected(false);
-      const timer = setTimeout(connect, 2000);
-      setReconnectTimer(timer);
+      reconnectTimerRef.current = setTimeout(connect, 2000);
     };
 
     newWs.onerror = (err) => {
@@ -66,30 +69,28 @@ export const SocketProvider = ({ children }) => {
       setIsConnected(false);
       newWs.close();
     };
-
-    setWs(newWs);
-  }, [ws]);
+  }, []);
 
   const reconnect = useCallback(() => {
-    if (reconnectTimer) {
-      clearTimeout(reconnectTimer);
-      setReconnectTimer(null);
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
     }
     connect();
-  }, [connect, reconnectTimer]);
+  }, [connect]);
 
   useEffect(() => {
     connect();
 
     return () => {
-      if (reconnectTimer) {
-        clearTimeout(reconnectTimer);
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
       }
-      if (ws) {
-        ws.close();
+      if (wsRef.current) {
+        wsRef.current.close();
       }
     };
-  }, []);
+  }, [connect]);
 
   const value = {
     leaderboardData,

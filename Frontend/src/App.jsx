@@ -37,6 +37,7 @@ import Profilenew from "./components/ProfilePage/Profile";
 import AddChallenges from "./routes/CTF/AddChallenges";
 import DisplayChallenge from "./routes/CTF/DisplayChallenge";
 import Leaderboard from "./routes/CTF/LeaderBoard";
+import ScrollToTop from "./components/ScrollTop";
 function App() {
   const { loggedIn } = useAppContext();
   // const getCsrfToken = useGetCsrfToken();
@@ -73,10 +74,11 @@ function App() {
 
         <Navbar />
         <div className="mb-30"></div>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/learn" element={<LearnPage />} />
-          <Route
+          {/* <Route
             path="/lesson/:ClassificationId/:LessonId"
             element={<ContentController />}
           />
@@ -84,7 +86,7 @@ function App() {
           <Route
             path="/lesson/update/:lessonId"
             element={<AdminEditor update />}
-          />
+          /> */}
           <Route path="/challenge" element={<Challenge />} />
           <Route
             path="/challenge/:challengeId"
@@ -112,7 +114,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
 
           <Route path="/unauthorized" element={<Unauthorized />} />
-          <Route path="/test" element={<Testing />} />
+          {/* <Route path="/test" element={<Testing />} /> */}
           <Route path="/404" element={<NotFound />} />
 
           <Route path="*" element={<Navigate to="/404" replace />} />

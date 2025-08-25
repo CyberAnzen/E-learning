@@ -440,7 +440,7 @@ export default function ProfileSettings() {
           </form>
 
           {/* Password Info */}
-          <div className="bg-black/50 rounded-xl border text-[#00ffff]/25 p-6 space-y-4 shadow-sm">
+          <div className="bg-black/50 rounded-xl border text-[#00ffff]/25 p-6 space-y-4 shadow-sm blur-xs">
             <h2 className="text-lg text-[#00ffff] font-semibold">
               Password Information
             </h2>
@@ -476,7 +476,7 @@ export default function ProfileSettings() {
         </div>
 
         {/* Right Side (Profile + Settings) */}
-        <div className="space-y-6">
+        <div className="space-y-6 blur-xs">
           {/* Profile Card */}
           <div className="bg-black/50 rounded-xl border border-[#00ffff]/25 p-6 flex items-center space-x-4 shadow-sm">
             <div className="avatar">

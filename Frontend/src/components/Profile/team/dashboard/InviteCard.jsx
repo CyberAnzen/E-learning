@@ -105,13 +105,13 @@ export default function InviteCard({ invite }) {
         {/* Revoke + Link */}
         <div className="flex items-center space-x-2 flex-1 justify-end">
           {/* Link button */}
-          <button
+          {/* <button
             onClick={handleCopyLink}
             className="p-2 rounded-full hover:bg-[#00ffff]/10 transition-colors"
             title="Copy Invite Link"
           >
             <Link className="w-4 h-4 text-[#00ffff]" />
-          </button>
+          </button> */}
 
           {/* Revoke */}
           <button

@@ -16,7 +16,19 @@ function Profile() {
   const renderContent = () => {
     switch (activeItem) {
       case "Dashboard":
-        return <Dashboard />;
+        // return <Dashboard />;
+        return (
+          <div className="px-0 min-h-screen font-sans flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-[#00ffff] mb-4">
+                Dashboard
+              </h2>
+              <p className="text-[#00ffff]/60">
+                Dashboard section coming soon...
+              </p>
+            </div>
+          </div>
+        );
       case "User Profile":
         return <ProfileSettings />;
       case "Team":
