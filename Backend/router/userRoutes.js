@@ -101,7 +101,7 @@ router.post(
 
 router.post("/login", ...loginOnly, userManager.login);
 
-router.post("/logout", TimeStamp, xssSanitizer(), userManager.logout);
+router.post("/logout", userManager.logout);
 
 router.get(
   "/check-username",
