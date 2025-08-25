@@ -1,70 +1,30 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Terminal } from "lucide-react";
-import ChapterProgress from "../../components/content/ChapterProgress";
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-const WS_URL =`${BACKEND_URL}/leaderboard` 
-
-
+import React, { useState, useMemo } from "react";
+import { Terminal, RefreshCw } from "lucide-react";
+import { useSocket } from "../../context/useSocket";
+import Radarcomponent from "../../components/Leaderboard/Radar";
 export default function Leaderboard() {
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("score");
-  const [rows, setRows] = useState([]);
+  const { leaderboardData, clientCount, isConnected, reconnect } = useSocket();
+  console.log(leaderboardData, clientCount, isConnected, reconnect);
 
-  useEffect(() => {
-    let ws;
-    let reconnectTimer;
-
-    const connect = () => {
-      ws = new WebSocket(WS_URL);
-
-      ws.onopen = () => {
-        console.log("[WS] Connected to leaderboard");
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (Array.isArray(data)) {
-            setRows(data); // replace full leaderboard
-          } else if (data.type === "update") {
-            setRows((prev) => {
-              const copy = [...prev];
-              const idx = copy.findIndex((t) => t.id === data.payload.id);
-              if (idx !== -1) copy[idx] = data.payload;
-              else copy.push(data.payload);
-              return copy;
-            });
-          }
-        } catch (err) {
-          console.warn("[WS] Invalid message:", err);
-        }
-      };
-
-      ws.onclose = () => {
-        console.log("[WS] Disconnected. Reconnecting in 2s...");
-        reconnectTimer = setTimeout(connect, 2000);
-      };
-
-      ws.onerror = (err) => {
-        console.error("[WS] Error:", err);
-        ws.close();
-      };
-    };
-
-    connect();
-
-    return () => {
-      clearTimeout(reconnectTimer);
-      if (ws) ws.close();
-    };
-  }, []);
+  // Transform data to match expected format
+  const rows = useMemo(() => {
+    return leaderboardData.map((item) => ({
+      id: item.teamId,
+      team: item.teamName,
+      score: item.score,
+      rank: item.rank,
+      isTeam: item.isTeam,
+      updatedAt: item.updatedAt,
+    }));
+  }, [leaderboardData]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     let list = rows.filter((r) => r.team.toLowerCase().includes(q));
     if (sortBy === "score") list = list.sort((a, b) => b.score - a.score);
-    if (sortBy === "solves") list = list.sort((a, b) => b.solves - a.solves);
+    if (sortBy === "rank") list = list.sort((a, b) => a.rank - b.rank);
     if (sortBy === "name")
       list = list.sort((a, b) => a.team.localeCompare(b.team));
     return list;
@@ -82,7 +42,7 @@ export default function Leaderboard() {
             <div className="text-[rgba(255,255,255,0.55)] text-center mt-2">
               Half of this page reserved for live graph / match info
             </div>
-            <ChapterProgress />
+            <Radarcomponent clientCount={clientCount} />
           </div>
         </div>
 
@@ -114,9 +74,23 @@ export default function Leaderboard() {
                   className="py-2 bg-black/80 border rounded-lg outline-none border-[rgba(255,255,255,0.06)] text-white flex-1"
                 >
                   <option value="score">Sort: Score</option>
-                  <option value="solves">Sort: Solves</option>
+                  <option value="rank">Sort: Rank</option>
                   <option value="name">Sort: Name</option>
                 </select>
+                {/* <button
+                  onClick={reconnect}
+                  className={`px-3 py-2 border rounded-lg text-sm transition-all ${
+                    isConnected
+                      ? "border-[rgba(1,255,219,0.12)] text-[#01ffdb] hover:border-[rgba(1,255,219,0.24)]"
+                      : "border-red-400/30 text-red-400 hover:border-red-400/70"
+                  }`}
+                  title="Reconnect WebSocket"
+                >
+                  <RefreshCw
+                    size={16}
+                    className={isConnected ? "" : "animate-spin"}
+                  />
+                </button> */}
               </div>
             </div>
 
@@ -126,45 +100,51 @@ export default function Leaderboard() {
                 <div className="col-span-1">#</div>
                 <div className="col-span-6">Team</div>
                 <div className="col-span-3 text-right">Score</div>
-                <div className="col-span-2 text-right">Solves</div>
+                <div className="col-span-2 text-right">Rank</div>
               </div>
 
               <div className="space-y-2 p-3">
-                {filtered.map((r, i) => (
-                  <div
-                    key={r.id}
-                    className={`flex items-center gap-4 px-3 py-3 rounded-lg ${
-                      i < 3
-                        ? "shadow-[0_6px_28px_rgba(1,255,219,0.08),inset_0_1px_0_rgba(255,255,255,0.02)]"
-                        : ""
-                    }`}
-                    style={{
-                      background:
-                        i % 2 === 0
-                          ? "linear-gradient(180deg, rgba(255,255,255,0.01), transparent)"
-                          : "transparent",
-                    }}
-                  >
+                {filtered.length === 0 ? (
+                  <div className="text-center text-[rgba(255,255,255,0.55)] py-4">
+                    No teams found or loading...
+                  </div>
+                ) : (
+                  filtered.map((r, i) => (
                     <div
-                      className="min-w-[2rem] text-lg font-medium"
-                      style={{ color: i === 0 ? "#01ffdb" : "white" }}
+                      key={r.id}
+                      className={`flex items-center gap-4 px-3 py-3 rounded-lg ${
+                        i < 3
+                          ? "shadow-[0_6px_28px_rgba(1,255,219,0.08),inset_0_1px_0_rgba(255,255,255,0.02)]"
+                          : ""
+                      }`}
+                      style={{
+                        background:
+                          i % 2 === 0
+                            ? "linear-gradient(180deg, rgba(255,255,255,0.01), transparent)"
+                            : "transparent",
+                      }}
                     >
-                      {i + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{r.team}</div>
-                      <div className="text-xs text-[rgba(255,255,255,0.55)]">
-                        team id: {r.id}
+                      <div
+                        className="min-w-[2rem] text-lg font-medium"
+                        style={{ color: i === 0 ? "#01ffdb" : "white" }}
+                      >
+                        {i + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate">{r.team}</div>
+                        <div className="text-xs text-[rgba(255,255,255,0.55)]">
+                          team id: {r.id}
+                        </div>
+                      </div>
+                      <div className="min-w-[6rem] text-right font-semibold">
+                        {r.score}
+                      </div>
+                      <div className="min-w-[4rem] text-right text-[rgba(255,255,255,0.55)]">
+                        {r.rank}
                       </div>
                     </div>
-                    <div className="min-w-[6rem] text-right font-semibold">
-                      {r.score}
-                    </div>
-                    <div className="min-w-[4rem] text-right text-[rgba(255,255,255,0.55)]">
-                      {r.solves}
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 

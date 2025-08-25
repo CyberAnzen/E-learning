@@ -3,6 +3,7 @@ const { Schema } = mongoose;
 const currentYear = new Date().getFullYear() % 100;
 const getRandomAvatar = require("../controller/user/profile/avator/getRandomAvator");
 const TeamModel = require("./TeamModel");
+const { validate } = require("./RefreshTokenModel");
 // Detailed user schema
 const UserModel = new mongoose.Schema(
   {
@@ -18,7 +19,19 @@ const UserModel = new mongoose.Schema(
         message: "Team with the given ID does not exist",
       },
     },
-    username: { type: String, required: true, unique: true },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      minlength: 3,
+      maxlength: 30,
+      validate: {
+        validator: function (v) {
+          return v && v.trim().length >= 3 && v.trim().length <= 30;
+        },
+        message: "Username must be between 3 and 30 characters",
+      },
+    },
     password: { type: String, required: true },
     userRole: { type: String, default: "User", enum: ["User", "Admin"] },
     phoneNo: {
@@ -45,14 +58,6 @@ const UserModel = new mongoose.Schema(
       required: true,
       unique: true,
       set: (v) => v.toUpperCase(),
-      match: /^RA\d{2}\d{9,11}$/,
-      validate: {
-        validator: function (v) {
-          const yearPart = parseInt(v.slice(2, 4), 10);
-          return yearPart <= currentYear;
-        },
-        message: `Admission year in regNumber cannot be in the future.`,
-      },
     },
     officialEmail: {
       type: String,
@@ -94,30 +99,6 @@ const UserModel = new mongoose.Schema(
       },
     },
     profile: {
-      socialLinks: {
-        type: Array,
-        default: [],
-        validate: {
-          validator: function (v) {
-            return v.every(
-              (link) => typeof link === "string" && link.startsWith("http")
-            );
-          },
-          message: "All social links must be valid URLs",
-        },
-      },
-      skills: {
-        type: Array,
-        default: [],
-        validate: {
-          validator: function (v) {
-            return v.every(
-              (skill) => typeof skill === "string" && skill.length > 0
-            );
-          },
-          message: "All skills must be non-empty strings",
-        },
-      },
       avator: {
         type: String,
 

@@ -12,21 +12,20 @@ const path = require("path");
 const rateLimit = require("express-rate-limit");
 const http = require("http");
 const deasync = require("deasync");
+const mongoSanitize = require("express-mongo-sanitize");
 
 const ConnectDataBase = require("./config/connectDataBase");
 const { connectRedis } = require("./redis/config/connectRedis");
 const initializeCaches = require("./cache/initCache");
-const initLeaderboard = require("./redis/initLeaderboard"); 
+const initLeaderboard = require("./redis/initLeaderboard");
 const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
 
-    //initLeaderboardSocket(server);
-    
+//initLeaderboardSocket(server);
+
 async function initializeServer() {
   try {
-    
-    await ConnectDataBase()
+    await ConnectDataBase();
     // Database and Cache initialization
-    
 
     /*
       Redis connection
@@ -37,14 +36,12 @@ async function initializeServer() {
     // attach leaderboard websocket to same HTTP server
 
     await initLeaderboard(); // Initialize leaderboard from MongoDB
-    LeaderboardManager.attachToServer(server)
+    LeaderboardManager.attachToServer(server);
   } catch (err) {
     console.error("❌ Initialization error:", err);
     process.exit(1); // Exit if initialization fails
   }
 }
-
-
 
 // Routes
 const userRoutes = require("./router/userRoutes");
@@ -70,15 +67,18 @@ let server = http.createServer(app);
 // Start server after initialization
 let initDone = false;
 initializeServer()
-  .then(() => { initDone = true; })
-  .catch(err => { throw err; });
+  .then(() => {
+    initDone = true;
+  })
+  .catch((err) => {
+    throw err;
+  });
 deasync.loopWhile(() => !initDone);
 //-***************************************************************************************
 
-    // Logger worker setup
-    const loggerWorker = new Worker("./logger/controller/logger.js");
-    const logInBackground = createLogWorker(loggerWorker);
-
+// Logger worker setup
+const loggerWorker = new Worker("./logger/controller/logger.js");
+const logInBackground = createLogWorker(loggerWorker);
 
 // Security Middlewares
 // Production CORS configuration (commented out)
@@ -95,8 +95,9 @@ app.use(helmet()); // Adds common security headers
 
 // Parser middlewares
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json({ limit: "10kb" })); // block large JSON
 app.use(bodyParser.json());
+app.use(mongoSanitize()); // Block NoSQL injection
 
 // Rate limiting for static files (prevent abuse)
 const downloadLimiter = rateLimit({
@@ -119,16 +120,16 @@ app.get(
 );
 
 // Routes
-app.use("/api/event", event);
+// app.use("/api/classification", classification);
+// app.use("/api/lesson", lesson);
+// app.use("/api/answer", validate);
+// app.use("/api/image", require("./router/imageRoutes"));
+// app.use("/api/event", event);
+
 app.use("/api/user", userRoutes);
-app.use("/api/classification", classification);
-app.use("/api/lesson", lesson);
-app.use("/api/answer", validate);
 app.use("/api/profile", profile);
 app.use("/api/challenge", CTF);
-app.use("/api/image", require("./router/imageRoutes"));
 app.use("/api/team", TeamRoutes);
-
 
 // Serve only challenge files (not full public folder)
 app.use(
@@ -144,7 +145,7 @@ app.use(
       res.setHeader(
         "Content-Disposition",
         `attachment; filename="${fileName}"`
-      ); 
+      );
       res.setHeader("X-Content-Type-Options", "nosniff");
       // Ensure CORS headers are set for static files
       // res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
@@ -197,8 +198,12 @@ app.use(errorLogger(logInBackground));
 
 let cachesDone = false;
 initializeCaches()
-  .then(() => { cachesDone = true; })
-  .catch(err => { throw err; });
+  .then(() => {
+    cachesDone = true;
+  })
+  .catch((err) => {
+    throw err;
+  });
 deasync.loopWhile(() => !cachesDone);
 
 server.listen(port, () => {

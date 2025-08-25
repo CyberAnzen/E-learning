@@ -21,7 +21,7 @@ router.get(
     .getTeamDetails
 );
 router.post("/createTeam", Auth(), createTeam);
-router.patch("/updateMembers", Auth(), updateMembers);
+// router.patch("/updateMembers", Auth(), updateMembers);
 router.delete("/deleteTeam", Auth(), deleteTeam);
 router.post("/generateInvite", Auth(), generateInvite);
 router.post(

@@ -111,26 +111,26 @@ router.get(
 );
 
 //router.post("/send-email", emailLimiter, SMTP);
-router.post(
-  "/forgot-password",
-  TimeStamp(2),
-  otpGeneratorLimiter,
-  xssSanitizer(),
-  OtpManager.OtpGenerator
-);
-router.post(
-  "/verify-otp",
-  TimeStamp(2),
-  otpVerifyLimiter,
-  xssSanitizer(),
-  OtpManager.OtpVerification
-);
-router.post(
-  "/reset-password",
-  TimeStamp(2),
-  passwordResetLimiter,
-  xssSanitizer(),
-  userManager.PasswordReset
-);
+// router.post(
+//   "/forgot-password",
+//   TimeStamp(2),
+//   otpGeneratorLimiter,
+//   xssSanitizer(),
+//   OtpManager.OtpGenerator
+// );
+// router.post(
+//   "/verify-otp",
+//   TimeStamp(2),
+//   otpVerifyLimiter,
+//   xssSanitizer(),
+//   OtpManager.OtpVerification
+// );
+// router.post(
+//   "/reset-password",
+//   TimeStamp(2),
+//   passwordResetLimiter,
+//   xssSanitizer(),
+//   userManager.PasswordReset
+// );
 
 module.exports = router;

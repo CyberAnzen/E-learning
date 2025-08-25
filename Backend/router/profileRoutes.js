@@ -21,16 +21,16 @@ const getAllDefaultAvator = require("../controller/user/profile/avator/getAllDef
 
 
 router.get("/data",Auth(),xssSanitizer(), getProfile);
-router.post("/links", Auth(),xssSanitizer(),updateLink); 
-router.post("/skills", Auth(),xssSanitizer(), updateSkill);
-router.post("/update",Auth() ,xssSanitizer(),updateUserDetails);
+// router.post("/links", Auth(),xssSanitizer(),updateLink); 
+// router.post("/skills", Auth(),xssSanitizer(), updateSkill);
+// router.post("/update",Auth() ,xssSanitizer(),updateUserDetails);
 /* router.post("/avator/create", 
     upload.single("image"), 
     createAvator
 ); */
-router.get("/checkRegNo",Auth(),xssSanitizer(), checkRegNo);
-router.post("/avator/update",Auth(),xssSanitizer(), updateAvator);
-router.get("/avator/default" ,Auth(), xssSanitizer(), getAllDefaultAvator);
+// router.get("/checkRegNo",Auth(),xssSanitizer(), checkRegNo);
+// router.post("/avator/update",Auth(),xssSanitizer(), updateAvator);
+// router.get("/avator/default" ,Auth(), xssSanitizer(), getAllDefaultAvator);
 
 
 

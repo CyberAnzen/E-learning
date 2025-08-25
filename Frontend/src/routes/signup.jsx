@@ -41,30 +41,28 @@ export default function Signup() {
     // Smooth scroll to top
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 
-    const isDesktop = window.innerWidth >= 768;
+    // Prevent scrolling on body but allow it on the form container
+    document.body.style.overflow = "hidden";
+    document.body.style.height = "100vh";
+    document.body.style.position = "fixed";
+    document.body.style.width = "100%";
+    document.documentElement.style.overflow = "hidden";
 
-    if (isDesktop) {
-      // Lock scroll only on desktop
-      document.body.style.overflow = "hidden";
-      document.body.style.height = "100vh";
-      document.body.style.position = "fixed";
-      document.body.style.width = "100%";
-      document.documentElement.style.overflow = "hidden";
+    // Optional: Prevent touchmove to block scrolling more robustly
+    const preventTouchMove = (e) => e.preventDefault();
+    document.addEventListener("touchmove", preventTouchMove, {
+      passive: false,
+    });
 
-      const preventTouchMove = (e) => e.preventDefault();
-      document.addEventListener("touchmove", preventTouchMove, {
-        passive: false,
-      });
-
-      return () => {
-        document.body.style.overflow = "";
-        document.body.style.height = "";
-        document.body.style.position = "";
-        document.body.style.width = "";
-        document.documentElement.style.overflow = "";
-        document.removeEventListener("touchmove", preventTouchMove);
-      };
-    }
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.height = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+      document.documentElement.style.overflow = "";
+      document.removeEventListener("touchmove", preventTouchMove);
+    };
   }, []);
 
   const debouncedCheckUsername = useCallback(
@@ -424,12 +422,10 @@ export default function Signup() {
                 </div>
               </div>
 
-              {/* <div className="fixed top-30 left-10 z-50 flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
-              </div> */}
+              {/* Left side - User Profile Scanner */}
 
-              <div className="flex flex-col lg:flex-row lg:items-start gap-8 lg:gap-16 mt-12 p-8 md:p-12 ">
-                {/* Left side - User Profile Scanner */}
-                <div className="relative flex justify-center items-center">
+              <div className="fixed top-30 left-10 z-50 flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
+                <div className="relative">
                   {/* Scanning frame */}
                   <div className="w-48 h-48 border-2 border-[#01ffdb]/70 relative bg-black/30 backdrop-blur-sm">
                     {/* Corner brackets */}
@@ -439,17 +435,23 @@ export default function Signup() {
                     <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#01ffdb]" />
 
                     {/* User Icon */}
-                    <div className="absolute inset-4 flex items-center justify-center">
+                    <div className="fixed inset-4 flex items-center justify-center">
                       <UserIcon size={140} />
                     </div>
 
                     {/* Status indicators */}
                     {/* <div className="absolute -bottom-8 left-0 right-0 text-center">
-                      <div className="text-[#01ffdb] font-mono text-xs animate-pulse">
-                        PROFILE SCAN ACTIVE
-                      </div>
-                    </div> */}
+        <div className="text-[#01ffdb] font-mono text-xs animate-pulse">
+          PROFILE SCAN ACTIVE
+        </div>
+      </div> */}
                   </div>
+                </div>
+              </div>
+              <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-16 mt-12 p-8 md:p-12">
+                {/* Left side - User Profile Scanner */}
+                <div className="flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
+                  <div className="w-48"></div>
                 </div>
 
                 {/* Right side - Form */}

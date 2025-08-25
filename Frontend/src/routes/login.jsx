@@ -256,9 +256,14 @@ export default function LoginPage() {
                         </label>
                       </div>
 
-                      <Link to="/forget-password">
+                      {/* <Link to="/forget-password">
                         <div className="text-[#01ffdb] hover:text-[#01ffdb]/80 transition-colors font-mono">
                           RESET PASSKEY
+                        </div>
+                      </Link> */}
+                      <Link to="/privacy-policy">
+                        <div className="text-[#01ffdb] hover:text-[#01ffdb]/80 transition-colors font-mono">
+                          PRIVACY POLICY
                         </div>
                       </Link>
                     </div>
