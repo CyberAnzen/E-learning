@@ -125,6 +125,7 @@ app.get(
 // app.use("/api/image", require("./router/imageRoutes"));
 // app.use("/api/event", event);
 
+// app.use("/api/event", xssSanitizer(), event);
 app.use("/api/user", userRoutes);
 app.use("/api/profile", profile);
 app.use("/api/challenge", CTF);
