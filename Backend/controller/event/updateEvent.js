@@ -13,7 +13,8 @@ exports.updateEvent = async (req, res) => {
             description,
             venue,
             eventOrganizerName,
-            eventOrganizerEmail
+            eventOrganizerEmail,
+            updatedBy
         } = req.body;
 
         // Initialize the update object with $set
@@ -21,6 +22,8 @@ exports.updateEvent = async (req, res) => {
 
         // Update top-level field
         if (eventName) update.$set['eventName'] = eventName;
+        update.$set['updatedBy'] = req.user.username;
+
 
         // Update individual nested fields using dot notation
         if (time) update.$set['eventDetails.time'] = time;
@@ -37,6 +40,8 @@ exports.updateEvent = async (req, res) => {
                 message: 'No valid fields provided for update'
             });
         }
+
+
         //log('Update object:', update);
         // Perform the update
         const updatedEvent = await Event.findByIdAndUpdate(

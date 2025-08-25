@@ -1,4 +1,3 @@
-
 const cacheManager = require('../../cache/cacheManager');
 //const { Event } = require('../model/EventModel');
 exports.bannerEvent = async (req, res) => {
@@ -15,7 +14,13 @@ exports.bannerEvent = async (req, res) => {
             });
         }
 
-        const bannerEvents = cacheData.data.filter(event => event);
+
+        const bannerEvents = cacheData.data
+        .map(event => {
+            const plainEvent = event.toObject?.() || event;  // support for plain cache too
+            const { createdAt, updatedAt, __v, ...rest } = plainEvent;
+            return rest;
+        })
 
         if (bannerEvents.length === 0) {
             return res.status(404).json({

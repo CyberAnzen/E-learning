@@ -1,25 +1,168 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import FingerPrintJS from "../../utils/Fingerprint";
 
-axios.defaults.withCredentials = true;
-axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const AppContext = createContext();
+
 export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(true);
+
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const [team, setTeam] = useState(null);
   const [savedSkills, setSavedSkills] = useState([]);
-  const [savedLinks, setSavedLinks] = useState(null); // final saved data
-  //Admin Add card Toggle
+  const [savedLinks, setSavedLinks] = useState(null);
   const [LearnAdd, setLearnAdd] = useState(false);
-  const [Admin, setAdmin] = useState(true);
-  //Classification globalState
+  const [Admin, setAdmin] = useState(false);
   const [classificationId, setClassificationId] = useState();
+  const [fp, setFp] = useState(null);
+  const [csrf, setCSRF] = useState(null);
+
+  // Generate fingerprint once
+  const getFingerprint = async () => {
+    if (fp) return fp;
+    try {
+      const fingerprint = await FingerPrintJS();
+      setFp(fingerprint);
+      return fingerprint;
+    } catch (error) {
+      console.error("Failed to generate fingerprint:", error);
+      return null;
+    }
+  };
+
+  // Fetch CSRF token once per fingerprint
+  const getCsrf = async () => {
+    if (csrf) return csrf;
+    const fingerprint = await getFingerprint();
+    if (!fingerprint) return null;
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/auth/csrf-token`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "x-client-fp": fingerprint,
+          timestamp: Date.now(),
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch CSRF token");
+
+      const data = await res.json();
+      setCSRF(data.csrfToken);
+      return data.csrfToken;
+    } catch (error) {
+      console.error("CSRF fetch failed:", error);
+      return null;
+    }
+  };
+
+  const fetchProfile = async () => {
+    const fingerprint = await getFingerprint();
+    const csrfToken = await getCsrf();
+    if (!fingerprint || !csrfToken) return null;
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/profile/data`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "x-client-fp": fingerprint,
+          "x-csrf-token": csrfToken,
+          timestamp: Date.now(),
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch profile");
+      const data = await res.json();
+
+      setUser(data?.data || null);
+      setAdmin(data?.data?.userRole === "Admin");
+      setLoggedIn(Boolean(data?.data));
+      return data?.data || null;
+    } catch (error) {
+      console.error("Profile fetch failed:", error);
+      setUser(null);
+      setAdmin(false);
+      setLoggedIn(false);
+      return null;
+    }
+  };
+
+  const fetchTeam = async () => {
+    const fingerprint = await getFingerprint();
+    const csrfToken = await getCsrf();
+    if (!fingerprint || !csrfToken) return null;
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/team`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "x-client-fp": fingerprint,
+          "x-csrf-token": csrfToken,
+          timestamp: Date.now(),
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 404) {
+          setTeam(null);
+          return null;
+        }
+        throw new Error("Failed to fetch team");
+      }
+
+      const data = await res.json();
+      setTeam(data?.data || null);
+      return data?.data || null;
+    } catch (error) {
+      console.error("Team fetch failed:", error);
+      setTeam(null);
+      return null;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await fetch(`${BACKEND_URL}/api/user/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Backend logout failed:", err);
+    } finally {
+      setLoggedIn(false);
+      setUser(null);
+      setTeam(null);
+      setAdmin(false);
+      setCSRF(null);
+      navigate("/login");
+    }
+  };
+
+  // Initialize context once on mount
+  useEffect(() => {
+    const init = async () => {
+      await fetchProfile();
+      await fetchTeam();
+    };
+    init();
+  }, []);
+
   const value = {
-    axios,
     navigate,
     user,
+    setUser,
     savedSkills,
     setSavedSkills,
     savedLinks,
@@ -29,10 +172,18 @@ export const AppContextProvider = ({ children }) => {
     Admin,
     classificationId,
     setClassificationId,
+    fp,
+    csrf,
+    loggedIn,
+    setLoggedIn,
+    logout,
+    team,
+    setTeam,
+    fetchProfile,
+    fetchTeam,
   };
+
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
-export const useAppContext = () => {
-  return useContext(AppContext);
-};
+export const useAppContext = () => useContext(AppContext);

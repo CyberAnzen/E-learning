@@ -9,6 +9,9 @@ exports.getEventById = async (req, res) => {
                 message: 'Event not found'
             });
         } 
+        delete event._doc.createdAt;
+        delete event._doc.updatedAt;
+        delete event._doc.__v;
         res.status(200).json({
             success: true,
             data: event

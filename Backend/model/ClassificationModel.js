@@ -4,6 +4,7 @@ const { Schema, Types } = mongoose;
 const classificationSchema = new Schema(
   {
     title: { type: String, unique: true, required: true },
+    description: { type: String, required: true },
     icon: { type: String, required: true },
     category: { type: String, required: true },
   },

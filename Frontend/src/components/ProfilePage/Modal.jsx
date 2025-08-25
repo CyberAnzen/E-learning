@@ -1,6 +1,6 @@
 import React from "react";
 
-const Modal = ({ id, children, className="bg-[#0f172a]/50 text-white border-[#38bdf8]/20 backdrop-blur-xl rounded-xl border hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"  }) => {
+const Modal = ({ id, children, className="bg-transparent cyber-cart text-[#01ffdb] border-[#01ffdb]/20 backdrop-blur-xl rounded-xl border hover:border-[#01ffdb]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#01ffd922]"  }) => {
   const handleOverlayClick = (e) => {
     const dialog = document.getElementById(id);
     if (e.target === dialog) {

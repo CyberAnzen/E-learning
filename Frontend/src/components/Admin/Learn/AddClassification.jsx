@@ -16,7 +16,7 @@ import {
   Lock,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import Usefetch from "../../../hooks/Usefetch";
 const icons = [
   { name: "Learning", icon: GraduationCap },
   { name: "Tech", icon: Cpu },
@@ -84,7 +84,25 @@ const AddCourse = ({ handleRetry }) => {
     setValidationErrors(errors);
     return !errors.title && !errors.description;
   };
-
+  // Post request of the form submission
+  const payload = {
+    title: formData.title.trim(),
+    description: formData.description.trim(),
+    category: formData.category || selectedIcon.name,
+    icon: selectedIcon.name,
+  };
+  const {
+    Data: result,
+    error,
+    loading,
+    retry,
+  } = Usefetch(
+    "classification/create",
+    "post",
+    JSON.stringify(payload),
+    {},
+    false
+  );
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -94,32 +112,23 @@ const AddCourse = ({ handleRetry }) => {
       return;
     }
 
-    setIsSubmitting(true);
-    setErrorMessage("");
-
-    const payload = {
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      category: formData.category || selectedIcon.name,
-      icon: selectedIcon.name,
-    };
+    // setIsSubmitting(true);
+    // setErrorMessage("");
 
     try {
-      const response = await fetch(`${BACKEND_URL}/classification/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      // const response = await fetch(`${BACKEND_URL}/classification/create`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
+      retry();
 
-      const result = await response.json();
+      // if (!response.ok) {
+      //   throw new Error(result.message || "Failed to create classification");
+      // }
 
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to create classification");
-      }
-
-      // console.log(" API response:", result);
+      console.log(" API response:", result);
 
       // Show success state
       setSubmitSuccess(true);
@@ -378,80 +387,61 @@ const AddCourse = ({ handleRetry }) => {
         )}
       </AnimatePresence>
 
-      {/*Add CARD before clicking*/}
+      {/* Add Card before clicking */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.2 }}
-        className="
-            group
-            relative
-            bg-blue-400/10
-            backdrop-blur-xl
-            p-6
-            rounded-xl
-            border border-gray-700
-            hover:border-teal-500/50
-            transition-all duration-300 ease-out
-            hover:shadow-lg hover:shadow-cyan-500/10
-          "
+        transition={{ duration: 0.3 }}
+        className="group relative bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50 hover:border-cyan-500/50 transition-all duration-300 ease-out hover:shadow-xl hover:shadow-cyan-500/10"
       >
-        <section
-          className="
-              absolute
-              inset-0
-              bg-black/60
-              opacity-60
-              backdrop-blur-2xl
-              border-0.5
-              border-gray-400/40
-              rounded-xl
-              z-0
-            "
-        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/40 to-gray-900/60 backdrop-blur-2xl border border-gray-400/20 rounded-2xl z-0" />
 
         <div
-          className={` ${
-            hover ? "blur-sm" : "blur-xs"
-          }  relative z-10 flex flex-col h-full `}
+          className={`${
+            hover ? "blur-sm" : "blur-none"
+          } relative z-10 flex flex-col h-full space-y-6 transition-all duration-300`}
         >
-          <div className="flex items-start justify-between mb-4">
-            <div className="p-3 bg-gray-700/50 rounded-lg">
-              <Code className="w-6 h-6 text-cyan-400" />
+          <div className="flex items-start justify-between">
+            <div className="p-4 bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl border border-gray-600/30">
+              <Code className="w-7 h-7 text-cyan-400" />
             </div>
-            <div className="flex flex-col items-end">
-              <span className="text-sm text-gray-400">Progress</span>
-              <span className="text-lg font-semibold text-white">NA%</span>
+            <div className="text-right space-y-1">
+              <span className="text-sm text-gray-400 font-medium">
+                Progress
+              </span>
+              <span className="text-2xl font-bold text-white">NA%</span>
             </div>
           </div>
-          <h2 className="text-xl font-semibold text-white mb-2">
-            Add Classification Title
-          </h2>
-          <p className="text-gray-400 mb-4">
-            Add The Description of the new Classification{" "}
-          </p>
 
-          <div className="mt-auto">
-            <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
+          <div className="space-y-3">
+            <h2 className="text-2xl font-bold text-white leading-tight">
+              Add Classification Title
+            </h2>
+            <p className="text-gray-400 leading-relaxed">
+              Add The Description of the new Classification
+            </p>
+          </div>
+
+          <div className="mt-auto space-y-4">
+            <div className="w-full bg-gray-700/50 rounded-full h-2.5">
               <div
-                className="bg-cyan-500 h-2 rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2.5 rounded-full transition-all duration-300"
                 style={{ width: `16%` }}
               />
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">none of none lessons</span>
-              <span className="text-cyan-400">Security</span>
+              <span className="text-gray-400 font-medium">
+                none of none lessons
+              </span>
+              <span className="text-cyan-400 font-semibold">Security</span>
             </div>
           </div>
         </div>
 
         <motion.button
-          onMouseEnter={() => {
-            setHover(true);
-          }}
-          onMouseLeave={() => {
-            setHover(false);
-          }}
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           transition={{ duration: 0.2 }}
           onClick={() => {
@@ -463,31 +453,29 @@ const AddCourse = ({ handleRetry }) => {
             setErrorMessage("");
             setSubmitSuccess(false);
           }}
-          className={`
-              absolute inset-0
-              flex items-center justify-center
-              transition-all duration-300 ease-out
-              backdrop-blur-3xl
-              rounded-xl
-              z-20
-              cursor-pointer
-              ${hover ? "bg-blue-400/10" : "bg-transperent"}
-            `}
+          className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ease-out backdrop-blur-xl rounded-2xl z-20 cursor-pointer ${
+            hover
+              ? "bg-gradient-to-br from-blue-500/20 to-cyan-500/20"
+              : "bg-transparent"
+          }`}
         >
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className={` ${
-              !hover ? "bg-gray-400" : " bg-gray-400/60"
-            }    px-4 py-4
-                backdrop-blur-md
-                text-white
-                rounded-lg
-                transform group-hover:translate-y-0`}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
+            className={`${
+              !hover
+                ? "bg-gray-800/80"
+                : "bg-gradient-to-br from-cyan-500/80 to-blue-500/80"
+            } p-6 backdrop-blur-md text-white rounded-2xl transform transition-all duration-300 shadow-lg ${
+              hover ? "shadow-cyan-500/25" : "shadow-black/25"
+            }`}
           >
-            <Plus size={30} />
-          </motion.span>
+            <Plus
+              size={32}
+              className={hover ? "text-white" : "text-cyan-400"}
+            />
+          </motion.div>
         </motion.button>
       </motion.div>
     </>

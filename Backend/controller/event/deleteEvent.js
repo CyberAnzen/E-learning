@@ -18,7 +18,7 @@ exports.deleteEvent = async (req, res) => {
        if (deletedEvent) {
            // You can access deletedEvent.event_image or other fields here
            try {
-               fs.unlinkSync(path.join(process.cwd(), 'uploads', 'events', 'images', deletedEvent.eventImage));
+               fs.unlinkSync(path.join(process.cwd(), 'public', 'events', 'images', deletedEvent.eventImage));
             } catch (error) {
                 console.error('Error deleting old event image:', error.message);
             }

@@ -107,7 +107,7 @@ const Intro = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center justify-center overflow-hidden px-4">
+    <div className="relative backdrop-blur-md min-h-screen bg-gradient-to-br from-cyan-900/40 via-black to-cyan-900/40 flex flex-col items-center justify-center overflow-hidden px-4">
       {/* Optimized favicon with enhanced glow */}
       <motion.img
         src="/favicon.png"
@@ -150,7 +150,7 @@ const Intro = () => {
         {!isMobile && (
           <>
             <motion.div
-              className="absolute top-0 left-0 text-[#FF0000] text-3xl md:text-5xl font-bold tracking-wider mix-blend-screen"
+              className="absolute top-0 left-0 text-[#00d4ff] text-3xl md:text-5xl font-bold tracking-wider mix-blend-screen"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
                 letterSpacing: "0.2em",
@@ -172,7 +172,7 @@ const Intro = () => {
               {cyberAnzenText}
             </motion.div>
             <motion.div
-              className="absolute top-0 left-0 text-[#00FF00] text-3xl md:text-5xl font-bold tracking-wider mix-blend-screen"
+              className="absolute top-0 left-0 text-[#4dffe8] text-3xl md:text-5xl font-bold tracking-wider mix-blend-screen"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
                 letterSpacing: "0.2em",
@@ -195,7 +195,7 @@ const Intro = () => {
               {cyberAnzenText}
             </motion.div>
             <motion.div
-              className="absolute top-0 left-0 text-[#0000FF] text-3xl md:text-5xl font-bold tracking-wider mix-blend-screen"
+              className="absolute top-0 left-0 text-[#26ffe0] text-3xl md:text-5xl font-bold tracking-wider mix-blend-screen"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
                 letterSpacing: "0.2em",
@@ -229,10 +229,10 @@ const Intro = () => {
         transition={{ duration: 0.3, delay: 0.3 }}
       >
         <motion.img
-          src="/broken_security.png"
-          alt="Broken Security Icon"
-          className="w-6 md:w-7"
-          style={{ filter: "brightness(0) invert(1)" }}
+          src="/Lock.svg"
+          alt=" Security Lock Icon"
+          className="w-5"
+      
           animate={{
             rotate: [0, -5, 0, 5, 0],
             scale: [1, 1.05, 1, 1.05, 1],
@@ -252,6 +252,8 @@ const Intro = () => {
             willChange: "transform, opacity",
             fontFamily: "'Orbitron', sans-serif",
             letterSpacing: "0.1em",
+            textShadow:
+              "0 0 10px rgba(1,255,219,0.5), 0 0 20px rgba(1,255,219,0.3)",
           }}
         >
           {"Break the Code Secure the Future".split("").map((char, index) => (
@@ -268,10 +270,10 @@ const Intro = () => {
 
       {/* Grid background with subtle animation */}
       <div
-        className="absolute inset-0 bg-[linear-gradient(transparent_1px,_#000_1px),_linear-gradient(90deg,_transparent_1px,_#000_1px)] pointer-events-none"
+        className="absolute inset-0 bg-[linear-gradient(transparent_1px,_rgba(1,255,219,0.1)_1px),_linear-gradient(90deg,_transparent_1px,_rgba(1,255,219,0.1)_1px)] pointer-events-none"
         style={{
           backgroundSize: "30px 30px",
-          opacity: 0.2,
+          opacity: 0.3,
           animation: !isMobile ? "gridMove 20s linear infinite" : "none",
           willChange: "transform, opacity",
         }}
@@ -287,7 +289,8 @@ const Intro = () => {
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                boxShadow: "0 0 10px #01ffdb, 0 0 20px #01ffdb",
+                boxShadow:
+                  "0 0 10px #01ffdb, 0 0 20px #01ffdb, 0 0 30px rgba(1,255,219,0.5)",
               }}
               animate={{
                 y: [0, -20, 0],
@@ -302,6 +305,12 @@ const Intro = () => {
           ))}
         </div>
       )}
+
+      {/* Additional green accent elements */}
+      {/* <div className="absolute top-10 left-10 w-2 h-2 bg-[#01ffdb] rounded-full animate-pulse shadow-[0_0_10px_#01ffdb]"></div>
+      <div className="absolute bottom-10 right-10 w-3 h-3 bg-[#4dffe8] rounded-full animate-pulse shadow-[0_0_15px_#4dffe8]"></div>
+      <div className="absolute top-1/2 left-5 w-1 h-1 bg-[#26ffe0] rounded-full animate-ping shadow-[0_0_8px_#26ffe0]"></div>
+      <div className="absolute top-20 right-20 w-1 h-1 bg-[#00d4ff] rounded-full animate-ping shadow-[0_0_8px_#00d4ff]"></div> */}
     </div>
   );
 };

@@ -1,62 +1,102 @@
 import React, { useState, useEffect } from "react";
+import Turnstile from "react-turnstile";
 import { User, Lock, Shield } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ParticleBackground from "../components/Login/ParticleBackground";
 import FingerprintIcon from "../components/Login/FingerprintIcon";
 import { useAppContext } from "../context/AppContext";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function LoginPage() {
-  const { navigate } = useAppContext();
+  const navigate = useNavigate();
+  const { loggedIn, setLoggedIn, User } = useAppContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { fp } = useAppContext();
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [showSubmit, setShowSubmit] = useState(false);
+  useEffect(() => {
+    if (loggedIn || User) {
+      navigate("/profile");
+    }
+  }, [loggedIn, User, navigate]);
 
   useEffect(() => {
     // Smooth scroll to top
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 
-    // Prevent scrolling
-    document.body.style.overflow = "hidden";
-    document.body.style.height = "100vh";
-    document.body.style.position = "fixed";
-    document.body.style.width = "100%";
-    document.documentElement.style.overflow = "hidden";
+    const isDesktop = window.innerWidth >= 768;
 
-    // Optional: Prevent touchmove to block scrolling more robustly
-    const preventTouchMove = (e) => e.preventDefault();
-    document.addEventListener("touchmove", preventTouchMove, {
-      passive: false,
-    });
+    if (isDesktop) {
+      // Lock scroll only on desktop
+      document.body.style.overflow = "hidden";
+      document.body.style.height = "100vh";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+      document.documentElement.style.overflow = "hidden";
 
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = "";
-      document.body.style.height = "";
-      document.body.style.position = "";
-      document.body.style.width = "";
-      document.documentElement.style.overflow = "";
-      document.removeEventListener("touchmove", preventTouchMove);
-    };
+      const preventTouchMove = (e) => e.preventDefault();
+      document.addEventListener("touchmove", preventTouchMove, {
+        passive: false,
+      });
+
+      return () => {
+        document.body.style.overflow = "";
+        document.body.style.height = "";
+        document.body.style.position = "";
+        document.body.style.width = "";
+        document.documentElement.style.overflow = "";
+        document.removeEventListener("touchmove", preventTouchMove);
+      };
+    }
   }, []);
+
+  // Show submit button with a short delay after captcha success and animate it
+  useEffect(() => {
+    let t;
+    if (captchaVerified) {
+      // hide first to allow animation reset, then show after delay
+      setShowSubmit(false);
+      t = setTimeout(() => setShowSubmit(true), 700); // 700ms delay before showing
+    } else {
+      setShowSubmit(false);
+    }
+    return () => clearTimeout(t);
+  }, [captchaVerified]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
+    if (!captchaToken) {
+      setError("Please complete the captcha");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch(`${BACKEND_URL}/user/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", timestamp: Date.now() },
         credentials: "include",
-        body: JSON.stringify({ identifier: username, password, rememberMe }),
+        body: JSON.stringify({
+          identifier: username,
+          password,
+          rememberMe,
+          fp,
+          captcha: captchaToken,
+        }),
       });
 
       const data = await res.json();
-      if (res.ok) {
+      console.log(data);
+      if (data.message === "Login successful") {
+        setLoggedIn(true);
         navigate("/");
       } else {
         setError(data.message || "Access Denied: Authentication Failed");
@@ -70,7 +110,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center -mt-13 justify-center px-4 sm:px-6 relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black h-[100vh] pt-10 pb-0 lg:pb-0 ">
+    <div className="flex items-center -mt-21 justify-center px-4 sm:px-6 relative  min-h-screen overflow-y-auto pt-10 pb-0 lg:pb-0">
       <ParticleBackground />
       {/* Cyberpunk grid overlay */}
       <div className="absolute inset-0 opacity-10">
@@ -86,7 +126,7 @@ export default function LoginPage() {
         />
       </div>
 
-      <div className="relative z-10 w-full max-w-4xl">
+      <div className="relative z-10 min-w-[85vw] sm:min-w-[70vw]  md:min-w-[60vw] lg:max-h-[80vh]   sm:overflow-y-auto">
         {/* Main Container */}
         <div className="relative">
           {/* Angled border container */}
@@ -99,7 +139,7 @@ export default function LoginPage() {
           >
             {/* Inner content area */}
             <div
-              className="bg-gray-900/50 p-8 md:p-12"
+              className="bg-gray-900/50 p-8 sm:p-8 md:p-12"
               style={{
                 clipPath:
                   "polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 28px 100%, 0 calc(100% - 28px))",
@@ -118,12 +158,12 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16 mt-12">
+              <div className="flex flex-col sm:flex-col md:flex-row items-center gap-8 md:gap-16 mt-12">
                 {/* Left side - Fingerprint Scanner */}
                 <div className="flex-shrink-0">
                   <div className="relative">
                     {/* Scanning frame */}
-                    <div className="w-48 h-48 border-2 border-[#01ffdb]/70 relative bg-black/30 backdrop-blur-sm">
+                    <div className="w-36 h-36 sm:w-48 sm:h-48 border-2 border-[#01ffdb]/70 relative bg-black/30 backdrop-blur-sm">
                       {/* Corner brackets */}
                       <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#01ffdb]" />
                       <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#01ffdb]" />
@@ -139,7 +179,7 @@ export default function LoginPage() {
                 </div>
 
                 {/* Right side - Form */}
-                <div className="flex-1 max-w-md w-full">
+                <div className="w-full sm:max-w-md">
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {error && (
                       <div
@@ -223,37 +263,69 @@ export default function LoginPage() {
                         </label>
                       </div>
 
-                      <Link to="/forget-password">
+                      {/* <Link to="/forget-password">
                         <div className="text-[#01ffdb] hover:text-[#01ffdb]/80 transition-colors font-mono">
                           RESET PASSKEY
+                        </div>
+                      </Link> */}
+                      <Link to="/privacy-policy">
+                        <div className="text-[#01ffdb] hover:text-[#01ffdb]/80 transition-colors font-mono">
+                          PRIVACY POLICY
                         </div>
                       </Link>
                     </div>
 
-                    {/* Submit Button */}
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="cyber-button w-full py-3 px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
-                               text-[#01ffdb] font-mono text-lg font-bold
-                               hover:bg-[#01ffdb]/20 hover:border-[#01ffdb]
-                               transition-all duration-300 relative overflow-hidden
-                               disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{
-                        clipPath:
-                          "polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px))",
-                      }}
-                    >
-                      <div className="relative z-10">
-                        {isLoading ? "AUTHENTICATING..." : "INITIALIZE SESSION"}
-                      </div>
-
-                      {/* Animated background effect */}
-                      <div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-[#01ffdb]/10 to-transparent 
-                                    transform -skew-x-12 -translate-x-full animate-pulse"
+                    <div className="flex justify-center">
+                      <Turnstile
+                        sitekey={import.meta.env.VITE_CF_SITE_KEY}
+                        onVerify={(token) => {
+                          setCaptchaToken(token);
+                          setCaptchaVerified(true);
+                        }}
+                        onExpire={() => {
+                          setCaptchaToken("");
+                          setCaptchaVerified(false);
+                        }}
+                        theme="dark"
+                        size="flexible"
                       />
-                    </button>
+                    </div>
+
+                    {/* Submit Button - hidden until captcha success, fades in with animation */}
+                    <div
+                      className={`transition-all duration-700 ease-out transform ${
+                        showSubmit
+                          ? "opacity-100 translate-y-0"
+                          : "opacity-0 -translate-y-6 pointer-events-none"
+                      }`}
+                      style={{ willChange: "opacity, transform" }}
+                    >
+                      <button
+                        type="submit"
+                        disabled={isLoading || !captchaVerified}
+                        className="cyber-button w-full py-3 px-6 sm:px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
+                                 text-[#01ffdb] font-mono text-lg font-bold
+                                 hover:bg-[#01ffdb]/20 hover:border-[#01ffdb]
+                                 transition-all duration-300 relative
+                                 disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                          clipPath:
+                            "polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px))",
+                        }}
+                      >
+                        <div className="relative z-10">
+                          {isLoading
+                            ? "AUTHENTICATING..."
+                            : "INITIALIZE SESSION"}
+                        </div>
+
+                        {/* Animated background effect */}
+                        <div
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-[#01ffdb]/10 to-transparent 
+                                      transform -skew-x-12 -translate-x-full animate-pulse"
+                        />
+                      </button>
+                    </div>
 
                     {/* Sign up link */}
                     <div className="text-center text-[#01ffdb]/70 font-mono">

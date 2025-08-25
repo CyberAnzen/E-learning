@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Link, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import {
   Github,
   Linkedin,
@@ -9,32 +8,36 @@ import {
   Instagram,
   Mail,
   Phone,
-  ExternalLink,
   ChevronUp,
-  Shield,
 } from "lucide-react";
 import Logo from "./Logo";
 
-const Footer = () => {
+const ACCENT = "#01ffdb";
+
+export default function Footer() {
   const location = useLocation();
-
   const [showCyber, setShowCyber] = useState(true);
-  const menublacklist = ["/lesson/create"];
   const blacklistPatterns = [
-    /^\/lesson\/create$/,
-    /^\/lesson\/update\/[a-f\d]{24}$/, // matches ObjectId format
+    /^\/unauthorized\/?$/,
+    /^\/challenge\/[a-f0-9]{24}\/?$/i,
+    /^\/404\/?$/,
   ];
-
-  const ismenuBlacklisted = blacklistPatterns.some((pattern) =>
-    pattern.test(location.pathname)
+  const ismenuBlacklisted = blacklistPatterns.some((p) =>
+    p.test(location.pathname)
   );
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
+  useEffect(() => {
+    const t = setTimeout(
+      () => setShowCyber((s) => !s),
+      showCyber ? 9000 : 4000
+    );
+    return () => clearTimeout(t);
+  }, [showCyber]);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  if (ismenuBlacklisted) return null;
+
   const socialLinks = [
     { name: "GitHub", icon: Github, url: "https://github.com/cyberanzen" },
     {
@@ -50,238 +53,152 @@ const Footer = () => {
     },
   ];
 
-  const fadeInUp = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5 },
+  // motion variants for subtle floating/glitch layers
+  const floatVariant = {
+    animate: {
+      x: [0, -2, 1, 0],
+      y: [0, -1, 1, 0],
+      opacity: [1, 0.9, 0.95, 1],
+      transition: { duration: 2.6, repeat: Infinity, ease: "linear" },
+    },
   };
-  useEffect(() => {
-    // Set timeout based on which slide is visible:
-    // CyberAnzen visible for 12s, SRMIST for 3s
-    const timeout = setTimeout(
-      () => {
-        setShowCyber((prev) => !prev);
-      },
-      showCyber ? 9000 : 4000
-    );
 
-    return () => clearTimeout(timeout);
-  }, [showCyber]);
-  if (ismenuBlacklisted) return null;
+  const floatVariant2 = {
+    animate: {
+      x: [0, 2, -1, 0],
+      y: [0, 1, -1, 0],
+      opacity: [0.9, 0.8, 0.85, 0.9],
+      transition: { duration: 3.2, repeat: Infinity, ease: "linear" },
+    },
+  };
+
   return (
-    <footer className="bg-gray-900 border-t border-gray-800 bg-gradient-to-br from-black via-gray-900 to-black">
-      {/* Scroll to top button */}
-      <div className="container mx-auto px-4 sm:px-6 py-4 flex justify-center">
-        <motion.button
-          onClick={scrollToTop}
-          className="bg-gray-800 hover:bg-gray-700 p-2 sm:p-3 rounded-full group transition-all duration-300"
-          whileHover={{ y: -5 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <ChevronUp
-            className="text-[#01ffdb] group-hover:text-white transition-colors"
-            size={20}
-          />
-        </motion.button>
-      </div>
+    <footer className="w-full left-0 z-50">
+      <div className="w-full">
+        {/* glass panel full-width, centered content */}
+        <div className="w-full bg-gradient-to-b from-black/60 to-black/55 backdrop-blur-md backdrop-saturate-150 border border-[#01ffdb]/10 shadow-2xl">
+          <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              {/* left */}
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-3">
+                  <Logo />
+                  <div className="min-w-0">
+                    <div className="relative text-sm sm:text-base font-semibold text-gray-100">
+                      {/* three-layer glitch using framer-motion (no external css) */}
+                      {/* <div className="relative block leading-none">
+                        <motion.span
+                          className="absolute left-0 top-0 text-[#01ffdb] mix-blend-screen pointer-events-none"
+                          variants={floatVariant}
+                          animate="animate"
+                          aria-hidden
+                        >
+                          CyberAnzen
+                        </motion.span>
+                        <motion.span
+                          className="absolute left-0 top-0 text-[#00fef0]/80 mix-blend-screen pointer-events-none"
+                          variants={floatVariant2}
+                          animate="animate"
+                          aria-hidden
+                        >
+                          CyberAnzen
+                        </motion.span>
+                        <span className="relative text-gray-100">
+                          CyberAnzen
+                        </span>
+                      </div> */}
+                    </div>
+                    {/* <div className="text-xs text-gray-300/70 truncate">
+                      Student Cybersecurity Club
+                    </div> */}
+                  </div>
+                </div>
+              </div>
 
-      {/* Main footer content */}
-      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
-          {/* About section */}
-          <motion.div
-            className="space-y-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <div className="flex items-center gap-3 mb-4 sm:mb-6">
-              <Logo />
-            </div>
-            <p className="text-gray-400 text-sm sm:text-base">
-              Exploring the digital frontier, securing the future. A student-run
-              cybersecurity club dedicated to learning, collaboration, and
-              innovation.
-            </p>
-            <div className="flex space-x-3 sm:space-x-4 pt-2 sm:pt-4">
-              {socialLinks.map((social, index) => (
-                <motion.a
-                  key={social.name}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-gray-800 p-1.5 sm:p-2 rounded-full hover:bg-[#01ffdb]/20 transition-colors group"
-                  whileHover={{ y: -5 }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.1 + index * 0.1 }}
+              {/* center - social icons */}
+              <div className="flex items-center gap-3 justify-center">
+                <div className="flex gap-2 sm:gap-4">
+                  {socialLinks.map((s) => (
+                    <motion.a
+                      key={s.name}
+                      href={s.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      whileHover={{ y: -3 }}
+                      className="p-2 rounded-md bg-black/20 backdrop-blur-sm border border-[#01ffdb]/10 flex items-center justify-center"
+                      aria-label={s.name}
+                    >
+                      <s.icon className="w-4 h-4 text-gray-300 hover:text-[#01ffdb] transition-colors" />
+                    </motion.a>
+                  ))}
+                </div>
+              </div>
+
+              {/* right - actions */}
+              <div className="flex items-center gap-3 justify-end">
+                <button
+                  onClick={scrollToTop}
+                  className="p-2 rounded-full bg-black/25 backdrop-blur-sm border border-[#01ffdb]/8 flex items-center justify-center"
+                  aria-label="scroll to top"
                 >
-                  <social.icon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-[#01ffdb] transition-colors" />
-                </motion.a>
-              ))}
+                  <ChevronUp size={16} className="text-[#01ffdb]" />
+                </button>
+                <div className="text-xs text-gray-300/70 text-right hidden sm:block">
+                  <div>
+                    Designed by <span className="text-[#01ffdb]">Vetrivel</span>
+                    , <span className="text-[#01ffdb]">Yogesh</span>,{" "}
+                    <span className="text-[#01ffdb]">Jafrin Sam</span>
+                  </div>
+                  <div className="text-[10px]">© 2025 CyberAnzen</div>
+                </div>
+              </div>
             </div>
-          </motion.div>
 
-          {/* Contact Info */}
-          <motion.div
-            className="space-y-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <h3 className="text-base sm:text-lg font-semibold text-white mb-4 sm:mb-6 relative">
-              Contact Us
-              <span className="absolute bottom-0 left-0 w-10 sm:w-12 h-0.5 bg-[#01ffdb]"></span>
-            </h3>
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-start gap-2 sm:gap-3">
-                <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-[#01ffdb] mt-0.5" />
-                <div>
-                  <p className="text-white font-medium text-sm sm:text-base">
-                    Email
-                  </p>
+            {/* second row - contact + newsletter */}
+            <div className="mt-4 border-t flex justify-center border-[#ffffff]/10 pt-3">
+              <div className="flex flex-col md:flex-row items-center md:justify-between gap-3">
+                <div className="flex items-center gap-3 text-xs text-gray-300/70 flex-wrap">
+                  <Mail className="w-4 h-4 text-[#01ffdb]" />
                   <a
                     href="mailto:contact@cyberanzen.org"
-                    className="text-gray-400 hover:text-[#01ffdb] transition-colors text-xs sm:text-sm"
+                    className="hover:text-[#01ffdb] transition-colors"
                   >
                     contact@cyberanzen.org
                   </a>
-                </div>
-              </div>
-              <div className="flex items-start gap-2 sm:gap-3">
-                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-[#01ffdb] mt-0.5" />
-                <div>
-                  <p className="text-white font-medium text-sm sm:text-base">
-                    Phone
-                  </p>
+                  <span className="hidden md:inline">|</span>
+                  <Phone className="w-4 h-4 text-[#01ffdb] hidden md:inline" />
                   <a
+                    className="hidden md:inline hover:text-[#01ffdb] transition-colors"
                     href="tel:+1234567890"
-                    className="text-gray-400 hover:text-[#01ffdb] transition-colors text-xs sm:text-sm"
                   >
                     +1 (234) 567-890
                   </a>
                 </div>
-              </div>
-              <div className="flex items-start gap-2 sm:gap-3">
-                <Instagram className="w-4 h-4 sm:w-5 sm:h-5 text-[#01ffdb] mt-0.5" />
-                <div>
-                  <p className="text-white font-medium text-sm sm:text-base">
-                    Instagram
-                  </p>
-                  <a
-                    href="mailto:contact@cyberanzen.org"
-                    className="text-gray-400 hover:text-[#01ffdb] transition-colors text-xs sm:text-sm"
-                  >
-                    contact@instagram.org
-                  </a>
-                </div>
-              </div>
-            </div>
-          </motion.div>
 
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <div className="pt-2 sm:pt-4">
-              <h4 className="text-white font-medium text-sm sm:text-base mb-1 sm:mb-2">
-                Club President
-              </h4>
-              <p className="text-gray-400 text-xs sm:text-sm">Alex Morgan</p>
-              <a
-                href="mailto:president@cyberanzen.org"
-                className="text-gray-400 hover:text-[#01ffdb] transition-colors flex items-center gap-1 mt-0.5 text-xs sm:text-sm"
-              >
-                president@cyberanzen.org{" "}
-                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
-              </a>
-            </div>
-
-            <div className="pt-2 sm:pt-4">
-              <h4 className="text-white font-medium text-sm sm:text-base mb-1 sm:mb-2">
-                Club Vice-President
-              </h4>
-              <p className="text-gray-400 text-xs sm:text-sm">Jafrin Sam</p>
-              <a
-                href="mailto:vicepresident@cyberanzen.org"
-                className="text-gray-400 hover:text-[#01ffdb] transition-colors flex items-center gap-1 mt-0.5 text-xs sm:text-sm"
-              >
-                vicepresident@cyberanzen.org{" "}
-                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
-              </a>
+                {/* <div className="w-full md:w-1/2 lg:w-1/3">
+                  <form className="flex items-center gap-2">
+                    <input
+                      type="email"
+                      aria-label="email"
+                      placeholder="Email"
+                      className="w-full text-xs sm:text-sm px-3 py-2 rounded-md bg-black/20 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#01ffdb]"
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="px-3 py-2 rounded-md text-xs font-semibold border border-[#01ffdb]/30 bg-black/10"
+                    >
+                      Subscribe
+                    </motion.button>
+                  </form>
+                </div> */}
+              </div>
             </div>
           </div>
-
-          {/* Newsletter */}
-          <motion.div
-            className="space-y-4 flex flex-col"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <h3 className="text-base sm:text-lg font-semibold text-white mb-4 sm:mb-6 relative">
-              Stay Updated
-              <span className="absolute bottom-0 left-0 w-10 sm:w-12 h-0.5 bg-[#01ffdb]"></span>
-            </h3>
-            <p className="text-gray-400 mb-2 sm:mb-4 text-sm sm:text-base">
-              Subscribe to our newsletter for the latest updates on events,
-              workshops, and cybersecurity news.
-            </p>
-            <div className="flex flex-col sm:h-11 sm:flex-row gap-2 sm:gap-0 md:w-full">
-              <input
-                type="email"
-                placeholder="Your email"
-                className="bg-gray-800 text-gray-200 lg:min-w-[10vw] px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-1 focus:ring-[#01ffdb] w-full "
-              />
-              <motion.button
-                className="cyber-button flex align-middle justify-center font-bold py-2 px-4 sm:px-6 rounded-lg md:w-full bg-[#01ffdb]/10 border border-[#01ffdb]/50 text-[#01ffdb] ml-0.5 sm:rounded-l  hover:bg-[#01ffdb]/20 text-xs"
-                transition-all
-                duration-300
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Subscribe
-              </motion.button>
-            </div>
-          </motion.div>
         </div>
       </div>
-
-      {/* Bottom bar with credits */}
-      <div className="border-t border-gray-800 py-6 sm:py-8">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-            <div className="text-gray-500 text-xs sm:text-sm mb-3 md:mb-0">
-              © 2025 CyberAnzen. All rights reserved.
-            </div>
-            <div className="text-gray-500 text-xs sm:text-sm">
-              <p>
-                Designed & Developed by{" "}
-                <span className="text-[#01ffdb]">Vetrivel</span> &{" "}
-                <span className="text-[#01ffdb]">Yogesh</span> &{" "}
-                <span className="text-[#01ffdb]">Jafrin Sam</span> | II year
-                2025
-                <br className="md:hidden" />
-                Department of Computer Science Cybersecurity
-              </p>
-            </div>
-          </div>
-
-          {/* Animated line */}
-          <motion.div
-            className="w-full h-0.5 bg-gradient-to-r from-transparent via-[#01ffdb]/30 to-transparent mt-6 sm:mt-8"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              repeatType: "reverse",
-            }}
-          />
-        </div>
-      </div>
-      <div className="block md:hidden h-12" />
     </footer>
   );
-};
+}
 
-export default React.memo(Footer);
+export const MemoizedFooter = React.memo(Footer);

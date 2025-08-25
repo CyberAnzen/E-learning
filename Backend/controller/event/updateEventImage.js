@@ -20,7 +20,7 @@ exports.updateEventImage = async (req, res) => {
         const event = await Event.findById(id);
 
         if (!event) {
-           fs.unlinkSync(path.join(process.cwd(), 'uploads', 'events', 'temp', image));
+           fs.unlinkSync(path.join(process.cwd(), 'public', 'events', 'temp', image));
             return res.status(404).json({
                 success: false,
                 message: 'Event not found'
@@ -28,13 +28,13 @@ exports.updateEventImage = async (req, res) => {
 
 
         }
-        const filePath = "uploads/events/temp/"; // Assuming the temp folder is where the file is uploaded
-        const outputPath = "uploads/events/images";
+        const filePath = "temp/events/"; // Assuming the temp folder is where the file is uploaded
+        const outputPath = "public/events/images";
         const conversionResult = await convertToWebP(image, filePath, outputPath);
 
         if (!conversionResult.success) {
             console.error('Image conversion failed:', conversionResult.message);
-            fs.unlinkSync(path.join(process.cwd(), 'uploads', 'events', 'temp', image));
+            fs.unlinkSync(path.join(process.cwd(), 'temp', 'events', image));
             return res.status(500).json({
                 success: false,
                 imageFailure: true,
@@ -44,14 +44,15 @@ exports.updateEventImage = async (req, res) => {
         }
         else if (conversionResult.success) {
             image = image.replace(/\.[^/.]+$/, ".webp");
-            const imagePath = path.join(outputPath, image);
+            const imagePath = "/events/images/"+image;
              const updatedEvent = await Event.findByIdAndUpdate(id, {
                 eventImage: image,
-                imagePath: imagePath
+                imagePath: imagePath,
+                updatedBy: req.user.username
             }, { new: true });
             
             try {
-                fs.unlinkSync(path.join(process.cwd(), 'uploads', 'events', 'images', event.eventImage));
+                fs.unlinkSync(path.join(process.cwd(), 'public', 'events', 'images', event.eventImage));
 
             } catch (error) {
                 oldImage = event.eventImage;
@@ -82,13 +83,13 @@ exports.updateEventImage = async (req, res) => {
             message: 'Error updating event image',
             error: error.message
         });
-        if (fs.existsSync(path.join(process.cwd(), 'uploads', 'events', 'temp',tempimage))) {
-        fs.unlinkSync(path.join(process.cwd(), 'uploads', 'events', 'temp',  tempimage));
+        if (fs.existsSync(path.join(process.cwd(), 'temp', 'events', tempimage))) {
+        fs.unlinkSync(path.join(process.cwd(), 'temp', 'events', tempimage));
         console.log('Temporary file deleted successfully');
         } 
         else if (errorStage === 1) {
              try {
-        fs.unlinkSync(path.join(process.cwd(), 'uploads', 'events', 'images', oldImage));
+        fs.unlinkSync(path.join(process.cwd(), 'public', 'events', 'images', oldImage));
         console.log('Old image deleted after failure');
         } catch (err) {
             console.error('Failed to delete old image after failure:', err.message);

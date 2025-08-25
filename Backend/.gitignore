@@ -14,8 +14,16 @@ logs
 uploads/events/images/**
 uploads/events/temp/**
 
+test
+
+testRun.js
+
 #public images
 public/** 
+
+#add public avator for git push
+#!public/avator/
+#!public/avator/**
 
 #temporary files
 temp/uploads/*/**

@@ -43,24 +43,24 @@ exports.signup = async (req, res) => {
       year,
       gender,
     } = req.body;
-
+   console.log("mobile", mobile);
     // Build the user information object
     const info = {
       username: username,
       password: hashed,
+      phoneNo: mobile,
+      email: email,
+      regNumber: regNumber,
+      officialEmail: officialEmail,
       userDetails: {
         name: fullName,
         dept: dept,
         section: section,
-        phoneNo: mobile,
-        email: email,
-        regNumber: regNumber,
         gender: gender,
-        officialEmail: officialEmail,
         year: year,
       },
     };
-
+   console.log("info", info);
     // Check for any missing fields
     const missingFields = findMissingFields(info);
     if (missingFields.length > 0) {
@@ -76,6 +76,8 @@ exports.signup = async (req, res) => {
       .status(200)
       .json({ message: "User created successfully", user: user.user_name });
   } catch (error) {
+    console.log(error);
+    
     res.status(500).json({ errors: error });
   }
 };

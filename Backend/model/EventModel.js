@@ -4,6 +4,7 @@ const eventSchema = new mongoose.Schema({
     eventName: { type: String, required: true },
     eventImage: { type: String, required: true },
     imagePath: { type: String, required: true },
+    updatedBy: { type: String },
     eventDetails: {
         description: { type: String, required: true },
         date: { type: Date, required: true },

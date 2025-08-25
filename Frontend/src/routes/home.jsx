@@ -1,4 +1,4 @@
-import { React, useEffect, useRef } from "react";
+import { React, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Shield,
@@ -15,6 +15,7 @@ export default function HomePage() {
   const featuresSectionRef = useRef();
   const touchStartY = useRef(null);
   const isScrolling = useRef(false);
+  const [heroCollapsed, setHeroCollapsed] = useState(false);
 
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
@@ -31,19 +32,33 @@ export default function HomePage() {
   };
 
   useEffect(() => {
+    // Initially lock page scroll so hero sits on top of everything
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     const handleScroll = (behavior = "smooth") => {
+      if (isScrolling.current || heroCollapsed) return;
       isScrolling.current = true;
+
+      // Collapse hero quickly and smoothly
+      setHeroCollapsed(true);
+
+      // Immediately allow scrolling on the body and scroll to content
+      document.body.style.overflow = prevOverflow || "";
+      // scroll the page to the next section so there's no visual gap
       window.scrollTo({
         top: window.innerHeight,
         behavior: behavior,
       });
+
+      // unlock the wheel after animation completes (shorter because we want it faster)
       setTimeout(() => {
         isScrolling.current = false;
-      }, 1000);
+      }, 600); // matches the faster transition below
     };
 
     const handleWheel = (e) => {
-      if (e.deltaY > 0 && !isScrolling.current) {
+      if (e.deltaY > 0 && !isScrolling.current && !heroCollapsed) {
         e.preventDefault();
         handleScroll();
       }
@@ -54,7 +69,7 @@ export default function HomePage() {
     };
 
     const handleTouchMove = (e) => {
-      if (!touchStartY.current || isScrolling.current) return;
+      if (!touchStartY.current || isScrolling.current || heroCollapsed) return;
 
       const touchY = e.touches[0].clientY;
       const deltaY = touchStartY.current - touchY; // Inverted calculation
@@ -63,13 +78,14 @@ export default function HomePage() {
       if (deltaY > 30) {
         // Swipe up detected
         e.preventDefault();
-        handleScroll(); // Changed from "auto" to default "smooth"
+        handleScroll();
         touchStartY.current = null;
       }
     };
 
     const hero = heroSectionRef.current;
     if (hero) {
+      // Make hero sit on top of everything initially
       hero.style.touchAction = "none"; // Disable default touch actions
       hero.addEventListener("wheel", handleWheel, { passive: false });
       hero.addEventListener("touchstart", handleTouchStart, { passive: false });
@@ -77,6 +93,7 @@ export default function HomePage() {
     }
 
     return () => {
+      document.body.style.overflow = prevOverflow || "";
       if (hero) {
         hero.style.touchAction = "";
         hero.removeEventListener("wheel", handleWheel);
@@ -84,6 +101,24 @@ export default function HomePage() {
         hero.removeEventListener("touchmove", handleTouchMove);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Add scroll listener to toggle hero state when user scrolls back to top
+  useEffect(() => {
+    const onScroll = () => {
+      if (window.scrollY === 0) {
+        // Slide hero back down (hero visible again)
+        setHeroCollapsed(false);
+        // Re-lock body scrolling briefly to keep hero behavior consistent
+        // (only if you want the original lock behavior on returning to top)
+        // Note: we avoid changing overflow here to keep UX smooth with app-level navbar
+      } else if (window.scrollY > 10) {
+        setHeroCollapsed(true);
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   // Add iOS-specific scroll lock
@@ -93,32 +128,33 @@ export default function HomePage() {
       document.body.style.overscrollBehavior = "";
     };
   }, []);
+
   useEffect(() => {
+    // Ensure at first load we are at top and hero visible
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
+      behavior: "auto",
     });
   }, []);
+
   return (
     <div className="bg-gradient-to-br from-black via-gray-900 to-black text-white">
-      {/* Hero Section - Landing Page */}
+      {/* Hero Section - Landing Page (fixed on top, will translate out on collapse) */}
       <section
         ref={heroSectionRef}
-        className="relative min-h-screen overflow-hidden"
+        className={`min-h-screen w-full overflow-hidden fixed inset-0 z-40 transform transition-transform duration-500 ease-in-out ${
+          heroCollapsed ? "-translate-y-full" : "translate-y-0"
+        }`}
       >
-        <div className="absolute inset-0 z-0">
+        <div className="absolute blur inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80"
             alt="Cybersecurity Background"
             className="w-full h-full object-cover"
             style={{ filter: "brightness(0.3)" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/70 to-gray-900" />
+          <div className="absolute inset-0 bg-gray-900/50" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-gray-900/20 to-black/30 transition-all duration-500 ease-in-out" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-gray-900/20 to-black/30 transition-all duration-500 ease-in-out" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-gray-900/20 to-black/30 transition-all duration-500 ease-in-out" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-gray-900/20 to-black/30 transition-all duration-500 ease-in-out" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-gray-900/20 to-black/30 transition-all duration-500 ease-in-out" />
 
         <div className="container mx-auto px-6 h-screen flex items-center relative z-10">
@@ -164,8 +200,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Scrollable Content Below */}
-      <div className="relative z-20" ref={featuresSectionRef}>
+      {/* Scrollable Content Below - pushed down by 100vh so hero covers first */}
+      <div
+        className="relative z-20"
+        ref={featuresSectionRef}
+        style={{ marginTop: "100vh" }}
+      >
         {/* Features Section */}
         <section className="py-20">
           <div className="container mx-auto px-6">

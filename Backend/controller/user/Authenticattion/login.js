@@ -1,11 +1,19 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+const ACCESS_SECRET = process.env.ACCESS_SECRET;
+const REFRESH_SECRET = process.env.REFRESH_SECRET;
+const RefreshToken = require("../../../model/RefreshTokenModel");
 const { User } = require("../../../model/UserModel");
-
 exports.login = async (req, res, next) => {
-  const { identifier, password, rememberMe } = req.body;
+  const { identifier, password, rememberMe, fp } = req.body;
+  const userAgent = req.headers["user-agent"];
+  const ipAddress =
+    req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+  // console.log(ipAddress, userAgent);
   try {
+    if (!fp)
+      return res.status(400).json({ message: "Fingerprint is required" });
+
     // Input validation
     if (!identifier || !password) {
       return res
@@ -16,9 +24,9 @@ exports.login = async (req, res, next) => {
     const user = await User.findOne({
       $or: [
         { username: identifier },
-        { "userDetails.regNumber": identifier },
-        { "userDetails.email": identifier },
-        { "userDetails.officialEmail": identifier },
+        { "regNumber": identifier },
+        { "email": identifier },
+        { "officialEmail": identifier },
       ],
     });
 
@@ -36,24 +44,38 @@ exports.login = async (req, res, next) => {
       username: user.username,
       role: user.userRole,
     };
-    const token = jwt.sign(payload, JWT_SECRET, {
-      expiresIn: rememberMe ? "20d" : "1h", // Matches the cookie's maxAge
-    });
 
-    // Set the token cookie
-    res.cookie("session_token", token, {
+    const access_token = jwt.sign(payload, ACCESS_SECRET, {
+      expiresIn: "15m",
+    });
+    const refresh_token = jwt.sign(payload, REFRESH_SECRET, {
+      expiresIn: rememberMe ? "20d" : "1h",
+    });
+    await RefreshToken.deleteOne({ userId: user._id, fp });
+
+    await RefreshToken.create({
+      token: refresh_token,
+      userId: user._id,
+      ip: ipAddress,
+      ua: userAgent,
+      rememberMe,
+      fp,
+      expiresAt: new Date(
+        Date.now() + (rememberMe ? 20 : 1) * 24 * 3600 * 1000
+      ),
+    });
+    res.cookie("refresh_token", refresh_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production" ? true : false,
-      sameSite: "strict",
-      maxAge: rememberMe ? 20 * 24 * 60 * 60 * 1000 : 3600000, // 20 days or 1 hour
-    });
-
-    // Set a separate cookie to store rememberMe flag (optional, for middleware to access)
-    res.cookie("user_token", rememberMe.toString(), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production" ? true : false,
-      sameSite: "strict",
+      sameSite: "Lax",
       maxAge: rememberMe ? 20 * 24 * 60 * 60 * 1000 : 3600000,
+    });
+
+    res.cookie("access_token", access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Lax",
+      maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // 10 years
     });
 
     return res.status(200).json({ message: "Login successful" });

@@ -36,10 +36,10 @@ exports.PasswordReset = async (req, res) => {
         // Update the user in User by matching the reg_no and checking for a matching email or official_email in user_details
         const user = await User.findOneAndUpdate(
           {
-            "userDetails.regNumber": otps.regNumber,
+            "regNumber": otps.regNumber,
             $or: [
-              { "userDetails.email": otps.email },
-              { "userDetails.officialEmail": otps.email },
+              { "email": otps.email },
+              { "officialEmail": otps.email },
             ],
           },
           { $set: { password: hashed } }

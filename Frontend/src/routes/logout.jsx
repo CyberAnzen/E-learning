@@ -1,17 +1,12 @@
 import React, { useEffect } from "react";
-import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
 
 const Logout = () => {
-  console.log("Before:", document.cookie);
+  const { logout } = useAppContext();
 
-  const navigate = useNavigate();
   useEffect(() => {
-    Cookies.remove("token", { path: "/login", domain: "localhost" });
-    navigate("/login");
-  }, []);
-
-  console.log("After: ", document.cookie); // Fixed typo from 'document' to 'document.cookie'
+    logout();
+  }, [logout]);
 
   return <div>Logging out...</div>;
 };

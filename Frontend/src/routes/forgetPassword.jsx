@@ -182,28 +182,30 @@ function ForgotPassword() {
     // Smooth scroll to top
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 
-    // Prevent scrolling
-    document.body.style.overflow = "hidden";
-    document.body.style.height = "100vh";
-    document.body.style.position = "fixed";
-    document.body.style.width = "100%";
-    document.documentElement.style.overflow = "hidden";
+    const isDesktop = window.innerWidth >= 768;
 
-    // Optional: Prevent touchmove to block scrolling more robustly
-    const preventTouchMove = (e) => e.preventDefault();
-    document.addEventListener("touchmove", preventTouchMove, {
-      passive: false,
-    });
+    if (isDesktop) {
+      // Lock scroll only on desktop
+      document.body.style.overflow = "hidden";
+      document.body.style.height = "100vh";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+      document.documentElement.style.overflow = "hidden";
 
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = "";
-      document.body.style.height = "";
-      document.body.style.position = "";
-      document.body.style.width = "";
-      document.documentElement.style.overflow = "";
-      document.removeEventListener("touchmove", preventTouchMove);
-    };
+      const preventTouchMove = (e) => e.preventDefault();
+      document.addEventListener("touchmove", preventTouchMove, {
+        passive: false,
+      });
+
+      return () => {
+        document.body.style.overflow = "";
+        document.body.style.height = "";
+        document.body.style.position = "";
+        document.body.style.width = "";
+        document.documentElement.style.overflow = "";
+        document.removeEventListener("touchmove", preventTouchMove);
+      };
+    }
   }, [step]);
 
   // useEffect to auto-submit when all OTP fields are filled
@@ -267,7 +269,7 @@ function ForgotPassword() {
   };
 
   return (
-    <div className="flex items-center -mt-13 justify-center px-4 sm:px-6 relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black h-[100vh] pt-10 pb-0 lg:pb-0">
+    <div className="flex items-center mt-[-.25rem]  justify-center px-4 sm:px-6 relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black h-[100vh] pt-10 pb-0 lg:pb-0">
       <ParticleBackground />
 
       {/* Cyberpunk grid overlay */}

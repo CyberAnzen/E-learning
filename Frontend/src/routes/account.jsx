@@ -93,15 +93,15 @@ export default function Account() {
       <div>
         <div className="drawer">
           <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-          <div className="drawer-content">
+          {/* <div className="drawer-content">
             <label
               htmlFor="my-drawer"
-              className="btn drawer-button bg-gradient-to-br from-gray-90  via-65% via-black to-gray-900 ml-0 mt-13 transition-all duration-300 ease-in-out transform hover:scale-102 hover:shadow-lg active:scale-95"
+              className="btn drawer-button bg-gradient-to-br from-gray-90 via-65% via-black to-gray-900 ml-0 transition-all duration-300 ease-in-out transform hover:scale-102 hover:shadow-lg active:scale-95"
             >
               <UserCog size={30} />
               More
             </label>
-          </div>
+          </div> */}
 
           <div className="drawer-side mt-20">
             <label

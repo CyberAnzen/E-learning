@@ -1,26 +1,27 @@
 const ClassificationModel = require("../../../model/ClassificationModel");
-const cacheManager = require('../../../cache/cacheManager');
+const cacheManager = require("../../../cache/cacheManager");
 //const customError = require("../../../utils/customError");
-
+const LessonModel = require("../../../model/LessonModel");
 exports.deleteClassification = async (req, res) => {
   const { id } = req.params;
   try {
     const deleted = await ClassificationModel.findByIdAndDelete(id);
     if (!deleted) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "Does not exist or Operation Failed" });
+      return res.status(404).json({
+        success: false,
+        message: "Does not exist or Operation Failed",
+      });
     }
+    await LessonModel.findByIdAndDelete({ classificationId: id });
+
     // Refresh the cache after deletion
-    let cacheStatus = await cacheManager.refreshCache('classificationCache');
+    let cacheStatus = await cacheManager.refreshCache("classificationCache");
     if (cacheStatus.success) {
       console.log(cacheStatus);
       console.log("cache.data", cacheStatus.data);
-      
-      
-      console.log('Cache refreshed successfully after deletion');
+
+      console.log("Cache refreshed successfully after deletion");
+
       return res.status(200).json({
         success: true,
         message: "Classification deleted successfully and cache refreshed",
@@ -29,7 +30,7 @@ exports.deleteClassification = async (req, res) => {
       console.error("Cache refresh failed after deletion:", cacheStatus.error);
       return res.status(207).json({
         success: false,
-        message: "Classification deleted, but cache refresh failed", 
+        message: "Classification deleted, but cache refresh failed",
         error: cacheStatus.error || "Unknown error",
       });
     }

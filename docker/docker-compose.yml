@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis-cache
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: >
+      redis-server
+      --save ""                        
+      --appendonly no                  
+      --maxmemory ${REDIS_MAXMEMORY:-256mb}  
+      --maxmemory-policy allkeys-lru   
+      --requirepass ${REDIS_PASSWORD}  
+      --bind 0.0.0.0                   
+      --protected-mode yes             
+      --tcp-keepalive 300              
+      --daemonize no                   
+    environment:
+      TZ: ${TZ:-UTC}
+    networks:
+      - redis-network
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD} ping | grep PONG"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0:${REDIS_PASSWORD}
+      - HTTP_USER=${REDIS_COMMANDER_USER}
+      - HTTP_PASSWORD=${REDIS_COMMANDER_PASSWORD}
+    ports:
+      - "${REDIS_COMMANDER_PORT:-8081}:8081"
+    networks:
+      - redis-network
+    depends_on:
+      redis:
+        condition: service_healthy
+
+networks:
+  redis-network:
+    driver: bridge

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, AlertTriangle } from "lucide-react";
 
@@ -10,6 +10,27 @@ const DeleteModal = ({
   modaltitle = "Delete Confirmation",
   message = "Deletion Cannot be Undone. Press delete to delete permenantly",
 }) => {
+  useEffect(() => {
+    if (showDeleteConfirm) {
+      // Freeze scrolling on all devices
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+    } else {
+      // Restore when modal is closed
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    }
+
+    // Cleanup in case component unmounts
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    };
+  }, [showDeleteConfirm]);
+
   return (
     <AnimatePresence>
       {showDeleteConfirm && (
@@ -24,6 +45,7 @@ const DeleteModal = ({
           <motion.div
             initial={{ scale: 0.95, y: 10 }}
             animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.95, y: 10 }}
             transition={{
               type: "spring",
               damping: 20,

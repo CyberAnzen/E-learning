@@ -1,11 +1,11 @@
 import React from "react";
 import { CheckCircle, Circle, Target } from "lucide-react";
 
-const RadarProgress = ({ overallProgress, tasks, currentTaskId }) => {
+const RadarProgress = ({ overallProgress=0, tasks=["task1"], currentTaskId="id not specified" }) => {
   // Calculate positions for tasks around the circle
   const getTaskPosition = (index, total) => {
     const angle = (index / total) * 2 * Math.PI - Math.PI / 2; // Start from top
-    const radius = 85; // Radius for task positioning
+    const radius = 0; // Radius for task positioning
     const x = 50 + radius * Math.cos(angle);
     const y = 50 + radius * Math.sin(angle);
     return { x, y, angle };
