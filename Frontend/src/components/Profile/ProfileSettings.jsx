@@ -373,29 +373,39 @@ export default function ProfileSettings() {
                   onClick={() => setYearOpen(!yearOpen)}
                   className={`${inputStyle} text-left cursor-pointer`}
                 >
-                  {formData.year || "Select Year"}
+                  {
+                    // Find the label based on numeric value, default to "Select Year"
+                    [
+                      { label: "First Year", value: 1 },
+                      { label: "Second Year", value: 2 },
+                      { label: "Third Year", value: 3 },
+                      { label: "Fourth Year", value: 4 },
+                    ].find((y) => y.value === formData.year)?.label ||
+                      "Select Year"
+                  }
                 </button>
 
                 {yearOpen && (
                   <>
                     <ul className="absolute z-30 w-full mt-1 bg-[#17181A] border border-[#00ffff] rounded-md shadow-lg">
                       {[
-                        "First Year",
-                        "Second Year",
-                        "Third Year",
-                        "Fourth Year",
+                        { label: "First Year", value: 1 },
+                        { label: "Second Year", value: 2 },
+                        { label: "Third Year", value: 3 },
+                        { label: "Fourth Year", value: 4 },
                       ].map((year) => (
                         <li
-                          key={year}
+                          key={year.value}
                           onClick={() => {
-                            handleInputChange({
-                              target: { name: "year", value: year },
-                            });
+                            setFormData((prev) => ({
+                              ...prev,
+                              year: year.value, // numeric value sent to backend
+                            }));
                             setYearOpen(false);
                           }}
                           className="px-3 py-2 cursor-pointer hover:bg-[#00ffff] hover:text-black"
                         >
-                          {year}
+                          {year.label}
                         </li>
                       ))}
                     </ul>
