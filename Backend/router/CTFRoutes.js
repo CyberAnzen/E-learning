@@ -34,22 +34,27 @@ const { getHint } = require("../controller/CTF/Challenges/User/getHints");
 //Admin Routes
 router.get("/admin/:ChallengeId",
   xssSanitizer(),
-  Auth(), getChallengeAdmin);
+  Auth({ requireAdmin: true }),
+   getChallengeAdmin);
+
+
 router.post("/admin/create",
-   dynamicFileUpload({
-    type: "multi",
-    tempPath: Path.join("temp","CTF_Challenges"),
-    para: "attachments",
-    maxCount: 10,
-    randomFileName: false,
-    randomPathName: true,
-}),
-xssSanitizer(),
+  Auth({ requireAdmin: true }),
+    dynamicFileUpload({
+      type: "multi",
+      tempPath: Path.join("temp","CTF_Challenges"),
+      para: "attachments",
+      maxCount: 10,
+      randomFileName: false,
+      randomPathName: true,
+      }),
+    xssSanitizer(),
     randomPathName(Path.join("public","CTF","Challenges"), "title"),
-   CreateChallenges);
+     CreateChallenges);
    
 router.patch("/admin/update/:ChallengeId", 
   xssSanitizer(),
+  Auth({ requireAdmin: true }),
   dynamicFileUpload({
     type: "multi",
     tempPath: Path.join("temp","CTF_Challenges"),
@@ -57,10 +62,13 @@ router.patch("/admin/update/:ChallengeId",
     maxCount: 10,
     randomFileName: false,
     randomPathName: true,
-}),
-    updateRandomPath(Path.join("public","CTF","Challenges"),"existingAttachments", "title")  ,
-     updateChallenge);
+  }),
+  updateRandomPath(Path.join("public","CTF","Challenges"),"existingAttachments", "title")  ,
+  updateChallenge);
+
+
 router.delete("/admin/delete/:ChallengeId", 
+  Auth({ requireAdmin: true }),
   xssSanitizer(),
   deleteChallenge);
 
