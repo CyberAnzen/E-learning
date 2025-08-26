@@ -38,7 +38,7 @@ exports.Auth = (options = {}) => {
 
     // 1) Timestamp check (optional)
     if (timestamp) {
-      const tsHeader = req.headers["timestamp"] || req.query.timestamp;
+      const tsHeader = req.headers["timestamp"] || req.headers["Timestamp"];
       if (!tsHeader)
         return res.status(400).json({ error: "Missing timestamp header" });
 
