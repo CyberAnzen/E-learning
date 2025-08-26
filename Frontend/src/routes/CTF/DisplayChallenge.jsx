@@ -287,7 +287,7 @@ function DisplayChallenge() {
         ? BACKEND_URL.slice(0, -1)
         : BACKEND_URL;
       const path = url.startsWith("/") ? url : `/${url}`;
-      return encodeURI(`${base}${path}`);
+      return encodeURI(`${base}/public/${path}`);
     }
   };
 
