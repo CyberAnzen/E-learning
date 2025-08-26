@@ -90,7 +90,7 @@ deasync.loopWhile(() => !initDone);
 //     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
 //   })
 // );
-app.use(cors({ origin: true, credentials: true })); // Development CORS configuration
+app.use(cors({ origin: "https://cyberanzen.netlify.app", credentials: true })); // Development CORS configuration
 app.use(helmet()); // Adds common security headers
 
 // Parser middlewares
