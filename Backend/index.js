@@ -80,26 +80,39 @@ deasync.loopWhile(() => !initDone);
 const loggerWorker = new Worker("./logger/controller/logger.js");
 const logInBackground = createLogWorker(loggerWorker);
 
+// app.use(
+//   cors({
+//     origin: FRONTEND_URL, // Only allow your frontend
+//     credentials: true, // Allow cookies and auth headers
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed HTTP methods
+//     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"], // Allowed headers
+//     optionsSuccessStatus: 200, // For legacy browsers
+//   })
+// );
+
+// // Handle preflight requests globally
+// app.options(
+//   "*",
+//   cors({
+//     origin: FRONTEND_URL,
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
+//   })
+// );
+const cors = require("cors");
+
 app.use(
   cors({
-    origin: FRONTEND_URL, // Only allow your frontend
-    credentials: true, // Allow cookies and auth headers
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed HTTP methods
-    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"], // Allowed headers
-    optionsSuccessStatus: 200, // For legacy browsers
+    origin: "*", // Allow all origins
+    credentials: true, // Optional: only needed if you send cookies/auth headers
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
 
-// Handle preflight requests globally
-app.options(
-  "*",
-  cors({
-    origin: FRONTEND_URL,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
-  })
-);
+// Preflight requests
+app.options("*", cors());
+
 app.use(helmet()); // Adds common security headers
 
 // Parser middlewares
