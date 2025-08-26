@@ -2,7 +2,7 @@ import React from "react";
 import { Users } from "lucide-react";
 import MemberCard from "./MemberCard";
 import InviteCard from "./InviteCard";
-import RefreshButton from "../ui/Refreshbutton";
+import RefreshButton from "../ui/RefreshButton";
 export default function TeamMembers({ team }) {
   const teamMembers = team.teamMembers || [];
   const teamLeader = team.teamLeader;
