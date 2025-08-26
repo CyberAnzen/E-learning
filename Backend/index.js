@@ -60,6 +60,7 @@ const gracefulShutdown = require("./utilies/gracefulShutdown");
 
 const FRONTEND_URL =
   process.env.FRONTEND_URL || "https://cyberanzen.netlify.app";
+
 let server = http.createServer(app);
 
 //*************************************************************************** */
@@ -104,16 +105,24 @@ const logInBackground = createLogWorker(loggerWorker);
 
 app.use(
   cors({
-    origin: "*", // Allow all origins
-    credentials: true, // Optional: only needed if you send cookies/auth headers
+    origin: FRONTEND_URL,
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
   })
 );
 
-// Preflight requests
-app.options("*", cors());
+app.options(
+  "*",
+  cors({
+    origin: FRONTEND_URL,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
+  })
+);
 
-app.use(helmet()); // Adds common security headers
+// app.use(helmet()); // Adds common security headers
 
 // Parser middlewares
 app.use(cookieParser());
