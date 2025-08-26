@@ -119,7 +119,7 @@ app.use(requestLogger(logInBackground));
 
 // Serve only challenge files (not full public folder)
 app.use(
-  "/",
+  "/public",
   downloadLimiter,
   // Auth({ timestamp: false }),
   express.static(path.join(__dirname, "public/"), {
