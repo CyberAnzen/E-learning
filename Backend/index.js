@@ -16,17 +16,15 @@ const deasync = require("deasync");
 const ConnectDataBase = require("./config/connectDataBase");
 const { connectRedis } = require("./redis/config/connectRedis");
 const initializeCaches = require("./cache/initCache");
-const initLeaderboard = require("./redis/initLeaderboard"); 
+const initLeaderboard = require("./redis/initLeaderboard");
 const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
 
-    //initLeaderboardSocket(server);
-    
+//initLeaderboardSocket(server);
+
 async function initializeServer() {
   try {
-    
-    await ConnectDataBase()
+    await ConnectDataBase();
     // Database and Cache initialization
-    
 
     /*
       Redis connection
@@ -37,14 +35,12 @@ async function initializeServer() {
     // attach leaderboard websocket to same HTTP server
 
     await initLeaderboard(); // Initialize leaderboard from MongoDB
-    LeaderboardManager.attachToServer(server)
+    LeaderboardManager.attachToServer(server);
   } catch (err) {
     console.error("❌ Initialization error:", err);
     process.exit(1); // Exit if initialization fails
   }
 }
-
-
 
 // Routes
 const userRoutes = require("./router/userRoutes");
@@ -62,7 +58,8 @@ const requestLogger = require("./middleware/requestLogger");
 const errorLogger = require("./middleware/errorLogger");
 const gracefulShutdown = require("./utilies/gracefulShutdown");
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173"; // Fallback to localhost:3000 for development
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "https://cyberanzen.netlify.app";
 let server = http.createServer(app);
 
 //*************************************************************************** */
@@ -70,27 +67,39 @@ let server = http.createServer(app);
 // Start server after initialization
 let initDone = false;
 initializeServer()
-  .then(() => { initDone = true; })
-  .catch(err => { throw err; });
+  .then(() => {
+    initDone = true;
+  })
+  .catch((err) => {
+    throw err;
+  });
 deasync.loopWhile(() => !initDone);
 //-***************************************************************************************
 
-    // Logger worker setup
-    const loggerWorker = new Worker("./logger/controller/logger.js");
-    const logInBackground = createLogWorker(loggerWorker);
+// Logger worker setup
+const loggerWorker = new Worker("./logger/controller/logger.js");
+const logInBackground = createLogWorker(loggerWorker);
 
+app.use(
+  cors({
+    origin: FRONTEND_URL, // Only allow your frontend
+    credentials: true, // Allow cookies and auth headers
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed HTTP methods
+    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"], // Allowed headers
+    optionsSuccessStatus: 200, // For legacy browsers
+  })
+);
 
-// Security Middlewares
-// Production CORS configuration (commented out)
-// app.use(
-//   cors({
-//     origin: FRONTEND_URL, // Explicitly set the frontend origin
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
-//   })
-// );
-app.use(cors({ origin: "https://cyberanzen.netlify.app", credentials: true })); // Development CORS configuration
+// Handle preflight requests globally
+app.options(
+  "*",
+  cors({
+    origin: FRONTEND_URL,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
+  })
+);
 app.use(helmet()); // Adds common security headers
 
 // Parser middlewares
@@ -108,30 +117,6 @@ const downloadLimiter = rateLimit({
 // Middleware to log requests
 app.use(requestLogger(logInBackground));
 
-// CSRF route
-app.get(
-  "/api/auth/csrf-token",
-  Auth({ _CSRF: false }),
-  csrfProtection,
-  (req, res) => {
-    res.json({ csrfToken: req.csrfToken() });
-  }
-);
-
-// Routes
-// app.use("/api/classification", classification);
-// app.use("/api/lesson", lesson);
-// app.use("/api/answer", validate);
-// app.use("/api/image", require("./router/imageRoutes"));
-// app.use("/api/event", event);
-
-// app.use("/api/event", xssSanitizer(), event);
-app.use("/api/user", userRoutes);
-app.use("/api/profile", profile);
-app.use("/api/challenge", CTF);
-app.use("/api/team", TeamRoutes);
-
-
 // Serve only challenge files (not full public folder)
 app.use(
   "/",
@@ -146,7 +131,7 @@ app.use(
       res.setHeader(
         "Content-Disposition",
         `attachment; filename="${fileName}"`
-      ); 
+      );
       res.setHeader("X-Content-Type-Options", "nosniff");
       // Ensure CORS headers are set for static files
       // res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
@@ -155,6 +140,28 @@ app.use(
     },
   })
 );
+// Routes
+// app.use("/api/classification", classification);
+// app.use("/api/lesson", lesson);
+// app.use("/api/answer", validate);
+// app.use("/api/image", require("./router/imageRoutes"));
+// app.use("/api/event", event);
+
+// app.use("/api/event", xssSanitizer(), event);
+app.use("/api/user", userRoutes);
+app.use("/api/profile", profile);
+app.use("/api/challenge", CTF);
+app.use("/api/team", TeamRoutes);
+// CSRF route
+app.get(
+  "/api/auth/csrf-token",
+  // Auth({ _CSRF: false }),
+  csrfProtection,
+  (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+  }
+);
+
 // app.post("/api/auth/verify-captcha", async (req, res) => {
 //   try {
 //     const token = req.body["cf-turnstile-response"]; // comes from form
@@ -199,8 +206,12 @@ app.use(errorLogger(logInBackground));
 
 let cachesDone = false;
 initializeCaches()
-  .then(() => { cachesDone = true; })
-  .catch(err => { throw err; });
+  .then(() => {
+    cachesDone = true;
+  })
+  .catch((err) => {
+    throw err;
+  });
 deasync.loopWhile(() => !cachesDone);
 
 server.listen(port, () => {
