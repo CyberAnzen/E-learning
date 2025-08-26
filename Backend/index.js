@@ -103,24 +103,28 @@ const logInBackground = createLogWorker(loggerWorker);
 // );
 //const cors = require("cors");
 
-app.use(
-  cors({
-    origin: FRONTEND_URL,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
-  })
-);
+const corsOptions = {
+  origin: FRONTEND_URL, // must be exact, not '*'
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-CSRF-Token",
+    "User-Agent",
+    "Timestamp",
+    "timestamp",
+    "x-client-fp",
+    "csrf-token",
+  ],
+  optionsSuccessStatus: 200, // for legacy browsers
+};
 
-app.options(
-  "*",
-  cors({
-    origin: FRONTEND_URL,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
-  })
-);
+// Handle preflight globally
+app.options("*", cors(corsOptions));
+
+// Use CORS for all routes
+app.use(cors(corsOptions));
 
 // app.use(helmet()); // Adds common security headers
 
