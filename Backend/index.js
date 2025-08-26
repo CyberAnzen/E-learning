@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const helmet = require("helmet");
-// const { Auth } = require("./middleware/Auth");
+const { Auth } = require("./middleware/Auth");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const { Worker } = require("worker_threads");
@@ -103,8 +103,9 @@ const logInBackground = createLogWorker(loggerWorker);
 // );
 //const cors = require("cors");
 
+// ✅ CORS OPTIONS - allow only the headers you specify
 const corsOptions = {
-  origin: FRONTEND_URL, // must be exact, not '*'
+  origin: FRONTEND_URL,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: [
@@ -117,14 +118,22 @@ const corsOptions = {
     "x-client-fp",
     "csrf-token",
   ],
-  optionsSuccessStatus: 200, // for legacy browsers
+  optionsSuccessStatus: 200,
 };
 
-// Handle preflight globally
-app.options("*", cors(corsOptions));
+// ✅ Apply CORS only to API routes
+app.use("/api", cors(corsOptions));
 
-// Use CORS for all routes
-app.use(cors(corsOptions));
+// ✅ Handle preflight requests only for API routes
+app.options("/api/*", cors(corsOptions));
+
+// ✅ Block preflight leakage outside /api
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(403); // forbid non-API OPTIONS
+  }
+  next();
+});
 
 // app.use(helmet()); // Adds common security headers
 
@@ -147,7 +156,7 @@ app.use(requestLogger(logInBackground));
 app.use(
   "/public",
   downloadLimiter,
-  // Auth({ timestamp: false }),
+  Auth({ timestamp: false }),
   express.static(path.join(__dirname, "public/"), {
     dotfiles: "deny", // Prevent access to hidden files
     index: false, // Disable directory listing
@@ -181,7 +190,7 @@ app.use("/api/team", TeamRoutes);
 // CSRF route
 app.get(
   "/api/auth/csrf-token",
-  // Auth({ _CSRF: false }),
+  Auth({ _CSRF: false }),
   csrfProtection,
   (req, res) => {
     res.json({ csrfToken: req.csrfToken() });
