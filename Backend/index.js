@@ -100,7 +100,7 @@ const logInBackground = createLogWorker(loggerWorker);
 //     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
 //   })
 // );
-const cors = require("cors");
+//const cors = require("cors");
 
 app.use(
   cors({
