@@ -1,8 +1,9 @@
-Content-Security-Policy:
+add_header Content-Security-Policy "
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://app.rylanleader.site;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   img-src 'self' data: https:;
   font-src 'self' https://fonts.gstatic.com;
-  connect-src 'self' https://82.29.164.17 wss://82.29.164.17 https:;
+  connect-src 'self' https://app.rylanleader.site wss://app.rylanleader.site;
   frame-ancestors 'none';
+" always;
