@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const helmet = require("helmet");
-const { Auth } = require("./middleware/Auth");
+// const { Auth } = require("./middleware/Auth");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const { Worker } = require("worker_threads");
@@ -121,7 +121,7 @@ app.use(requestLogger(logInBackground));
 app.use(
   "/",
   downloadLimiter,
-  Auth({ timestamp: false }),
+  // Auth({ timestamp: false }),
   express.static(path.join(__dirname, "public/"), {
     dotfiles: "deny", // Prevent access to hidden files
     index: false, // Disable directory listing
