@@ -10,7 +10,7 @@ const ClearCookies = async (res) => {
     path: "/",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production" ? true : false,
-    sameSite: "Lax",
+    sameSite: "none",
   });
 
   // Clear the rememberMe cookie
@@ -19,7 +19,7 @@ const ClearCookies = async (res) => {
     path: "/",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production" ? true : false,
-    sameSite: "Lax",
+    sameSite: "none",
   });
   // Clear the CSRF token
   res.cookie("_csrf", "", {
@@ -27,7 +27,7 @@ const ClearCookies = async (res) => {
     path: "/",
     httpOnly: false, // CSRF tokens are usually accessible by JS
     secure: process.env.NODE_ENV === "production",
-    sameSite: "Lax",
+    sameSite: "none",
   });
 };
 exports.Auth = (options = {}) => {
@@ -38,7 +38,7 @@ exports.Auth = (options = {}) => {
 
     // 1) Timestamp check (optional)
     if (timestamp) {
-      const tsHeader = req.headers["timestamp"] || req.query.timestamp;
+      const tsHeader = req.headers["timestamp"] || req.headers["Timestamp"];
       if (!tsHeader)
         return res.status(400).json({ error: "Missing timestamp header" });
 
@@ -155,7 +155,7 @@ exports.Auth = (options = {}) => {
         res.cookie("refresh_token", refresh_token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: "Lax",
+          sameSite: "none",
           maxAge: 3600000,
         });
         stored.ip = ip;
@@ -180,7 +180,7 @@ exports.Auth = (options = {}) => {
           res.cookie("refresh_token", refresh_token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production" ? true : false,
-            sameSite: "Lax",
+            sameSite: "none",
             maxAge: 20 * 24 * 60 * 60 * 1000,
           });
           stored.ip = ip;
@@ -206,7 +206,7 @@ exports.Auth = (options = {}) => {
       res.cookie("access_token", access_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "Lax",
+        sameSite: "none",
         maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // 10 years
       });
 

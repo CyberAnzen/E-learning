@@ -7,8 +7,13 @@ const {
   answerSubmission,
 } = require("../controller/learn/question/answerSubmission");
 const { Auth } = require("../middleware/Auth");
+const xssSanitizer = require("../middleware/xssSanitizer");
 
-router.post("/validate", Auth(), answerValidation);
-router.post("/submit", Auth(), answerSubmission);
+router.post("/validate",
+  xssSanitizer(),
+  Auth(), answerValidation);
+router.post("/submit", 
+  xssSanitizer(),
+  Auth(), answerSubmission);
 
 module.exports = router;

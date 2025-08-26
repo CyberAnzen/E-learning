@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const helmet = require("helmet");
-const { Auth } = require("./middleware/Auth");
+// const { Auth } = require("./middleware/Auth");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const { Worker } = require("worker_threads");
@@ -16,17 +16,15 @@ const deasync = require("deasync");
 const ConnectDataBase = require("./config/connectDataBase");
 const { connectRedis } = require("./redis/config/connectRedis");
 const initializeCaches = require("./cache/initCache");
-const initLeaderboard = require("./redis/initLeaderboard"); 
+const initLeaderboard = require("./redis/initLeaderboard");
 const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
 
-    //initLeaderboardSocket(server);
-    
+//initLeaderboardSocket(server);
+
 async function initializeServer() {
   try {
-    
-    await ConnectDataBase()
+    await ConnectDataBase();
     // Database and Cache initialization
-    
 
     /*
       Redis connection
@@ -37,14 +35,12 @@ async function initializeServer() {
     // attach leaderboard websocket to same HTTP server
 
     await initLeaderboard(); // Initialize leaderboard from MongoDB
-    LeaderboardManager.attachToServer(server)
+    LeaderboardManager.attachToServer(server);
   } catch (err) {
     console.error("❌ Initialization error:", err);
     process.exit(1); // Exit if initialization fails
   }
 }
-
-
 
 // Routes
 const userRoutes = require("./router/userRoutes");
@@ -62,7 +58,9 @@ const requestLogger = require("./middleware/requestLogger");
 const errorLogger = require("./middleware/errorLogger");
 const gracefulShutdown = require("./utilies/gracefulShutdown");
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173"; // Fallback to localhost:3000 for development
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "https://cyberanzen.netlify.app";
+
 let server = http.createServer(app);
 
 //*************************************************************************** */
@@ -70,28 +68,65 @@ let server = http.createServer(app);
 // Start server after initialization
 let initDone = false;
 initializeServer()
-  .then(() => { initDone = true; })
-  .catch(err => { throw err; });
+  .then(() => {
+    initDone = true;
+  })
+  .catch((err) => {
+    throw err;
+  });
 deasync.loopWhile(() => !initDone);
 //-***************************************************************************************
 
-    // Logger worker setup
-    const loggerWorker = new Worker("./logger/controller/logger.js");
-    const logInBackground = createLogWorker(loggerWorker);
+// Logger worker setup
+const loggerWorker = new Worker("./logger/controller/logger.js");
+const logInBackground = createLogWorker(loggerWorker);
 
-
-// Security Middlewares
-// Production CORS configuration (commented out)
 // app.use(
 //   cors({
-//     origin: FRONTEND_URL, // Explicitly set the frontend origin
+//     origin: FRONTEND_URL, // Only allow your frontend
+//     credentials: true, // Allow cookies and auth headers
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed HTTP methods
+//     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"], // Allowed headers
+//     optionsSuccessStatus: 200, // For legacy browsers
+//   })
+// );
+
+// // Handle preflight requests globally
+// app.options(
+//   "*",
+//   cors({
+//     origin: FRONTEND_URL,
 //     credentials: true,
 //     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 //     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
 //   })
 // );
-app.use(cors({ origin: true, credentials: true })); // Development CORS configuration
-app.use(helmet()); // Adds common security headers
+//const cors = require("cors");
+
+const corsOptions = {
+  origin: FRONTEND_URL, // must be exact, not '*'
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-CSRF-Token",
+    "User-Agent",
+    "Timestamp",
+    "timestamp",
+    "x-client-fp",
+    "csrf-token",
+  ],
+  optionsSuccessStatus: 200, // for legacy browsers
+};
+
+// Handle preflight globally
+app.options("*", cors(corsOptions));
+
+// Use CORS for all routes
+app.use(cors(corsOptions));
+
+// app.use(helmet()); // Adds common security headers
 
 // Parser middlewares
 app.use(cookieParser());
@@ -108,16 +143,29 @@ const downloadLimiter = rateLimit({
 // Middleware to log requests
 app.use(requestLogger(logInBackground));
 
-// CSRF route
-app.get(
-  "/api/auth/csrf-token",
-  Auth({ _CSRF: false }),
-  csrfProtection,
-  (req, res) => {
-    res.json({ csrfToken: req.csrfToken() });
-  }
+// Serve only challenge files (not full public folder)
+app.use(
+  "/public",
+  downloadLimiter,
+  // Auth({ timestamp: false }),
+  express.static(path.join(__dirname, "public/"), {
+    dotfiles: "deny", // Prevent access to hidden files
+    index: false, // Disable directory listing
+    maxAge: "1h", // Cache for 1 hour
+    setHeaders: (res, filePath) => {
+      const fileName = path.basename(filePath);
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${fileName}"`
+      );
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      // Ensure CORS headers are set for static files
+      // res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
+      res.setHeader("Access-Control-Allow-Methods", "GET");
+      res.setHeader("Access-Control-Allow-Headers", "Authorization");
+    },
+  })
 );
-
 // Routes
 // app.use("/api/classification", classification);
 // app.use("/api/lesson", lesson);
@@ -130,31 +178,16 @@ app.use("/api/user", userRoutes);
 app.use("/api/profile", profile);
 app.use("/api/challenge", CTF);
 app.use("/api/team", TeamRoutes);
-
-
-// Serve only challenge files (not full public folder)
-app.use(
-  "/",
-  downloadLimiter,
-  Auth({ timestamp: false }),
-  express.static(path.join(__dirname, "public/"), {
-    dotfiles: "deny", // Prevent access to hidden files
-    index: false, // Disable directory listing
-    maxAge: "1h", // Cache for 1 hour
-    setHeaders: (res, filePath) => {
-      const fileName = path.basename(filePath);
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${fileName}"`
-      ); 
-      res.setHeader("X-Content-Type-Options", "nosniff");
-      // Ensure CORS headers are set for static files
-      // res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
-      res.setHeader("Access-Control-Allow-Methods", "GET");
-      res.setHeader("Access-Control-Allow-Headers", "Authorization");
-    },
-  })
+// CSRF route
+app.get(
+  "/api/auth/csrf-token",
+  // Auth({ _CSRF: false }),
+  csrfProtection,
+  (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+  }
 );
+
 // app.post("/api/auth/verify-captcha", async (req, res) => {
 //   try {
 //     const token = req.body["cf-turnstile-response"]; // comes from form
@@ -199,8 +232,12 @@ app.use(errorLogger(logInBackground));
 
 let cachesDone = false;
 initializeCaches()
-  .then(() => { cachesDone = true; })
-  .catch(err => { throw err; });
+  .then(() => {
+    cachesDone = true;
+  })
+  .catch((err) => {
+    throw err;
+  });
 deasync.loopWhile(() => !cachesDone);
 
 server.listen(port, () => {

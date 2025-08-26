@@ -32,7 +32,9 @@ const {
 const { getHint } = require("../controller/CTF/Challenges/User/getHints");
 
 //Admin Routes
-router.get("/admin/:ChallengeId", Auth(), getChallengeAdmin);
+router.get("/admin/:ChallengeId",
+  xssSanitizer(),
+  Auth(), getChallengeAdmin);
 router.post("/admin/create",
    dynamicFileUpload({
     type: "multi",
@@ -42,10 +44,12 @@ router.post("/admin/create",
     randomFileName: false,
     randomPathName: true,
 }),
+xssSanitizer(),
     randomPathName(Path.join("public","CTF","Challenges"), "title"),
    CreateChallenges);
    
 router.patch("/admin/update/:ChallengeId", 
+  xssSanitizer(),
   dynamicFileUpload({
     type: "multi",
     tempPath: Path.join("temp","CTF_Challenges"),
@@ -56,14 +60,23 @@ router.patch("/admin/update/:ChallengeId",
 }),
     updateRandomPath(Path.join("public","CTF","Challenges"),"existingAttachments", "title")  ,
      updateChallenge);
-router.delete("/admin/delete/:ChallengeId", deleteChallenge);
+router.delete("/admin/delete/:ChallengeId", 
+  xssSanitizer(),
+  deleteChallenge);
 
 //User
-router.get("/", getallChallenge);
-router.get("/:ChallengeId", Auth(), getChallenge);
-router.get("/:ChallengeId/hint/:hintId", Auth(), getHint);
+router.get("/", 
+  xssSanitizer(),
+  getallChallenge);
+router.get("/:ChallengeId", 
+  xssSanitizer(),
+  Auth(), getChallenge);
+router.get("/:ChallengeId/hint/:hintId",
+  xssSanitizer(),
+  Auth(), getHint);
 router.post(
   "/:ChallengeId/validateFlag",
+  xssSanitizer(),
   Auth(),
   require("../controller/CTF/Challenges/User/validateFlag").validateFlag
 );

@@ -4,12 +4,11 @@ const CTF_LeaderBoard = require("../model/CTF_LeaderBoardModel");
 const { writeLeaderboardEntry } = require("./writeLeaderboardEntry");
 const { clearLeaderboard } = require("./clearLeaderboard");
 async function initLeaderboard() {
-
   console.log("🔄 Initializing leaderboard from MongoDB...");
 
   try {
     // Clear old Redis data
-     await clearLeaderboard()
+    await clearLeaderboard();
 
     // Get all leaderboard entries from MongoDB
     const allEntries = await CTF_LeaderBoard.find().lean();
@@ -23,11 +22,21 @@ async function initLeaderboard() {
     for (const entry of allEntries) {
       const score = entry.total_score || 0;
       const teamName = entry.identifierName;
+      const identifierId = entry.identifierId;
+
+      if (!teamName || !identifierId) {
+        console.warn(
+          `⚠️ Skipping leaderboard entry due to missing values:`,
+          entry
+        );
+        continue;
+      }
+
       console.log(`  - Loading: ${teamName} -> ${score}`);
-      
+
       await writeLeaderboardEntry(
         teamName,
-        entry.identifierId,
+        identifierId,
         score,
         entry.identifier === "team",
         entry.updatedAt || new Date()
