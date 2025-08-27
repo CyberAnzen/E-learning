@@ -47,8 +47,13 @@ exports.getHint = async (req, res) => {
     });
   } catch (error) {
     console.error("Hint fetching error:", error);
+    if(process.env.NODE_ENV !== 'production') {
+      return res.status(500).json({ error: error.message || "Internal server error" });
+    }
     return res
       .status(400)
-      .json({ message: "Error fetching hint", error: error.message || error });
+      .json({ message: "Error fetching hint", 
+      //error: error.message || error 
+      });
   }
 };

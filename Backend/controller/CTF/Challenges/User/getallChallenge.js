@@ -22,6 +22,11 @@ exports.getallChallenge = async (req, res) => {
     });
   } catch (error) {
     console.error("Challenges fetching error:", error);
-    return res.status(400).json({ message: "Challenges Not found", error });
+    if(process.env.NODE_ENV !== 'production') {
+      return res.status(500).json({ error: error.message || "Internal server error" });
+    }
+    return res.status(400).json({ message: "Challenges Not found", 
+      //error 
+    });
   }
 };

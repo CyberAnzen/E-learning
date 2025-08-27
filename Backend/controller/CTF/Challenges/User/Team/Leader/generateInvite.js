@@ -13,8 +13,11 @@ exports.generateInvite = async (req, res) => {
       data: result, // Contains memberId and inviteCode
     });
   } catch (error) {
-    res.status(400).json({
-      message: error.message || "Something went wrong",
+    if(process.env.NODE_ENV !== 'production') {
+      return res.status(500).json({ message:"Internal server error" ,error: error.message ,});
+    }
+    return res.status(400).json({
+      message:  "Something went wrong",
     });
   }
 };

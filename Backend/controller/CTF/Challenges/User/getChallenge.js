@@ -40,9 +40,12 @@ exports.getChallenge = async (req, res) => {
     });
   } catch (error) {
     console.error("Challenge fetching error:", error.message || error);
+    if(process.env.NODE_ENV !== 'production') {
+      return res.status(500).json({ error: error.message || "Internal server error" });
+    }
     return res.status(500).json({
       message: "Internal server error while fetching challenge",
-      error: error.message || "Unknown error",
+     // error: error.message || "Unknown error",
     });
   }
 };

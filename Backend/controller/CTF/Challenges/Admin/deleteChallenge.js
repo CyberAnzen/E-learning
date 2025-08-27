@@ -15,7 +15,7 @@ exports.deleteChallenge = async (req, res) => {
     if (!Challenge.attachments || Challenge.attachments.length === 0) {
       return res
         .status(200)
-        .json({ message: "Challenge deleted successfully", Challenge });
+        .json({ message: "Challenge deleted successfully"});
     }
     relativePath = Array.isArray(Challenge.attachments)
       ? Challenge.attachments[0]
@@ -38,6 +38,9 @@ exports.deleteChallenge = async (req, res) => {
       .json({ message: "Challenge deleted successfully", Challenge });
   } catch (error) {
     console.error("Challenge deleting error:", error);
-    return res.status(500).json({ message: "Challenge Not found", error });
+    if(process.env.NODE_ENV !== 'production') {
+      return res.status(500).json({ message:"Internal server error" ,error: error.message ,});
+    }
+    return res.status(500).json({ message: "Challenge Not found"});
   }
 };

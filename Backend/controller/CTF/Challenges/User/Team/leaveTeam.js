@@ -16,6 +16,10 @@ exports.leaveTeam = async (req, res) => {
     });
   } catch (error) {
     console.error("Error leaving team:", error);
-    return res.status(400).json({ error: error.message });
+
+    if(process.env.NODE_ENV !== 'production') {
+      return res.status(500).json({ error: error.message || "Internal server error" });
+    }
+    return res.status(400).json({ error: "Internal server error"});
   }
 };

@@ -105,9 +105,9 @@ const logInBackground = createLogWorker(loggerWorker);
 
 // ✅ CORS OPTIONS - allow only the headers you specify
 const corsOptions = {
-  origin: FRONTEND_URL,
+  origin: true,
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: [
     "Content-Type",
     "Authorization",
@@ -117,7 +117,7 @@ const corsOptions = {
     "timestamp",
     "x-client-fp",
     "csrf-token",
-  ],
+  ], 
   optionsSuccessStatus: 200,
 };
 

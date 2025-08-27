@@ -151,7 +151,10 @@ exports.updateChallenge = async (req, res) => {
         console.log(`Rolled back uploaded file: ${file}`);
       }
     });
-    return res.status(400).json({ message: "Error updating challenge", error });
+    if(process.env.NODE_ENV !== 'production') {
+      return res.status(500).json({ message:"Internal server error" ,error: error.message ,});
+    }
+    return res.status(400).json({ message: "Error updating challenge"});
   }
   if (deleteDir) {
     dirPath = Path.join(process.cwd(), "public", dirPath);
@@ -161,7 +164,10 @@ exports.updateChallenge = async (req, res) => {
       fs.rmSync(dirPath, { recursive: true, force: true });
       console.log("Challenge folder deleted");
     } catch (error) {
-      console.error("Error deleting challenge folder:", error);
+    if(process.env.NODE_ENV !== 'production') {
+      return res.status(500).json({ message:"Internal server error" ,error: error.message ,});
+    }
+      console.error("Error deleting challenge folder:");
     }
   }
 };

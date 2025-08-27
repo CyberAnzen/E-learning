@@ -21,7 +21,10 @@ exports.updateTeam = async (req, res) => {
       team: updatedTeam,
     });
   } catch (error) {
-    console.error("Error updating team:", error);
-    res.status(500).json({ message: "Internal server error", error });
+
+    if(process.env.NODE_ENV !== 'production') {
+      return res.status(500).json({ message:"Internal server error" ,error: error.message ,});
+    }
+    return res.status(500).json({ message: "Internal server error"});
   }
 };
