@@ -248,6 +248,13 @@ initializeCaches()
     throw err;
   });
 deasync.loopWhile(() => !cachesDone);
+app.use((err, req, res, next) => {
+  console.error("❌ Express error:", err);
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+});
 
 server.listen(port, () => {
   console.log(`CTF platform running on port ${port}`);

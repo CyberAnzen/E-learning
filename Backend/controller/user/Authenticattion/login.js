@@ -5,28 +5,25 @@ const REFRESH_SECRET = process.env.REFRESH_SECRET;
 const RefreshToken = require("../../../model/RefreshTokenModel");
 const { User } = require("../../../model/UserModel");
 exports.login = async (req, res, next) => {
-  const { identifier, password, rememberMe, fp } = req.body;
-  const userAgent = req.headers["user-agent"];
-  const ipAddress =
-    req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
   // console.log(ipAddress, userAgent);
   try {
-    if (!fp)
-      return res.status(400).json({ message: "Fingerprint is required" });
+    const { identifier, password, rememberMe, fp } = req.body;
+    const userAgent = req.headers["user-agent"];
+    const ipAddress =
+      req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+
+    if (!fp) return res.status(404).json({ message: "Not Found" });
 
     // Input validation
     if (!identifier || !password) {
-      return res
-        .status(400)
-        .json({ message: "Identifier and password are required" });
+      return res.status(404).json({ message: "Not Found" });
     }
-
     const user = await User.findOne({
       $or: [
         { username: identifier },
-        { "regNumber": identifier },
-        { "email": identifier },
-        { "officialEmail": identifier },
+        { regNumber: identifier },
+        { email: identifier },
+        { officialEmail: identifier },
       ],
     });
 

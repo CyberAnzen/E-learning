@@ -5,7 +5,7 @@ exports.checkusername = async (req, res) => {
     const { username } = req.query;
 
     // 1. Validate the presence of `username`
-    if (!username) {
+    if (!username || username.length < 3) {
       return res.status(400).json({ error: "Username is required" });
     }
 

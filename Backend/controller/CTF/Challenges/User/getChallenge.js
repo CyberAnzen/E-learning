@@ -3,14 +3,13 @@ const CTF_Teamprogress = require("../../../../model/CTF_TeamModel");
 const { User } = require("../../../../model/UserModel");
 
 exports.getChallenge = async (req, res) => {
-  const userId = req.user.id;
-  const { ChallengeId } = req.params;
-
-  if (!ChallengeId) {
-    return res.status(400).json({ message: "ChallengeId is required" });
-  }
-
   try {
+    const userId = req.user.id;
+    const { ChallengeId } = req.params;
+
+    if (!ChallengeId) {
+      return res.status(400).json({ message: "ChallengeId is required" });
+    }
     const user = await User.findById(userId).lean();
     if (!user) {
       return res.status(400).json({ message: "User not found" });

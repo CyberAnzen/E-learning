@@ -2,17 +2,16 @@ const CTF_progress = require("../../../../model/CTFprogressModel");
 const CTF_Teamprogress = require("../../../../model/CTF_TeamModel");
 const { User } = require("../../../../model/UserModel");
 exports.validateFlag = async (req, res) => {
-  const userId = req.user.id;
-  const { ChallengeId } = req.params;
-  const { Flag } = req.body;
-
-  if (!ChallengeId || !Flag) {
-    return res
-      .status(400)
-      .json({ message: "ChallengeId and Flag are required" });
-  }
-
   try {
+    const userId = req.user.id;
+    const { ChallengeId } = req.params;
+    const { Flag } = req.body;
+
+    if (!ChallengeId || !Flag) {
+      return res
+        .status(400)
+        .json({ message: "ChallengeId and Flag are required" });
+    }
     const user = await User.findById(userId).lean();
     if (!user)
       return res.status(400).json({ message: "Error fetching User Data" });

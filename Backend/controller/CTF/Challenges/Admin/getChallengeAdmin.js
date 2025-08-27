@@ -1,8 +1,9 @@
 const CTF_challenges = require("../../../../model/CTFchallengeModel");
 
 exports.getChallengeAdmin = async (req, res) => {
-  const { ChallengeId } = req.params;
   try {
+      const { ChallengeId } = req.params;
+
     const Challenge = await CTF_challenges.findById(ChallengeId);
     if (!Challenge) {
       return res.status(500).json({ message: "Failed to fetch Challenge" });
