@@ -1,5 +1,5 @@
 import React from "react";
-import "./radar.css";
+import "./Radar.css";
 
 // Module constants (precomputed)
 const VIEW_CENTER = 100;
