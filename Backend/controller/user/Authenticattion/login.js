@@ -18,6 +18,7 @@ exports.login = async (req, res, next) => {
     if (!identifier || !password) {
       return res.status(404).json({ message: "Not Found" });
     }
+    
     const user = await User.findOne({
       $or: [
         { username: identifier },

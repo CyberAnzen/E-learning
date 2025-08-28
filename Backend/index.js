@@ -12,13 +12,13 @@ const path = require("path");
 const rateLimit = require("express-rate-limit");
 const http = require("http");
 const deasync = require("deasync");
-
+const mongoSanitize = require("express-mongo-sanitize");
 const ConnectDataBase = require("./config/connectDataBase");
 const { connectRedis } = require("./redis/config/connectRedis");
 const initializeCaches = require("./cache/initCache");
 const initLeaderboard = require("./redis/initLeaderboard");
 const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
-
+const { MongoSanitizer } = require("./middleware/Mongosanitiser");
 //initLeaderboardSocket(server);
 
 async function initializeServer() {
@@ -117,7 +117,7 @@ const corsOptions = {
     "timestamp",
     "x-client-fp",
     "csrf-token",
-  ], 
+  ],
   optionsSuccessStatus: 200,
 };
 
@@ -151,8 +151,11 @@ const downloadLimiter = rateLimit({
 
 // Middleware to log requests
 app.use(requestLogger(logInBackground));
+// Strict reject (default)
+app.use(MongoSanitizer());
 
-// Serve only challenge files (not full public folder)
+// OR allow sanitization
+app.use(MongoSanitizer({ mode: "sanitize" })); // Serve only challenge files (not full public folder)
 app.use(
   "/public",
   downloadLimiter,
