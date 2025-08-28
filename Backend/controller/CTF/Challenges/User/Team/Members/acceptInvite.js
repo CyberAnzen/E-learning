@@ -1,15 +1,14 @@
 const TeamModal = require("../../../../../../model/TeamModel");
 exports.acceptInvite = async (req, res) => {
-  const { teamCode, inviteCode } = req.body;
-  const userId = req.user.id;
-
-  if (!teamCode || !inviteCode) {
-    return res
-      .status(400)
-      .json({ message: "Team ID and invite code are required" });
-  }
-
   try {
+    const { teamCode, inviteCode } = req.body;
+    const userId = req.user.id;
+
+    if (!teamCode || !inviteCode) {
+      return res
+        .status(400)
+        .json({ message: "Team ID and invite code are required" });
+    }
     const result = await TeamModal.acceptInvite(userId, teamCode, inviteCode);
     if (result) {
       res.status(200).json({
@@ -21,6 +20,9 @@ exports.acceptInvite = async (req, res) => {
     }
   } catch (error) {
     console.error("Error accepting invite:", error);
-    res.status(500).json({ message: "Internal server error", error });
+    if(process.env.NODE_ENV !== 'production') {
+      return res.status(500).json({ message:"Internal server error" ,error: error.message ,});
+    }
+    res.status(500).json({ message: "Internal server error" });
   }
 };

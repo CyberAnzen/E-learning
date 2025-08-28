@@ -203,14 +203,6 @@ TeamSchema.pre("validate", async function (next) {
 // ensure uniqueness for invites.code only when code is a string
 // Indexes
 TeamSchema.index({ teamName: 1 }, { unique: true });
-TeamSchema.index(
-  { "invites.code": 1 },
-  {
-    unique: true,
-    partialFilterExpression: { "invites.code": { $type: "string" } },
-  }
-);
-TeamSchema.index({ teamCode: 1 }, { unique: true });
 
 // generateUniqueInviteCode(maxAttempts = 5, length = 10)
 // - tries up to maxAttempts to find a code not already present in the collection.

@@ -135,6 +135,7 @@ export const AppContextProvider = ({ children }) => {
   const logout = async () => {
     try {
       await fetch(`${BACKEND_URL}/user/logout`, {
+
         method: "GET",
         credentials: "include",
       });

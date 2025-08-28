@@ -3,16 +3,15 @@ const CTF_Teamprogress = require("../../../../model/CTF_TeamModel");
 const { User } = require("../../../../model/UserModel");
 
 exports.getHint = async (req, res) => {
-  const userId = req.user.id;
-  const { ChallengeId, hintId } = req.params;
-
-  if (!ChallengeId || !hintId) {
-    return res
-      .status(400)
-      .json({ message: "ChallengeId and hintId are required" });
-  }
-
   try {
+    const userId = req.user.id;
+    const { ChallengeId, hintId } = req.params;
+
+    if (!ChallengeId || !hintId) {
+      return res
+        .status(400)
+        .json({ message: "ChallengeId and hintId are required" });
+    }
     const user = await User.findById(userId).lean();
     if (!user)
       return res.status(400).json({ message: "Error fetching User Data" });
@@ -48,8 +47,13 @@ exports.getHint = async (req, res) => {
     });
   } catch (error) {
     console.error("Hint fetching error:", error);
+    if(process.env.NODE_ENV !== 'production') {
+      return res.status(500).json({ error: error.message || "Internal server error" });
+    }
     return res
       .status(400)
-      .json({ message: "Error fetching hint", error: error.message || error });
+      .json({ message: "Error fetching hint", 
+      //error: error.message || error 
+      });
   }
 };
