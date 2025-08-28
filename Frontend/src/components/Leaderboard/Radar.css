@@ -1,0 +1,89 @@
+/* ----------------------------------------------------------------------
+File: radar.css
+Place this file alongside RadarOptimized.jsx and import it: `import './radar.css'`
+This CSS contains all animations and utility tweaks — extracted out of JSX
+------------------------------------------------------------------------ */
+
+
+/* radar.css */
+
+
+.radar-svg, .radar-svg * { pointer-events: none; }
+
+
+.radar-count-badge {
+text-align: center;
+padding: 6px 12px;
+background: rgba(0, 255, 219, 0.1);
+color: #01ffdb;
+border-radius: 12px;
+font-weight: 500;
+font-size: 0.9rem;
+display: inline-block;
+min-width: 160px;
+}
+
+
+/* keep glitch class if you reuse header */
+.glitch-text { position: relative; animation: glitch 3s linear infinite; }
+
+
+.radar-glow { animation: radarGlow 2.2s ease-in-out infinite; }
+.radar-ring { animation: radarRingPulse 3s ease-in-out infinite; }
+.radar-line { animation: radarLinePulse 4s ease-in-out infinite; }
+.radar-sweep-main { transform-origin: 100px 100px; animation: radarSweepMain 3s linear infinite; }
+.radar-sweep-secondary { transform-origin: 100px 100px; animation: radarSweepSecondary 2s linear infinite; }
+.radar-sweep-tertiary { transform-origin: 100px 100px; animation: radarSweepTertiary 1.5s linear infinite; }
+.radar-sweep-path { transform-origin: 100px 100px; animation: radarSweepMain 3s linear infinite; }
+.radar-center { animation: radarCenterPulse 1.5s ease-in-out infinite; }
+
+
+@keyframes glitch {
+2%, 64% { transform: translate(1px, 0) skew(0deg); }
+4%, 60% { transform: translate(-1px, 0) skew(0deg); }
+62% { transform: translate(0, 0) skew(1.5deg); }
+}
+
+
+@keyframes radarGlow {
+0%, 100% { opacity: 0.5; }
+50% { opacity: 0.85; }
+}
+
+
+@keyframes radarRingPulse {
+0%, 100% { opacity: 0.1; }
+50% { opacity: 0.7; }
+}
+
+
+@keyframes radarLinePulse {
+0%, 100% { opacity: 0.08; }
+50% { opacity: 0.5; }
+}
+
+
+@keyframes radarSweepMain { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes radarSweepSecondary { 0% { transform: rotate(120deg); } 100% { transform: rotate(480deg); } }
+@keyframes radarSweepTertiary { 0% { transform: rotate(240deg); } 100% { transform: rotate(600deg); } }
+
+
+@keyframes radarCenterPulse { 0%, 100% { r: 4px; } 50% { r: 7px; } }
+
+
+/* small accessibility/fallback tweak */
+.radar-svg { display: block; width: 100%; height: 100%; }
+/* hint the browser to optimize transforms & opacity on dots */
+.radar-dot {
+  will-change: transform, opacity;
+  /* small hint: disable pointer events on animated dots */
+  pointer-events: none;
+}
+
+/* keep pointer-events none globally on static svg parts */
+.radar-svg, .radar-svg * { pointer-events: none; }
+
+/* same animations as before (unchanged) ... */
+/* (include your prior keyframes & classes exactly as in previous file) */
+
+/* end of radar.css */
