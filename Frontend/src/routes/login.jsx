@@ -21,6 +21,7 @@ export default function LoginPage() {
   const [showSubmit, setShowSubmit] = useState(false);
   useEffect(() => {
     if (loggedIn || User) {
+      fetchProfile();
       navigate("/profile");
     }
   }, [loggedIn, User, navigate]);
