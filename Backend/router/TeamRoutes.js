@@ -22,7 +22,7 @@ router.get(
     .getTeamDetails
 );
 router.post("/createTeam",
-  xssSanitizer(),
+  //xssSanitizer(),
   Auth(), createTeam);
 // router.patch("/updateMembers", Auth(), updateMembers);
 router.delete("/deleteTeam", 
