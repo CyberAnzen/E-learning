@@ -9,7 +9,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { loggedIn, setLoggedIn, User, fetchProfile } = useAppContext();
+  const { loggedIn, setLoggedIn, User } = useAppContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
@@ -21,7 +21,6 @@ export default function LoginPage() {
   const [showSubmit, setShowSubmit] = useState(false);
   useEffect(() => {
     if (loggedIn || User) {
-      fetchProfile();
       navigate("/profile");
     }
   }, [loggedIn, User, navigate]);
@@ -98,7 +97,6 @@ export default function LoginPage() {
       console.log(data);
       if (data.message === "Login successful") {
         setLoggedIn(true);
-
         navigate("/");
       } else {
         setError(data.message || "Access Denied: Authentication Failed");
