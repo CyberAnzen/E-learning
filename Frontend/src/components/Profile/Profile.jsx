@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const navigate = useNavigate();
-  const { loggedIn, User } = useAppContext();
+  const { loggedIn, User, fetchProfile } = useAppContext();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Dashboard");
   // Redirect if not logged in
@@ -21,7 +21,9 @@ function Profile() {
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "auto";
   }, [sidebarOpen]);
-
+  useEffect(() => {
+    fetchProfile();
+  },[]);
   const renderContent = () => {
     switch (activeItem) {
       case "Dashboard":
