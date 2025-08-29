@@ -4,9 +4,11 @@ const Path = require("path");
 const fs = require("fs");
 
 exports.updateChallenge = async (req, res) => {
+
   try {
     const { ChallengeId } = req.params;
-    let deleteDir = false;
+      let deleteDir = false;
+  
     let relativePath;
     let dirPath;
     const {
@@ -43,7 +45,7 @@ exports.updateChallenge = async (req, res) => {
       }
     }
 
-    const uploadedFiles = (req.files || []).map((f) =>
+    uploadedFiles = (req.files || []).map((f) =>
       Path.join(process.cwd(), req.customFileUpload.randomPathName, f.filename)
     );
     const challenge = await CTF_challenges.findById(ChallengeId);
@@ -51,7 +53,7 @@ exports.updateChallenge = async (req, res) => {
     if (!challenge) {
       return res.status(404).json({ message: "Challenge not found" });
     }
-    //console.log("challenge:", challenge.attachments);
+    
     let existingAttachmentsArray = [];
     let deletedAttachments = [];
     if (existingAttachments) {
@@ -141,11 +143,23 @@ exports.updateChallenge = async (req, res) => {
       message: "Challenge updated successfully",
       Challenge,
     });
+     if (deleteDir) {
+    dirPath = Path.join(process.cwd(), "public", dirPath);
+    console.log("Deleting challenge folder:", dirPath);
+
+    try {
+      fs.rmSync(dirPath, { recursive: true, force: true });
+      console.log("Challenge folder deleted");
+    } catch (error) {
+      
+      console.error("Error deleting challenge folder:");
+    }
+  }
   } catch (error) {
     console.error("Challenge update error:", error);
 
     // 🔥 Rollback: remove any uploaded files since the update failed
-    uploadedFiles.forEach((file) => {
+      uploadedFiles.forEach((file) => {
       if (fs.existsSync(file)) {
         fs.unlinkSync(file);
         console.log(`Rolled back uploaded file: ${file}`);
@@ -156,18 +170,5 @@ exports.updateChallenge = async (req, res) => {
     }
     return res.status(400).json({ message: "Error updating challenge"});
   }
-  if (deleteDir) {
-    dirPath = Path.join(process.cwd(), "public", dirPath);
-    console.log("Deleting challenge folder:", dirPath);
 
-    try {
-      fs.rmSync(dirPath, { recursive: true, force: true });
-      console.log("Challenge folder deleted");
-    } catch (error) {
-    if(process.env.NODE_ENV !== 'production') {
-      return res.status(500).json({ message:"Internal server error" ,error: error.message ,});
-    }
-      console.error("Error deleting challenge folder:");
-    }
-  }
 };

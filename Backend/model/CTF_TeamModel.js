@@ -470,7 +470,7 @@ CTFTeamSchema.statics.validateFlag = async function (
         await CTF_LeaderBoard.updateScore(
           teamId,
           true,
-          challenge.score || 0,
+          progress.score || 0,
           challengeId,
           identifierName
         );

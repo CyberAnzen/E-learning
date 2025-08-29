@@ -328,7 +328,7 @@ CTFprogress.statics.validateFlag = async function (userId, challengeId, Flag) {
         await LB.updateScore(
           userId, // identifierId
           false, // isTeam
-          challenge.score || 0,
+          progress.score || 0,
           challengeId,
           identifierName
         );

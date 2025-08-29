@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../../context/AppContext";
 import TeamHeader from "./dashboard/TeamHeader";
 import TeamStats from "./dashboard/TeamStats";
@@ -6,7 +6,13 @@ import TeamMembers from "./dashboard/TeamMembers";
 import TeamActions from "./dashboard/TeamActions";
 
 export default function TeamDashboard() {
-  const { team } = useAppContext();
+  const { team, fetchTeam } = useAppContext();
+  useEffect(() => {
+    setTimeout(() => {
+      fetchTeam();
+    }, 10000);
+  }, []);
+  fetchTeam();
 
   if (!team) return null;
 
