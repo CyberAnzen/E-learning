@@ -1,5 +1,5 @@
 import { Renderer, Program, Mesh, Color, Triangle } from "ogl";
-import { useEffect, useRef, useMemo, useCallback } from "react";
+import { useEffect, useRef, useMemo, useCallback, useState } from "react";
 
 const vertexShader = `
 attribute vec2 position;
@@ -39,6 +39,12 @@ uniform float uBrightness;
 
 float time;
 
+mat2 g_rot0;
+mat2 g_rot1;
+mat2 g_rot2;
+mat2 g_rot01;
+mat2 g_rot_static1;
+
 float hash21(vec2 p){
   p = fract(p * 234.56);
   p += dot(p, p + 34.56);
@@ -63,17 +69,17 @@ float fbm(vec2 p)
   float f = 0.0;
   float amp = 0.5 * uNoiseAmp;
   
-  mat2 modify0 = rotate(time * 0.02);
+  mat2 modify0 = g_rot0;
   f += amp * noise(p);
   p = modify0 * p * 2.0;
-  amp *= 0.454545; // 1/2.2
+  amp *= 0.454545;
   
-  mat2 modify1 = rotate(time * 0.02);
+  mat2 modify1 = g_rot1;
   f += amp * noise(p);
   p = modify1 * p * 2.0;
   amp *= 0.454545;
   
-  mat2 modify2 = rotate(time * 0.08);
+  mat2 modify2 = g_rot2;
   f += amp * noise(p);
   
   return f;
@@ -82,8 +88,8 @@ float fbm(vec2 p)
 float pattern(vec2 p, out vec2 q, out vec2 r) {
   vec2 offset1 = vec2(1.0);
   vec2 offset0 = vec2(0.0);
-  mat2 rot01 = rotate(0.1 * time);
-  mat2 rot1 = rotate(0.1);
+  mat2 rot01 = g_rot01;
+  mat2 rot1 = g_rot_static1;
   
   q = vec2(fbm(p + offset1), fbm(rot01 * p + offset1));
   r = vec2(fbm(rot1 * q + offset0), fbm(q + offset0));
@@ -149,7 +155,7 @@ float displace(vec2 look)
 
 vec3 getColor(vec2 p){
     
-    float bar = step(mod(p.y + time * 20.0, 1.0), 0.2) * 0.4 + 1.0; // more efficient than ternary
+    float bar = step(mod(p.y + time * 20.0, 1.0), 0.2) * 0.4 + 1.0;
     bar *= uScanlineIntensity;
     
     float displacement = displace(p);
@@ -180,6 +186,12 @@ vec2 barrel(vec2 uv){
 
 void main() {
     time = iTime * 0.333333;
+    g_rot0 = rotate(time * 0.02);
+    g_rot1 = rotate(time * 0.02);
+    g_rot2 = rotate(time * 0.08);
+    g_rot01 = rotate(0.1 * time);
+    g_rot_static1 = rotate(0.1);
+
     vec2 uv = vUv;
 
     if(uCurvature != 0.0){
@@ -238,7 +250,7 @@ export default function FaultyTerminal({
   tint = "#ffffff",
   mouseReact = true,
   mouseStrength = 0.2,
-  dpr = Math.min(window.devicePixelRatio || 1, 2),
+  dpr: propDpr = undefined,
   pageLoadAnimation = true,
   brightness = 1,
   className,
@@ -248,12 +260,16 @@ export default function FaultyTerminal({
   const containerRef = useRef(null);
   const programRef = useRef(null);
   const rendererRef = useRef(null);
+  const meshRef = useRef(null);
+  const glRef = useRef(null);
+
   const mouseRef = useRef({ x: 0.5, y: 0.5 });
   const smoothMouseRef = useRef({ x: 0.5, y: 0.5 });
   const frozenTimeRef = useRef(0);
   const rafRef = useRef(0);
   const loadAnimationStartRef = useRef(0);
   const timeOffsetRef = useRef(Math.random() * 100);
+  const visibleRef = useRef(true);
 
   const tintVec = useMemo(() => hexToRgb(tint), [tint]);
 
@@ -262,12 +278,72 @@ export default function FaultyTerminal({
     [dither]
   );
 
-  const handleMouseMove = useCallback((e) => {
+  const gridMulArrayRef = useRef(new Float32Array(2));
+  gridMulArrayRef.current[0] = gridMul[0];
+  gridMulArrayRef.current[1] = gridMul[1];
+
+  const mouseArrayRef = useRef(
+    new Float32Array([smoothMouseRef.current.x, smoothMouseRef.current.y])
+  );
+  const resolutionColorRef = useRef(null);
+  const tintColorRef = useRef(null);
+
+  const [internalDpr, setInternalDpr] = useState(() => {
+    if (propDpr) return propDpr;
+    const defaultDpr = Math.min(window.devicePixelRatio || 1, 2);
+    return defaultDpr;
+  });
+
+  const computeEffectiveDpr = useCallback(() => {
+    let base = Math.min(window.devicePixelRatio || 1, 2);
+    const saveData =
+      typeof navigator !== "undefined" && navigator.connection?.saveData;
+    const hw =
+      typeof navigator !== "undefined" ? navigator.hardwareConcurrency || 4 : 4;
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (saveData || reduced) base = Math.min(base, 1);
+    if (hw <= 2) base = Math.min(base, 1);
+    if (propDpr) base = propDpr;
+    return base;
+  }, [propDpr]);
+
+  useEffect(() => {
+    if (propDpr) {
+      setInternalDpr(propDpr);
+      return;
+    }
+    const update = () => setInternalDpr(computeEffectiveDpr());
+    update();
+    const onVisibility = () => update();
+    window.addEventListener("resize", update);
+    window.addEventListener("orientationchange", update);
+    try {
+      const mm = window.matchMedia(
+        "(resolution: " + window.devicePixelRatio + "dppx)"
+      );
+      if (mm && mm.addEventListener) mm.addEventListener("change", update);
+    } catch (e) {}
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
+    };
+  }, [computeEffectiveDpr, propDpr]);
+
+  const handlePointer = useCallback((e) => {
     const ctn = containerRef.current;
     if (!ctn) return;
     const rect = ctn.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = 1 - (e.clientY - rect.top) / rect.height;
+    let clientX = e.clientX;
+    let clientY = e.clientY;
+    if (e.touches && e.touches[0]) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    }
+    const x = (clientX - rect.left) / rect.width;
+    const y = 1 - (clientY - rect.top) / rect.height;
     mouseRef.current = { x, y };
   }, []);
 
@@ -275,10 +351,14 @@ export default function FaultyTerminal({
     const ctn = containerRef.current;
     if (!ctn) return;
 
-    const renderer = new Renderer({ dpr });
+    const renderer = new Renderer({ dpr: internalDpr });
     rendererRef.current = renderer;
     const gl = renderer.gl;
+    glRef.current = gl;
     gl.clearColor(0, 0, 0, 1);
+
+    resolutionColorRef.current = new Color(1, 1, 1);
+    tintColorRef.current = new Color(tintVec[0], tintVec[1], tintVec[2]);
 
     const geometry = new Triangle(gl);
 
@@ -287,16 +367,10 @@ export default function FaultyTerminal({
       fragment: fragmentShader,
       uniforms: {
         iTime: { value: 0 },
-        iResolution: {
-          value: new Color(
-            gl.canvas.width,
-            gl.canvas.height,
-            gl.canvas.width / gl.canvas.height
-          ),
-        },
+        iResolution: { value: resolutionColorRef.current },
         uScale: { value: scale },
 
-        uGridMul: { value: new Float32Array(gridMul) },
+        uGridMul: { value: gridMulArrayRef.current },
         uDigitSize: { value: digitSize },
         uScanlineIntensity: { value: scanlineIntensity },
         uGlitchAmount: { value: glitchAmount },
@@ -305,13 +379,8 @@ export default function FaultyTerminal({
         uChromaticAberration: { value: chromaticAberration },
         uDither: { value: ditherValue },
         uCurvature: { value: curvature },
-        uTint: { value: new Color(tintVec[0], tintVec[1], tintVec[2]) },
-        uMouse: {
-          value: new Float32Array([
-            smoothMouseRef.current.x,
-            smoothMouseRef.current.y,
-          ]),
-        },
+        uTint: { value: tintColorRef.current },
+        uMouse: { value: mouseArrayRef.current },
         uMouseStrength: { value: mouseStrength },
         uUseMouse: { value: mouseReact ? 1 : 0 },
         uPageLoadProgress: { value: pageLoadAnimation ? 0 : 1 },
@@ -322,20 +391,60 @@ export default function FaultyTerminal({
     programRef.current = program;
 
     const mesh = new Mesh(gl, { geometry, program });
+    meshRef.current = mesh;
 
-    function resize() {
+    let rafResize = 0;
+    function doResize() {
       if (!ctn || !renderer) return;
-      renderer.setSize(ctn.offsetWidth, ctn.offsetHeight);
-      program.uniforms.iResolution.value = new Color(
+      const w = ctn.offsetWidth;
+      const h = ctn.offsetHeight;
+      const canvas = gl.canvas;
+      const targetW = Math.floor(w * renderer.dpr);
+      const targetH = Math.floor(h * renderer.dpr);
+      if (canvas.width === targetW && canvas.height === targetH) return;
+      renderer.setSize(w, h);
+      resolutionColorRef.current.set(
         gl.canvas.width,
         gl.canvas.height,
         gl.canvas.width / gl.canvas.height
       );
     }
-
-    const resizeObserver = new ResizeObserver(() => resize());
+    const resizeObserver = new ResizeObserver(() => {
+      cancelAnimationFrame(rafResize);
+      rafResize = requestAnimationFrame(doResize);
+    });
     resizeObserver.observe(ctn);
-    resize();
+    doResize();
+
+    let io;
+    try {
+      io = new IntersectionObserver(
+        (entries) => {
+          const e = entries[0];
+          visibleRef.current = e.isIntersecting;
+        },
+        { threshold: 0.01 }
+      );
+      io.observe(ctn);
+    } catch (err) {}
+
+    const uniforms = program.uniforms;
+
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const saveData =
+      typeof navigator !== "undefined" && navigator.connection?.saveData;
+    const lowPower =
+      prefersReduced ||
+      saveData ||
+      (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2);
+
+    const perfTimeScale = lowPower
+      ? Math.max(0.25, timeScale * 0.75)
+      : timeScale;
+    const perfNoiseAmp = lowPower ? Math.max(0.5, noiseAmp * 0.7) : noiseAmp;
 
     const update = (t) => {
       rafRef.current = requestAnimationFrame(update);
@@ -345,18 +454,18 @@ export default function FaultyTerminal({
       }
 
       if (!pause) {
-        const elapsed = (t * 0.001 + timeOffsetRef.current) * timeScale;
-        program.uniforms.iTime.value = elapsed;
+        const elapsed = (t * 0.001 + timeOffsetRef.current) * perfTimeScale;
+        uniforms.iTime.value = elapsed;
         frozenTimeRef.current = elapsed;
       } else {
-        program.uniforms.iTime.value = frozenTimeRef.current;
+        uniforms.iTime.value = frozenTimeRef.current;
       }
 
       if (pageLoadAnimation && loadAnimationStartRef.current > 0) {
         const animationDuration = 2000;
         const animationElapsed = t - loadAnimationStartRef.current;
         const progress = Math.min(animationElapsed / animationDuration, 1);
-        program.uniforms.uPageLoadProgress.value = progress;
+        uniforms.uPageLoadProgress.value = progress;
       }
 
       if (mouseReact) {
@@ -366,33 +475,76 @@ export default function FaultyTerminal({
         smoothMouse.x += (mouse.x - smoothMouse.x) * dampingFactor;
         smoothMouse.y += (mouse.y - smoothMouse.y) * dampingFactor;
 
-        const mouseUniform = program.uniforms.uMouse.value;
-        mouseUniform[0] = smoothMouse.x;
-        mouseUniform[1] = smoothMouse.y;
+        const mu = mouseArrayRef.current;
+        mu[0] = smoothMouse.x;
+        mu[1] = smoothMouse.y;
       }
 
-      renderer.render({ scene: mesh });
+      uniforms.uNoiseAmp.value = perfNoiseAmp;
+
+      if (visibleRef.current !== false) {
+        renderer.render({ scene: mesh });
+      }
     };
     rafRef.current = requestAnimationFrame(update);
     ctn.appendChild(gl.canvas);
 
-    if (mouseReact) ctn.addEventListener("mousemove", handleMouseMove);
+    const pointerOpts = { passive: true };
+    ctn.addEventListener("pointermove", handlePointer, pointerOpts);
+    ctn.addEventListener("touchmove", handlePointer, pointerOpts);
+
+    const onVisibilityChange = () => {
+      if (document.hidden) cancelAnimationFrame(rafRef.current);
+      else rafRef.current = requestAnimationFrame(update);
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
       resizeObserver.disconnect();
-      if (mouseReact) ctn.removeEventListener("mousemove", handleMouseMove);
+      if (io) io.disconnect();
+      ctn.removeEventListener("pointermove", handlePointer);
+      ctn.removeEventListener("touchmove", handlePointer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       if (gl.canvas.parentElement === ctn) ctn.removeChild(gl.canvas);
       gl.getExtension("WEBGL_lose_context")?.loseContext();
       loadAnimationStartRef.current = 0;
       timeOffsetRef.current = Math.random() * 100;
+      programRef.current = null;
+      rendererRef.current = null;
+      meshRef.current = null;
+      glRef.current = null;
     };
+  }, [internalDpr]);
+
+  useEffect(() => {
+    const p = programRef.current;
+    if (!p) return;
+    p.uniforms.uScale.value = scale;
+  }, [scale]);
+
+  useEffect(() => {
+    const arr = gridMulArrayRef.current;
+    arr[0] = gridMul[0];
+    arr[1] = gridMul[1];
+  }, [gridMul]);
+
+  useEffect(() => {
+    const p = programRef.current;
+    if (!p) return;
+    p.uniforms.uDigitSize.value = digitSize;
+    p.uniforms.uScanlineIntensity.value = scanlineIntensity;
+    p.uniforms.uGlitchAmount.value = glitchAmount;
+    p.uniforms.uFlickerAmount.value = flickerAmount;
+    p.uniforms.uNoiseAmp.value = noiseAmp;
+    p.uniforms.uChromaticAberration.value = chromaticAberration;
+    p.uniforms.uDither.value = ditherValue;
+    p.uniforms.uCurvature.value = curvature;
+    p.uniforms.uMouseStrength.value = mouseStrength;
+    p.uniforms.uUseMouse.value = mouseReact ? 1 : 0;
+    p.uniforms.uUsePageLoadAnimation.value = pageLoadAnimation ? 1 : 0;
+    p.uniforms.uBrightness.value = brightness;
   }, [
-    dpr,
-    pause,
-    timeScale,
-    scale,
-    gridMul,
     digitSize,
     scanlineIntensity,
     glitchAmount,
@@ -401,19 +553,27 @@ export default function FaultyTerminal({
     chromaticAberration,
     ditherValue,
     curvature,
-    tintVec,
-    mouseReact,
     mouseStrength,
+    mouseReact,
     pageLoadAnimation,
     brightness,
-    handleMouseMove,
   ]);
+
+  useEffect(() => {
+    const p = programRef.current;
+    if (!p || !tintColorRef.current) return;
+    tintColorRef.current.set(tintVec[0], tintVec[1], tintVec[2]);
+  }, [tintVec]);
 
   return (
     <div
       ref={containerRef}
       className={`w-full h-full relative overflow-hidden ${className}`}
-      style={style}
+      style={{
+        touchAction: "none",
+        WebkitTapHighlightColor: "transparent",
+        ...style,
+      }}
       {...rest}
     />
   );
