@@ -6,3 +6,5 @@
   from = "/*"
   to   = "/index.html"
   status = 200
+  
+  SECRETS_SCAN_OMIT_KEYS = "VITE_BACKEND_URL,VITE_BACKEND_URL_W,VITE_CF_SITE_KEY"
