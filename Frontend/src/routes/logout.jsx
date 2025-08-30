@@ -8,7 +8,7 @@ const Logout = () => {
     logout();
   }, [logout]);
 
-  return <div>Logging out...</div>;
+  return <center className="min-h-screen min-w-screeen">Logging out...</center>;
 };
 
 export default Logout;

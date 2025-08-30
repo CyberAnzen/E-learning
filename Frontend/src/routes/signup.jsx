@@ -45,18 +45,52 @@ export default function Signup() {
     // Smooth scroll to top
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 
-    // Prevent scrolling on body but allow it on the form container
-    document.body.style.overflow = "hidden";
-    document.body.style.height = "100vh";
-    document.body.style.position = "fixed";
-    document.body.style.width = "100%";
-    document.documentElement.style.overflow = "hidden";
+    // Improved scroll handling for all devices
+    const isMobile = window.innerWidth < 768;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-    // Optional: Prevent touchmove to block scrolling more robustly
-    const preventTouchMove = (e) => e.preventDefault();
+    if (!isMobile) {
+      // Only lock scroll on desktop/tablet
+      document.body.style.overflow = "hidden";
+      document.body.style.height = "100vh";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+      document.documentElement.style.overflow = "hidden";
+    }
+
+    // Enhanced touch handling for all mobile devices
+    const preventTouchMove = (e) => {
+      // Allow scrolling within form containers
+      const target = e.target;
+      const scrollableParent = target.closest(
+        ".overflow-y-auto, .overflow-auto"
+      );
+      if (!scrollableParent && !isMobile) {
+        e.preventDefault();
+      }
+    };
+
+    // Special handling for iOS to prevent bounce
+    const preventIOSBounce = (e) => {
+      if (isIOS) {
+        const scrollY = window.pageYOffset;
+        const maxScroll =
+          document.documentElement.scrollHeight - window.innerHeight;
+        if (scrollY <= 0 || scrollY >= maxScroll) {
+          e.preventDefault();
+        }
+      }
+    };
+
     document.addEventListener("touchmove", preventTouchMove, {
       passive: false,
     });
+    if (isIOS) {
+      document.addEventListener("touchmove", preventIOSBounce, {
+        passive: false,
+      });
+    }
 
     // Cleanup on unmount
     return () => {
@@ -66,6 +100,9 @@ export default function Signup() {
       document.body.style.width = "";
       document.documentElement.style.overflow = "";
       document.removeEventListener("touchmove", preventTouchMove);
+      if (isIOS) {
+        document.removeEventListener("touchmove", preventIOSBounce);
+      }
     };
   }, []);
 
@@ -379,7 +416,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex items-center justify-center px-4 sm:px-6 relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black min-h-[80vh] max-h-[100vh] pt-10 pb-0 lg:pb-0">
+    <div className="flex items-center justify-center px-2 sm:px-4 lg:px-6 relative overflow-hidden min-h-screen max-h-screen pt-4 sm:pt-6 lg:pt-10 pb-0">
       <ParticleBackground />
       {/* Cyberpunk grid overlay */}
       <div className="absolute inset-0 opacity-10">
@@ -395,75 +432,68 @@ export default function Signup() {
         />
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl pb-10">
+      <div className="relative scroll -mt-32 z-10 w-full max-w-7xl pb-4 sm:pb-6 lg:pb-10">
         {/* Main Container */}
-        <div className="relative -mt-4">
+        <div className="relative">
           {/* Angled border container */}
           <div
-            className="relative bg-teal-700/20 opacity-85  backdrop-blur-xl border-2 border-[#01ffdb]/50 p-1"
+            className="relative bg-teal-700/20 opacity-85 backdrop-blur-xl border-2 border-[#01ffdb]/50 p-1"
             style={{
               clipPath:
-                "polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px))",
+                "polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px))",
             }}
           >
-            {/* Inner content area */}
+            {/* Inner content area with proper scrolling */}
             <div
-              className="bg-gray-900/50 max-h-[80vh] overflow-y-auto"
+              className="bg-gray-900/50 max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] lg:max-h-[80vh] overflow-y-auto"
               style={{
                 clipPath:
-                  "polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 28px 100%, 0 calc(100% - 28px))",
+                  "polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px))",
+                scrollbarWidth: "thin",
+                scrollbarColor: "#01ffdb40 transparent",
               }}
             >
               {/* SIGN UP Header */}
-              <div className="absolute top-4 left-4">
+              <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-20">
                 <div
-                  className="bg-[#01ffdb] text-black px-4 py-1 font-mono font-bold text-lg tracking-wider"
+                  className="bg-[#01ffdb] text-black px-2 sm:px-4 py-1 font-mono font-bold text-sm sm:text-lg tracking-wider"
                   style={{
                     clipPath:
-                      "polygon(0 0, calc(100% - 10px) 0, 100% 100%, 0 100%)",
+                      "polygon(0 0, calc(100% - 8px) 0, 100% 100%, 0 100%)",
                   }}
                 >
                   SIGN UP
                 </div>
               </div>
 
-              {/* Left side - User Profile Scanner */}
-
-              <div className="fixed top-30 left-10 z-50 flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
+              {/* User Profile Scanner - Hidden on mobile */}
+              <div className="hidden lg:block fixed top-20 xl:top-30 left-6 xl:left-10 z-50 flex-shrink-0">
                 <div className="relative">
                   {/* Scanning frame */}
-                  <div className="w-48 h-48 border-2 border-[#01ffdb]/70 relative bg-black/30 backdrop-blur-sm">
+                  <div className="w-40 xl:w-48 h-40 xl:h-48 border-2 border-[#01ffdb]/70 relative bg-black/30 backdrop-blur-sm">
                     {/* Corner brackets */}
-                    <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#01ffdb]" />
-                    <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#01ffdb]" />
-                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#01ffdb]" />
-                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#01ffdb]" />
+                    <div className="absolute top-0 left-0 w-6 xl:w-8 h-6 xl:h-8 border-t-4 border-l-4 border-[#01ffdb]" />
+                    <div className="absolute top-0 right-0 w-6 xl:w-8 h-6 xl:h-8 border-t-4 border-r-4 border-[#01ffdb]" />
+                    <div className="absolute bottom-0 left-0 w-6 xl:w-8 h-6 xl:h-8 border-b-4 border-l-4 border-[#01ffdb]" />
+                    <div className="absolute bottom-0 right-0 w-6 xl:w-8 h-6 xl:h-8 border-b-4 border-r-4 border-[#01ffdb]" />
 
                     {/* User Icon */}
-                    <div className="fixed inset-4 flex items-center justify-center">
-                      <UserIcon size={140} />
+                    <div className="absolute inset-3 xl:inset-4 flex items-center justify-center">
+                      <UserIcon size={120} className="xl:scale-110" />
                     </div>
-
-                    {/* Status indicators */}
-                    {/* <div className="absolute -bottom-8 left-0 right-0 text-center">
-        <div className="text-[#01ffdb] font-mono text-xs animate-pulse">
-          PROFILE SCAN ACTIVE
-        </div>
-      </div> */}
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-16 mt-12 p-8 md:p-12">
-                {/* Left side - User Profile Scanner */}
-                <div className="flex-shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
-                  <div className="w-48"></div>
-                </div>
+
+              <div className="flex flex-col lg:flex-row items-start gap-4 sm:gap-6 lg:gap-12 xl:gap-16 mt-8 sm:mt-10 lg:mt-12 p-4 sm:p-6 lg:p-8 xl:p-12">
+                {/* Left side spacer for desktop icon */}
+                <div className="hidden lg:block flex-shrink-0 w-40 xl:w-48"></div>
 
                 {/* Right side - Form */}
                 <div className="flex-1 w-full">
                   <form
                     onSubmit={handleSubmit}
-                    className="space-y-6 sm:space-y-8"
+                    className="space-y-4 sm:space-y-6 lg:space-y-8"
                   >
                     {error && (
                       <div
@@ -473,19 +503,19 @@ export default function Signup() {
                             "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                         }}
                       >
-                        <p className="text-center text-sm text-red-400 font-mono">
+                        <p className="text-center text-xs sm:text-sm text-red-400 font-mono">
                           {error}
                         </p>
                       </div>
                     )}
 
                     {/* Personal Information Section */}
-                    <div className="space-y-4 sm:space-y-6">
-                      <h3 className="text-[#01ffdb] font-mono text-base sm:text-lg font-bold border-b border-[#01ffdb]/30 pb-2">
+                    <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+                      <h3 className="text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg font-bold border-b border-[#01ffdb]/30 pb-2">
                         PERSONAL INFORMATION
                       </h3>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
                         {/* Username */}
                         <div className="space-y-2">
                           <div className="relative">
@@ -493,10 +523,10 @@ export default function Signup() {
                               className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
                               style={{
                                 clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3">
                                 <input
                                   type="text"
                                   name="username"
@@ -508,7 +538,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.username ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
                                 />
                               </div>
                             </div>
@@ -540,10 +570,10 @@ export default function Signup() {
                               className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
                               style={{
                                 clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3">
                                 <input
                                   type="text"
                                   name="fullName"
@@ -555,7 +585,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.fullName ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
                                 />
                               </div>
                             </div>
@@ -574,10 +604,10 @@ export default function Signup() {
                               className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
                               style={{
                                 clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3">
                                 <input
                                   type="email"
                                   name="email"
@@ -589,7 +619,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.email ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
                                 />
                               </div>
                             </div>
@@ -608,10 +638,10 @@ export default function Signup() {
                               className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
                               style={{
                                 clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3">
                                 <input
                                   type="number"
                                   name="mobile"
@@ -623,7 +653,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.mobile ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none appearance-none [-moz-appearance:textfield]"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none appearance-none [-moz-appearance:textfield]"
                                 />
                               </div>
                             </div>
@@ -651,23 +681,23 @@ export default function Signup() {
                     </div>
 
                     {/* Academic Information Section */}
-                    <div className="space-y-4 sm:space-y-6">
-                      <h3 className="text-[#01ffdb] font-mono text-base sm:text-lg font-bold border-b border-[#01ffdb]/30 pb-2">
+                    <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+                      <h3 className="text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg font-bold border-b border-[#01ffdb]/30 pb-2">
                         ACADEMIC INFORMATION
                       </h3>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                         {/* Registration Number */}
-                        <div className="lg:col-span-2 space-y-2">
+                        <div className="sm:col-span-2 space-y-2">
                           <div className="relative">
                             <div
                               className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
                               style={{
                                 clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3">
                                 <input
                                   type="text"
                                   name="regNumber"
@@ -681,7 +711,7 @@ export default function Signup() {
                                       ? "true"
                                       : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
                                 />
                               </div>
                             </div>
@@ -694,16 +724,16 @@ export default function Signup() {
                         </div>
 
                         {/* Official Email */}
-                        <div className="lg:col-span-2 space-y-2">
+                        <div className="sm:col-span-2 space-y-2">
                           <div className="relative">
                             <div
                               className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
                               style={{
                                 clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3">
                                 <input
                                   type="email"
                                   name="officialEmail"
@@ -717,7 +747,7 @@ export default function Signup() {
                                       ? "true"
                                       : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
                                 />
                               </div>
                             </div>
@@ -749,10 +779,10 @@ export default function Signup() {
                               className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
                               style={{
                                 clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3">
                                 <select
                                   name="dept"
                                   value={formData.dept}
@@ -762,7 +792,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.dept ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-lg outline-none flex-1 appearance-none"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg outline-none flex-1 appearance-none"
                                 >
                                   <option
                                     value=""
@@ -812,10 +842,10 @@ export default function Signup() {
                               className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
                               style={{
                                 clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3">
                                 <select
                                   name="section"
                                   value={formData.section}
@@ -825,7 +855,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.section ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-lg outline-none flex-1 appearance-none"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg outline-none flex-1 appearance-none"
                                 >
                                   <option
                                     value=""
@@ -893,10 +923,10 @@ export default function Signup() {
                               className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
                               style={{
                                 clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3">
                                 <select
                                   name="year"
                                   value={formData.year}
@@ -906,7 +936,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.year ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-lg outline-none flex-1 appearance-none"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg outline-none flex-1 appearance-none"
                                 >
                                   <option
                                     value=""
@@ -956,10 +986,10 @@ export default function Signup() {
                               className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
                               style={{
                                 clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3">
                                 <select
                                   name="gender"
                                   value={formData.gender}
@@ -969,7 +999,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.gender ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-lg outline-none flex-1 appearance-none"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg outline-none flex-1 appearance-none"
                                 >
                                   <option
                                     value=""
@@ -1009,12 +1039,12 @@ export default function Signup() {
                     </div>
 
                     {/* Security Section */}
-                    <div className="space-y-4 sm:space-y-6">
-                      <h3 className="text-[#01ffdb] font-mono text-base sm:text-lg font-bold border-b border-[#01ffdb]/30 pb-2">
+                    <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+                      <h3 className="text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg font-bold border-b border-[#01ffdb]/30 pb-2">
                         SECURITY
                       </h3>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
                         {/* Password */}
                         <div className="space-y-2">
                           <div className="relative">
@@ -1022,10 +1052,10 @@ export default function Signup() {
                               className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
                               style={{
                                 clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3">
                                 <input
                                   type="password"
                                   name="password"
@@ -1037,7 +1067,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.password ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
                                 />
                               </div>
                             </div>
@@ -1069,10 +1099,10 @@ export default function Signup() {
                               className="bg-[#01ffdb]/20 border border-[#01ffdb]/50 backdrop-blur-sm"
                               style={{
                                 clipPath:
-                                  "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3">
                                 <input
                                   type="password"
                                   name="confirmPassword"
@@ -1086,7 +1116,7 @@ export default function Signup() {
                                       ? "true"
                                       : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg placeholder:text-[#01ffdb]/60 outline-none flex-1"
                                 />
                               </div>
                             </div>
@@ -1114,9 +1144,9 @@ export default function Signup() {
                     </div>
 
                     {/* Terms and Submit */}
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                       {/* Terms */}
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-start space-x-3">
                         <input
                           type="checkbox"
                           name="terms"
@@ -1124,13 +1154,13 @@ export default function Signup() {
                           checked={formData.terms}
                           onChange={handleInputChange}
                           onBlur={() => handleBlur("terms")}
-                          className="w-4 h-4 bg-transparent border-2 border-[#01ffdb]/50 rounded-none 
+                          className="w-4 h-4 mt-1 bg-transparent border-2 border-[#01ffdb]/50 rounded-none 
                                    checked:bg-[#01ffdb] checked:border-[#01ffdb] 
-                                   focus:ring-[#01ffdb]/50 focus:ring-2"
+                                   focus:ring-[#01ffdb]/50 focus:ring-2 flex-shrink-0"
                         />
                         <label
                           htmlFor="terms"
-                          className="text-[#01ffdb]/70 font-mono"
+                          className="text-[#01ffdb]/70 font-mono text-xs sm:text-sm leading-relaxed"
                         >
                           ACCEPT TERMS AND CONDITIONS
                         </label>
@@ -1143,19 +1173,21 @@ export default function Signup() {
 
                       {/* Captcha Cloudflare */}
                       <div className="flex justify-center mb-4">
-                        <Turnstile
-                          sitekey={import.meta.env.VITE_CF_SITE_KEY}
-                          onVerify={(token) => {
-                            setCaptchaToken(token);
-                            setCaptchaVerified(true);
-                          }}
-                          onExpire={() => {
-                            setCaptchaToken("");
-                            setCaptchaVerified(false);
-                          }}
-                          theme="dark"
-                          size="flexible"
-                        />
+                        <div className="w-full max-w-sm">
+                          <Turnstile
+                            sitekey={import.meta.env.VITE_CF_SITE_KEY}
+                            onVerify={(token) => {
+                              setCaptchaToken(token);
+                              setCaptchaVerified(true);
+                            }}
+                            onExpire={() => {
+                              setCaptchaToken("");
+                              setCaptchaVerified(false);
+                            }}
+                            theme="dark"
+                            size="flexible"
+                          />
+                        </div>
                       </div>
 
                       {/* Submit Button - hidden until form complete and captcha verified */}
@@ -1172,14 +1204,14 @@ export default function Signup() {
                           disabled={
                             !isFormComplete() || !captchaVerified || isLoading
                           }
-                          className="cyber-button w-full py-3 px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
-             text-[#01ffdb] font-mono text-lg font-bold
+                          className="cyber-button w-full py-2 sm:py-3 px-4 sm:px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
+             text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg font-bold
              hover:bg-[#01ffdb]/20 hover:border-[#01ffdb]
              transition-all duration-300 relative overflow-hidden
              disabled:opacity-50 disabled:cursor-not-allowed"
                           style={{
                             clipPath:
-                              "polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px))",
+                              "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
                           }}
                         >
                           <div className="relative z-10">
@@ -1195,7 +1227,7 @@ export default function Signup() {
                       </div>
 
                       {/* Login link */}
-                      <div className="text-center text-[#01ffdb]/70 font-mono">
+                      <div className="text-center text-[#01ffdb]/70 font-mono text-xs sm:text-sm">
                         ALREADY REGISTERED?{" "}
                         <Link to="/login">
                           <span className="text-[#01ffdb] hover:text-[#01ffdb]/80 transition-colors font-bold">
@@ -1215,14 +1247,14 @@ export default function Signup() {
         </div>
       </div>
 
-      {/* Additional cyberpunk elements */}
-      {/* <div className="absolute top-10 right-10 text-[#01ffdb]/30 font-mono text-xs">
+      {/* Additional cyberpunk elements - Hidden on mobile */}
+      {/* <div className="hidden lg:block absolute top-10 right-10 text-[#01ffdb]/30 font-mono text-xs">
         <div>SYS_STATUS: ONLINE</div>
         <div>REG_MODE: ACTIVE</div>
         <div>CONN_STATE: SECURE</div>
       </div>
 
-      <div className="absolute bottom-10 left-10 text-[#01ffdb]/30 font-mono text-xs">
+      <div className="hidden lg:block absolute bottom-10 left-10 text-[#01ffdb]/30 font-mono text-xs">
         <div>PROTOCOL: HTTPS/2.0</div>
         <div>ENCRYPTION: AES-256</div>
         <div>NODE: REGISTRATION</div>
