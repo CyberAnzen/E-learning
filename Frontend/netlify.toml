@@ -1,10 +1,12 @@
 [build]
-  publish = "dist"            # or whatever your build output is
+  base = "Frontend"
+  publish = "dist"
   command = "npm run build"
+
+[build.environment]
   SECRETS_SCAN_ENABLED = "false"
 
 [[redirects]]
   from = "/*"
   to   = "/index.html"
   status = 200
-  
