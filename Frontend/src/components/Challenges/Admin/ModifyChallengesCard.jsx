@@ -35,6 +35,7 @@ const ModifyChallenges = ({ challenge, onchallengeClick, handleRetry }) => {
       console.error("Delete API Error:", error.message);
       setIsDeleting(false);
     }
+    handleRetry();
   };
 
   // Prevent scroll when modal is open
@@ -115,32 +116,33 @@ const ModifyChallenges = ({ challenge, onchallengeClick, handleRetry }) => {
               {challenge?.score && <h3 className="">{challenge?.score}</h3>}
             </span>
           </div>
-         <div className="flex flex-col items-end">
-  <span className="text-sm text-green-300">Difficulty</span>
-  <span
-    className={`text-sm font-semibold text-white rounded-4xl p-1.5 mt-1 backdrop-blur-sm ${
-      challenge.difficulty?.toLowerCase() === "easy"
-        ? "bg-gradient-to-r from-green-400/40 to-green-600/40 border border-green-500/60"
-        : challenge.difficulty?.toLowerCase() === "intermediate"
-        ? "bg-gradient-to-r from-yellow-400/40 to-yellow-600/40 border border-yellow-500/60"
-        : challenge.difficulty?.toLowerCase() === "hard"
-        ? "bg-gradient-to-r from-red-500/40 to-red-700/40 border border-red-600/60"
-        : challenge.difficulty?.toLowerCase() === "advanced"
-        ? "bg-gradient-to-r from-purple-500/40 to-purple-700/40 border border-purple-600/60"
-        : "bg-gradient-to-r from-amber-500/40 to-amber-700/40 border border-amber-600/60"
-    }`}
-  >
-    {!challenge.difficulty ? (
-      <h3 className="w-5 h-5 flex justify-center items-center text-2xl">-</h3>
-    ) : (
-      <h3>
-        {challenge.difficulty.charAt(0).toUpperCase() +
-          challenge.difficulty.slice(1).toLowerCase()}
-      </h3>
-    )}
-  </span>
-</div>
-
+          <div className="flex flex-col items-end">
+            <span className="text-sm text-green-300">Difficulty</span>
+            <span
+              className={`text-sm font-semibold text-white rounded-4xl p-1.5 mt-1 backdrop-blur-sm ${
+                challenge.difficulty?.toLowerCase() === "easy"
+                  ? "bg-gradient-to-r from-green-400/40 to-green-600/40 border border-green-500/60"
+                  : challenge.difficulty?.toLowerCase() === "intermediate"
+                  ? "bg-gradient-to-r from-yellow-400/40 to-yellow-600/40 border border-yellow-500/60"
+                  : challenge.difficulty?.toLowerCase() === "hard"
+                  ? "bg-gradient-to-r from-red-500/40 to-red-700/40 border border-red-600/60"
+                  : challenge.difficulty?.toLowerCase() === "advanced"
+                  ? "bg-gradient-to-r from-purple-500/40 to-purple-700/40 border border-purple-600/60"
+                  : "bg-gradient-to-r from-amber-500/40 to-amber-700/40 border border-amber-600/60"
+              }`}
+            >
+              {!challenge.difficulty ? (
+                <h3 className="w-5 h-5 flex justify-center items-center text-2xl">
+                  -
+                </h3>
+              ) : (
+                <h3>
+                  {challenge.difficulty.charAt(0).toUpperCase() +
+                    challenge.difficulty.slice(1).toLowerCase()}
+                </h3>
+              )}
+            </span>
+          </div>
         </div>
 
         {/* challenge title and description */}
