@@ -1,10 +1,10 @@
 [build]
   publish = "dist"            # or whatever your build output is
   command = "npm run build"
+  SECRETS_SCAN_ENABLED = "false"
 
 [[redirects]]
   from = "/*"
   to   = "/index.html"
   status = 200
   
-  SECRETS_SCAN_ENABLED = "false"
