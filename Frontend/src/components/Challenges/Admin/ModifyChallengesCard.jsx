@@ -11,7 +11,7 @@ const ModifyChallenges = ({ challenge, onchallengeClick, handleRetry }) => {
 
   // Handle delete request
   const { Data: DeleteResult, retry: DeleteRetry } = Usefetch(
-    `classification/delete/${challenge.id}`,
+    `challenge/admin/delete/${challenge._id}`,
     "delete",
     { data: null },
     {},
