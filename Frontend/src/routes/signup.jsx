@@ -28,7 +28,7 @@ export default function Signup() {
         localStorage.setItem("loggedIn", "true");
         navigate("/profile");
       }
-    }, 7000);
+    }, 10000);
   }, [loggedIn, User, navigate]);
   const [formData, setFormData] = useState({
     username: "",

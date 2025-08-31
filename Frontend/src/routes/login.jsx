@@ -31,7 +31,7 @@ export default function LoginPage() {
         localStorage.setItem("loggedIn", true);
         navigate("/profile");
       }
-    }, 7000);
+    }, 10000);
   }, [loggedIn, User, navigate]);
 
   useEffect(() => {

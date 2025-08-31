@@ -11,23 +11,15 @@ createRoot(document.getElementById("root")).render(
       <SocketProvider>
         <div className="fixed inset-0 -z-10">
           <FaultyTerminal
-            scale={4}
+            scale={5}
             gridMul={[3, 19]}
             digitSize={1.2}
-            timeScale={0.7}
-            pause={false}
+            timeScale={0.3}
             scanlineIntensity={0.8}
-            glitchAmount={1}
-            flickerAmount={1}
-            noiseAmp={1}
-            chromaticAberration={0}
-            dither={0}
-            curvature={0}
             tint="#17565c"
-            mouseReact={false}
-            mouseStrength={0.5}
-            pageLoadAnimation={true}
             brightness={0.4}
+            maxFps={15} // Even lower FPS for very low-end devices
+            adaptiveQuality={true}
           />
         </div>
 
