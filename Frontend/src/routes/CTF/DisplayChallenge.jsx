@@ -60,7 +60,6 @@ function DisplayChallenge() {
     () => getCachedChallenge(challengeId) || null
   );
 
-  // 🚀 Update local + cache when API responds
   useEffect(() => {
     if (ChallengeData?.Challenge) {
       setChallenge(ChallengeData.Challenge);
@@ -68,13 +67,14 @@ function DisplayChallenge() {
     }
   }, [ChallengeData, challengeId]);
 
-  // 🚀 Background refresh loop (4s interval)
   useEffect(() => {
     let active = true;
     const loop = async () => {
+      let toggle = true;
       while (active) {
-        await new Promise((res) => setTimeout(res, 4000));
-        fetchRetry(); // triggers API re-fetch
+        await new Promise((res) => setTimeout(res, toggle ? 4000 : 7000));
+        fetchRetry();
+        toggle = !toggle;
       }
     };
     loop();

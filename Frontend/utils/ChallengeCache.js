@@ -1,12 +1,10 @@
-// challengeCache.js
+// utils/ChallengeCache.js
 const cache = new Map();
 const TTL = 2 * 60 * 1000; // 2 minutes
 
 export function getCachedChallenge(id) {
   const entry = cache.get(id);
   if (!entry) return null;
-
-  // 🚀 Expired? Remove + return null
   if (Date.now() - entry.ts > TTL) {
     cache.delete(id);
     return null;
@@ -18,7 +16,7 @@ export function setCachedChallenge(id, data) {
   cache.set(id, { data, ts: Date.now() });
 }
 
-// 🚀 Background cleanup every 1 min
+// Background sweep every minute
 setInterval(() => {
   const now = Date.now();
   for (const [id, entry] of cache.entries()) {
