@@ -50,6 +50,24 @@ function DisplayChallenge() {
     loading,
     retry: fetchRetry,
   } = Usefetch(`challenge/${challengeId}`, "get", null, {}, true);
+  useEffect(() => {
+    let toggle = false;
+    let id;
+
+    const loop = () => {
+      const interval = toggle ? 7000 : 4000;
+      toggle = !toggle;
+
+      id = setTimeout(() => {
+        fetchRetry();
+        loop();
+      }, interval);
+    };
+
+    loop();
+
+    return () => clearTimeout(id);
+  }, [fetchRetry]);
 
   // Hint fetching hook - initially not active
   const [hintEndpoint, setHintEndpoint] = useState("");
