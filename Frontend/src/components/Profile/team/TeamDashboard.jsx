@@ -11,7 +11,7 @@ export default function TeamDashboard() {
   useEffect(() => {
     setTimeout(() => {
       fetchTeam();
-    }, 20000);
+    }, 7000);
   }, []);
   useEffect(() => {
     if (team) {
