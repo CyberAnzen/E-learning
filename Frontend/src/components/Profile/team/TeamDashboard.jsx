@@ -13,7 +13,6 @@ export default function TeamDashboard() {
       fetchTeam();
     }, 20000);
   }, []);
-  fetchTeam();
   useEffect(() => {
     if (team) {
       setTeam(team);
