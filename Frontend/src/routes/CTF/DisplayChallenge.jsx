@@ -613,175 +613,175 @@ function DisplayChallenge() {
       </div>
     );
   }
-
-  return (
-    <div className="h-[85vh] relative overflow-hidden">
-      {/* Background tech grid */}
-      <div className="absolute inset-0 opacity-20">
-        <TechGrid className="absolute top-0 left-0 w-full h-full" />
-      </div>
-
-      {/* Animated background elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-2 left-2 sm:top-6 sm:left-6 lg:top-10 lg:left-10 w-12 h-12 sm:w-20 sm:h-20 lg:w-32 lg:h-32 opacity-30">
-          <CircuitPattern className="w-full h-full animate-pulse" />
+  if (display) {
+    return (
+      <div className="h-[85vh] relative overflow-hidden">
+        {/* Background tech grid */}
+        <div className="absolute inset-0 opacity-20">
+          <TechGrid className="absolute top-0 left-0 w-full h-full" />
         </div>
-        <div className="absolute bottom-2 right-2 sm:bottom-6 sm:right-6 lg:bottom-10 lg:right-10 w-16 h-16 sm:w-24 sm:h-24 lg:w-40 lg:h-40 opacity-20">
-          <CircuitPattern
-            className="w-full h-full animate-spin"
-            style={{ animationDuration: "30s" }}
-          />
+
+        {/* Animated background elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-2 left-2 sm:top-6 sm:left-6 lg:top-10 lg:left-10 w-12 h-12 sm:w-20 sm:h-20 lg:w-32 lg:h-32 opacity-30">
+            <CircuitPattern className="w-full h-full animate-pulse" />
+          </div>
+          <div className="absolute bottom-2 right-2 sm:bottom-6 sm:right-6 lg:bottom-10 lg:right-10 w-16 h-16 sm:w-24 sm:h-24 lg:w-40 lg:h-40 opacity-20">
+            <CircuitPattern
+              className="w-full h-full animate-spin"
+              style={{ animationDuration: "30s" }}
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="relative z-10 h-full flex items-center justify-center p-1 sm:p-2 lg:p-4">
-        {/* Main holographic container */}
-        <div className="relative w-full max-w-7xl h-full">
-          {/* Background holographic frame */}
-          <HexagonalFrame className="absolute inset-0 w-full h-full opacity-60" />
+        <div className="relative z-10 h-full flex items-center justify-center p-1 sm:p-2 lg:p-4">
+          {/* Main holographic container */}
+          <div className="relative w-full max-w-7xl h-full">
+            {/* Background holographic frame */}
+            <HexagonalFrame className="absolute inset-0 w-full h-full opacity-60" />
 
-          {/* Main content container */}
-          <div className="relative bg-gradient-to-br opacity-90 from-black/90 via-gray-900/80 to-black/90 backdrop-blur-sm border border-teal-500/50 rounded-lg overflow-hidden h-full flex flex-col">
-            {/* Top header with data stream */}
-            <div className="relative h-10 sm:h-12 lg:h-16 bg-gradient-to-r from-teal-500/10 to-teal-600/20 border-b border-teal-500/50 flex-shrink-0">
-              <div className="relative z-10 flex items-center justify-between px-2 sm:px-4 lg:px-6 h-full">
-                <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
-                  <span className="text-teal-300 font-mono text-xs sm:text-sm tracking-wider">
-                    {display?.category || ""}{" "}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-teal-300 font-mono text-xs sm:text-sm">
-                    {display?.difficulty
-                      ? display.difficulty.charAt(0).toUpperCase() +
-                        display.difficulty.slice(1).toLowerCase()
-                      : "Easy"}
-                  </span>
+            {/* Main content container */}
+            <div className="relative bg-gradient-to-br opacity-90 from-black/90 via-gray-900/80 to-black/90 backdrop-blur-sm border border-teal-500/50 rounded-lg overflow-hidden h-full flex flex-col">
+              {/* Top header with data stream */}
+              <div className="relative h-10 sm:h-12 lg:h-16 bg-gradient-to-r from-teal-500/10 to-teal-600/20 border-b border-teal-500/50 flex-shrink-0">
+                <div className="relative z-10 flex items-center justify-between px-2 sm:px-4 lg:px-6 h-full">
+                  <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
+                    <span className="text-teal-300 font-mono text-xs sm:text-sm tracking-wider">
+                      {display?.category || ""}{" "}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-teal-300 font-mono text-xs sm:text-sm">
+                      {display?.difficulty
+                        ? display.difficulty.charAt(0).toUpperCase() +
+                          display.difficulty.slice(1).toLowerCase()
+                        : "Easy"}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex flex-1 overflow-hidden">
-              {/* Left holographic display - Hints and Attachments */}
-              <div className="relative w-48 sm:w-56 lg:w-80 p-2 sm:p-4 lg:p-6 border-r border-teal-500/30 hidden md:flex md:flex-col">
-                {/* Hints Section */}
-                <div className="relative flex-1 flex flex-col mb-3">
-                  <div className="text-center mb-4 flex-shrink-0">
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                      <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-teal-400" />
-                      <div className="text-lg sm:text-xl font-bold text-teal-400">
-                        Hints
+              <div className="flex flex-1 overflow-hidden">
+                {/* Left holographic display - Hints and Attachments */}
+                <div className="relative w-48 sm:w-56 lg:w-80 p-2 sm:p-4 lg:p-6 border-r border-teal-500/30 hidden md:flex md:flex-col">
+                  {/* Hints Section */}
+                  <div className="relative flex-1 flex flex-col mb-3">
+                    <div className="text-center mb-4 flex-shrink-0">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-teal-400" />
+                        <div className="text-lg sm:text-xl font-bold text-teal-400">
+                          Hints
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-gray-800">
-                    <div className="space-y-2">
-                      {hints.map((hint, index) => {
-                        const isUnlockable = canUnlockHint(index);
-                        const isUsed = hint.used;
-                        const isLocked = !isUsed && !isUnlockable;
+                    <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-gray-800">
+                      <div className="space-y-2">
+                        {hints.map((hint, index) => {
+                          const isUnlockable = canUnlockHint(index);
+                          const isUsed = hint.used;
+                          const isLocked = !isUsed && !isUnlockable;
 
-                        return (
-                          <div
-                            key={hint.id}
-                            className={`relative p-3 border rounded-lg cursor-pointer transition-all duration-300 ${
-                              isUsed
-                                ? "border-green-400/50 bg-green-500/10 hover:bg-green-500/20"
-                                : isUnlockable
-                                ? "border-teal-400/50 bg-teal-500/10 hover:bg-teal-500/20"
-                                : "border-gray-600/30 bg-gray-800/20 cursor-not-allowed"
-                            } ${isLocked ? "blur-sm" : ""}`}
-                            onClick={() =>
-                              !isLocked && handleHintClick(hint, index)
-                            }
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                {isUsed ? (
-                                  <Unlock className="w-4 h-4 text-green-400" />
-                                ) : isUnlockable ? (
-                                  <Eye className="w-4 h-4 text-teal-400" />
-                                ) : (
-                                  <Lock className="w-4 h-4 text-gray-500" />
-                                )}
-                                <span
-                                  className={`font-mono text-sm ${
+                          return (
+                            <div
+                              key={hint.id}
+                              className={`relative p-3 border rounded-lg cursor-pointer transition-all duration-300 ${
+                                isUsed
+                                  ? "border-green-400/50 bg-green-500/10 hover:bg-green-500/20"
+                                  : isUnlockable
+                                  ? "border-teal-400/50 bg-teal-500/10 hover:bg-teal-500/20"
+                                  : "border-gray-600/30 bg-gray-800/20 cursor-not-allowed"
+                              } ${isLocked ? "blur-sm" : ""}`}
+                              onClick={() =>
+                                !isLocked && handleHintClick(hint, index)
+                              }
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  {isUsed ? (
+                                    <Unlock className="w-4 h-4 text-green-400" />
+                                  ) : isUnlockable ? (
+                                    <Eye className="w-4 h-4 text-teal-400" />
+                                  ) : (
+                                    <Lock className="w-4 h-4 text-gray-500" />
+                                  )}
+                                  <span
+                                    className={`font-mono text-sm ${
+                                      isUsed
+                                        ? "text-green-300"
+                                        : isUnlockable
+                                        ? "text-teal-300"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
+                                    Hint {index + 1}
+                                  </span>
+                                </div>
+                                <div
+                                  className={`font-mono text-xs ${
                                     isUsed
-                                      ? "text-green-300"
+                                      ? "text-green-400"
                                       : isUnlockable
-                                      ? "text-teal-300"
+                                      ? "text-yellow-400"
                                       : "text-gray-500"
                                   }`}
                                 >
-                                  Hint {index + 1}
-                                </span>
+                                  {hint.usedBy
+                                    ? `Used By: ${hint.usedBy}`
+                                    : isUsed
+                                    ? "USED"
+                                    : `${hint.cost} pts`}
+                                </div>
                               </div>
-                              <div
-                                className={`font-mono text-xs ${
-                                  isUsed
-                                    ? "text-green-400"
-                                    : isUnlockable
-                                    ? "text-yellow-400"
-                                    : "text-gray-500"
-                                }`}
-                              >
-                                {hint.usedBy
-                                  ? `Used By: ${hint.usedBy}`
-                                  : isUsed
-                                  ? "USED"
-                                  : `${hint.cost} pts`}
-                              </div>
+                              {isLocked && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <Lock className="w-6 h-6 text-gray-600" />
+                                </div>
+                              )}
                             </div>
-                            {isLocked && (
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <Lock className="w-6 h-6 text-gray-600" />
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
 
-                      {hints.length === 0 && (
-                        <div className="text-center p-4 border border-gray-600/30 rounded-lg bg-gray-800/20">
-                          <div className="text-gray-500 font-mono text-sm">
-                            No hints available
+                        {hints.length === 0 && (
+                          <div className="text-center p-4 border border-gray-600/30 rounded-lg bg-gray-800/20">
+                            <div className="text-gray-500 font-mono text-sm">
+                              No hints available
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-2 sm:space-y-3">
+                    <div className="h-px bg-gradient-to-r from-transparent via-teal-500/50 to-transparent"></div>
+
+                    <div className="flex justify-center items-center gap-2 text-xs sm:text-sm">
+                      <Coins className="w-3 h-3 text-yellow-400" />
+                      <span className="text-gray-300">Score:</span>
+                      <span className="font-semibold text-teal-400">
+                        {currentScore} pts
+                      </span>
+                    </div>
+
+                    <div className="flex justify-center items-center gap-2 text-xs sm:text-sm">
+                      <span className={`text-gray-300`}>Attempts:</span>
+                      <span
+                        className={`font-semibold ${
+                          !disabled || flagSubmitted
+                            ? "text-teal-400"
+                            : "text-red-400"
+                        }`}
+                      >
+                        {attempts}
+                      </span>
                     </div>
                   </div>
                 </div>
-                <div className="space-y-2 sm:space-y-3">
-                  <div className="h-px bg-gradient-to-r from-transparent via-teal-500/50 to-transparent"></div>
 
-                  <div className="flex justify-center items-center gap-2 text-xs sm:text-sm">
-                    <Coins className="w-3 h-3 text-yellow-400" />
-                    <span className="text-gray-300">Score:</span>
-                    <span className="font-semibold text-teal-400">
-                      {currentScore} pts
-                    </span>
-                  </div>
-
-                  <div className="flex justify-center items-center gap-2 text-xs sm:text-sm">
-                    <span className={`text-gray-300`}>Attempts:</span>
-                    <span
-                      className={`font-semibold ${
-                        !disabled || flagSubmitted
-                          ? "text-teal-400"
-                          : "text-red-400"
-                      }`}
-                    >
-                      {attempts}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Center main display */}
-              <div className="flex-1 p-2 sm:p-4 lg:p-8 overflow-hidden flex flex-col">
-                {/* Warning section with advanced styling */}
-                {/* <div className="relative mb-3 sm:mb-4 lg:mb-6 flex-shrink-0">
+                {/* Center main display */}
+                <div className="flex-1 p-2 sm:p-4 lg:p-8 overflow-hidden flex flex-col">
+                  {/* Warning section with advanced styling */}
+                  {/* <div className="relative mb-3 sm:mb-4 lg:mb-6 flex-shrink-0">
                   <div className="absolute -inset-2 bg-gradient-to-r from-teal-500/20 to-transparent rounded-lg blur-sm"></div>
                   <div className="relative flex items-center gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-3 lg:p-4 border border-red-500/30 rounded-lg bg-red-950/50">
                     <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-red-500 animate-pulse flex-shrink-0" />
@@ -795,56 +795,57 @@ function DisplayChallenge() {
                   </div>
                 </div> */}
 
-                {/* Main title with holographic effect */}
-                <div className="relative mb-3 sm:mb-4 lg:mb-6 flex-shrink-0">
-                  <div className="absolute -inset-4 bg-gradient-to-r from-teal-500/10 via-teal-400/20 to-teal-500/10 rounded-lg blur-lg"></div>
-                  <div className="relative">
-                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-teal-400  tracking-wider mb-1 sm:mb-2 glow text-center">
-                      {display?.title}
-                    </h1>
-                    <div className="h-1 bg-gradient-to-r from-teal-500 via-teal-400 to-transparent rounded-full"></div>
-                    <div className="h-px bg-gradient-to-r from-transparent via-teal-300 to-transparent mt-1"></div>
+                  {/* Main title with holographic effect */}
+                  <div className="relative mb-3 sm:mb-4 lg:mb-6 flex-shrink-0">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-teal-500/10 via-teal-400/20 to-teal-500/10 rounded-lg blur-lg"></div>
+                    <div className="relative">
+                      <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-teal-400  tracking-wider mb-1 sm:mb-2 glow text-center">
+                        {display?.title}
+                      </h1>
+                      <div className="h-1 bg-gradient-to-r from-teal-500 via-teal-400 to-transparent rounded-full"></div>
+                      <div className="h-px bg-gradient-to-r from-transparent via-teal-300 to-transparent mt-1"></div>
+                    </div>
                   </div>
-                </div>
 
-                <div className="text-teal-400 font-bold mb-1 sm:mb-2 text-xs sm:text-sm lg:text-base">
-                  Description
-                </div>
-                <div className="flex-1 overflow-hidden">
-                  <div
-                    className="rounded-md border border-teal-300/20 backdrop-blur-md bg-teal-300/5 h-full"
-                    ref={textRef}
-                    onCopy={handleCopy}
-                    style={{
-                      overflowY: "scroll",
-                      padding: "8px",
-                      whiteSpace: "pre-wrap",
-                      wordBreak: "break-word",
-                      userSelect: "text",
-                    }}
-                  >
-                    {/* Safety protocols */}
-                    <div className="space-y-4">
-                      <div className="text-teal-300/90 font-mono text-xs sm:text-sm tracking-wide">
-                        <div>
-                          {display?.description || "No description available."}
+                  <div className="text-teal-400 font-bold mb-1 sm:mb-2 text-xs sm:text-sm lg:text-base">
+                    Description
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <div
+                      className="rounded-md border border-teal-300/20 backdrop-blur-md bg-teal-300/5 h-full"
+                      ref={textRef}
+                      onCopy={handleCopy}
+                      style={{
+                        overflowY: "scroll",
+                        padding: "8px",
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                        userSelect: "text",
+                      }}
+                    >
+                      {/* Safety protocols */}
+                      <div className="space-y-4">
+                        <div className="text-teal-300/90 font-mono text-xs sm:text-sm tracking-wide">
+                          <div>
+                            {display?.description ||
+                              "No description available."}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Right technical panel - responsive sizing */}
-              <div className="w-40 sm:w-48 lg:w-64 p-2 sm:p-3 lg:p-6 border-l border-teal-500/30 bg-gradient-to-b from-teal-500/10 to-black/50">
-                {/* Circuit pattern overlay */}
-                {/* <div className="absolute inset-0 opacity-10 pointer-events-none">
+                {/* Right technical panel - responsive sizing */}
+                <div className="w-40 sm:w-48 lg:w-64 p-2 sm:p-3 lg:p-6 border-l border-teal-500/30 bg-gradient-to-b from-teal-500/10 to-black/50">
+                  {/* Circuit pattern overlay */}
+                  {/* <div className="absolute inset-0 opacity-10 pointer-events-none">
                   <CircuitPattern className="w-full h-full" />
                 </div> */}
 
-                <div className="relative space-y-3 sm:space-y-4 lg:space-y-6 h-full flex flex-col">
-                  {/* Power core display */}
-                  {/* <div className="text-center flex-shrink-0">
+                  <div className="relative space-y-3 sm:space-y-4 lg:space-y-6 h-full flex flex-col">
+                    {/* Power core display */}
+                    {/* <div className="text-center flex-shrink-0">
                     <div className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-20 lg:h-20 mx-auto mb-1 sm:mb-2 lg:mb-4">
                       <div
                         className="absolute inset-0 border-2 border-teal-400/50 rounded-full animate-spin"
@@ -867,9 +868,9 @@ function DisplayChallenge() {
                     </div>
                   </div> */}
 
-                  {/* Technical readouts */}
-                  <div className="space-y-2 sm:space-y-3 lg:space-y-4 flex-1">
-                    {/* <div className="p-1.5 sm:p-2 lg:p-3 border border-teal-500/30 rounded bg-black/30">
+                    {/* Technical readouts */}
+                    <div className="space-y-2 sm:space-y-3 lg:space-y-4 flex-1">
+                      {/* <div className="p-1.5 sm:p-2 lg:p-3 border border-teal-500/30 rounded bg-black/30">
                       <div className="text-teal-400 font-mono text-xs sm:text-sm mb-1">
                         SSH connection
                       </div>
@@ -880,254 +881,255 @@ function DisplayChallenge() {
                         893-5
                       </div>
                     </div> */}
-                  </div>
-                  {/* Attachments Section */}
-                  <div className="relative flex-1 flex flex-col">
-                    {/* Section Title */}
-                    <div className="text-center mb-4 flex-shrink-0">
-                      <div className="flex items-center justify-center gap-3 flex-wrap">
-                        {/* Title with Icon */}
-                        <div className="flex items-center gap-2">
-                          <Paperclip className="w-5 h-5 text-teal-400" />
-                          <div className="text-lg sm:text-xl font-semibold tracking-wide text-teal-300">
-                            Attachments
+                    </div>
+                    {/* Attachments Section */}
+                    <div className="relative flex-1 flex flex-col">
+                      {/* Section Title */}
+                      <div className="text-center mb-4 flex-shrink-0">
+                        <div className="flex items-center justify-center gap-3 flex-wrap">
+                          {/* Title with Icon */}
+                          <div className="flex items-center gap-2">
+                            <Paperclip className="w-5 h-5 text-teal-400" />
+                            <div className="text-lg sm:text-xl font-semibold tracking-wide text-teal-300">
+                              Attachments
+                            </div>
                           </div>
-                        </div>
 
-                        {/* Batch download button (shows only if >1 file) */}
-                        {display?.attachments?.length > 1 && (
-                          <button
-                            onClick={() =>
-                              handleBatchDownload(display.attachments)
-                            }
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-mono text-teal-200 border border-teal-500/40 rounded-full hover:bg-teal-600/20 hover:border-teal-400 transition-all duration-300"
-                          >
-                            <FolderArchive className="w-4 h-4 text-teal-400" />
-                            <span>{display.attachments.length} Files</span>
-                          </button>
+                          {/* Batch download button (shows only if >1 file) */}
+                          {display?.attachments?.length > 1 && (
+                            <button
+                              onClick={() =>
+                                handleBatchDownload(display.attachments)
+                              }
+                              className="flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-mono text-teal-200 border border-teal-500/40 rounded-full hover:bg-teal-600/20 hover:border-teal-400 transition-all duration-300"
+                            >
+                              <FolderArchive className="w-4 h-4 text-teal-400" />
+                              <span>{display.attachments.length} Files</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Scrollable Container */}
+                      <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-gray-800 rounded-lg">
+                        {display?.attachments?.length > 0 ? (
+                          <div className="space-y-2">
+                            {display.attachments.map((attachment, index) => {
+                              // Extract filename from path
+                              const fileName =
+                                attachment.split("/").pop() ||
+                                `File ${index + 1}`;
+
+                              // Handle truncation (show ... in middle if long)
+                              const maxLength = 30;
+                              const displayName =
+                                fileName.length > maxLength
+                                  ? fileName.substring(0, 15) +
+                                    "..." +
+                                    fileName.slice(-10)
+                                  : fileName;
+
+                              return (
+                                <div
+                                  key={index}
+                                  className="group p-3 border border-teal-500/40 bg-gray-900/40 rounded-lg hover:border-teal-400 hover:bg-gray-800/60 cursor-pointer transition-all duration-300"
+                                  onClick={() => handleDownload(attachment)}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <Paperclip className="w-4 h-4 text-teal-400 group-hover:scale-110 transition-transform shrink-0" />
+                                      <span
+                                        title={fileName}
+                                        className="font-mono text-sm text-teal-200 truncate max-w-[200px]"
+                                      >
+                                        {displayName}
+                                      </span>
+                                    </div>
+                                    <Download className="w-4 h-4 text-teal-400 group-hover:text-teal-300 shrink-0" />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="text-center p-6 border border-gray-700 rounded-lg bg-gray-900/40">
+                            <div className="text-gray-500 font-mono text-sm">
+                              No attachments
+                            </div>
+                          </div>
                         )}
                       </div>
                     </div>
-
-                    {/* Scrollable Container */}
-                    <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-gray-800 rounded-lg">
-                      {display?.attachments?.length > 0 ? (
-                        <div className="space-y-2">
-                          {display.attachments.map((attachment, index) => {
-                            // Extract filename from path
-                            const fileName =
-                              attachment.split("/").pop() ||
-                              `File ${index + 1}`;
-
-                            // Handle truncation (show ... in middle if long)
-                            const maxLength = 30;
-                            const displayName =
-                              fileName.length > maxLength
-                                ? fileName.substring(0, 15) +
-                                  "..." +
-                                  fileName.slice(-10)
-                                : fileName;
-
-                            return (
-                              <div
-                                key={index}
-                                className="group p-3 border border-teal-500/40 bg-gray-900/40 rounded-lg hover:border-teal-400 hover:bg-gray-800/60 cursor-pointer transition-all duration-300"
-                                onClick={() => handleDownload(attachment)}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2 min-w-0">
-                                    <Paperclip className="w-4 h-4 text-teal-400 group-hover:scale-110 transition-transform shrink-0" />
-                                    <span
-                                      title={fileName}
-                                      className="font-mono text-sm text-teal-200 truncate max-w-[200px]"
-                                    >
-                                      {displayName}
-                                    </span>
-                                  </div>
-                                  <Download className="w-4 h-4 text-teal-400 group-hover:text-teal-300 shrink-0" />
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="text-center p-6 border border-gray-700 rounded-lg bg-gray-900/40">
-                          <div className="text-gray-500 font-mono text-sm">
-                            No attachments
+                    {/* Control buttons */}
+                    <div className="space-y-2 sm:space-y-3 flex-shrink-0">
+                      <div className="flex justify-center mt-4">
+                        <Link to="/leaderboard" className="w-full max-w-xs">
+                          <div className="w-full p-1 sm:p-1.5 lg:p-2 border border-teal-500/30 rounded bg-black/30 hover:bg-teal-500/10 transition-colors text-center">
+                            <span className="text-teal-300 text-xs sm:text-sm">
+                              LeaderBoard
+                            </span>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  {/* Control buttons */}
-                  <div className="space-y-2 sm:space-y-3 flex-shrink-0">
-                    <div className="flex justify-center mt-4">
-                      <Link to="/leaderboard" className="w-full max-w-xs">
-                        <div className="w-full p-1 sm:p-1.5 lg:p-2 border border-teal-500/30 rounded bg-black/30 hover:bg-teal-500/10 transition-colors text-center">
-                          <span className="text-teal-300 text-xs sm:text-sm">
-                            LeaderBoard
-                          </span>
-                        </div>
-                      </Link>
-                    </div>
+                        </Link>
+                      </div>
 
-                    <button
-                      type="button"
-                      disabled={disabled}
-                      aria-disabled={disabled}
-                      title={
-                        flagSubmitted
-                          ? "Flag submitted"
-                          : disabled
-                          ? "Attempt exceeded"
-                          : "Submit flag"
-                      }
-                      onClick={
-                        disabled ? undefined : () => setIsFlagModalOpen(true)
-                      }
-                      className={`flex justify-around items-center w-full p-1.5 sm:p-2 lg:p-3 rounded-lg backdrop-blur-md border transition-all duration-300 group ${
-                        flagSubmitted
-                          ? "border-green-400/50 bg-white/10 cursor-not-allowed opacity-95"
-                          : !disabled
-                          ? "border-teal-400/50 bg-white/10 hover:bg-white/20 hover:shadow-lg"
-                          : "border-red-400/30 bg-white/5 cursor-not-allowed opacity-60"
-                      }`}
-                    >
-                      <span
-                        className={`${
+                      <button
+                        type="button"
+                        disabled={disabled}
+                        aria-disabled={disabled}
+                        title={
                           flagSubmitted
-                            ? "text-green-300"
+                            ? "Flag submitted"
+                            : disabled
+                            ? "Attempt exceeded"
+                            : "Submit flag"
+                        }
+                        onClick={
+                          disabled ? undefined : () => setIsFlagModalOpen(true)
+                        }
+                        className={`flex justify-around items-center w-full p-1.5 sm:p-2 lg:p-3 rounded-lg backdrop-blur-md border transition-all duration-300 group ${
+                          flagSubmitted
+                            ? "border-green-400/50 bg-white/10 cursor-not-allowed opacity-95"
                             : !disabled
-                            ? "text-teal-400"
-                            : "text-red-400"
-                        } font-mono text-sm sm:text-md lg:text-lg`}
+                            ? "border-teal-400/50 bg-white/10 hover:bg-white/20 hover:shadow-lg"
+                            : "border-red-400/30 bg-white/5 cursor-not-allowed opacity-60"
+                        }`}
                       >
-                        {flagSubmitted
-                          ? "Flag Submitted"
-                          : !disabled
-                          ? "Submit Flag"
-                          : "Attempt Exceeded"}
-                      </span>
+                        <span
+                          className={`${
+                            flagSubmitted
+                              ? "text-green-300"
+                              : !disabled
+                              ? "text-teal-400"
+                              : "text-red-400"
+                          } font-mono text-sm sm:text-md lg:text-lg`}
+                        >
+                          {flagSubmitted
+                            ? "Flag Submitted"
+                            : !disabled
+                            ? "Submit Flag"
+                            : "Attempt Exceeded"}
+                        </span>
 
-                      {flagSubmitted ? (
-                        <Check className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-green-300 transition-transform duration-300" />
-                      ) : !disabled ? (
-                        <Flag className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-cyan-300 transition-transform duration-300 group-hover:scale-110" />
-                      ) : (
-                        <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-red-400 transition-transform duration-300" />
-                      )}
-                    </button>
+                        {flagSubmitted ? (
+                          <Check className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-green-300 transition-transform duration-300" />
+                        ) : !disabled ? (
+                          <Flag className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-cyan-300 transition-transform duration-300 group-hover:scale-110" />
+                        ) : (
+                          <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-red-400 transition-transform duration-300" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Floating holographic elements - responsive positioning */}
-          <div className="absolute -top-6 sm:-top-8 lg:-top-16 left-1/2 transform -translate-x-1/2">
-            <div className="text-teal-400/60 font-mono text-xs sm:text-sm text-center">
-              <div>NEURAL_INTERFACE_ACTIVE</div>
-              <div className="mt-1 flex justify-center gap-1">
-                {[...Array(3)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-1 h-1 bg-teal-400 rounded-full animate-pulse"
-                    style={{ animationDelay: `${i * 0.2}s` }}
-                  ></div>
-                ))}
+            {/* Floating holographic elements - responsive positioning */}
+            <div className="absolute -top-6 sm:-top-8 lg:-top-16 left-1/2 transform -translate-x-1/2">
+              <div className="text-teal-400/60 font-mono text-xs sm:text-sm text-center">
+                <div>NEURAL_INTERFACE_ACTIVE</div>
+                <div className="mt-1 flex justify-center gap-1">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1 h-1 bg-teal-400 rounded-full animate-pulse"
+                      style={{ animationDelay: `${i * 0.2}s` }}
+                    ></div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="absolute -bottom-6 sm:-bottom-8 lg:-bottom-16 left-1/2 transform -translate-x-1/2">
-            <div className="text-teal-400/60 font-mono text-xs sm:text-sm text-center">
-              <div className="flex justify-center gap-1 mb-1">
-                {[...Array(7)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-1 h-2 sm:h-3 bg-teal-400 ${
-                      i === 3 ? "opacity-100" : "opacity-30"
-                    }`}
-                  ></div>
-                ))}
+            <div className="absolute -bottom-6 sm:-bottom-8 lg:-bottom-16 left-1/2 transform -translate-x-1/2">
+              <div className="text-teal-400/60 font-mono text-xs sm:text-sm text-center">
+                <div className="flex justify-center gap-1 mb-1">
+                  {[...Array(7)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-1 h-2 sm:h-3 bg-teal-400 ${
+                        i === 3 ? "opacity-100" : "opacity-30"
+                      }`}
+                    ></div>
+                  ))}
+                </div>
+                <div>QUANTUM_SIGNATURE_DETECTED</div>
               </div>
-              <div>QUANTUM_SIGNATURE_DETECTED</div>
             </div>
           </div>
         </div>
+
+        {/* Hint Modal */}
+        <HintModal
+          isOpen={isHintModalOpen}
+          onClose={() => setIsHintModalOpen(false)}
+          hint={selectedHint}
+          onUnlockHint={handleUnlockHint}
+          currentScore={currentScore}
+        />
+
+        {/* Flag Submission Modal */}
+        <FlagModal
+          isOpen={isFlagModalOpen}
+          onClose={() => {
+            setIsFlagModalOpen(false);
+            setFlagSubmissionError("");
+            setFlagSubmissionSuccess("");
+          }}
+          onSubmitFlag={handleFlagSubmission}
+          challengeData={{ Challenge }}
+          loading={flagLoading}
+          error={flagSubmissionError}
+          success={flagSubmissionSuccess}
+        />
+
+        {/* Additional responsive styles */}
+        <style jsx>{`
+          .glow {
+            text-shadow: 0 0 20px rgba(45, 212, 191, 0.5);
+          }
+
+          /* Custom scrollbar for description area */
+          div[style*="overflowY: scroll"]::-webkit-scrollbar {
+            width: 3px;
+          }
+
+          div[style*="overflowY: scroll"]::-webkit-scrollbar-track {
+            background: rgba(45, 212, 191, 0.1);
+            border-radius: 2px;
+          }
+
+          div[style*="overflowY: scroll"]::-webkit-scrollbar-thumb {
+            background: rgba(45, 212, 191, 0.5);
+            border-radius: 2px;
+          }
+
+          div[style*="overflowY: scroll"]::-webkit-scrollbar-thumb:hover {
+            background: rgba(45, 212, 191, 0.7);
+          }
+
+          /* Responsive text scaling */
+          @media (max-width: 1024px) {
+            .glow {
+              text-shadow: 0 0 8px rgba(45, 212, 191, 0.5);
+            }
+          }
+
+          @media (max-width: 640px) {
+            .glow {
+              text-shadow: 0 0 5px rgba(45, 212, 191, 0.5);
+            }
+          }
+
+          /* Optimize for half-screen laptop displays */
+          @media (min-width: 600px) and (max-width: 900px) {
+            .glow {
+              text-shadow: 0 0 6px rgba(45, 212, 191, 0.5);
+            }
+          }
+        `}</style>
       </div>
-
-      {/* Hint Modal */}
-      <HintModal
-        isOpen={isHintModalOpen}
-        onClose={() => setIsHintModalOpen(false)}
-        hint={selectedHint}
-        onUnlockHint={handleUnlockHint}
-        currentScore={currentScore}
-      />
-
-      {/* Flag Submission Modal */}
-      <FlagModal
-        isOpen={isFlagModalOpen}
-        onClose={() => {
-          setIsFlagModalOpen(false);
-          setFlagSubmissionError("");
-          setFlagSubmissionSuccess("");
-        }}
-        onSubmitFlag={handleFlagSubmission}
-        challengeData={{ Challenge }}
-        loading={flagLoading}
-        error={flagSubmissionError}
-        success={flagSubmissionSuccess}
-      />
-
-      {/* Additional responsive styles */}
-      <style jsx>{`
-        .glow {
-          text-shadow: 0 0 20px rgba(45, 212, 191, 0.5);
-        }
-
-        /* Custom scrollbar for description area */
-        div[style*="overflowY: scroll"]::-webkit-scrollbar {
-          width: 3px;
-        }
-
-        div[style*="overflowY: scroll"]::-webkit-scrollbar-track {
-          background: rgba(45, 212, 191, 0.1);
-          border-radius: 2px;
-        }
-
-        div[style*="overflowY: scroll"]::-webkit-scrollbar-thumb {
-          background: rgba(45, 212, 191, 0.5);
-          border-radius: 2px;
-        }
-
-        div[style*="overflowY: scroll"]::-webkit-scrollbar-thumb:hover {
-          background: rgba(45, 212, 191, 0.7);
-        }
-
-        /* Responsive text scaling */
-        @media (max-width: 1024px) {
-          .glow {
-            text-shadow: 0 0 8px rgba(45, 212, 191, 0.5);
-          }
-        }
-
-        @media (max-width: 640px) {
-          .glow {
-            text-shadow: 0 0 5px rgba(45, 212, 191, 0.5);
-          }
-        }
-
-        /* Optimize for half-screen laptop displays */
-        @media (min-width: 600px) and (max-width: 900px) {
-          .glow {
-            text-shadow: 0 0 6px rgba(45, 212, 191, 0.5);
-          }
-        }
-      `}</style>
-    </div>
-  );
+    );
+  }
 }
 
 export default DisplayChallenge;
