@@ -7,14 +7,22 @@ import ParticleBackground from "../components/Login/ParticleBackground";
 import UserIcon from "../components/Login/UserIcon";
 import "../index.css";
 import Turnstile from "react-turnstile";
-
+import { useAppContext } from "../context/AppContext";
+import { ChevronDown } from "lucide-react";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function Signup() {
+  const { loggedIn, setLoggedIn, User, fetchProfile } = useAppContext();
+
   const navigate = useNavigate();
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
-
+  useEffect(() => {
+    if (loggedIn || User) {
+      fetchProfile();
+      navigate("/profile");
+    }
+  }, [loggedIn, User, navigate]);
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -508,7 +516,6 @@ export default function Signup() {
                         </p>
                       </div>
                     )}
-
                     {/* Personal Information Section */}
                     <div className="space-y-3 sm:space-y-4 lg:space-y-6">
                       <h3 className="text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg font-bold border-b border-[#01ffdb]/30 pb-2">
@@ -679,8 +686,8 @@ export default function Signup() {
                         </div>
                       </div>
                     </div>
-
                     {/* Academic Information Section */}
+                    {/* import {ChevronDown} from "lucide-react"; */}
                     <div className="space-y-3 sm:space-y-4 lg:space-y-6">
                       <h3 className="text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg font-bold border-b border-[#01ffdb]/30 pb-2">
                         ACADEMIC INFORMATION
@@ -782,7 +789,7 @@ export default function Signup() {
                                   "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-2 sm:p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3 relative">
                                 <select
                                   name="dept"
                                   value={formData.dept}
@@ -792,7 +799,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.dept ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg outline-none flex-1 appearance-none"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg outline-none flex-1 appearance-none pr-6"
                                 >
                                   <option
                                     value=""
@@ -824,7 +831,31 @@ export default function Signup() {
                                   >
                                     MECH
                                   </option>
+                                  <option
+                                    value="CSE-CYBER"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    CSE Cyber
+                                  </option>
+                                  <option
+                                    value="AIML"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    AIML
+                                  </option>
+                                  <option
+                                    value="BIGDATA"
+                                    className="bg-gray-900 text-[#01ffdb]"
+                                  >
+                                    Big Data
+                                  </option>
                                 </select>
+
+                                {/* dropdown arrow icon */}
+                                <ChevronDown
+                                  size={18}
+                                  className="absolute right-2 text-[#01ffdb] pointer-events-none"
+                                />
                               </div>
                             </div>
                           </div>
@@ -845,7 +876,7 @@ export default function Signup() {
                                   "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-2 sm:p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3 relative">
                                 <select
                                   name="section"
                                   value={formData.section}
@@ -855,7 +886,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.section ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg outline-none flex-1 appearance-none"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg outline-none flex-1 appearance-none pr-6"
                                 >
                                   <option
                                     value=""
@@ -906,6 +937,10 @@ export default function Signup() {
                                     G
                                   </option>
                                 </select>
+                                <ChevronDown
+                                  size={18}
+                                  className="absolute right-2 text-[#01ffdb] pointer-events-none"
+                                />
                               </div>
                             </div>
                           </div>
@@ -926,7 +961,7 @@ export default function Signup() {
                                   "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-2 sm:p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3 relative">
                                 <select
                                   name="year"
                                   value={formData.year}
@@ -936,7 +971,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.year ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg outline-none flex-1 appearance-none"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg outline-none flex-1 appearance-none pr-6"
                                 >
                                   <option
                                     value=""
@@ -969,6 +1004,10 @@ export default function Signup() {
                                     4TH YEAR
                                   </option>
                                 </select>
+                                <ChevronDown
+                                  size={18}
+                                  className="absolute right-2 text-[#01ffdb] pointer-events-none"
+                                />
                               </div>
                             </div>
                           </div>
@@ -989,7 +1028,7 @@ export default function Signup() {
                                   "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                               }}
                             >
-                              <div className="flex items-center justify-between p-2 sm:p-3">
+                              <div className="flex items-center justify-between p-2 sm:p-3 relative">
                                 <select
                                   name="gender"
                                   value={formData.gender}
@@ -999,7 +1038,7 @@ export default function Signup() {
                                   data-error={
                                     validationErrors.gender ? "true" : "false"
                                   }
-                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg outline-none flex-1 appearance-none"
+                                  className="bg-transparent text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg outline-none flex-1 appearance-none pr-6"
                                 >
                                   <option
                                     value=""
@@ -1026,6 +1065,10 @@ export default function Signup() {
                                     OTHER
                                   </option>
                                 </select>
+                                <ChevronDown
+                                  size={18}
+                                  className="absolute right-2 text-[#01ffdb] pointer-events-none"
+                                />
                               </div>
                             </div>
                           </div>
@@ -1037,11 +1080,10 @@ export default function Signup() {
                         </div>
                       </div>
                     </div>
-
                     {/* Security Section */}
                     <div className="space-y-3 sm:space-y-4 lg:space-y-6">
                       <h3 className="text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg font-bold border-b border-[#01ffdb]/30 pb-2">
-                        SECURITY
+                        PASSWORD
                       </h3>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
@@ -1142,7 +1184,6 @@ export default function Signup() {
                         </div>
                       </div>
                     </div>
-
                     {/* Terms and Submit */}
                     <div className="space-y-4 sm:space-y-6">
                       {/* Terms */}
@@ -1162,7 +1203,7 @@ export default function Signup() {
                           htmlFor="terms"
                           className="text-[#01ffdb]/70 font-mono text-xs sm:text-sm leading-relaxed"
                         >
-                          ACCEPT TERMS AND CONDITIONS
+                          ACCEPT<Link to={"/terms"}> TERMS AND CONDITIONS</Link>
                         </label>
                         {validationErrors.terms && (
                           <p className="text-red-400 text-xs font-mono ml-2">

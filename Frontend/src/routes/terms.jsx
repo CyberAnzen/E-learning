@@ -92,7 +92,7 @@ export default function Terms() {
   ];
 
   return (
-    <div className="flex items-center justify-center px-4 sm:px-6 relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black h-[90vh] pt-10 pb-0 lg:pb-0">
+    <div className="flex items-center justify-center px-4 sm:px-6 relative overflow-hidden  h-[90vh] pt-10 pb-0 lg:pb-0">
       <ParticleBackground />
 
       {/* Cyberpunk grid overlay */}

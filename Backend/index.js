@@ -159,7 +159,7 @@ app.use(MongoSanitizer({ mode: "sanitize" })); // Serve only challenge files (no
 app.use(
   "/public",
   downloadLimiter,
-  Auth({ timestamp: false }),
+  // Auth({ timestamp: false }),
   express.static(path.join(__dirname, "public/"), {
     dotfiles: "deny", // Prevent access to hidden files
     index: false, // Disable directory listing
