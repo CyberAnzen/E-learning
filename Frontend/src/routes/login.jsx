@@ -25,11 +25,13 @@ export default function LoginPage() {
     navigate("/profile");
   }
   useEffect(() => {
-    if (loggedIn || User) {
-      fetchProfile();
-      localStorage.setItem("loggedIn", true);
-      navigate("/profile");
-    }
+    setTimeout(() => {
+      if (loggedIn || User) {
+        fetchProfile();
+        localStorage.setItem("loggedIn", true);
+        navigate("/profile");
+      }
+    }, 7000);
   }, [loggedIn, User, navigate]);
 
   useEffect(() => {

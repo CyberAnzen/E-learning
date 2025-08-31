@@ -18,9 +18,11 @@ function Profile() {
   }
   // Redirect if not logged in
   useEffect(() => {
-    if (!loggedIn && !User) {
-      navigate("/login");
-    }
+    setTimeout(() => {
+      if (!loggedIn && !User) {
+        navigate("/login");
+      }
+    }, 7000);
   }, [loggedIn, User, navigate]);
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "auto";
