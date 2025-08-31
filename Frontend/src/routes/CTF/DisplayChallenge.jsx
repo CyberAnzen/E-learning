@@ -56,19 +56,34 @@ function DisplayChallenge() {
     true
   );
 
+  const cached = getCachedChallenge(challengeId);
+
   // load cached data immediately (fast initial render)
-  const [challenge, setChallenge] = useState(
-    () => getCachedChallenge(challengeId) || null
-  );
+  const [challenge, setChallenge] = useState(cached || null);
+
+  const [hints, setHints] = useState(cached?.hints || []);
+  const [currentScore, setCurrentScore] = useState(cached?.score || 0);
+  const [attempts, setAttempts] = useState(cached?.attempt || 0);
+  const [Challenge, setChallengeData] = useState(cached);
+
+  // prefer fresh API data, fall back to cached 'challenge' for rendering
+  const display = ChallengeData?.Challenge ?? challenge;
+
+  const flagSubmitted = Boolean(display?.Flag_Submitted);
+  const disabled = attempts >= 5;
 
   // if user navigates between challengeIds, ensure we pick up the cache for the new id
   useEffect(() => {
     const cached = getCachedChallenge(challengeId);
-    if (cached) setChallenge(cached);
+    setChallenge(cached || null);
+    setHints(cached?.hints || []);
+    setCurrentScore(cached?.score || 0);
+    setAttempts(cached?.attempt || 0);
+    setChallengeData(cached);
+    setHintContents({});
+    setFlagSubmissionError("");
+    setFlagSubmissionSuccess("");
   }, [challengeId]);
-
-  // prefer fresh API data, fall back to cached 'challenge' for rendering
-  const display = ChallengeData?.Challenge ?? challenge;
 
   // update local + cache when API responds
   useEffect(() => {
@@ -129,19 +144,12 @@ function DisplayChallenge() {
     loading: flagLoading,
     retry: submitFlagRetry,
   } = Usefetch(flagEndpoint, "post", null, {}, false);
-  const [attempts, setAttempts] = useState(ChallengeData?.Challenge.attempt);
-  // const attempts = ChallengeData?.Challenge?.attempt ?? 0;
-  const flagSubmitted = Boolean(ChallengeData?.Challenge?.Flag_Submitted);
-  const disabled = attempts >= 5;
   const [activeStatus, setActiveStatus] = useState(true);
   const [dataFlow, setDataFlow] = useState(0);
   const [systemLoad, setSystemLoad] = useState(67);
   const [isMobile, setIsMobile] = useState(false);
-  const [Challenge, setChallengeData] = useState();
 
   // Hint management state
-  const [hints, setHints] = useState([]);
-  const [currentScore, setCurrentScore] = useState(0);
   const [selectedHint, setSelectedHint] = useState(null);
   const [isHintModalOpen, setIsHintModalOpen] = useState(false);
   const [hintContents, setHintContents] = useState({});
@@ -638,18 +646,14 @@ function DisplayChallenge() {
               <div className="relative z-10 flex items-center justify-between px-2 sm:px-4 lg:px-6 h-full">
                 <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
                   <span className="text-teal-300 font-mono text-xs sm:text-sm tracking-wider">
-                    {ChallengeData?.Challenge?.category || ""}{" "}
+                    {display?.category || ""}{" "}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-teal-300 font-mono text-xs sm:text-sm">
-                    {ChallengeData?.Challenge?.difficulty
-                      ? ChallengeData.Challenge.difficulty
-                          .charAt(0)
-                          .toUpperCase() +
-                        ChallengeData.Challenge.difficulty
-                          .slice(1)
-                          .toLowerCase()
+                    {display?.difficulty
+                      ? display.difficulty.charAt(0).toUpperCase() +
+                        display.difficulty.slice(1).toLowerCase()
                       : "Easy"}
                   </span>
                 </div>
@@ -795,7 +799,7 @@ function DisplayChallenge() {
                   <div className="absolute -inset-4 bg-gradient-to-r from-teal-500/10 via-teal-400/20 to-teal-500/10 rounded-lg blur-lg"></div>
                   <div className="relative">
                     <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-teal-400  tracking-wider mb-1 sm:mb-2 glow text-center">
-                      {ChallengeData?.Challenge?.title}
+                      {display?.title}
                     </h1>
                     <div className="h-1 bg-gradient-to-r from-teal-500 via-teal-400 to-transparent rounded-full"></div>
                     <div className="h-px bg-gradient-to-r from-transparent via-teal-300 to-transparent mt-1"></div>
@@ -822,8 +826,7 @@ function DisplayChallenge() {
                     <div className="space-y-4">
                       <div className="text-teal-300/90 font-mono text-xs sm:text-sm tracking-wide">
                         <div>
-                          {ChallengeData?.Challenge?.description ||
-                            "No description available."}
+                          {display?.description || "No description available."}
                         </div>
                       </div>
                     </div>
@@ -891,19 +894,15 @@ function DisplayChallenge() {
                         </div>
 
                         {/* Batch download button (shows only if >1 file) */}
-                        {ChallengeData?.Challenge?.attachments?.length > 1 && (
+                        {display?.attachments?.length > 1 && (
                           <button
                             onClick={() =>
-                              handleBatchDownload(
-                                ChallengeData.Challenge.attachments
-                              )
+                              handleBatchDownload(display.attachments)
                             }
                             className="flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-mono text-teal-200 border border-teal-500/40 rounded-full hover:bg-teal-600/20 hover:border-teal-400 transition-all duration-300"
                           >
                             <FolderArchive className="w-4 h-4 text-teal-400" />
-                            <span>
-                              {ChallengeData.Challenge.attachments.length} Files
-                            </span>
+                            <span>{display.attachments.length} Files</span>
                           </button>
                         )}
                       </div>
@@ -911,46 +910,44 @@ function DisplayChallenge() {
 
                     {/* Scrollable Container */}
                     <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-gray-800 rounded-lg">
-                      {ChallengeData?.Challenge?.attachments?.length > 0 ? (
+                      {display?.attachments?.length > 0 ? (
                         <div className="space-y-2">
-                          {ChallengeData.Challenge.attachments.map(
-                            (attachment, index) => {
-                              // Extract filename from path
-                              const fileName =
-                                attachment.split("/").pop() ||
-                                `File ${index + 1}`;
+                          {display.attachments.map((attachment, index) => {
+                            // Extract filename from path
+                            const fileName =
+                              attachment.split("/").pop() ||
+                              `File ${index + 1}`;
 
-                              // Handle truncation (show ... in middle if long)
-                              const maxLength = 30;
-                              const displayName =
-                                fileName.length > maxLength
-                                  ? fileName.substring(0, 15) +
-                                    "..." +
-                                    fileName.slice(-10)
-                                  : fileName;
+                            // Handle truncation (show ... in middle if long)
+                            const maxLength = 30;
+                            const displayName =
+                              fileName.length > maxLength
+                                ? fileName.substring(0, 15) +
+                                  "..." +
+                                  fileName.slice(-10)
+                                : fileName;
 
-                              return (
-                                <div
-                                  key={index}
-                                  className="group p-3 border border-teal-500/40 bg-gray-900/40 rounded-lg hover:border-teal-400 hover:bg-gray-800/60 cursor-pointer transition-all duration-300"
-                                  onClick={() => handleDownload(attachment)}
-                                >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                      <Paperclip className="w-4 h-4 text-teal-400 group-hover:scale-110 transition-transform shrink-0" />
-                                      <span
-                                        title={fileName}
-                                        className="font-mono text-sm text-teal-200 truncate max-w-[200px]"
-                                      >
-                                        {displayName}
-                                      </span>
-                                    </div>
-                                    <Download className="w-4 h-4 text-teal-400 group-hover:text-teal-300 shrink-0" />
+                            return (
+                              <div
+                                key={index}
+                                className="group p-3 border border-teal-500/40 bg-gray-900/40 rounded-lg hover:border-teal-400 hover:bg-gray-800/60 cursor-pointer transition-all duration-300"
+                                onClick={() => handleDownload(attachment)}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <Paperclip className="w-4 h-4 text-teal-400 group-hover:scale-110 transition-transform shrink-0" />
+                                    <span
+                                      title={fileName}
+                                      className="font-mono text-sm text-teal-200 truncate max-w-[200px]"
+                                    >
+                                      {displayName}
+                                    </span>
                                   </div>
+                                  <Download className="w-4 h-4 text-teal-400 group-hover:text-teal-300 shrink-0" />
                                 </div>
-                              );
-                            }
-                          )}
+                              </div>
+                            );
+                          })}
                         </div>
                       ) : (
                         <div className="text-center p-6 border border-gray-700 rounded-lg bg-gray-900/40">
