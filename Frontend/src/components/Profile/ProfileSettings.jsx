@@ -56,6 +56,17 @@ export default function ProfileSettings() {
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPassword((prev) => ({ ...prev, [name]: value }));
+
+    // validate new password as user types
+    if (name === "next") {
+      const err = validatePassword(value);
+      setValidationErrors((prev) => ({ ...prev, password: err }));
+    } else if (name === "current") {
+      // optional: clear current password error if present
+      if (validationErrors.currentPassword) {
+        setValidationErrors((prev) => ({ ...prev, currentPassword: "" }));
+      }
+    }
   };
 
   const fileInputRef = useRef();
@@ -101,6 +112,50 @@ export default function ProfileSettings() {
 
   const handleBlur = (field) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
+
+    // run field-specific validation on blur
+    switch (field) {
+      case "email": {
+        const err = validateEmail(formData.email);
+        setValidationErrors((prev) => ({ ...prev, email: err }));
+        break;
+      }
+      case "regNumber": {
+        const err = validateRegNumber(formData.regNumber);
+        setValidationErrors((prev) => ({ ...prev, regNumber: err }));
+        break;
+      }
+      case "fullName": {
+        const err = validateFullName(formData.fullName);
+        setValidationErrors((prev) => ({ ...prev, fullName: err }));
+        break;
+      }
+      case "dept": {
+        const err = validateDept(formData.dept);
+        setValidationErrors((prev) => ({ ...prev, dept: err }));
+        break;
+      }
+      case "section": {
+        const err = formData.section ? "" : "Section is required";
+        setValidationErrors((prev) => ({ ...prev, section: err }));
+        break;
+      }
+      case "year": {
+        const err =
+          formData.year && [1, 2, 3, 4].includes(Number(formData.year))
+            ? ""
+            : "Year is required";
+        setValidationErrors((prev) => ({ ...prev, year: err }));
+        break;
+      }
+      case "gender": {
+        const err = formData.gender ? "" : "Gender is required";
+        setValidationErrors((prev) => ({ ...prev, gender: err }));
+        break;
+      }
+      default:
+        break;
+    }
   };
 
   const handleInputChange = (e) => {
@@ -123,26 +178,54 @@ export default function ProfileSettings() {
 
   const validateRegNumber = (regNumber) => {
     if (!regNumber) return "Registration number is required";
-    if (regNumber.length < 5) return "Registration number is too short";
+    if (typeof regNumber === "string" && regNumber.trim().length < 5)
+      return "Registration number is too short";
+    if (!/^[A-Za-z0-9\-_.]+$/.test(regNumber))
+      return "Registration number contains invalid characters";
+    return "";
+  };
+
+  const validateFullName = (name) => {
+    if (!name) return "Full name is required";
+    if (!/^[a-zA-Z ]{3,50}$/.test(name))
+      return "Full name must be 3–50 letters (letters and spaces only)";
+    return "";
+  };
+
+  const validateDept = (dept) => {
+    if (!dept) return "Department is required";
+    if (dept.trim().length < 2) return "Department name is too short";
+    return "";
+  };
+
+  const validatePassword = (pwd) => {
+    if (!pwd) return "Password is required";
+    if (pwd.length < 8 || pwd.length > 12)
+      return "Password must be 8–12 characters";
+    if (!/[a-z]/.test(pwd))
+      return "Password must include at least one lowercase";
+    if (!/[A-Z]/.test(pwd))
+      return "Password must include at least one uppercase";
     return "";
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.fullName) newErrors.fullName = "Full name is required";
-    if (!formData.regNumber)
-      newErrors.regNumber = "Registration number is required";
-    if (!formData.email) newErrors.email = "Email is required";
-    if (!formData.dept) newErrors.dept = "Department is required";
+    const fullNameErr = validateFullName(formData.fullName);
+    if (fullNameErr) newErrors.fullName = fullNameErr;
+
+    const regErr = validateRegNumber(formData.regNumber);
+    if (regErr) newErrors.regNumber = regErr;
+
+    const emailErr = validateEmail(formData.email);
+    if (emailErr) newErrors.email = emailErr;
+
+    const deptErr = validateDept(formData.dept);
+    if (deptErr) newErrors.dept = deptErr;
+
     if (!formData.section) newErrors.section = "Section is required";
     if (!formData.year) newErrors.year = "Year is required";
     if (!formData.gender) newErrors.gender = "Gender is required";
-
-    const emailError = validateEmail(formData.email);
-    if (emailError) newErrors.email = emailError;
-
-    const regNumberError = validateRegNumber(formData.regNumber);
-    if (regNumberError) newErrors.regNumber = regNumberError;
 
     setValidationErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -466,6 +549,11 @@ export default function ProfileSettings() {
                 className={inputStyle}
               />
             </div>
+            {validationErrors.password && (
+              <p className="text-red-400 text-xs mt-1">
+                {validationErrors.password}
+              </p>
+            )}
             <ul className="text-sm text-[#00ffff]/30 list-disc pl-5">
               <li>At least 8 characters and up to 12 characters</li>
               <li>At least one lowercase character</li>
