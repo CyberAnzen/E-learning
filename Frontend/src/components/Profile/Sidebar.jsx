@@ -47,6 +47,8 @@ export default function Sidebar({
     { name: "Report", icon: <BarChart /> },
   ];
 
+  const loading = !user; // true when user not loaded
+
   return (
     <>
       <div
@@ -56,26 +58,45 @@ export default function Sidebar({
       >
         <div className="p-4 border-b border-[#00ffff]/30">
           <div className="flex items-center space-x-2">
-            <img
-              src="https://i.pinimg.com/736x/af/70/bb/af70bb880077591b711b83ee7717c91b.jpg"
-              alt="avatar"
-              className="w-10 h-10 rounded-full"
-            />
+            {/* Avatar */}
+            {loading ? (
+              <div className="w-10 h-10 rounded-full bg-gray-700 animate-pulse" />
+            ) : (
+              <img
+                src="https://i.pinimg.com/736x/af/70/bb/af70bb880077591b711b83ee7717c91b.jpg"
+                alt="avatar"
+                className="w-10 h-10 rounded-full"
+              />
+            )}
+
             <div className="flex flex-col gap-0.5">
-              <h4 className="text-sm font-semibold text-[#00ffff]">
-                {user?.username || "James CameraMan"}
-              </h4>
+              {/* Username */}
+              {loading ? (
+                <div className="w-36 h-4 rounded bg-gray-700 animate-pulse" />
+              ) : (
+                <h4 className="text-sm font-semibold text-[#00ffff]">
+                  {user?.username || "James CameraMan"}
+                </h4>
+              )}
+
+              {/* ID + copy */}
               <p className="flex items-center justify-center gap-1.5 lg:text-[10px] sm:text-[8px] text-gray-300 relative">
-                {user?._id || "748589549"}
-                <Copy
-                  onClick={handleCopy}
-                  className="cursor-pointer hover:text-[#00ffff]/50"
-                  size={12}
-                />
-                {copied && (
-                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 text-xs text-black font-medium bg-[#00ff00] px-2 py-0.5 rounded shadow">
-                    Copied!
-                  </span>
+                {loading ? (
+                  <div className="w-40 h-3 rounded bg-gray-700 animate-pulse" />
+                ) : (
+                  <>
+                    {user?._id || "748589549"}
+                    <Copy
+                      onClick={handleCopy}
+                      className="cursor-pointer hover:text-[#00ffff]/50"
+                      size={12}
+                    />
+                    {copied && (
+                      <span className="absolute -top-7 left-1/2 -translate-x-1/2 text-xs text-black font-medium bg-[#00ff00] px-2 py-0.5 rounded shadow">
+                        Copied!
+                      </span>
+                    )}
+                  </>
                 )}
               </p>
             </div>
@@ -87,31 +108,50 @@ export default function Sidebar({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Nav */}
         <nav className="mt-4 px-2 space-y-2 text-gray-300">
-          {menuItems.map((item) => (
-            <div
-              key={item.name}
-              onClick={() => setActiveItem(item.name)}
-              className={`flex items-center px-4 py-2 cursor-pointer transition-colors ${
-                activeItem === item.name
-                  ? "text-[#00ffff] bg-[#00ffff]/10"
-                  : "hover:text-[#00ffff] hover:bg-[#00ffff]/5"
-              }`}
-            >
-              <div className="mr-3">{item.icon}</div>
-              <span className="text-sm">{item.name}</span>
-            </div>
-          ))}
+          {loading
+            ? // show skeleton rows while loading
+              Array.from({ length: menuItems.length }).map((_, i) => (
+                <div
+                  key={`skeleton-${i}`}
+                  className="flex items-center px-4 py-2 transition-colors"
+                >
+                  <div className="mr-3 w-5 h-5 rounded bg-gray-700 animate-pulse" />
+                  <div className="h-3 w-32 rounded bg-gray-700 animate-pulse" />
+                </div>
+              ))
+            : // normal menu when loaded
+              menuItems.map((item) => (
+                <div
+                  key={item.name}
+                  onClick={() => setActiveItem(item.name)}
+                  className={`flex items-center px-4 py-2 cursor-pointer transition-colors ${
+                    activeItem === item.name
+                      ? "text-[#00ffff] bg-[#00ffff]/10"
+                      : "hover:text-[#00ffff] hover:bg-[#00ffff]/5"
+                  }`}
+                >
+                  <div className="mr-3">{item.icon}</div>
+                  <span className="text-sm">{item.name}</span>
+                </div>
+              ))}
         </nav>
+
         {/* Logout Button */}
         <div className="absolute bottom-4 w-full px-4">
-          <button
-            onClick={handleLogout}
-            className="flex items-center justify-center gap-2 w-full py-2 rounded-xl text-sm font-medium bg-[#ff0040]/20 text-[#ff0040] hover:bg-[#ff0040]/40 transition-colors"
-          >
-            <LogOut size={16} />
-            Logout
-          </button>
+          {loading ? (
+            <div className="w-full py-2 rounded-xl h-10 bg-gray-700 animate-pulse" />
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center gap-2 w-full py-2 rounded-xl text-sm font-medium bg-[#ff0040]/20 text-[#ff0040] hover:bg-[#ff0040]/40 transition-colors"
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
+          )}
         </div>
       </div>
 
