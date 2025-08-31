@@ -39,35 +39,49 @@ import { use } from "react";
 import JSZip from "jszip";
 import { Link } from "react-router-dom";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL_W;
+import {
+  getCachedChallenge,
+  setCachedChallenge,
+} from "../../../utils/ChallengeCache";
 
 function DisplayChallenge() {
   const textRef = useRef(null);
   const { fp, csrf } = useAppContext();
   const { challengeId } = useParams();
-  const {
-    Data: ChallengeData,
-    error: fetchError,
-    loading,
-    retry: fetchRetry,
-  } = Usefetch(`challenge/${challengeId}`, "get", null, {}, true);
+  const { Data: ChallengeData, retry: fetchRetry } = Usefetch(
+    `challenge/${challengeId}`,
+    "get",
+    null,
+    {},
+    true
+  );
+
+  const [challenge, setChallenge] = useState(
+    () => getCachedChallenge(challengeId) || null
+  );
+
+  // 🚀 Update local + cache when API responds
   useEffect(() => {
-    let toggle = false;
-    let id;
+    if (ChallengeData?.Challenge) {
+      setChallenge(ChallengeData.Challenge);
+      setCachedChallenge(challengeId, ChallengeData.Challenge);
+    }
+  }, [ChallengeData, challengeId]);
 
-    const loop = () => {
-      const interval = toggle ? 7000 : 4000;
-      toggle = !toggle;
-
-      id = setTimeout(() => {
-        fetchRetry();
-        loop();
-      }, interval);
+  // 🚀 Background refresh loop (4s interval)
+  useEffect(() => {
+    let active = true;
+    const loop = async () => {
+      while (active) {
+        await new Promise((res) => setTimeout(res, 4000));
+        fetchRetry(); // triggers API re-fetch
+      }
     };
-
     loop();
-
-    return () => clearTimeout(id);
-  }, [fetchRetry]);
+    return () => {
+      active = false;
+    };
+  }, [challengeId, fetchRetry]);
 
   // Hint fetching hook - initially not active
   const [hintEndpoint, setHintEndpoint] = useState("");
