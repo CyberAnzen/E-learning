@@ -56,10 +56,21 @@ function DisplayChallenge() {
     true
   );
 
+  // load cached data immediately (fast initial render)
   const [challenge, setChallenge] = useState(
     () => getCachedChallenge(challengeId) || null
   );
 
+  // if user navigates between challengeIds, ensure we pick up the cache for the new id
+  useEffect(() => {
+    const cached = getCachedChallenge(challengeId);
+    if (cached) setChallenge(cached);
+  }, [challengeId]);
+
+  // prefer fresh API data, fall back to cached 'challenge' for rendering
+  const display = ChallengeData?.Challenge ?? challenge;
+
+  // update local + cache when API responds
   useEffect(() => {
     if (ChallengeData?.Challenge) {
       setChallenge(ChallengeData.Challenge);
@@ -67,19 +78,37 @@ function DisplayChallenge() {
     }
   }, [ChallengeData, challengeId]);
 
+  // background refresh loop (alternating 4s / 7s) with immediate fetch and clean teardown
   useEffect(() => {
+    if (!challengeId) return;
     let active = true;
+    let timerId = null;
+    let toggle = true;
+
+    // immediate fetch so UI updates asap (cached display shown instantly)
+    try {
+      fetchRetry();
+    } catch (e) {
+      // ignore if fetchRetry doesn't throw
+    }
+
     const loop = async () => {
-      let toggle = true;
       while (active) {
-        await new Promise((res) => setTimeout(res, toggle ? 4000 : 7000));
-        fetchRetry();
+        const wait = toggle ? 4000 : 7000;
         toggle = !toggle;
+        await new Promise((res) => {
+          timerId = setTimeout(res, wait);
+        });
+        if (!active) break;
+        fetchRetry();
       }
     };
+
     loop();
+
     return () => {
       active = false;
+      if (timerId) clearTimeout(timerId);
     };
   }, [challengeId, fetchRetry]);
 
