@@ -8,16 +8,19 @@ import Usefetch from "../hooks/Usefetch";
 import { useAppContext } from "../context/AppContext";
 import ChallengeCard from "../components/Challenges/ChallengeCard";
 export default function Challenge() {
-  const { Admin, loggedIn } = useAppContext();
+  const { Admin, loggedIn, ChallengesData, setChallengesData } =
+    useAppContext();
   const [scaleFactor, setScaleFactor] = useState(0.36);
-// const Admin =true
+  // const Admin =true
   const {
-    Data: ChallengesData,
+    Data: ChallengesallData,
     error: fetchError,
     loading,
     retry: fetchRetry,
   } = Usefetch(`challenge/`, "get", null, {}, true);
-
+  useEffect(() => {
+    setChallengesData(ChallengesallData);
+  }, [ChallengesallData]);
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.1 } },
@@ -40,12 +43,11 @@ export default function Challenge() {
   };
 
   const redColors = {
-  easy: "linear-gradient(135deg, #4a0000, #800000)",        // dark maroon fade
-  intermediate: "linear-gradient(135deg, #660000, #990000)", // richer red-black fade
-  hard: "linear-gradient(135deg, #330000, #660000)",         // very dark red fade
-  advanced: "linear-gradient(135deg, #1a0000, #4d0000)"      // almost black with deep red
-};
-
+    easy: "linear-gradient(135deg, #4a0000, #800000)", // dark maroon fade
+    intermediate: "linear-gradient(135deg, #660000, #990000)", // richer red-black fade
+    hard: "linear-gradient(135deg, #330000, #660000)", // very dark red fade
+    advanced: "linear-gradient(135deg, #1a0000, #4d0000)", // almost black with deep red
+  };
 
   useEffect(() => {
     const updateScale = () => {
@@ -135,10 +137,10 @@ export default function Challenge() {
           <h1 className="text-3xl font-bold ml-6">Challenges</h1>
           <section
             className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 pr-15 gap-4 min-w-screen  max-w-screen ${
-              loading ? "mt-10" : "mt-20"
+              !ChallengesData ? "mt-10" : "mt-20"
             }`}
           >
-            {loading ? (
+            {!ChallengesData ? (
               Array.from({ length: 40 }).map((_, index) => (
                 <ChallengeCardSkeleton key={index} scaleFactor={0.3} />
               ))
