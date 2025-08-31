@@ -318,7 +318,7 @@ export default function ProfileSettings() {
                 name="officialEmail"
                 placeholder="Official Email"
                 value={formData.officialEmail}
-                className={inputStyle}
+                className={`${inputStyle} opacity-50`}
                 disabled
               />
               <div>
