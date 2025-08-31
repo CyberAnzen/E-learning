@@ -141,17 +141,13 @@ export default function Sidebar({
 
         {/* Logout Button */}
         <div className="absolute bottom-4 w-full px-4">
-          {loading ? (
-            <div className="w-full py-2 rounded-xl h-10 bg-gray-700 animate-pulse" />
-          ) : (
-            <button
-              onClick={handleLogout}
-              className="flex items-center justify-center gap-2 w-full py-2 rounded-xl text-sm font-medium bg-[#ff0040]/20 text-[#ff0040] hover:bg-[#ff0040]/40 transition-colors"
-            >
-              <LogOut size={16} />
-              Logout
-            </button>
-          )}
+          <button
+            onClick={handleLogout}
+            className="flex items-center justify-center gap-2 w-full py-2 rounded-xl text-sm font-medium bg-[#ff0040]/20 text-[#ff0040] hover:bg-[#ff0040]/40 transition-colors"
+          >
+            <LogOut size={16} />
+            Logout
+          </button>
         </div>
       </div>
 
