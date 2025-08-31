@@ -838,131 +838,83 @@ function DisplayChallenge() {
 
                 {/* Right technical panel - responsive sizing */}
                 <div className="w-40 sm:w-48 lg:w-64 p-2 sm:p-3 lg:p-6 border-l border-teal-500/30 bg-gradient-to-b from-teal-500/10 to-black/50">
-                  {/* Circuit pattern overlay */}
-                  {/* <div className="absolute inset-0 opacity-10 pointer-events-none">
-                  <CircuitPattern className="w-full h-full" />
-                </div> */}
-
-                  <div className="relative space-y-3 sm:space-y-4 lg:space-y-6 h-full flex flex-col">
-                    {/* Power core display */}
-                    {/* <div className="text-center flex-shrink-0">
-                    <div className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-20 lg:h-20 mx-auto mb-1 sm:mb-2 lg:mb-4">
-                      <div
-                        className="absolute inset-0 border-2 border-teal-400/50 rounded-full animate-spin"
-                        style={{ animationDuration: "10s" }}
-                      ></div>
-                      <div
-                        className="absolute inset-2 border border-teal-300/30 rounded-full animate-spin"
-                        style={{
-                          animationDuration: "15s",
-                          animationDirection: "reverse",
-                        }}
-                      ></div>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Zap className="w-3 h-3 sm:w-4 sm:h-4 lg:w-8 lg:h-8 text-teal-400 animate-pulse" />
-                      </div>
-                    </div>
-                    <div className="text-teal-300 font-mono text-xs sm:text-sm">
-                      Start Instance{" "}
-                      <span className="text-red-300">(Experimental)</span>
-                    </div>
-                  </div> */}
-
-                    {/* Technical readouts */}
-                    <div className="space-y-2 sm:space-y-3 lg:space-y-4 flex-1">
-                      {/* <div className="p-1.5 sm:p-2 lg:p-3 border border-teal-500/30 rounded bg-black/30">
-                      <div className="text-teal-400 font-mono text-xs sm:text-sm mb-1">
-                        SSH connection
-                      </div>
-                      <div className="text-teal-300 font-mono text-xs sm:text-sm">
-                        DS4-7654
-                      </div>
-                      <div className="text-teal-300 font-mono text-xs sm:text-sm">
-                        893-5
-                      </div>
-                    </div> */}
-                    </div>
-                    {/* Attachments Section */}
-                    <div className="relative flex-1 flex flex-col">
-                      {/* Section Title */}
-                      <div className="text-center mb-4 flex-shrink-0">
-                        <div className="flex items-center justify-center gap-3 flex-wrap">
-                          {/* Title with Icon */}
-                          <div className="flex items-center gap-2">
-                            <Paperclip className="w-5 h-5 text-teal-400" />
-                            <div className="text-lg sm:text-xl font-semibold tracking-wide text-teal-300">
-                              Attachments
-                            </div>
+                  {/* make it a strict column with header (top), list (middle, scroll), footer/buttons (bottom) */}
+                  <div className="relative h-full flex flex-col">
+                    {/* Top: Attachments header (pinned) */}
+                    <div className="flex-shrink-0 text-center mb-3">
+                      <div className="flex items-center justify-center gap-3 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <Paperclip className="w-5 h-5 text-teal-400" />
+                          <div className="text-lg sm:text-xl font-semibold tracking-wide text-teal-300">
+                            Attachments
                           </div>
-
-                          {/* Batch download button (shows only if >1 file) */}
-                          {display?.attachments?.length > 1 && (
-                            <button
-                              onClick={() =>
-                                handleBatchDownload(display.attachments)
-                              }
-                              className="flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-mono text-teal-200 border border-teal-500/40 rounded-full hover:bg-teal-600/20 hover:border-teal-400 transition-all duration-300"
-                            >
-                              <FolderArchive className="w-4 h-4 text-teal-400" />
-                              <span>{display.attachments.length} Files</span>
-                            </button>
-                          )}
                         </div>
-                      </div>
 
-                      {/* Scrollable Container */}
-                      <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-gray-800 rounded-lg">
-                        {display?.attachments?.length > 0 ? (
-                          <div className="space-y-2">
-                            {display.attachments.map((attachment, index) => {
-                              // Extract filename from path
-                              const fileName =
-                                attachment.split("/").pop() ||
-                                `File ${index + 1}`;
-
-                              // Handle truncation (show ... in middle if long)
-                              const maxLength = 30;
-                              const displayName =
-                                fileName.length > maxLength
-                                  ? fileName.substring(0, 15) +
-                                    "..." +
-                                    fileName.slice(-10)
-                                  : fileName;
-
-                              return (
-                                <div
-                                  key={index}
-                                  className="group p-3 border border-teal-500/40 bg-gray-900/40 rounded-lg hover:border-teal-400 hover:bg-gray-800/60 cursor-pointer transition-all duration-300"
-                                  onClick={() => handleDownload(attachment)}
-                                >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                      <Paperclip className="w-4 h-4 text-teal-400 group-hover:scale-110 transition-transform shrink-0" />
-                                      <span
-                                        title={fileName}
-                                        className="font-mono text-sm text-teal-200 truncate max-w-[200px]"
-                                      >
-                                        {displayName}
-                                      </span>
-                                    </div>
-                                    <Download className="w-4 h-4 text-teal-400 group-hover:text-teal-300 shrink-0" />
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <div className="text-center p-6 border border-gray-700 rounded-lg bg-gray-900/40">
-                            <div className="text-gray-500 font-mono text-sm">
-                              No attachments
-                            </div>
-                          </div>
+                        {/* Batch download button (shows only if >1 file) */}
+                        {display?.attachments?.length > 1 && (
+                          <button
+                            onClick={() =>
+                              handleBatchDownload(display.attachments)
+                            }
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-mono text-teal-200 border border-teal-500/40 rounded-full hover:bg-teal-600/20 hover:border-teal-400 transition-all duration-300"
+                          >
+                            <FolderArchive className="w-4 h-4 text-teal-400" />
+                            <span>{display.attachments.length} Files</span>
+                          </button>
                         )}
                       </div>
                     </div>
-                    {/* Control buttons */}
-                    <div className="space-y-2 sm:space-y-3 flex-shrink-0">
-                      <div className="flex justify-center mt-4">
+
+                    {/* Middle: attachments list (flex-1 so it takes remaining space and scrolls) */}
+                    <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-gray-800 rounded-lg">
+                      {display?.attachments?.length > 0 ? (
+                        <div className="space-y-2">
+                          {display.attachments.map((attachment, index) => {
+                            const fileName =
+                              attachment.split("/").pop() ||
+                              `File ${index + 1}`;
+                            const maxLength = 30;
+                            const displayName =
+                              fileName.length > maxLength
+                                ? fileName.substring(0, 15) +
+                                  "..." +
+                                  fileName.slice(-10)
+                                : fileName;
+
+                            return (
+                              <div
+                                key={index}
+                                className="group p-3 border border-teal-500/40 bg-gray-900/40 rounded-lg hover:border-teal-400 hover:bg-gray-800/60 cursor-pointer transition-all duration-300"
+                                onClick={() => handleDownload(attachment)}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <Paperclip className="w-4 h-4 text-teal-400 group-hover:scale-110 transition-transform shrink-0" />
+                                    <span
+                                      title={fileName}
+                                      className="font-mono text-sm text-teal-200 truncate max-w-[200px]"
+                                    >
+                                      {displayName}
+                                    </span>
+                                  </div>
+                                  <Download className="w-4 h-4 text-teal-400 group-hover:text-teal-300 shrink-0" />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-center p-6 border border-gray-700 rounded-lg bg-gray-900/40">
+                          <div className="text-gray-500 font-mono text-sm">
+                            No attachments
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bottom: control buttons (pinned) */}
+                    <div className="flex-shrink-0 space-y-2 sm:space-y-3 mt-3">
+                      <div className="flex justify-center mt-2">
                         <Link to="/leaderboard" className="w-full max-w-xs">
                           <div className="w-full p-1 sm:p-1.5 lg:p-2 border border-teal-500/30 rounded bg-black/30 hover:bg-teal-500/10 transition-colors text-center">
                             <span className="text-teal-300 text-xs sm:text-sm">
