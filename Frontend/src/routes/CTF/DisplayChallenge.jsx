@@ -587,7 +587,7 @@ function DisplayChallenge() {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
-  if (initialloading) {
+  if (!display) {
     <LoadingSkeleton />;
   }
   // Mobile blocking overlay
