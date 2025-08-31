@@ -265,7 +265,6 @@ const ChallengeCard = ({
             >
               {(Challenge?.title || "").replace(/\n/g, " ").trim()}
             </text>
-            text
             {/* Glitch-stencil font "DARK ZONE." uppercase */}
             <text
               className="glitch-font"
@@ -456,6 +455,21 @@ const ChallengeCard = ({
             ry={1.5 * effectiveScaleFactor}
           />
         </svg>
+        <span
+          style={{
+            position: "absolute",
+            bottom: "99px",
+            right: "45px",
+            color: "white",
+            fontSize: `${25 * effectiveScaleFactor}px`,
+            fontWeight: "bold",
+            pointerEvents: "none",
+            transform: isHovered ? `scale(${1.05})` : "scale(1)",
+            transition: "transform 0.3s ease, font-size 0.3s ease",
+          }}
+        >
+          {Challenge?.difficulty.toUpperCase() || "-"}
+        </span>
         <span
           style={{
             position: "absolute",

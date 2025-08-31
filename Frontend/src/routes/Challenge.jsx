@@ -34,12 +34,12 @@ export default function Challenge() {
     visible: { opacity: 1, y: 0 },
   };
 
-  const leaderboard = [
-    { rank: 1, name: "Alex Smith", score: 1250 },
-    { rank: 2, name: "Jamie Lee", score: 1100 },
-    { rank: 3, name: "Chris Wong", score: 950 },
-    { rank: 4, name: "Sam Patel", score: 800 },
-  ];
+  // const leaderboard = [
+  //   { rank: 1, name: "Alex Smith", score: 1250 },
+  //   { rank: 2, name: "Jamie Lee", score: 1100 },
+  //   { rank: 3, name: "Chris Wong", score: 950 },
+  //   { rank: 4, name: "Sam Patel", score: 800 },
+  // ];
 
   const handleChallengeClick = (id) => {
     console.log(`Clicked on course with id: ${id}`);
@@ -160,24 +160,41 @@ export default function Challenge() {
               </>
             ) : (
               <>
-                {ChallengesData?.challenges?.map((Challenge, index) => (
-                  <div
-                    key={index}
-                    className={`relative w-full h-full flex justify-center items-center 
+                {ChallengesData?.challenges
+                  ?.sort((a, b) => {
+                    const order = {
+                      easy: 1,
+                      intermediate: 2,
+                      hard: 3,
+                      advanced: 4,
+                    };
+
+                    const aKey = a?.difficulty?.toLowerCase();
+                    const bKey = b?.difficulty?.toLowerCase();
+
+                    const aVal = order[aKey] ?? Infinity;
+                    const bVal = order[bKey] ?? Infinity;
+
+                    return aVal - bVal;
+                  })
+                  .map((Challenge, index) => (
+                    <div
+                      key={index}
+                      className={`relative w-full h-full flex justify-center items-center 
         transition-all duration-700 ease-out transform
         hover:z-10 hover:scale-105
         opacity-0 translate-y-5 animate-cardAppear -mt-14`}
-                    style={{
-                      animationDelay: `${index * 80}ms`,
-                    }}
-                  >
-                    <ChallengeCard
-                      Challenge={Challenge}
-                      scaleFactor={scaleFactor}
-                      redColor={redColors?.[Challenge?.difficulty]}
-                    />
-                  </div>
-                ))}
+                      style={{
+                        animationDelay: `${index * 80}ms`,
+                      }}
+                    >
+                      <ChallengeCard
+                        Challenge={Challenge}
+                        scaleFactor={scaleFactor}
+                        redColor={redColors?.[Challenge?.difficulty]}
+                      />
+                    </div>
+                  ))}
               </>
             )}
           </section>
