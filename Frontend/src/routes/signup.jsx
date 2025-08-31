@@ -12,7 +12,7 @@ import { ChevronDown } from "lucide-react";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function Signup() {
-  const { loggedIn, setLoggedIn, User, fetchProfile } = useAppContext();
+  const { loggedIn, User, fetchProfile } = useAppContext();
 
   const navigate = useNavigate();
   const [captchaToken, setCaptchaToken] = useState("");
