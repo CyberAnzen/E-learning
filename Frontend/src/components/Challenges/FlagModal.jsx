@@ -114,8 +114,7 @@ const FlagModal = ({
                 <span className="text-blue-300 font-mono">Team Challenge:</span>
               </div>
               <span className="text-blue-400 font-mono text-sm">
-                Submitted by: {challengeData.Challenge
-                .submittedBy}
+                Submitted by: {challengeData.Challenge?.submittedBy?.username|| challengeData?.Challenge?.submittedBy}
               </span>
             </div>
           )}
@@ -201,7 +200,11 @@ const FlagModal = ({
 
           {/* Flag Input Form */}
           {!flagSubmitted && !isDisabled && (
-            <form className="space-y-4">
+            <form
+              className="space-y-4"
+              id="flag-submit-form"
+              onSubmit={handleSubmit}
+            >
               <div className="space-y-2">
                 <label className="text-teal-400 font-mono text-sm block">
                   Enter Flag:
@@ -249,6 +252,7 @@ const FlagModal = ({
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-4 border-t border-teal-500/20">
             <button
+              type="button"
               onClick={handleClose}
               disabled={isSubmitting}
               className="px-6 py-3 border border-teal-500/30 rounded bg-black/30 text-teal-300 font-mono text-sm hover:bg-teal-500/10 transition-colors disabled:opacity-50"
@@ -258,7 +262,8 @@ const FlagModal = ({
 
             {!flagSubmitted && !isDisabled && (
               <button
-                onClick={handleSubmit}
+                type="submit"
+                form="flag-submit-form"
                 disabled={!flag.trim() || isSubmitting}
                 className="px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-mono text-sm rounded hover:from-teal-500 hover:to-teal-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
