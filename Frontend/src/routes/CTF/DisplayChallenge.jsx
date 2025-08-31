@@ -613,7 +613,7 @@ function DisplayChallenge() {
       </div>
     );
   }
-  if (!initialloading) {
+  if (display) {
     return (
       <div className="h-[85vh] relative overflow-hidden">
         {/* Background tech grid */}
