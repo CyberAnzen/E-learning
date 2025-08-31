@@ -21,18 +21,13 @@ export default function LoginPage() {
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [showSubmit, setShowSubmit] = useState(false);
   const localLoggedIn = localStorage.getItem("loggedIn");
-  if (localLoggedIn) {
-    navigate("/profile");
-  }
   useEffect(() => {
-    setTimeout(() => {
-      if (User) {
-        fetchProfile();
-        localStorage.setItem("loggedIn", true);
-        navigate("/profile");
-      }
-    }, 10000);
-  }, [loggedIn, User, navigate]);
+    const localLoggedIn = localStorage.getItem("loggedIn") === "true";
+    if (localLoggedIn) {
+      fetchProfile(); // make sure user data is fresh
+      navigate("/profile");
+    }
+  }, [navigate, fetchProfile]);
 
   useEffect(() => {
     // Smooth scroll to top
