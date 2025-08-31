@@ -12,18 +12,30 @@ function Profile() {
   const { loggedIn, User, fetchProfile } = useAppContext();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Dashboard");
-  const localLoggedIn = localStorage.getItem("loggedIn");
-  if (!localLoggedIn) {
-    navigate("/login");
-  }
-  // Redirect if not logged in
+  // 1. Check localStorage immediately on mount (fast redirect if not logged in)
   useEffect(() => {
-    setTimeout(() => {
+    const localLoggedIn = localStorage.getItem("loggedIn");
+    if (!localLoggedIn) {
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
+
+  // 2. Fetch profile on mount
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  // 3. Fallback redirect if after 10s we still don’t have a User
+  useEffect(() => {
+    const timer = setTimeout(() => {
       if (!User) {
-        navigate("/login");
+        navigate("/login", { replace: true });
       }
     }, 10000);
-  }, [loggedIn, User, navigate]);
+
+    return () => clearTimeout(timer); // cleanup
+  }, [User, navigate]);
+
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "auto";
   }, [sidebarOpen]);

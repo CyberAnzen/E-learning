@@ -18,18 +18,27 @@ export default function Signup() {
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const localLoggedIn = localStorage.getItem("loggedIn");
-  if (localLoggedIn) {
-    navigate("/profile");
-  }
   useEffect(() => {
-    setTimeout(() => {
+    const localLoggedIn = localStorage.getItem("loggedIn");
+
+    // If already logged in → go to profile immediately
+    if (localLoggedIn) {
+      navigate("/profile", { replace: true });
+      return;
+    }
+
+    // Otherwise, wait for User to be available (max 10s)
+    const timer = setTimeout(() => {
       if (User) {
         fetchProfile();
         localStorage.setItem("loggedIn", "true");
-        navigate("/profile");
+        navigate("/profile", { replace: true });
       }
     }, 10000);
-  }, [loggedIn, User, navigate]);
+
+    return () => clearTimeout(timer); // cleanup
+  }, [User, fetchProfile, navigate]);
+
   const [formData, setFormData] = useState({
     username: "",
     email: "",
