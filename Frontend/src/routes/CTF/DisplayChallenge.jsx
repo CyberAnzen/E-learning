@@ -194,7 +194,11 @@ function DisplayChallenge() {
     if (FlagData) {
       setChallengeData(FlagData?.Challenge);
       setAttempts(FlagData?.Challenge.attempt);
-      if (FlagData.success || FlagData.message === "Correct flag") {
+      if (
+        FlagData.success ||
+        FlagData.message === "Flag is correct" ||
+        FlagData.correct
+      ) {
         setFlagSubmissionSuccess(
           "Flag accepted! Challenge completed successfully."
         );
