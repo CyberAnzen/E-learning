@@ -22,7 +22,7 @@ function Profile() {
       if (!loggedIn && !User) {
         navigate("/login");
       }
-    }, 7000);
+    }, 10000);
   }, [loggedIn, User, navigate]);
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "auto";
