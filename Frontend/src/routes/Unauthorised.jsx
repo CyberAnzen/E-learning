@@ -17,6 +17,7 @@ const Unauthorized = () => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
+          localStorage.removeItem("loggedIn");
           navigate("/login");
           return 0;
         }

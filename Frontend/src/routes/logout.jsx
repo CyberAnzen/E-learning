@@ -3,6 +3,7 @@ import { useAppContext } from "../context/AppContext";
 
 const Logout = () => {
   const { logout } = useAppContext();
+  localStorage.removeItem("loggedIn");
 
   useEffect(() => {
     logout();

@@ -20,10 +20,14 @@ export default function LoginPage() {
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [showSubmit, setShowSubmit] = useState(false);
-
+  const localLoggedIn = localStorage.getItem("loggedIn");
+  if (localLoggedIn) {
+    navigate("/profile");
+  }
   useEffect(() => {
     if (loggedIn || User) {
       fetchProfile();
+      localStorage.setItem("loggedIn", true);
       navigate("/profile");
     }
   }, [loggedIn, User, navigate]);
@@ -163,6 +167,8 @@ export default function LoginPage() {
       console.log(data);
       if (data.message === "Login successful") {
         setLoggedIn(true);
+        localStorage.setItem("loggedIn", true);
+
         navigate("/");
       } else {
         setError(data.message || "Access Denied: Authentication Failed");
