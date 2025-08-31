@@ -8,7 +8,7 @@ export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
-
+  const [ChallengesData, setChallengesData] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [team, setTeam] = useState(null);
@@ -135,7 +135,6 @@ export const AppContextProvider = ({ children }) => {
   const logout = async () => {
     try {
       await fetch(`${BACKEND_URL}/user/logout`, {
-
         method: "GET",
         credentials: "include",
       });
@@ -182,6 +181,8 @@ export const AppContextProvider = ({ children }) => {
     setTeam,
     fetchProfile,
     fetchTeam,
+    ChallengesData,
+    setChallengesData,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
