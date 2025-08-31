@@ -19,8 +19,11 @@ export default function Challenge() {
     retry: fetchRetry,
   } = Usefetch(`challenge/`, "get", null, {}, true);
   useEffect(() => {
-    setChallengesData(ChallengesallData);
-  }, [ChallengesallData]);
+    if (ChallengesallData) {
+      setChallengesData(ChallengesallData);
+    }
+  }, [ChallengesallData, setChallengesData]);
+
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.1 } },
