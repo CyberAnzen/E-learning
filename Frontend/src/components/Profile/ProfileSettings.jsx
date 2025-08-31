@@ -336,28 +336,22 @@ export default function ProfileSettings() {
                 {sectionOpen && (
                   <>
                     <ul className="absolute z-30 w-full mt-1 bg-[#17181A] border border-[#00ffff] rounded-md shadow-lg">
-                      {[
-                        "A section",
-                        "B section",
-                        "C section",
-                        "D section",
-                        "E section",
-                        "F section",
-                        "G section",
-                      ].map((section) => (
-                        <li
-                          key={section}
-                          onClick={() => {
-                            handleInputChange({
-                              target: { name: "section", value: section },
-                            });
-                            setSectionOpen(false);
-                          }}
-                          className="px-3 py-2 cursor-pointer hover:bg-[#00ffff] hover:text-black"
-                        >
-                          {section}
-                        </li>
-                      ))}
+                      {["A", "B", "C", "D", "E", "F", "G", "No Section"].map(
+                        (section) => (
+                          <li
+                            key={section}
+                            onClick={() => {
+                              handleInputChange({
+                                target: { name: "section", value: section },
+                              });
+                              setSectionOpen(false);
+                            }}
+                            className="px-3 py-2 cursor-pointer hover:bg-[#00ffff] hover:text-black"
+                          >
+                            {section}
+                          </li>
+                        )
+                      )}
                     </ul>
                     <div
                       className="fixed inset-0 z-20"
