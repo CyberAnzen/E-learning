@@ -12,6 +12,10 @@ function Profile() {
   const { loggedIn, User, fetchProfile } = useAppContext();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Dashboard");
+  const localLoggedIn = localStorage.getItem("loggedIn");
+  if (!localLoggedIn) {
+    navigate("/login");
+  }
   // Redirect if not logged in
   useEffect(() => {
     if (!loggedIn && !User) {
@@ -23,7 +27,7 @@ function Profile() {
   }, [sidebarOpen]);
   useEffect(() => {
     fetchProfile();
-  },[]);
+  }, []);
   const renderContent = () => {
     switch (activeItem) {
       case "Dashboard":

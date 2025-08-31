@@ -82,10 +82,11 @@ export const AppContextProvider = ({ children }) => {
 
       if (!res.ok) throw new Error("Failed to fetch profile");
       const data = await res.json();
-
       setUser(data?.data || null);
       setAdmin(data?.data?.userRole === "Admin");
       setLoggedIn(Boolean(data?.data));
+      localStorage.getItem("loggedIn", Boolean(data?.data));
+
       return data?.data || null;
     } catch (error) {
       console.error("Profile fetch failed:", error);

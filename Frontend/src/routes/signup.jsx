@@ -17,9 +17,14 @@ export default function Signup() {
   const navigate = useNavigate();
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
+  const localLoggedIn = localStorage.getItem("loggedIn");
+  if (localLoggedIn) {
+    navigate("/profile");
+  }
   useEffect(() => {
     if (loggedIn || User) {
       fetchProfile();
+      localStorage.setItem("loggedIn", "true");
       navigate("/profile");
     }
   }, [loggedIn, User, navigate]);
