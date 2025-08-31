@@ -1,3 +1,13 @@
+import React from "react"; // optional with new JSX transform but safe to include
+import { Lightbulb, Paperclip, Coins } from "lucide-react";
+import {
+  CircuitPattern,
+  HexagonalFrame,
+  TechGrid,
+  DataStream,
+  HolographicDisplay,
+} from "../../routes/CTF/SVGelements";
+
 // Loading Skeleton Component
 const LoadingSkeleton = () => {
   return (
