@@ -26,7 +26,7 @@ export default function LoginPage() {
   }
   useEffect(() => {
     setTimeout(() => {
-      if (loggedIn || User) {
+      if (User) {
         fetchProfile();
         localStorage.setItem("loggedIn", true);
         navigate("/profile");

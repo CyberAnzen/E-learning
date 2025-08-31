@@ -19,7 +19,7 @@ function Profile() {
   // Redirect if not logged in
   useEffect(() => {
     setTimeout(() => {
-      if (!loggedIn && !User) {
+      if (!User) {
         navigate("/login");
       }
     }, 10000);

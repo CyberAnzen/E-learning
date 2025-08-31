@@ -23,7 +23,7 @@ export default function Signup() {
   }
   useEffect(() => {
     setTimeout(() => {
-      if (loggedIn || User) {
+      if (User) {
         fetchProfile();
         localStorage.setItem("loggedIn", "true");
         navigate("/profile");
