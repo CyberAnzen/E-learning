@@ -7,21 +7,26 @@ import TeamActions from "./dashboard/TeamActions";
 
 export default function TeamDashboard() {
   const { team, fetchTeam } = useAppContext();
+  const [Team, setTeam] = useState();
   useEffect(() => {
     setTimeout(() => {
       fetchTeam();
     }, 10000);
   }, []);
   fetchTeam();
-
-  if (!team) return null;
+  useEffect(() => {
+    if (team) {
+      setTeam(team);
+    }
+  }, [team]);
+  if (!Team) return null;
 
   return (
     <div className="space-y-6">
-      <TeamHeader team={team} />
-      <TeamStats team={team} />
-      <TeamMembers team={team} />
-      <TeamActions team={team} />
+      <TeamHeader team={Team} />
+      <TeamStats team={Team} />
+      <TeamMembers team={Team} />
+      <TeamActions team={Team} />
     </div>
   );
 }
