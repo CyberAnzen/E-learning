@@ -6,6 +6,7 @@ import Team from "./Team";
 import Dashboard from "./Dashboard";
 // import { useAppContext } from "../../context/AppContext";
 import { useNavigate } from "react-router-dom";
+import Settings from "./Settings";
 
 function Profile() {
   const navigate = useNavigate();
@@ -56,18 +57,7 @@ function Profile() {
           </div>
         );
       case "Setting":
-        return (
-          <div className="px-0 min-h-screen font-sans flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-[#00ffff] mb-4">
-                Settings
-              </h2>
-              <p className="text-[#00ffff]/60">
-                Settings section coming soon...
-              </p>
-            </div>
-          </div>
-        );
+        return <Settings />;
       case "Schedule":
         return (
           <div className="px-0 min-h-screen font-sans flex items-center justify-center">
