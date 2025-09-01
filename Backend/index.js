@@ -107,7 +107,7 @@ const logInBackground = createLogWorker(loggerWorker);
 const corsOptions = {
   origin: true,
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: [
     "Content-Type",
     "Authorization",
@@ -188,8 +188,8 @@ app.use(MongoSanitizer({ mode: "sanitize" })); // Serve only challenge files (no
 app.use(
   "/public",
   cors(staticCorsOptions), // <-- apply CORS middleware for /public
-  // downloadLimiter,
-  // Auth({ timestamp: false }),
+  downloadLimiter,
+  Auth({ timestamp: false }),
   express.static(path.join(__dirname, "public/"), {
     dotfiles: "deny", // Prevent access to hidden files
     index: false, // Disable directory listing
