@@ -85,7 +85,7 @@ function Profile() {
           </div>
         );
       default:
-        return <Dashboard />;
+        return <ProfileSettings />;
     }
   };
 
