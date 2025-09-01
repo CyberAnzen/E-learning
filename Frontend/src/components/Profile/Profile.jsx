@@ -19,10 +19,10 @@ function Profile() {
       return;
     }
 
-    // Fetch profile if User is not yet available
-    if (!User) {
-      fetchProfile();
-    }
+    // // Fetch profile if User is not yet available
+    // if (!User) {
+    //   fetchProfile();
+    // }
 
     // Fallback redirect if User is not available after fetch
     const timer = setTimeout(() => {
