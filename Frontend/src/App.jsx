@@ -67,8 +67,6 @@ function App() {
   return (
     <>
       <div className="relative w-full h-full min-h-screen overflow-hidden">
-        {/*backdrop-blur-md */}
-        <div className="fixed inset-0 bg-gradient-to-b from-black/0 to-black/0 backdrop-saturate-500 border border-[#01ffdb]/10 shadow-2xl -z-10"></div>
         {/*Background*/}
 
         {/* Live Background */}

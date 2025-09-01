@@ -8,9 +8,11 @@ import FaultyTerminal from "./components/Background.jsx";
 import { useState, useEffect } from "react";
 
 function Root() {
-  const [animationsEnabled, setAnimationsEnabled] = useState(
-    localStorage.getItem("animationOff") !== "true"
-  );
+  const [animationsEnabled, setAnimationsEnabled] = useState(() => {
+    const stored = localStorage.getItem("animationOff");
+    if (stored === null) return true; // default ON
+    return stored !== "true";
+  });
 
   useEffect(() => {
     const syncStorage = () => {
@@ -46,6 +48,13 @@ function Root() {
               />
             </div>
           )}
+          <div
+            className={`fixed inset-0 bg-gradient-to-b ${
+              animationsEnabled
+                ? "from-black/0 to-black/0 backdrop-saturate-900 "
+                : "from-black to-gray-900 backdrop-saturate-200"
+            } border border-[#01ffdb]/10 shadow-2xl -z-10`}
+          />
           <App />
         </SocketProvider>
       </AppContextProvider>
