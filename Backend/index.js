@@ -67,14 +67,27 @@ const downloadLimiter = rateLimit({
   message: "Too many downloads, please slow down.",
 });
 
+app.use((req, res, next) => {
+  console.log(
+    "REQ",
+    new Date().toISOString(),
+    req.method,
+    req.originalUrl,
+    "Host:",
+    req.headers.host,
+    "Origin:",
+    req.headers.origin
+  );
+  next();
+});
 // ========== Request logging middleware ==========
 app.use(requestLogger(logInBackground));
 
 // ========== Static files (protected) ==========
 app.use(
   "/public",
-  downloadLimiter,
-  Auth({ timestamp: false }),
+  // downloadLimiter,
+  // Auth({ timestamp: false }),
   express.static(path.join(__dirname, "public/"), {
     dotfiles: "deny",
     index: false,
