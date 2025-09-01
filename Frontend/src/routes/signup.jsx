@@ -17,18 +17,6 @@ export default function Signup() {
   const navigate = useNavigate();
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
-  const turnstileRef = useRef();
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (turnstileRef.current) {
-        turnstileRef.current.reset();
-      }
-    }, 70 * 1000); // refresh before 2 minutes
-
-    return () => clearInterval(interval);
-  }, []);
-
   useEffect(() => {
     if (loggedIn || User) {
       fetchProfile();
@@ -1251,23 +1239,21 @@ export default function Signup() {
 
                       {/* Captcha Cloudflare */}
                       <div className="flex justify-center mb-4">
-                        <Turnstile
-                          ref={turnstileRef}
-                          sitekey={import.meta.env.VITE_CF_SITE_KEY}
-                          onVerify={(token) => {
-                            setCaptchaToken(token);
-                            setCaptchaVerified(true);
-                          }}
-                          onExpire={() => {
-                            setCaptchaToken("");
-                            setCaptchaVerified(false);
-                            if (turnstileRef.current) {
-                              turnstileRef.current.reset(); // reset immediately when expired
-                            }
-                          }}
-                          theme="dark"
-                          size="flexible"
-                        />
+                        <div className="w-full max-w-sm">
+                          <Turnstile
+                            sitekey={import.meta.env.VITE_CF_SITE_KEY}
+                            onVerify={(token) => {
+                              setCaptchaToken(token);
+                              setCaptchaVerified(true);
+                            }}
+                            onExpire={() => {
+                              setCaptchaToken("");
+                              setCaptchaVerified(false);
+                            }}
+                            theme="dark"
+                            size="flexible"
+                          />
+                        </div>
                       </div>
 
                       {/* Submit Button - hidden until form complete and captcha verified */}

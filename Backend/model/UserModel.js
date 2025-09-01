@@ -78,7 +78,7 @@ const UserModel = new mongoose.Schema(
         type: String,
         required: true,
         trim: true,
-        enum: ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "AI", "DS"],
+        // enum: ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "AI", "DS"],
       },
       section: {
         type: String,
