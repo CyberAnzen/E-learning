@@ -12,36 +12,17 @@ import { ChevronDown } from "lucide-react";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function Signup() {
-  const { loggedIn, User, fetchProfile } = useAppContext();
+  const { loggedIn, setLoggedIn, User, fetchProfile } = useAppContext();
 
   const navigate = useNavigate();
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
-  const localLoggedIn = localStorage.getItem("loggedIn");
   useEffect(() => {
-    const localLoggedIn = localStorage.getItem("loggedIn");
-
-    // If already logged in → go to profile immediately
-    if (localLoggedIn) {
+    if (loggedIn || User) {
       fetchProfile();
-      navigate("/profile", { replace: true });
-      return;
+      navigate("/profile");
     }
-
-    // Otherwise, wait for User to be available (max 10s)
-    const timer = setTimeout(() => {
-      if (User) {
-        // fetchProfile();
-        localStorage.setItem("loggedIn", "true");
-        fetchProfile();
-
-        navigate("/profile", { replace: true });
-      }
-    }, 10000);
-
-    return () => clearTimeout(timer); // cleanup
-  }, [User, fetchProfile, navigate]);
-
+  }, [loggedIn, User, navigate]);
   const [formData, setFormData] = useState({
     username: "",
     email: "",
