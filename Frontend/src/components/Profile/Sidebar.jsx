@@ -63,7 +63,7 @@ export default function Sidebar({
               <div className="w-10 h-10 rounded-full bg-gray-700 animate-pulse" />
             ) : (
               <img
-                src={`${BACKEND_URL}${user?.profile?.avator}`}
+                src={`${BACKEND_URL}/public${user?.profile?.avator}`}
                 alt="avatar"
                 className="w-10 h-10 rounded-full"
               />
