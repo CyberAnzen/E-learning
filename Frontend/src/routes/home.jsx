@@ -138,7 +138,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="bg-gradient-to-br from-black via-gray-900 to-black text-white">
+    <div className=" text-white">
       {/* Hero Section - Landing Page (fixed on top, will translate out on collapse) */}
       <section
         ref={heroSectionRef}
@@ -153,13 +153,13 @@ export default function HomePage() {
             className="w-full h-full object-cover"
             style={{ filter: "brightness(0.3)" }}
           />
-          <div className="absolute inset-0 bg-gray-900/50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/70" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-gray-900/20 to-black/30 transition-all duration-500 ease-in-out" />
+        <div className="absolute inset-0 transition-all duration-500 ease-in-out" />
 
         <div className="container mx-auto px-6 h-screen flex items-center relative z-10">
           <motion.div
-            className="max-w-3xl"
+            className="max-w-3xl mx-auto md:mx-0 md:ml-[3%]"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -174,25 +174,23 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-4">
               <Link to="/login">
                 <motion.button
-                  className="cyber-button w-full font-bold py-3 px-8 bg-[#01ffdb]/10 border border-[#01ffdb]/50
-                  text-[#01ffdb]  rounded-lg hover:bg-[#01ffdb]/20 "
-                  transition-all
-                  duration-300
+                  className="cyber-button w-full md:w-auto font-bold py-3 px-8 bg-[#01ffdb]/10 border border-[#01ffdb]/50 text-[#01ffdb] rounded-lg hover:bg-[#01ffdb]/20 transition-all"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <div className="flex gap-5 items-center ">
-                    Get Started <ArrowRight size={22} />
+                  <div className="flex gap-3 items-center">
+                    <span>Get Started</span>
+                    <ArrowRight size={20} />
                   </div>
                 </motion.button>
               </Link>
-              <Link to="/about">
+              <Link to="/leaderboard">
                 <motion.button
-                  className="bg-transparent border border-[#01ffdb] text-[#01ffdb]  cyber-button w-full font-bold py-3 px-8 rounded-lg hover:bg-[#01ffdb]/10 transition-colors"
+                  className="bg-transparent border border-[#01ffdb] text-[#01ffdb] cyber-button w-full md:w-auto font-bold py-3 px-8 rounded-lg hover:bg-[#01ffdb]/10 transition-colors"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Learn More
+                  LeaderBoard
                 </motion.button>
               </Link>
             </div>
@@ -207,7 +205,7 @@ export default function HomePage() {
         style={{ marginTop: "100vh" }}
       >
         {/* Features Section */}
-        <section className="py-20">
+        <section className="py-20 bg-transparent">
           <div className="container mx-auto px-6">
             <motion.div
               className="text-center mb-16"
@@ -267,7 +265,7 @@ export default function HomePage() {
                   Test your skills in our regular CTF competitions and
                   challenges designed to simulate real-world security scenarios.
                 </p>
-                <Link to="/contest">
+                <Link to="/challenge">
                   <h3
                     href="#"
                     className="text-[#01ffdb] flex items-center gap-2 group-hover:gap-3 transition-all"
@@ -304,7 +302,7 @@ export default function HomePage() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-16 bg-gradient-to-b from-gray-200/10  via-gray-700/30 to-black/30 ">
+        <section className="py-16 bg-black/40 backdrop-blur-3xl border-gray-800">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <motion.div
@@ -312,7 +310,7 @@ export default function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.6 }}
               >
-                <h3 className="text-4xl font-bold text-[#01ffdb] mb-2">500+</h3>
+                <h3 className="text-4xl font-bold text-[#01ffdb] mb-2">50+</h3>
                 <p className="text-gray-300">Active Members</p>
               </motion.div>
 
@@ -321,7 +319,7 @@ export default function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.6 }}
               >
-                <h3 className="text-4xl font-bold text-[#01ffdb] mb-2">50+</h3>
+                <h3 className="text-4xl font-bold text-[#01ffdb] mb-2">20+</h3>
                 <p className="text-gray-300">Workshops</p>
               </motion.div>
 
@@ -330,7 +328,7 @@ export default function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
               >
-                <h3 className="text-4xl font-bold text-[#01ffdb] mb-2">30+</h3>
+                <h3 className="text-4xl font-bold text-[#01ffdb] mb-2">10+</h3>
                 <p className="text-gray-300">CTF Competitions</p>
               </motion.div>
 
@@ -339,7 +337,7 @@ export default function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.6 }}
               >
-                <h3 className="text-4xl font-bold text-[#01ffdb] mb-2">12+</h3>
+                <h3 className="text-4xl font-bold text-[#01ffdb] mb-2">5+</h3>
                 <p className="text-gray-300">Partner Universities</p>
               </motion.div>
             </div>
@@ -347,17 +345,17 @@ export default function HomePage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 bg-base-900">
+        <section className="py-20 bg-transparent">
           <div className="container mx-auto px-6">
             <motion.div
-              className="bg-gradient-to-b from-black/10 via-gray-700/30 to-black/30 backdrop-blur-lg p-13 rounded-xl border-2 border-gray-700 hover:border-[#01ffdb]/30 transition-all group"
+              className="backdrop-blur-lg p-8 rounded-xl border-2 border-gray-700 hover:border-[#01ffdb]/30 transition-all group bg-transparent"
               variants={fadeIn}
               whileHover={{ y: -10 }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="relative z-10 max-w-3xl">
+              <div className="relative z-10 max-w-3xl mx-auto md:mx-0 md:ml-[16.6667%]">
                 <h2 className="text-3xl font-bold mb-6">
                   Ready to secure the digital frontier?
                 </h2>
@@ -369,8 +367,7 @@ export default function HomePage() {
                 <div className="flex flex-wrap gap-4">
                   <Link to="/signup">
                     <motion.button
-                      className=" cyber-button  font-bold py-3 px-8 rounded-lg flex items-center gap-2 bg-[#01ffdb]/10 border border-[#01ffdb]/50
-                  text-[#01ffdb]  hover:bg-[#01ffdb]/20"
+                      className=" cyber-button  font-bold py-3 px-8 rounded-lg flex items-center gap-2 bg-[#01ffdb]/10 border border-[#01ffdb]/50 text-[#01ffdb]  hover:bg-[#01ffdb]/20"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -397,7 +394,7 @@ export default function HomePage() {
         </section>
 
         {/* Upcoming Events Preview */}
-        <section className="py-16  bg-gradient-to-l from-gray-500/10  via-gray-700/30 backdrop-blur-lg  to-black/30">
+        {/* <section className="py-16  bg-gradient-to-l from-gray-500/10  via-gray-700/30 backdrop-blur-lg  to-black/30">
           <div className="container mx-auto px-6">
             <div className="flex justify-between items-center mb-10">
               <h2 className="text-2xl font-bold">Upcoming Events</h2>
@@ -504,7 +501,7 @@ export default function HomePage() {
               </motion.div>
             </div>
           </div>
-        </section>
+        </section> */}
       </div>
     </div>
   );
