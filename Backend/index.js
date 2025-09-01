@@ -187,7 +187,7 @@ app.use(MongoSanitizer());
 app.use(MongoSanitizer({ mode: "sanitize" })); // Serve only challenge files (not full public folder)
 app.use(
   "/public",
-  cors(staticCorsOptions), // <-- apply CORS middleware for /public
+  // cors(staticCorsOptions), // <-- apply CORS middleware for /public
   // downloadLimiter,
   // Auth({ timestamp: false }),
   express.static(path.join(__dirname, "public/"), {
