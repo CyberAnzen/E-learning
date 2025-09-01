@@ -1,8 +1,9 @@
+// server.js
 const port = 4000;
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const cors = require("cors");
+// const cors = require("cors"); // REMOVED
 const helmet = require("helmet");
 const { Auth } = require("./middleware/Auth");
 const cookieParser = require("cookie-parser");
@@ -19,7 +20,7 @@ const initializeCaches = require("./cache/initCache");
 const initLeaderboard = require("./redis/initLeaderboard");
 const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
 const { MongoSanitizer } = require("./middleware/Mongosanitiser");
-//initLeaderboardSocket(server);
+// initLeaderboardSocket(server);
 
 async function initializeServer() {
   try {
@@ -81,88 +82,8 @@ deasync.loopWhile(() => !initDone);
 const loggerWorker = new Worker("./logger/controller/logger.js");
 const logInBackground = createLogWorker(loggerWorker);
 
-// app.use(
-//   cors({
-//     origin: FRONTEND_URL, // Only allow your frontend
-//     credentials: true, // Allow cookies and auth headers
-//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed HTTP methods
-//     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"], // Allowed headers
-//     optionsSuccessStatus: 200, // For legacy browsers
-//   })
-// );
-
-// // Handle preflight requests globally
-// app.options(
-//   "*",
-//   cors({
-//     origin: FRONTEND_URL,
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
-//   })
-// );
-//const cors = require("cors");
-
-// ✅ CORS OPTIONS - allow only the headers you specify
-const corsOptions = {
-  origin: true,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-CSRF-Token",
-    "User-Agent",
-    "Timestamp",
-    "timestamp",
-    "x-client-fp",
-    "csrf-token",
-  ],
-  optionsSuccessStatus: 200,
-};
-
-// ----- Added: CORS options specifically for /public static files -----
-const staticCorsOptions = {
-  origin: FRONTEND_URL, // exact origin required when using credentials
-  credentials: true,
-  methods: ["GET", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-CSRF-Token",
-    "User-Agent",
-    "Timestamp",
-    "timestamp",
-    "x-client-fp",
-    "csrf-token",
-  ],
-  optionsSuccessStatus: 200,
-};
-// ---------------------------------------------------------------------
-
-// ✅ Apply CORS only to API routes
-app.use("/api", cors(corsOptions));
-
-// ✅ Handle preflight requests only for API routes
-app.options("/api/*", cors(corsOptions));
-
-// ✅ Allow preflight for public static files
-app.options("/public/*", cors(staticCorsOptions));
-
-// ✅ Block preflight leakage outside /api and /public, but allow those two
-app.use((req, res, next) => {
-  if (req.method === "OPTIONS") {
-    // Allow OPTIONS (preflight) for API and public routes so cors middleware can handle them
-    if (
-      req.path &&
-      (req.path.startsWith("/api/") || req.path.startsWith("/public/"))
-    ) {
-      return next();
-    }
-    return res.sendStatus(403); // forbid non-API / non-public OPTIONS
-  }
-  next();
-});
+// Note: CORS has been removed intentionally per request.
+// If you need cross-origin browser access, you'll need to enable CORS or proxy requests.
 
 // app.use(helmet()); // Adds common security headers
 
@@ -183,11 +104,13 @@ app.use(requestLogger(logInBackground));
 // Strict reject (default)
 app.use(MongoSanitizer());
 
-// OR allow sanitization
-app.use(MongoSanitizer({ mode: "sanitize" })); // Serve only challenge files (not full public folder)
+// OR allow sanitization (kept as you had it)
+app.use(MongoSanitizer({ mode: "sanitize" }));
+
+// Serve only challenge files (not full public folder)
+// Note: removed Access-Control-Allow-* headers so browsers from other origins will be blocked
 app.use(
   "/public",
-  cors(staticCorsOptions), // <-- apply CORS middleware for /public
   downloadLimiter,
   Auth({ timestamp: false }),
   express.static(path.join(__dirname, "public/"), {
@@ -202,12 +125,12 @@ app.use(
       );
       res.setHeader("X-Content-Type-Options", "nosniff");
 
-      // Ensure CORS headers are set for static files so browser can accept cross-origin responses
-      res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
-      // if you need to send cookies/auth for files, this must be true and origin cannot be "*"
-      res.setHeader("Access-Control-Allow-Credentials", "true");
+      // NOTE: removed Access-Control-Allow-* headers to disable CORS entirely
+      // If you later want to enable CORS for static files, add:
+      // res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
+      // res.setHeader("Access-Control-Allow-Credentials", "true");
 
-      // methods and headers for completeness
+      // methods and headers for completeness (these are harmless server headers)
       res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
       res.setHeader(
         "Access-Control-Allow-Headers",
@@ -216,6 +139,7 @@ app.use(
     },
   })
 );
+
 // Routes
 // app.use("/api/classification", classification);
 // app.use("/api/lesson", lesson);
@@ -228,6 +152,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/profile", profile);
 app.use("/api/challenge", CTF);
 app.use("/api/team", TeamRoutes);
+
 // CSRF route
 app.get(
   "/api/auth/csrf-token",
@@ -238,48 +163,10 @@ app.get(
   }
 );
 
-// app.post("/api/auth/verify-captcha", async (req, res) => {
-//   try {
-//     const token = req.body["cf-turnstile-response"]; // comes from form
-//     if (!token) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "No captcha token" });
-//     }
-
-//     const url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-//     const response = await fetch(url, {
-//       method: "POST",
-//       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-//       body: new URLSearchParams({
-//         secret: process.env.CF_SECRET_KEY,
-//         response: token,
-//         remoteip: req.ip,
-//       }),
-//     });
-
-//     const data = await response.json();
-
-//     if (data.success) {
-//       return res.json({ success: true, message: "Captcha verified ✅" });
-//     } else {
-//       return res
-//         .status(403)
-//         .json({ success: false, message: "Captcha failed ❌" });
-//     }
-//   } catch (err) {
-//     console.error("Captcha error:", err);
-//     return res.status(500).json({ success: false, message: "Server error" });
-//   }
-// });
-
 // Error logging
 app.use(errorLogger(logInBackground));
 
-// app.listen(port, () => {
-//   console.log(`CTF platform running on port ${port}`);
-// });
-
+// Wait for caches initialization (blocking)
 let cachesDone = false;
 initializeCaches()
   .then(() => {
@@ -289,6 +176,8 @@ initializeCaches()
     throw err;
   });
 deasync.loopWhile(() => !cachesDone);
+
+// Generic error handler
 app.use((err, req, res, next) => {
   console.error("❌ Express error:", err);
   res.status(500).json({
