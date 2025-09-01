@@ -114,7 +114,9 @@ const FlagModal = ({
                 <span className="text-blue-300 font-mono">Team Challenge:</span>
               </div>
               <span className="text-blue-400 font-mono text-sm">
-                Submitted by: {challengeData.Challenge?.submittedBy?.username|| challengeData?.Challenge?.submittedBy}
+                Submitted by:{" "}
+                {challengeData.Challenge?.submittedBy?.username ||
+                  challengeData?.Challenge?.submittedBy}
               </span>
             </div>
           )}
@@ -265,7 +267,7 @@ const FlagModal = ({
                 type="submit"
                 form="flag-submit-form"
                 disabled={!flag.trim() || isSubmitting}
-                className="px-6 py-3 bg-gradient-to-r from-teal-600 to-teal-500 text-white font-mono text-sm rounded hover:from-teal-500 hover:to-teal-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-6 py-3 bg-gradient-to-r cursor-pointer from-teal-600 to-teal-500 text-white font-mono text-sm rounded hover:from-teal-500 hover:to-teal-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isSubmitting ? (
                   <>
@@ -275,7 +277,7 @@ const FlagModal = ({
                 ) : (
                   <>
                     <Send className="w-4 h-4" />
-                    Submit Flag
+                    Submit Flag (DoubleClick)
                   </>
                 )}
               </button>
