@@ -38,13 +38,13 @@ export default function Sidebar({
   };
 
   const menuItems = [
-    { name: "Dashboard", icon: <Home /> },
+    // { name: "Dashboard", icon: <Home /> },
     { name: "User Profile", icon: <User /> },
     { name: "Team", icon: <Users /> },
-    { name: "Documents", icon: <FileText /> },
+    // { name: "Documents", icon: <FileText /> },
     { name: "Setting", icon: <Settings /> },
-    { name: "Schedule", icon: <Calendar /> },
-    { name: "Report", icon: <BarChart /> },
+    // { name: "Schedule", icon: <Calendar /> },
+    // { name: "Report", icon: <BarChart /> },
   ];
 
   const loading = !user; // true when user not loaded

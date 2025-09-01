@@ -6,7 +6,7 @@ export default function Leaderboard() {
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("score");
   const { leaderboardData, clientCount, isConnected, reconnect } = useSocket();
-  console.log(leaderboardData, clientCount, isConnected, reconnect);
+  // console.log(leaderboardData, clientCount, isConnected, reconnect);
 
   // Transform data to match expected format
   const rows = useMemo(() => {

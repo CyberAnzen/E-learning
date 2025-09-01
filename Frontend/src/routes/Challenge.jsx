@@ -42,7 +42,7 @@ export default function Challenge() {
   // ];
 
   const handleChallengeClick = (id) => {
-    console.log(`Clicked on course with id: ${id}`);
+    // console.log(`Clicked on course with id: ${id}`);
   };
 
   const redColors = {
