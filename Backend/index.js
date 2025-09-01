@@ -1,9 +1,8 @@
-// server.js
 const port = 4000;
 require("dotenv").config();
 const express = require("express");
 const app = express();
-// const cors = require("cors"); // REMOVED
+const cors = require("cors");
 const helmet = require("helmet");
 const { Auth } = require("./middleware/Auth");
 const cookieParser = require("cookie-parser");
@@ -13,14 +12,14 @@ const path = require("path");
 const rateLimit = require("express-rate-limit");
 const http = require("http");
 const deasync = require("deasync");
-const mongoSanitize = require("express-mongo-sanitize");
+
 const ConnectDataBase = require("./config/connectDataBase");
 const { connectRedis } = require("./redis/config/connectRedis");
 const initializeCaches = require("./cache/initCache");
 const initLeaderboard = require("./redis/initLeaderboard");
 const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
-const { MongoSanitizer } = require("./middleware/Mongosanitiser");
-// initLeaderboardSocket(server);
+
+//initLeaderboardSocket(server);
 
 async function initializeServer() {
   try {
@@ -59,9 +58,7 @@ const requestLogger = require("./middleware/requestLogger");
 const errorLogger = require("./middleware/errorLogger");
 const gracefulShutdown = require("./utilies/gracefulShutdown");
 
-const FRONTEND_URL =
-  process.env.FRONTEND_URL || "https://cyberanzen.netlify.app";
-
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173"; // Fallback to localhost:3000 for development
 let server = http.createServer(app);
 
 //*************************************************************************** */
@@ -82,10 +79,18 @@ deasync.loopWhile(() => !initDone);
 const loggerWorker = new Worker("./logger/controller/logger.js");
 const logInBackground = createLogWorker(loggerWorker);
 
-// Note: CORS has been removed intentionally per request.
-// If you need cross-origin browser access, you'll need to enable CORS or proxy requests.
-
-// app.use(helmet()); // Adds common security headers
+// Security Middlewares
+// Production CORS configuration (commented out)
+// app.use(
+//   cors({
+//     origin: FRONTEND_URL, // Explicitly set the frontend origin
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
+//   })
+// );
+app.use(cors({ origin: true, credentials: true })); // Development CORS configuration
+app.use(helmet()); // Adds common security headers
 
 // Parser middlewares
 app.use(cookieParser());
@@ -101,16 +106,32 @@ const downloadLimiter = rateLimit({
 
 // Middleware to log requests
 app.use(requestLogger(logInBackground));
-// Strict reject (default)
-app.use(MongoSanitizer());
 
-// OR allow sanitization (kept as you had it)
-app.use(MongoSanitizer({ mode: "sanitize" }));
+// CSRF route
+app.get(
+  "/api/auth/csrf-token",
+  // Auth({ _CSRF: false }),
+  csrfProtection,
+  (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+  }
+);
+
+// Routes
+// app.use("/api/classification", classification);
+// app.use("/api/lesson", lesson);
+// app.use("/api/answer", validate);
+// app.use("/api/image", require("./router/imageRoutes"));
+// app.use("/api/event", event);
+
+app.use("/api/user", userRoutes);
+app.use("/api/profile", profile);
+app.use("/api/challenge", CTF);
+app.use("/api/team", TeamRoutes);
 
 // Serve only challenge files (not full public folder)
-// Note: removed Access-Control-Allow-* headers so browsers from other origins will be blocked
 app.use(
-  "/public",
+  "/",
   downloadLimiter,
   Auth({ timestamp: false }),
   express.static(path.join(__dirname, "public/"), {
@@ -124,49 +145,55 @@ app.use(
         `attachment; filename="${fileName}"`
       );
       res.setHeader("X-Content-Type-Options", "nosniff");
-
-      // NOTE: removed Access-Control-Allow-* headers to disable CORS entirely
-      // If you later want to enable CORS for static files, add:
+      // Ensure CORS headers are set for static files
       // res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
-      // res.setHeader("Access-Control-Allow-Credentials", "true");
-
-      // methods and headers for completeness (these are harmless server headers)
-      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-      res.setHeader(
-        "Access-Control-Allow-Headers",
-        "Authorization, X-CSRF-Token, Content-Type"
-      );
+      res.setHeader("Access-Control-Allow-Methods", "GET");
+      res.setHeader("Access-Control-Allow-Headers", "Authorization");
     },
   })
 );
+// app.post("/api/auth/verify-captcha", async (req, res) => {
+//   try {
+//     const token = req.body["cf-turnstile-response"]; // comes from form
+//     if (!token) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "No captcha token" });
+//     }
 
-// Routes
-// app.use("/api/classification", classification);
-// app.use("/api/lesson", lesson);
-// app.use("/api/answer", validate);
-// app.use("/api/image", require("./router/imageRoutes"));
-// app.use("/api/event", event);
+//     const url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+//     const response = await fetch(url, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/x-www-form-urlencoded" },
+//       body: new URLSearchParams({
+//         secret: process.env.CF_SECRET_KEY,
+//         response: token,
+//         remoteip: req.ip,
+//       }),
+//     });
 
-// app.use("/api/event", xssSanitizer(), event);
-app.use("/api/user", userRoutes);
-app.use("/api/profile", profile);
-app.use("/api/challenge", CTF);
-app.use("/api/team", TeamRoutes);
+//     const data = await response.json();
 
-// CSRF route
-app.get(
-  "/api/auth/csrf-token",
-  Auth({ _CSRF: false }),
-  csrfProtection,
-  (req, res) => {
-    res.json({ csrfToken: req.csrfToken() });
-  }
-);
+//     if (data.success) {
+//       return res.json({ success: true, message: "Captcha verified ✅" });
+//     } else {
+//       return res
+//         .status(403)
+//         .json({ success: false, message: "Captcha failed ❌" });
+//     }
+//   } catch (err) {
+//     console.error("Captcha error:", err);
+//     return res.status(500).json({ success: false, message: "Server error" });
+//   }
+// });
 
 // Error logging
 app.use(errorLogger(logInBackground));
 
-// Wait for caches initialization (blocking)
+// app.listen(port, () => {
+//   console.log(`CTF platform running on port ${port}`);
+// });
+
 let cachesDone = false;
 initializeCaches()
   .then(() => {
@@ -176,15 +203,6 @@ initializeCaches()
     throw err;
   });
 deasync.loopWhile(() => !cachesDone);
-
-// Generic error handler
-app.use((err, req, res, next) => {
-  console.error("❌ Express error:", err);
-  res.status(500).json({
-    success: false,
-    message: "Internal Server Error",
-  });
-});
 
 server.listen(port, () => {
   console.log(`CTF platform running on port ${port}`);
