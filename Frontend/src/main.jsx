@@ -17,10 +17,14 @@ function Root() {
       setAnimationsEnabled(localStorage.getItem("animationOff") !== "true");
     };
 
-    // Listen for storage changes (e.g., if Settings page updates it)
+    // Listen for both localStorage (cross-tab) and custom app events (same tab)
     window.addEventListener("storage", syncStorage);
+    window.addEventListener("animationToggle", syncStorage);
 
-    return () => window.removeEventListener("storage", syncStorage);
+    return () => {
+      window.removeEventListener("storage", syncStorage);
+      window.removeEventListener("animationToggle", syncStorage);
+    };
   }, []);
 
   return (
