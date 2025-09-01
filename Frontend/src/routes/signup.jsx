@@ -30,7 +30,7 @@ export default function Signup() {
     // Otherwise, wait for User to be available (max 10s)
     const timer = setTimeout(() => {
       if (User) {
-        fetchProfile();
+        // fetchProfile();
         localStorage.setItem("loggedIn", "true");
         navigate("/profile", { replace: true });
       }
