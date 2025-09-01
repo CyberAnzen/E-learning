@@ -8,6 +8,7 @@ export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
+  const [ChallengesData, setChallengesData] = useState(null);
 
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
@@ -181,6 +182,8 @@ export const AppContextProvider = ({ children }) => {
     setTeam,
     fetchProfile,
     fetchTeam,
+    ChallengesData,
+    setChallengesData,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
