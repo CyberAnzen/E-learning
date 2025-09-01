@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { User, Lock, Mail, Phone } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -48,6 +48,11 @@ export default function Signup() {
   const [touched, setTouched] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // New states for the "first click disable for 7 seconds" requirement
+  const [submitDisabled, setSubmitDisabled] = useState(false);
+  const [firstClickDone, setFirstClickDone] = useState(false);
+  const submitTimerRef = useRef(null);
 
   useEffect(() => {
     // Smooth scroll to top
@@ -381,6 +386,17 @@ export default function Signup() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Only trigger the "first-click 7s disable" once
+    if (!firstClickDone) {
+      setFirstClickDone(true);
+      setSubmitDisabled(true);
+      // Start 7 second timer
+      submitTimerRef.current = setTimeout(() => {
+        setSubmitDisabled(false);
+      }, 7000);
+    }
+
     const allTouched = Object.keys(formData).reduce((acc, key) => {
       acc[key] = true;
       return acc;
@@ -396,6 +412,15 @@ export default function Signup() {
       }
     }
   };
+
+  // clear timer if component unmounts
+  useEffect(() => {
+    return () => {
+      if (submitTimerRef.current) {
+        clearTimeout(submitTimerRef.current);
+      }
+    };
+  }, []);
 
   const isFormComplete = () => {
     const requiredFields = [
@@ -1243,7 +1268,10 @@ export default function Signup() {
                         <button
                           type="submit"
                           disabled={
-                            !isFormComplete() || !captchaVerified || isLoading
+                            !isFormComplete() ||
+                            !captchaVerified ||
+                            isLoading ||
+                            submitDisabled
                           }
                           className="cyber-button w-full py-2 sm:py-3 px-4 sm:px-6 bg-[#01ffdb]/10 border-2 border-[#01ffdb]/50
              text-[#01ffdb] font-mono text-sm sm:text-base lg:text-lg font-bold
