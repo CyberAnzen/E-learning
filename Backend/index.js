@@ -44,27 +44,13 @@ let isReady = false; // for /health
 const loggerWorker = new Worker("./logger/controller/logger.js");
 const logInBackground = createLogWorker(loggerWorker);
 
-// ========== CORS & Security ==========
-const corsOptions = {
-  origin: FRONTEND_URL,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-CSRF-Token",
-    "User-Agent",
-    "Timestamp",
-    "timestamp",
-    "x-client-fp",
-    "csrf-token",
-  ],
-  optionsSuccessStatus: 200,
-};
-
-// Apply CORS globally to avoid preflight 403 issues
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+// =======================
+// === CORS (PERMISSIVE) ===
+// =======================
+// TEMPORARY: allow all origins to avoid CORS blocking while debugging.
+// WARNING: revert to a specific origin (your FRONTEND_URL) before production.
+app.use(cors()); // <--- permissive CORS
+app.options("*", cors()); // preflight handler for all routes
 
 // (optional) enable helmet if you want extra security headers
 // app.use(helmet());
