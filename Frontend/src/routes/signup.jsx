@@ -23,6 +23,7 @@ export default function Signup() {
 
     // If already logged in → go to profile immediately
     if (localLoggedIn) {
+      fetchProfile();
       navigate("/profile", { replace: true });
       return;
     }
@@ -32,6 +33,8 @@ export default function Signup() {
       if (User) {
         // fetchProfile();
         localStorage.setItem("loggedIn", "true");
+        fetchProfile();
+
         navigate("/profile", { replace: true });
       }
     }, 10000);

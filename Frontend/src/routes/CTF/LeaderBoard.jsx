@@ -34,7 +34,7 @@ export default function Leaderboard() {
     <div className="min-h-screen flex items-center justify-center p-6 font-sans">
       <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Right: Live Feed Panel */}
-        <div className="col-span-1 flex items-center justify-center">
+        <div className="col-span-1 flex items-start justify-center">
           <div className="w-full bg-gradient-to-b from-[rgba(255,255,255,0.02)] to-[rgba(255,255,255,0.01)] backdrop-blur-[8px] border border-[rgba(1,255,219,0.12)] shadow-[0_8px_30px_rgba(1,255,219,0.04)] rounded-2xl p-6 flex flex-col items-center justify-center min-h-[300px] md:min-h-[420px]">
             <div className="text-xl font-semibold text-[#01ffdb]">
               CTF Live Feed
