@@ -276,84 +276,84 @@ TeamSchema.statics.deleteTeam = async function (teamId, userId) {
   return { message: "Team deleted successfully" };
 };
 
-TeamSchema.statics.updateMembers = async function (teamId, leaderId, members) {
-  if (!teamId || !members || !Array.isArray(members)) {
-    throw new Error("Invalid request data");
-  }
+// TeamSchema.statics.updateMembers = async function (teamId, leaderId, members) {
+//   if (!teamId || !members || !Array.isArray(members)) {
+//     throw new Error("Invalid request data");
+//   }
 
-  // normalize leaderId to string for consistent comparisons
-  const leaderIdStr = String(leaderId);
+//   // normalize leaderId to string for consistent comparisons
+//   const leaderIdStr = String(leaderId);
 
-  const team = await this.findById(teamId);
-  if (!team) {
-    throw new Error("Team not found");
-  }
+//   const team = await this.findById(teamId);
+//   if (!team) {
+//     throw new Error("Team not found");
+//   }
 
-  if (team.teamLeader.toString() !== leaderIdStr) {
-    throw new Error("Only team leader can update members");
-  }
+//   if (team.teamLeader.toString() !== leaderIdStr) {
+//     throw new Error("Only team leader can update members");
+//   }
 
-  const normalizedMembers = members.map((m) =>
-    typeof m === "string" ? { userId: m } : { userId: m.userId }
-  );
+//   const normalizedMembers = members.map((m) =>
+//     typeof m === "string" ? { userId: m } : { userId: m.userId }
+//   );
 
-  const cleanedUpdatedMembers = normalizedMembers
-    .filter((m) => m.userId && mongoose.Types.ObjectId.isValid(m.userId))
-    .map((m) => ({ userId: new mongoose.Types.ObjectId(m.userId) }));
+//   const cleanedUpdatedMembers = normalizedMembers
+//     .filter((m) => m.userId && mongoose.Types.ObjectId.isValid(m.userId))
+//     .map((m) => ({ userId: new mongoose.Types.ObjectId(m.userId) }));
 
-  if (cleanedUpdatedMembers.length < 1) {
-    throw new Error("Team must have at least 1 member");
-  }
+//   if (cleanedUpdatedMembers.length < 1) {
+//     throw new Error("Team must have at least 1 member");
+//   }
 
-  const newMemberIds = cleanedUpdatedMembers.map((m) => m.userId.toString());
+//   const newMemberIds = cleanedUpdatedMembers.map((m) => m.userId.toString());
 
-  if (!newMemberIds.includes(team.teamLeader.toString())) {
-    throw new Error("Team leader must be in the team");
-  }
+//   if (!newMemberIds.includes(team.teamLeader.toString())) {
+//     throw new Error("Team leader must be in the team");
+//   }
 
-  // ensure new members are not in another team (except this team)
-  await ensureUsersNotInOtherTeams(newMemberIds, teamId);
+//   // ensure new members are not in another team (except this team)
+//   await ensureUsersNotInOtherTeams(newMemberIds, teamId);
 
-  const prevMemberIds = (team.teamMembers || []).map((m) =>
-    m.userId.toString()
-  );
+//   const prevMemberIds = (team.teamMembers || []).map((m) =>
+//     m.userId.toString()
+//   );
 
-  const toAdd = newMemberIds.filter((id) => !prevMemberIds.includes(id));
-  const toRemove = prevMemberIds.filter((id) => !newMemberIds.includes(id));
+//   const toAdd = newMemberIds.filter((id) => !prevMemberIds.includes(id));
+//   const toRemove = prevMemberIds.filter((id) => !newMemberIds.includes(id));
 
-  team.teamMembers = cleanedUpdatedMembers;
-  await team.save();
+//   team.teamMembers = cleanedUpdatedMembers;
+//   await team.save();
 
-  if (toAdd.length > 0) {
-    await mongoose.model("Users").updateMany(
-      { _id: { $in: toAdd }, teamId: null }, // only update if teamId is null
-      { $set: { teamId: team._id } }
-    );
-  }
+//   if (toAdd.length > 0) {
+//     await mongoose.model("Users").updateMany(
+//       { _id: { $in: toAdd }, teamId: null }, // only update if teamId is null
+//       { $set: { teamId: team._id } }
+//     );
+//   }
 
-  if (toRemove.length > 0) {
-    await mongoose.model("Users").updateMany(
-      { _id: { $in: toRemove }, teamId: team._id }, // only clear if they belong to this team
-      { $set: { teamId: null } }
-    );
-  }
+//   if (toRemove.length > 0) {
+//     await mongoose.model("Users").updateMany(
+//       { _id: { $in: toRemove }, teamId: team._id }, // only clear if they belong to this team
+//       { $set: { teamId: null } }
+//     );
+//   }
 
-  // ensure team leader has teamId set to this team (use newMemberIds check)
-  if (!newMemberIds.includes(String(team.teamLeader))) {
-    // if leader not in new members (shouldn't happen due to earlier guard) ensure update
-    await mongoose
-      .model("Users")
-      .updateOne({ _id: team.teamLeader }, { $set: { teamId: team._id } });
-  } else {
-    // leader is in new members: ensure teamId is set
-    await mongoose
-      .model("Users")
-      .updateOne({ _id: team.teamLeader }, { $set: { teamId: team._id } });
-  }
+//   // ensure team leader has teamId set to this team (use newMemberIds check)
+//   if (!newMemberIds.includes(String(team.teamLeader))) {
+//     // if leader not in new members (shouldn't happen due to earlier guard) ensure update
+//     await mongoose
+//       .model("Users")
+//       .updateOne({ _id: team.teamLeader }, { $set: { teamId: team._id } });
+//   } else {
+//     // leader is in new members: ensure teamId is set
+//     await mongoose
+//       .model("Users")
+//       .updateOne({ _id: team.teamLeader }, { $set: { teamId: team._id } });
+//   }
 
-  // populate properly (use array or space-separated string)
-  return await this.findById(teamId).populate("teamMembers.userId teamLeader");
-};
+//   // populate properly (use array or space-separated string)
+//   return await this.findById(teamId).populate("teamMembers.userId teamLeader");
+// };
 // Static method to update team details
 TeamSchema.statics.updateTeamDetails = async function (
   teamId,
@@ -1042,5 +1042,14 @@ TeamSchema.statics.removeMember = async function (teamId, leaderId, memberId) {
   await team.save();
 
   return await this.findById(teamId).populate("teamMembers.userId teamLeader");
+};
+
+TeamSchema.statics.getallProgress = async (teamId) => {
+  try {
+    const progresses = this.findById(teamId);
+    if (!progresses) {
+      throw new Error("Team not found");
+    }
+  } catch (error) {}
 };
 module.exports = mongoose.model("Teams", TeamSchema);

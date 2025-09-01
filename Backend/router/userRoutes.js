@@ -16,7 +16,7 @@ const { requireTurnstile } = require("../middleware/VerifyTurnStile");
 // Signup: 5 attempts per hour (unchanged)
 const signupLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5,
+  max: 25,
   message:
     "Too many signup attempts from this IP, please try again after 1 hour",
   standardHeaders: true,
@@ -26,7 +26,7 @@ const signupLimiter = rateLimit({
 // Login: stricter window to reduce brute force (10 attempts per 15 minutes)
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: 25,
   message:
     "Too many login attempts from this IP, please try again after 15 minutes",
   standardHeaders: true,
@@ -36,7 +36,7 @@ const loginLimiter = rateLimit({
 // Username check: allow more frequent checks but still limited (100 per hour)
 const checkUsernameLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 100,
+  max: 200,
   message: "Too many username check requests, please try again after 1 hour",
   standardHeaders: true,
   legacyHeaders: false,
