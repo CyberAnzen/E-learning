@@ -117,7 +117,7 @@ export default function Footer() {
 
               {/* center - social icons */}
               <div className="flex items-center gap-3 justify-center">
-                <div className="flex gap-2 sm:gap-4">
+                {/* <div className="flex gap-2 sm:gap-4">
                   {socialLinks.map((s) => (
                     <motion.a
                       key={s.name}
@@ -131,7 +131,7 @@ export default function Footer() {
                       <s.icon className="w-4 h-4 text-gray-300 hover:text-[#01ffdb] transition-colors" />
                     </motion.a>
                   ))}
-                </div>
+                </div> */}
               </div>
 
               {/* right - actions */}
@@ -146,8 +146,9 @@ export default function Footer() {
                 <div className="text-xs text-gray-300/70 text-right hidden sm:block">
                   <div>
                     Designed by <span className="text-[#01ffdb]">Vetrivel</span>
-                    , <span className="text-[#01ffdb]">Yogesh</span>,{" "}
-                    <span className="text-[#01ffdb]">Jafrin Sam</span>
+                    , <span className="text-[#01ffdb]">Jafrin Sam</span>,{" "}
+                    <span className="text-[#01ffdb]">Sai Jhanav</span>,
+                    <span className="text-[#01ffdb]">Yogesh</span>
                   </div>
                   <div className="text-[10px]">© 2025 CyberAnzen</div>
                 </div>
@@ -160,18 +161,18 @@ export default function Footer() {
                 <div className="flex items-center gap-3 text-xs text-gray-300/70 flex-wrap">
                   <Mail className="w-4 h-4 text-[#01ffdb]" />
                   <a
-                    href="mailto:contact@cyberanzen.org"
+                    href="mailto:cyberanzen.ctf@gmail.com"
                     className="hover:text-[#01ffdb] transition-colors"
                   >
-                    contact@cyberanzen.org
+                    cyberanzen.ctf@gmail.com
                   </a>
                   <span className="hidden md:inline">|</span>
                   <Phone className="w-4 h-4 text-[#01ffdb] hidden md:inline" />
                   <a
                     className="hidden md:inline hover:text-[#01ffdb] transition-colors"
-                    href="tel:+1234567890"
+                    href="tel:+91 6374294674"
                   >
-                    +1 (234) 567-890
+                    +91 6374294674
                   </a>
                 </div>
 

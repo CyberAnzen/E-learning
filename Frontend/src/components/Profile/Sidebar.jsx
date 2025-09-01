@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useAppContext } from "../../context/AppContext";
 import { useNavigate } from "react-router-dom";
-
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL_W;
 export default function Sidebar({
   sidebarOpen,
   setSidebarOpen,
@@ -63,7 +63,7 @@ export default function Sidebar({
               <div className="w-10 h-10 rounded-full bg-gray-700 animate-pulse" />
             ) : (
               <img
-                src="https://i.pinimg.com/736x/af/70/bb/af70bb880077591b711b83ee7717c91b.jpg"
+                src={`${BACKEND_URL}${user?.profile?.avator}`}
                 alt="avatar"
                 className="w-10 h-10 rounded-full"
               />
