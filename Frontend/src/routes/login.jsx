@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import Turnstile from "react-turnstile";
 import { User, Lock, Shield } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -20,6 +20,17 @@ export default function LoginPage() {
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [showSubmit, setShowSubmit] = useState(false);
+  const turnstileRef = useRef();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (turnstileRef.current) {
+        turnstileRef.current.reset();
+      }
+    }, 70 * 1000); // refresh before 2 minutes
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (loggedIn || User) {
@@ -345,6 +356,7 @@ export default function LoginPage() {
                     <div className="flex justify-center">
                       <div className="w-full max-w-sm">
                         <Turnstile
+                          ref={turnstileRef}
                           sitekey={import.meta.env.VITE_CF_SITE_KEY}
                           onVerify={(token) => {
                             setCaptchaToken(token);
@@ -353,6 +365,9 @@ export default function LoginPage() {
                           onExpire={() => {
                             setCaptchaToken("");
                             setCaptchaVerified(false);
+                            if (turnstileRef.current) {
+                              turnstileRef.current.reset(); // reset immediately when expired
+                            }
                           }}
                           theme="dark"
                           size="flexible"
