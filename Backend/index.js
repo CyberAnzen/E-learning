@@ -12,13 +12,13 @@ const path = require("path");
 const rateLimit = require("express-rate-limit");
 const http = require("http");
 const deasync = require("deasync");
-
+const mongoSanitize = require("express-mongo-sanitize");
 const ConnectDataBase = require("./config/connectDataBase");
 const { connectRedis } = require("./redis/config/connectRedis");
 const initializeCaches = require("./cache/initCache");
 const initLeaderboard = require("./redis/initLeaderboard");
 const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
-
+const { MongoSanitizer } = require("./middleware/Mongosanitiser");
 //initLeaderboardSocket(server);
 
 async function initializeServer() {
@@ -105,9 +105,9 @@ const logInBackground = createLogWorker(loggerWorker);
 
 // ✅ CORS OPTIONS - allow only the headers you specify
 const corsOptions = {
-  origin: FRONTEND_URL,
+  origin: true,
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: [
     "Content-Type",
     "Authorization",
@@ -121,16 +121,45 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
+// ----- Added: CORS options specifically for /public static files -----
+const staticCorsOptions = {
+  origin: FRONTEND_URL, // exact origin required when using credentials
+  credentials: true,
+  methods: ["GET", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-CSRF-Token",
+    "User-Agent",
+    "Timestamp",
+    "timestamp",
+    "x-client-fp",
+    "csrf-token",
+  ],
+  optionsSuccessStatus: 200,
+};
+// ---------------------------------------------------------------------
+
 // ✅ Apply CORS only to API routes
 app.use("/api", cors(corsOptions));
 
 // ✅ Handle preflight requests only for API routes
 app.options("/api/*", cors(corsOptions));
 
-// ✅ Block preflight leakage outside /api
+// ✅ Allow preflight for public static files
+app.options("/public/*", cors(staticCorsOptions));
+
+// ✅ Block preflight leakage outside /api and /public, but allow those two
 app.use((req, res, next) => {
   if (req.method === "OPTIONS") {
-    return res.sendStatus(403); // forbid non-API OPTIONS
+    // Allow OPTIONS (preflight) for API and public routes so cors middleware can handle them
+    if (
+      req.path &&
+      (req.path.startsWith("/api/") || req.path.startsWith("/public/"))
+    ) {
+      return next();
+    }
+    return res.sendStatus(403); // forbid non-API / non-public OPTIONS
   }
   next();
 });
@@ -151,12 +180,16 @@ const downloadLimiter = rateLimit({
 
 // Middleware to log requests
 app.use(requestLogger(logInBackground));
+// Strict reject (default)
+app.use(MongoSanitizer());
 
-// Serve only challenge files (not full public folder)
+// OR allow sanitization
+app.use(MongoSanitizer({ mode: "sanitize" })); // Serve only challenge files (not full public folder)
 app.use(
   "/public",
-  downloadLimiter,
-  Auth({ timestamp: false }),
+  cors(staticCorsOptions), // <-- apply CORS middleware for /public
+  // downloadLimiter,
+  // Auth({ timestamp: false }),
   express.static(path.join(__dirname, "public/"), {
     dotfiles: "deny", // Prevent access to hidden files
     index: false, // Disable directory listing
@@ -168,10 +201,18 @@ app.use(
         `attachment; filename="${fileName}"`
       );
       res.setHeader("X-Content-Type-Options", "nosniff");
-      // Ensure CORS headers are set for static files
-      // res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
-      res.setHeader("Access-Control-Allow-Methods", "GET");
-      res.setHeader("Access-Control-Allow-Headers", "Authorization");
+
+      // Ensure CORS headers are set for static files so browser can accept cross-origin responses
+      res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
+      // if you need to send cookies/auth for files, this must be true and origin cannot be "*"
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+
+      // methods and headers for completeness
+      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Authorization, X-CSRF-Token, Content-Type"
+      );
     },
   })
 );
