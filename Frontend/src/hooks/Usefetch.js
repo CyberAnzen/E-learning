@@ -70,7 +70,7 @@ const Usefetch = (
           data: payload,
           headers: getHeaders(payload),
           withCredentials: true,
-          timeout: 10000,
+          timeout: 100000,
         });
 
         // Success: clear pending retry
