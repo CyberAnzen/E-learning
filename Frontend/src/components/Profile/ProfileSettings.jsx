@@ -568,9 +568,9 @@ export default function ProfileSettings() {
         </div>
 
         {/* Right Side (Profile + Settings) */}
-        <div className="space-y-6 blur-xs">
-          {/* Profile Card */}
-          <div className="bg-black/50 rounded-xl border border-[#00ffff]/25 p-6 flex items-center space-x-4 shadow-sm">
+        {/* <div className="space-y-6 blur-xs"> */}
+        {/* Profile Card */}
+        {/* <div className="bg-black/50 rounded-xl border border-[#00ffff]/25 p-6 flex items-center space-x-4 shadow-sm">
             <div className="avatar">
               <div className="w-16 rounded-full">
                 <img src={image} alt="avatar" />
@@ -598,10 +598,10 @@ export default function ProfileSettings() {
                 </button>
               </label>
             </div>
-          </div>
+          </div> */}
 
-          {/* Language / Timezone */}
-          <div className="bg-black/50 rounded-xl border border-[#00ffff]/25 p-6 space-y-4 shadow-sm">
+        {/* Language / Timezone */}
+        {/* <div className="bg-black/50 rounded-xl border border-[#00ffff]/25 p-6 space-y-4 shadow-sm">
             <h2 className="text-lg font-semibold text-[#00ffff]">
               Language | Timezone
             </h2>
@@ -623,10 +623,10 @@ export default function ProfileSettings() {
                 Save
               </button>
             </div>
-          </div>
+          </div> */}
 
-          {/* Team Accounts */}
-          <div className="bg-black/50 rounded-xl border text-[#00ffff]/25 p-6 space-y-4 shadow-sm">
+        {/* Team Accounts */}
+        {/* <div className="bg-black/50 rounded-xl border text-[#00ffff]/25 p-6 space-y-4 shadow-sm">
             <h2 className="text-lg font-semibold text-[#00ffff]">
               Team Account
             </h2>
@@ -666,8 +666,8 @@ export default function ProfileSettings() {
                 Save
               </button>
             </div>
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
       </div>
     </div>
   );
