@@ -9,32 +9,15 @@ import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const navigate = useNavigate();
-  const { loggedIn, User, fetchProfile } = useAppContext();
+  const { loggedIn, User } = useAppContext();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Dashboard");
   // Redirect if not logged in
-
   useEffect(() => {
-    if (localStorage.getItem("loggedIn")) {
-      navigate("/login", { replace: true });
-      return;
+    if (!loggedIn && !User) {
+      navigate("/login");
     }
-
-    // Fetch profile if User is not yet available
-    if (!User && loggedIn) {
-      fetchProfile();
-    }
-
-    // Fallback redirect if User is not available after fetch
-    const timer = setTimeout(() => {
-      if (!User) {
-        navigate("/login", { replace: true });
-      }
-    }, 5000); // Reduced to 5s for faster UX
-
-    return () => clearTimeout(timer);
-  }, [loggedIn, User, fetchProfile, navigate]);
-
+  }, [loggedIn, User, navigate]);
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "auto";
   }, [sidebarOpen]);

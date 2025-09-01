@@ -1,4 +1,3 @@
-// AppContextProvider.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FingerPrintJS from "../../utils/Fingerprint";
@@ -9,7 +8,7 @@ export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
-  const [ChallengesData, setChallengesData] = useState(null);
+
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [team, setTeam] = useState(null);
@@ -21,6 +20,7 @@ export const AppContextProvider = ({ children }) => {
   const [fp, setFp] = useState(null);
   const [csrf, setCSRF] = useState(null);
 
+  // Generate fingerprint once
   const getFingerprint = async () => {
     if (fp) return fp;
     try {
@@ -33,6 +33,7 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  // Fetch CSRF token once per fingerprint
   const getCsrf = async () => {
     if (csrf) return csrf;
     const fingerprint = await getFingerprint();
@@ -54,13 +55,9 @@ export const AppContextProvider = ({ children }) => {
 
       const data = await res.json();
       setCSRF(data.csrfToken);
-      setLoggedIn(Boolean(data?.data));
-      localStorage.setItem("loggedIn", Boolean(data?.data));
       return data.csrfToken;
     } catch (error) {
       console.error("CSRF fetch failed:", error);
-      setLoggedIn(false);
-      localStorage.removeItem("loggedIn"); // Clear on error
       return null;
     }
   };
@@ -68,12 +65,7 @@ export const AppContextProvider = ({ children }) => {
   const fetchProfile = async () => {
     const fingerprint = await getFingerprint();
     const csrfToken = await getCsrf();
-    if (!fingerprint || !csrfToken) {
-      setLoggedIn(false);
-      localStorage.removeItem("loggedIn");
-      navigate("/login", { replace: true });
-      return null;
-    }
+    if (!fingerprint || !csrfToken) return null;
 
     try {
       const res = await fetch(`${BACKEND_URL}/profile/data`, {
@@ -90,18 +82,16 @@ export const AppContextProvider = ({ children }) => {
 
       if (!res.ok) throw new Error("Failed to fetch profile");
       const data = await res.json();
+
       setUser(data?.data || null);
       setAdmin(data?.data?.userRole === "Admin");
       setLoggedIn(Boolean(data?.data));
-      localStorage.setItem("loggedIn", Boolean(data?.data));
       return data?.data || null;
     } catch (error) {
       console.error("Profile fetch failed:", error);
       setUser(null);
       setAdmin(false);
       setLoggedIn(false);
-      localStorage.removeItem("loggedIn");
-      navigate("/login", { replace: true });
       return null;
     }
   };
@@ -156,17 +146,15 @@ export const AppContextProvider = ({ children }) => {
       setTeam(null);
       setAdmin(false);
       setCSRF(null);
-      localStorage.removeItem("loggedIn"); // Clear localStorage
-      navigate("/login", { replace: true });
+      navigate("/login");
     }
   };
 
+  // Initialize context once on mount
   useEffect(() => {
     const init = async () => {
-      const profile = await fetchProfile();
-      if (profile) {
-        await fetchTeam();
-      }
+      await fetchProfile();
+      await fetchTeam();
     };
     init();
   }, []);
@@ -193,8 +181,6 @@ export const AppContextProvider = ({ children }) => {
     setTeam,
     fetchProfile,
     fetchTeam,
-    ChallengesData,
-    setChallengesData,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

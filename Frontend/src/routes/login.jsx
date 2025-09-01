@@ -20,27 +20,13 @@ export default function LoginPage() {
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [showSubmit, setShowSubmit] = useState(false);
+
   useEffect(() => {
-    const localLoggedIn = localStorage.getItem("loggedIn");
-
-    // If already logged in → go to profile immediately
-    if (localLoggedIn) {
+    if (loggedIn || User) {
       fetchProfile();
-      navigate("/profile", { replace: true });
-      return;
+      navigate("/profile");
     }
-
-    // Otherwise, wait for User to be available (max 10s)
-    const timer = setTimeout(() => {
-      if (User) {
-        localStorage.setItem("loggedIn", "true");
-        fetchProfile();
-        navigate("/profile", { replace: true });
-      }
-    }, 10000);
-
-    return () => clearTimeout(timer); // cleanup
-  }, [User, fetchProfile, navigate]);
+  }, [loggedIn, User, navigate]);
 
   useEffect(() => {
     // Smooth scroll to top
@@ -177,8 +163,6 @@ export default function LoginPage() {
       console.log(data);
       if (data.message === "Login successful") {
         setLoggedIn(true);
-        localStorage.setItem("loggedIn", true);
-
         navigate("/");
       } else {
         setError(data.message || "Access Denied: Authentication Failed");
