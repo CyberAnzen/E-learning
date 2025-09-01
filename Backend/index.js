@@ -127,12 +127,12 @@ app.use("/api", cors(corsOptions));
 app.options("/api/*", cors(corsOptions));
 
 // ✅ Block preflight leakage outside /api
-app.use((req, res, next) => {
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(403); // forbid non-API OPTIONS
-  }
-  next();
-});
+// app.use((req, res, next) => {
+//   if (req.method === "OPTIONS") {
+//     return res.sendStatus(403); // forbid non-API OPTIONS
+//   }
+//   next();
+// });
 
 // app.use(helmet()); // Adds common security headers
 
