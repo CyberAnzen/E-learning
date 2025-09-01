@@ -1,3 +1,4 @@
+// server.js
 const port = 4000;
 require("dotenv").config();
 const express = require("express");
@@ -13,34 +14,12 @@ const rateLimit = require("express-rate-limit");
 const http = require("http");
 const deasync = require("deasync");
 
+// Database & Cache
 const ConnectDataBase = require("./config/connectDataBase");
 const { connectRedis } = require("./redis/config/connectRedis");
 const initializeCaches = require("./cache/initCache");
 const initLeaderboard = require("./redis/initLeaderboard");
 const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
-
-//initLeaderboardSocket(server);
-
-async function initializeServer() {
-  try {
-    await ConnectDataBase();
-    // Database and Cache initialization
-
-    /*
-      Redis connection
-      Make sure to start Redis server before running the application.
-      if u dont want to use redis, comment the line below
-    */
-    await connectRedis();
-    // attach leaderboard websocket to same HTTP server
-
-    await initLeaderboard(); // Initialize leaderboard from MongoDB
-    LeaderboardManager.attachToServer(server);
-  } catch (err) {
-    console.error("❌ Initialization error:", err);
-    process.exit(1); // Exit if initialization fails
-  }
-}
 
 // Routes
 const userRoutes = require("./router/userRoutes");
@@ -50,9 +29,10 @@ const validate = require("./router/ValidationRoutes");
 const profile = require("./router/profileRoutes");
 const CTF = require("./router/CTFRoutes");
 const TeamRoutes = require("./router/TeamRoutes");
-
-const createLogWorker = require("./logger/controller/workerLog");
 const classification = require("./router/classificationRoutes");
+
+// Logger + Middleware
+const createLogWorker = require("./logger/controller/workerLog");
 const csrfProtection = require("./middleware/CSRFprotection");
 const requestLogger = require("./middleware/requestLogger");
 const errorLogger = require("./middleware/errorLogger");
@@ -62,47 +42,32 @@ const FRONTEND_URL = "https://cyberanzen.netlify.app";
 
 let server = http.createServer(app);
 
-//*************************************************************************** */
-///blocking code to wait for caches to initialize
-// Start server after initialization
+// ========================== Initialization ==========================
+async function initializeServer() {
+  try {
+    await ConnectDataBase(); // MongoDB
+    await connectRedis(); // Redis
+    await initLeaderboard(); // Load leaderboard from DB
+    LeaderboardManager.attachToServer(server);
+  } catch (err) {
+    console.error("❌ Initialization error:", err);
+    process.exit(1);
+  }
+}
+
 let initDone = false;
 initializeServer()
-  .then(() => {
-    initDone = true;
-  })
+  .then(() => (initDone = true))
   .catch((err) => {
     throw err;
   });
 deasync.loopWhile(() => !initDone);
-//-***************************************************************************************
 
-// Logger worker setup
+// ========================== Logger Worker ==========================
 const loggerWorker = new Worker("./logger/controller/logger.js");
 const logInBackground = createLogWorker(loggerWorker);
 
-// app.use(
-//   cors({
-//     origin: FRONTEND_URL, // Only allow your frontend
-//     credentials: true, // Allow cookies and auth headers
-//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed HTTP methods
-//     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"], // Allowed headers
-//     optionsSuccessStatus: 200, // For legacy browsers
-//   })
-// );
-
-// // Handle preflight requests globally
-// app.options(
-//   "*",
-//   cors({
-//     origin: FRONTEND_URL,
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
-//   })
-// );
-//const cors = require("cors");
-
-// ✅ CORS OPTIONS - allow only the headers you specify
+// ========================== Security & CORS ==========================
 const corsOptions = {
   origin: FRONTEND_URL,
   credentials: true,
@@ -120,46 +85,35 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
-// ✅ Apply CORS only to API routes
 app.use("/api", cors(corsOptions));
-
-// ✅ Handle preflight requests only for API routes
 app.options("/api/*", cors(corsOptions));
 
-// ✅ Block preflight leakage outside /api
-// app.use((req, res, next) => {
-//   if (req.method === "OPTIONS") {
-//     return res.sendStatus(403); // forbid non-API OPTIONS
-//   }
-//   next();
-// });
+// app.use(helmet()); // Uncomment if you want extra headers
 
-// app.use(helmet()); // Adds common security headers
-
-// Parser middlewares
+// ========================== Parsers ==========================
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json());
 
-// Rate limiting for static files (prevent abuse)
+// ========================== Rate Limiting ==========================
 const downloadLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 30, // 30 downloads per IP per minute
+  windowMs: 60 * 1000,
+  max: 30,
   message: "Too many downloads, please slow down.",
 });
 
-// Middleware to log requests
+// ========================== Request Logging ==========================
 app.use(requestLogger(logInBackground));
 
-// Serve only challenge files (not full public folder)
+// ========================== Static File Serving ==========================
 app.use(
   "/public",
   downloadLimiter,
   Auth({ timestamp: false }),
   express.static(path.join(__dirname, "public/"), {
-    dotfiles: "deny", // Prevent access to hidden files
-    index: false, // Disable directory listing
-    maxAge: "1h", // Cache for 1 hour
+    dotfiles: "deny",
+    index: false,
+    maxAge: "1h",
     setHeaders: (res, filePath) => {
       const fileName = path.basename(filePath);
       res.setHeader(
@@ -167,26 +121,25 @@ app.use(
         `attachment; filename="${fileName}"`
       );
       res.setHeader("X-Content-Type-Options", "nosniff");
-      // Ensure CORS headers are set for static files
-      // res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
       res.setHeader("Access-Control-Allow-Methods", "GET");
       res.setHeader("Access-Control-Allow-Headers", "Authorization");
     },
   })
 );
-// Routes
+
+// ========================== Routes ==========================
 // app.use("/api/classification", classification);
 // app.use("/api/lesson", lesson);
 // app.use("/api/answer", validate);
 // app.use("/api/image", require("./router/imageRoutes"));
 // app.use("/api/event", event);
 
-// app.use("/api/event", xssSanitizer(), event);
 app.use("/api/user", userRoutes);
 app.use("/api/profile", profile);
 app.use("/api/challenge", CTF);
 app.use("/api/team", TeamRoutes);
-// CSRF route
+
+// CSRF Token route
 app.get(
   "/api/auth/csrf-token",
   Auth({ _CSRF: false }),
@@ -196,57 +149,19 @@ app.get(
   }
 );
 
-// app.post("/api/auth/verify-captcha", async (req, res) => {
-//   try {
-//     const token = req.body["cf-turnstile-response"]; // comes from form
-//     if (!token) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "No captcha token" });
-//     }
-
-//     const url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-//     const response = await fetch(url, {
-//       method: "POST",
-//       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-//       body: new URLSearchParams({
-//         secret: process.env.CF_SECRET_KEY,
-//         response: token,
-//         remoteip: req.ip,
-//       }),
-//     });
-
-//     const data = await response.json();
-
-//     if (data.success) {
-//       return res.json({ success: true, message: "Captcha verified ✅" });
-//     } else {
-//       return res
-//         .status(403)
-//         .json({ success: false, message: "Captcha failed ❌" });
-//     }
-//   } catch (err) {
-//     console.error("Captcha error:", err);
-//     return res.status(500).json({ success: false, message: "Server error" });
-//   }
-// });
-
-// Error logging
+// ========================== Error Logging ==========================
 app.use(errorLogger(logInBackground));
 
-// app.listen(port, () => {
-//   console.log(`CTF platform running on port ${port}`);
-// });
-
+// ========================== Cache Initialization ==========================
 let cachesDone = false;
 initializeCaches()
-  .then(() => {
-    cachesDone = true;
-  })
+  .then(() => (cachesDone = true))
   .catch((err) => {
     throw err;
   });
 deasync.loopWhile(() => !cachesDone);
+
+// ========================== Global Error Handler ==========================
 app.use((err, req, res, next) => {
   console.error("❌ Express error:", err);
   res.status(500).json({
@@ -255,8 +170,11 @@ app.use((err, req, res, next) => {
   });
 });
 
+// ========================== Start Server ==========================
 server.listen(port, () => {
-  console.log(`CTF platform running on port ${port}`);
+  console.log(`🚀 CTF platform running on port ${port}`);
 });
+
+// ========================== Graceful Shutdown ==========================
 process.on("SIGINT", () => gracefulShutdown(loggerWorker));
 process.on("SIGTERM", () => gracefulShutdown(loggerWorker));
