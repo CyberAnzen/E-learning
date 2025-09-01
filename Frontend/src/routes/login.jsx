@@ -20,25 +20,27 @@ export default function LoginPage() {
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [showSubmit, setShowSubmit] = useState(false);
-   useEffect(() => {
-     const localLoggedIn = localStorage.getItem("loggedIn");
- 
-     // If already logged in → go to profile immediately
-     if (localLoggedIn) {
-       navigate("/profile", { replace: true });
-       return;
-     }
- 
-     // Otherwise, wait for User to be available (max 10s)
-     const timer = setTimeout(() => {
-       if (User) {
-         localStorage.setItem("loggedIn", "true");
-         navigate("/profile", { replace: true });
-       }
-     }, 10000);
- 
-     return () => clearTimeout(timer); // cleanup
-   }, [User, fetchProfile, navigate]);
+  useEffect(() => {
+    const localLoggedIn = localStorage.getItem("loggedIn");
+
+    // If already logged in → go to profile immediately
+    if (localLoggedIn) {
+      fetchProfile();
+      navigate("/profile", { replace: true });
+      return;
+    }
+
+    // Otherwise, wait for User to be available (max 10s)
+    const timer = setTimeout(() => {
+      if (User) {
+        localStorage.setItem("loggedIn", "true");
+        fetchProfile();
+        navigate("/profile", { replace: true });
+      }
+    }, 10000);
+
+    return () => clearTimeout(timer); // cleanup
+  }, [User, fetchProfile, navigate]);
 
   useEffect(() => {
     // Smooth scroll to top

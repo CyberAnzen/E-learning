@@ -13,16 +13,17 @@ function Profile() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Dashboard");
   // Redirect if not logged in
+
   useEffect(() => {
-    if (!loggedIn) {
+    if (localStorage.getItem("loggedIn")) {
       navigate("/login", { replace: true });
       return;
     }
 
-    // // Fetch profile if User is not yet available
-    // if (!User) {
-    //   fetchProfile();
-    // }
+    // Fetch profile if User is not yet available
+    if (!User && loggedIn) {
+      fetchProfile();
+    }
 
     // Fallback redirect if User is not available after fetch
     const timer = setTimeout(() => {
