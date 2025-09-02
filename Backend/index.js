@@ -16,8 +16,8 @@ const mongoSanitize = require("express-mongo-sanitize");
 const ConnectDataBase = require("./config/connectDataBase");
 const { connectRedis } = require("./redis/config/connectRedis");
 const initializeCaches = require("./cache/initCache");
-const initLeaderboard = require("./redis/initLeaderboard");
-const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
+//const initLeaderboard = require("./redis/initLeaderboard");
+//const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
 const { MongoSanitizer } = require("./middleware/Mongosanitiser");
 //initLeaderboardSocket(server);
 
@@ -34,8 +34,8 @@ async function initializeServer() {
     await connectRedis();
     // attach leaderboard websocket to same HTTP server
 
-    await initLeaderboard(); // Initialize leaderboard from MongoDB
-    LeaderboardManager.attachToServer(server);
+    //await initLeaderboard(); // Initialize leaderboard from MongoDB
+    //LeaderboardManager.attachToServer(server);
   } catch (err) {
     console.error("❌ Initialization error:", err);
     process.exit(1); // Exit if initialization fails
