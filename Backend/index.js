@@ -185,37 +185,37 @@ app.use(MongoSanitizer());
 
 // OR allow sanitization
 app.use(MongoSanitizer({ mode: "sanitize" })); // Serve only challenge files (not full public folder)
-// app.use(
-//   "/public",
-//   // cors(staticCorsOptions), // <-- apply CORS middleware for /public
-//   // downloadLimiter,
-//   // Auth({ timestamp: false }),
-//   express.static(path.join(__dirname, "public/"), {
-//     dotfiles: "deny", // Prevent access to hidden files
-//     index: false, // Disable directory listing
-//     maxAge: "1h", // Cache for 1 hour
-//     setHeaders: (res, filePath) => {
-//       const fileName = path.basename(filePath);
-//       res.setHeader(
-//         "Content-Disposition",
-//         `attachment; filename="${fileName}"`
-//       );
-//       res.setHeader("X-Content-Type-Options", "nosniff");
+app.use(
+  "/public",
+  // cors(staticCorsOptions), // <-- apply CORS middleware for /public
+  // downloadLimiter,
+  // Auth({ timestamp: false }),
+  express.static(path.join(__dirname, "public/"), {
+    dotfiles: "deny", // Prevent access to hidden files
+    index: false, // Disable directory listing
+    maxAge: "1h", // Cache for 1 hour
+    setHeaders: (res, filePath) => {
+      const fileName = path.basename(filePath);
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${fileName}"`
+      );
+      res.setHeader("X-Content-Type-Options", "nosniff");
 
-//       // Ensure CORS headers are set for static files so browser can accept cross-origin responses
-//       res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
-//       // if you need to send cookies/auth for files, this must be true and origin cannot be "*"
-//       res.setHeader("Access-Control-Allow-Credentials", "true");
+      // Ensure CORS headers are set for static files so browser can accept cross-origin responses
+      res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
+      // if you need to send cookies/auth for files, this must be true and origin cannot be "*"
+      res.setHeader("Access-Control-Allow-Credentials", "true");
 
-//       // methods and headers for completeness
-//       res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-//       res.setHeader(
-//         "Access-Control-Allow-Headers",
-//         "Authorization, X-CSRF-Token, Content-Type"
-//       );
-//     },
-//   })
-// );
+      // methods and headers for completeness
+      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Authorization, X-CSRF-Token, Content-Type"
+      );
+    },
+  })
+);
 // Routes
 // app.use("/api/classification", classification);
 // app.use("/api/lesson", lesson);
@@ -224,19 +224,19 @@ app.use(MongoSanitizer({ mode: "sanitize" })); // Serve only challenge files (no
 // app.use("/api/event", event);
 
 // app.use("/api/event", xssSanitizer(), event);
-// app.use("/api/user", userRoutes);
-// app.use("/api/profile", profile);
-// app.use("/api/challenge", CTF);
-// app.use("/api/team", TeamRoutes);
-// // CSRF route
-// app.get(
-//   "/api/auth/csrf-token",
-//   Auth({ _CSRF: false }),
-//   csrfProtection,
-//   (req, res) => {
-//     res.json({ csrfToken: req.csrfToken() });
-//   }
-// );
+app.use("/api/user", userRoutes);
+app.use("/api/profile", profile);
+app.use("/api/challenge", CTF);
+app.use("/api/team", TeamRoutes);
+// CSRF route
+app.get(
+  "/api/auth/csrf-token",
+  Auth({ _CSRF: false }),
+  csrfProtection,
+  (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+  }
+);
 
 // app.post("/api/auth/verify-captcha", async (req, res) => {
 //   try {
