@@ -58,8 +58,7 @@ const requestLogger = require("./middleware/requestLogger");
 const errorLogger = require("./middleware/errorLogger");
 const gracefulShutdown = require("./utilies/gracefulShutdown");
 
-const FRONTEND_URL =
-  process.env.FRONTEND_URL || "https://cyberanzen.netlify.app";
+const FRONTEND_URL = "https://cyberanzen.icu";
 
 let server = http.createServer(app);
 
