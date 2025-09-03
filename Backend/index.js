@@ -296,8 +296,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-server.listen(port, () => {
-  console.log(`CTF platform running on port ${port}`);
+server.listen(port, "127.0.0.1", () => {
+  console.log(`CTF platform running on http://127.0.0.1:${port}`);
 });
+
 process.on("SIGINT", () => gracefulShutdown(loggerWorker));
 process.on("SIGTERM", () => gracefulShutdown(loggerWorker));

@@ -1,10 +1,13 @@
 require("dotenv").config();
 const initLeaderboard = require("./redis/initLeaderboard");
 const LeaderboardManager = require("./controller/CTF/LeaderBoard/leaderBoardManager");
-const { connectRedis, redis,redisSubscriber } = require("./redis/config/connectRedis");
+const {
+  connectRedis,
+  redis,
+  redisSubscriber,
+} = require("./redis/config/connectRedis");
 const http = require("http");
 const ConnectDataBase = require("./config/connectDataBase");
-
 
 async function initializeServer() {
   try {
@@ -23,19 +26,22 @@ const server = http.createServer();
 // Async initialization
 (async () => {
   try {
-    await initializeServer();  
-    
+    await initializeServer();
+
     const wsPort = process.env.WS_PORT || 5000;
 
-    redisSubscriber.subscribe('leaderboard-update', (message) => {
-      if (message === 'score-changed') {
+    redisSubscriber.subscribe("leaderboard-update", (message) => {
+      if (message === "score-changed") {
         LeaderboardManager.broadcastAllRanks().catch((err) => {
-          console.error("❌ Failed to broadcast leaderboard after update:", err);
+          console.error(
+            "❌ Failed to broadcast leaderboard after update:",
+            err
+          );
         });
       }
     });
 
-    server.listen(wsPort, () => {
+    server.listen(wsPort, "127.0.0.1", () => {
       console.log(`WebSocket server running on ws://localhost:${wsPort}`);
     });
   } catch (err) {
