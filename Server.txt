@@ -900,3 +900,52 @@ server {
  1608  sudo nano /etc/nginx/conf.d/default.conf
  1609  sudo cat /etc/nginx/conf.d/default.conf
  1610  history
+
+
+ root@srv808364:/home/ubuntu/E-learning/Backend# cat .env
+REDIS_PASSWORD=c7S5VNKkiKhHFVl3frJFUao4PXyEc0vbKVT36VYWvKc=
+#Backend env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=ssfdfsdffsfsf@gmail.com
+SMTP_PASS= odlc zupw xivy wfar
+MONGO_DB=mongodb://127.0.0.1:27017/CyberAnzen
+#Backend env
+#NODE_ENV="DEV"
+BASE_URL = "http://localhost:4000";
+#FRONTEND_URL =https://cyberanzen.netlify.app
+CF_SECRET_KEY=0x4AAAAAABxyJXTvAGUQflsloTA8gwhejGI
+
+# cache configuration
+CACHE_REFRESH_INTERVAL= 60  * 1000 # 12 hours in milliseconds
+
+#time window for replay atacks
+TIMESTAMP_WINDOW= 2* 60 * 1000 # 5 minutes in milliseconds
+
+
+#Secret Keys
+ACCESS_SECRET=j9zGVB3I9k5t82wvFLNRWvonPkbsHSlT1dxkKQobfQg=
+REFRESH_SECRET=SlDZzSrxdvbTcXRkedfKsYyEE0dNOgzmIF5on6gA3xI=
+
+
+NODE_ENV="production"
+
+#CTF
+Flag_Attemtps=5
+
+#leaderboard
+LEADERBOARD_KEY = "ctf:leaderboard" # sorted set
+TEAM_META_KEY = "ctf:team:meta"     # hash for extra data
+root@srv808364:/home/ubuntu/E-learning/Backend#
+
+
+root@srv808364:/home/ubuntu/E-learning/Backend# cd ../
+root@srv808364:/home/ubuntu/E-learning# cd Frontend
+root@srv808364:/home/ubuntu/E-learning/Frontend# cat .env
+
+VITE_BACKEND_URL = "https://api.cyberanzen.icu/api"
+VITE_BACKEND_URL_W = "https://api.cyberanzen.icu"
+VITE_CF_SITE_KEY= 0x4AAAAAABxyJat8gbxVnofX
+
+# VITE_BACKEND_URL = "http://localhost:4000/api"
+# VITE_BACKEND_URL_W = "http://localhost:4000"root@srv808364:/home/ubuntu/E-learning/Frontend#
